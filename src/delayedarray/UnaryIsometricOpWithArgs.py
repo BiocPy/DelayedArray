@@ -135,7 +135,7 @@ def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, id
     if x._is_no_op:
         return base
 
-    opfun = _choose_operator(op, inplace = x._do_inplace)
+    opfun = _choose_operator(x._op, inplace = x._do_inplace)
     if x._right:
         def f(s, v):
             return opfun(s, v)
@@ -149,13 +149,13 @@ def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, id
         if curslice:
             value = value[curslice]
 
-        if along < len(base.shape) and len(base.shape) > 1:
+        if x._along < len(base.shape) and len(base.shape) > 1:
             # My brain too smooth to figure out how to get numpy to do this
             # quickly for me. I also can't just use an OP() here, because
             # the LHS could become a scalar and then there's no point.
             contents = [slice(None)] * len(base.shape)
             for i in range(len(value)):
-                contents[along] = i
+                contents[x._along] = i
                 if x._do_inplace:
                     f(base[(..., *contents)], value[i]) # this is a view, so inplace is fine.
                 else:
