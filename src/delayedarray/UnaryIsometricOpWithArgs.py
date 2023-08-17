@@ -131,6 +131,7 @@ def is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
 
 @extract_dense_array.register
 def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> numpy.ndarray:
+    idx = sanitize_indices(idx, x.shape)
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:
         return base
@@ -179,6 +180,7 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
 
 @extract_sparse_array.register
 def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> SparseNdarray:
+    idx = sanitize_indices(idx, x.shape)
     sparse = extract_sparse_array(x.__seed, idx)
     if x._is_no_op:
         return sparse
