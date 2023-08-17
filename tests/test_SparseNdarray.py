@@ -83,6 +83,7 @@ def recursive_compute_reference(contents, at, max_depth, triplets):
             if contents[i] is not None:
                 recursive_compute_reference(contents[i], (*at, i), max_depth, triplets)
 
+
 def compute_reference(contents, shape):
     triplets = []
 
@@ -97,7 +98,7 @@ def compute_reference(contents, shape):
     for pos, val in triplets:
         output[(..., *pos)] = val
     return output
-        
+
 
 def test_SparseNdarray_extract_dense_array_3d():
     test_shape = (16, 32, 8)
@@ -125,6 +126,7 @@ def test_SparseNdarray_extract_dense_array_3d():
     sliced = delayedarray.extract_dense_array(y, indices)
     assert (sliced == output[(..., *indices)]).all()
 
+
 def test_SparseNdarray_extract_dense_array_2d():
     test_shape = (50, 100)
     contents = mock_SparseNdarray_contents(test_shape)
@@ -147,6 +149,7 @@ def test_SparseNdarray_extract_dense_array_2d():
     sliced = delayedarray.extract_dense_array(y, indices)
     assert (sliced == output[(..., *indices)]).all()
 
+
 def test_SparseNdarray_extract_dense_array_1d():
     test_shape = (99,)
     contents = mock_SparseNdarray_contents(test_shape)
@@ -160,3 +163,77 @@ def test_SparseNdarray_extract_dense_array_1d():
     indices = (slice(5, 90, 7),)
     sliced = delayedarray.extract_dense_array(y, indices)
     assert (sliced == output[(..., *indices)]).all()
+
+
+def test_SparseNdarray_extract_sparse_array_3d():
+    test_shape = (20, 15, 10)
+    contents = mock_SparseNdarray_contents(test_shape)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    # Full extraction.
+    output = delayedarray.extract_sparse_array(y, (slice(None), slice(None), slice(None)))
+    assert output._contents == contents
+
+    ref = compute_reference(contents, test_shape)
+    full_indices = (slice(None), slice(None), slice(None))
+
+    # Sliced extraction.
+    indices = (slice(2, 15, 3), slice(0, 20, 2), slice(4, 8))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+    indices = (slice(None), slice(0, 20, 2), slice(None))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+    indices = (slice(None), slice(None), slice(0, 8, 2))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+    indices = (slice(10, 30), slice(None), slice(None))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+
+def test_SparseNdarray_extract_sparse_array_2d():
+    test_shape = (99, 40)
+    contents = mock_SparseNdarray_contents(test_shape)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    # Full extraction.
+    output = delayedarray.extract_sparse_array(y, (slice(None), slice(None)))
+    assert (output._contents == contents)
+
+    ref = compute_reference(contents, test_shape)
+    full_indices = (slice(None), slice(None))
+
+    # Sliced extraction.
+    indices = (slice(5, 48, 5), slice(0, 90, 3))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+    indices = (slice(20, 30), slice(None))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+    indices = (slice(None), slice(10, 80))
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
+
+
+def test_SparseNdarray_extract_sparse_array_1d():
+    test_shape = (99,)
+    contents = mock_SparseNdarray_contents(test_shape)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    # Full extraction.
+    output = delayedarray.extract_sparse_array(y, (slice(None),))
+    assert output._contents == contents
+
+    ref = compute_reference(contents, test_shape)
+    full_indices = (slice(None),)
+
+    # Sliced extraction.
+    indices = (slice(5, 90, 7),)
+    sliced = delayedarray.extract_sparse_array(y, indices)
+    assert (delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]).all()
