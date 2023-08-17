@@ -13,7 +13,7 @@ class UnaryIsometricAddition:
         along (int, optional): 
             Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
     """
-    def __init__(self, seed, value, along = 0L):
+    def __init__(self, seed, value, along = 0):
         allzero = True
 
         if isinstance(value, collections.Sequence):
@@ -58,7 +58,7 @@ class UnaryIsometricAddition:
                 contents = [slice(None)] * len(base.shape)
                 for i in range(len(value)):
                     contents[self.__along] = i
-                    base[*contents] += value[i]
+                    base[(..., *contents)] += value[i]
 
         else:
             base += self.__value

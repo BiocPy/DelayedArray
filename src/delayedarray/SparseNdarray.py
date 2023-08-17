@@ -1,17 +1,16 @@
-from .interface import extract_dense_array
-from typing import Sequence
+from typing import Sequence, Tuple
 import numpy
 
 class SparseNdarray:
     def __init__(self, shape, contents, check = True):
-        self.__shape = shape
-        self.__contents = contents
+        self._shape = shape
+        self._contents = contents
 
         if check and contents is not None:
             if len(shape) > 1:
-                _recursive_check(self.__contents, 0, self.__shape)
+                _recursive_check(self._contents, 0, self._shape)
             else:
-                _check_sparse_tuple(self.__contents[0], self.__contents[1], self.__shape[0])
+                _check_sparse_tuple(self._contents[0], self._contents[1], self._shape[0])
 
     @property
     def sparse(self):
@@ -19,7 +18,7 @@ class SparseNdarray:
 
     @property
     def shape(self):
-        return self.__shape 
+        return self._shape 
 
 
 def _check_sparse_tuple(indices, values, max_index):
@@ -56,16 +55,15 @@ def _extract_sparse_vector_to_dense(indices, values, idx, output):
     xlen = len(indices)
     for i in idx:
         while x < xlen and i > indices[x]:
-            ++x
+            x += 1
         if x == xlen:
             break
         if i == indices[x]:
             output[pos] = values[x]
-        ++pos
+        pos += 1
 
 
-def _recursive_extract_dense_array(contents, idx, dim, output):
-    ndim = len(shape)
+def _recursive_extract_dense_array(contents, ndim, idx, dim, output):
     curdex = idx[dim]
 
     if dim == ndim - 2:
@@ -73,19 +71,18 @@ def _recursive_extract_dense_array(contents, idx, dim, output):
         for i in curdex:
             x = contents[i]
             if x is not None:
-                _extract_sparse_dense_vector(x[0], x[1], idx[ndim - 1], output)
+                _extract_sparse_vector_to_dense(x[0], x[1], idx[ndim - 1], output[pos])
             pos += 1
     else:
         pos = 0
         for i in curdex:
             x = contents[i]
             if x is not None:
-                _recursive_extract_dense_array(x, idx, dim + 1, output[pos])
+                _recursive_extract_dense_array(x, ndim, idx, dim + 1, output[pos])
             pos += 1
 
 
-@extract_dense_array.register
-def extract_dense_array(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
+def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
     idx2 = []
     for i in range(len(idx)):
         curidx = idx[i]
@@ -95,11 +92,12 @@ def extract_dense_array(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> numpy.nd
             idx2.append(curidx)
 
     idims = [len(y) for y in idx2]
-    output = numpy.zeros(*idims)
-    if len(x.shape) > 1:
-        _recursive_extract_dense_array(x.__contents, idx2, 0, output)
+    output = numpy.zeros((*idims,))
+    ndims = len(x.shape)
+    if ndims > 1:
+        _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output)
     else:
-        _extract_sparse_vector_to_dense(x.__contents[0], x.__contents[1], idx2[0], output)
+        _extract_sparse_vector_to_dense(x._contents[0], x._contents[1], idx2[0], output)
     return output
 
 
@@ -112,13 +110,13 @@ def _extract_sparse_vector_to_sparse(indices, values, idx, output):
 
     for i in idx:
         while x < xlen and i > indices[x]:
-            ++x
+            x += 1
         if x == xlen:
             break
         if i == indices[x]:
             new_indices.push(pos)
             new_values.push(values[x])
-        ++pos
+        pos += 1
 
     if len(new_indices) == 0:
         return None
@@ -156,16 +154,14 @@ def _recursive_extract_sparse_array(contents, idx, dim):
             return new_contents
     return None
 
-
-@extract_sparse_array.register
-def extract_sparse_array(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> SparseNdArray:
+def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> SparseNdarray:
     new_contents = None
-    if x.__contents is not None:
+    if x._contents is not None:
         if len(x.shape) > 1:
-            new_contents = _recursive_extract_sparse_array(x.__contents, idx, 0)
+            new_contents = _recursive_extract_sparse_array(x._contents, idx, 0)
         else:
-            new_contents = _extract_sparse_vector_to_sparse(x.__contents[0], x.__contents[1], idx[0])
+            new_contents = _extract_sparse_vector_to_sparse(x._contents[0], x._contents[1], idx[0])
 
     idims = [len(y) for y in idx]
-    return SparseNdarray(shape = (*idims), contents = new_contents)
+    return SparseNdarray(shape = (*idims,), contents = new_contents)
 

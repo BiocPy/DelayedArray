@@ -1,30 +1,33 @@
 from functools import singledispatch
-from typing import Sequence
-from SparseNdarray import SparseNdarray
+from typing import Sequence, Tuple, Any
+from .SparseNdarray import (
+    SparseNdarray, 
+    _extract_sparse_array_from_SparseNdarray,
+    _extract_dense_array_from_SparseNdarray
+)
 import numpy
+import copy
 
 @singledispatch
 def extract_dense_array(x: Any, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
     raise NotImplementedError(
-        f"extract_dense_array is not supported for objects of class: {type(x)}"
+        f"extract_dense_array is not supported for '{type(x)}' objects"
     )
 
 @singledispatch
 def extract_sparse_array(x: Any, idx: Tuple[Sequence, ...]) -> SparseNdarray:
     raise NotImplementedError(
-        f"extract_sparse_array is not supported for objects of class: {type(x)}"
+        f"extract_sparse_array is not supported for '{type(x)}' objects"
     )
 
+@extract_dense_array.register
+def extract_dense_array_ndarray(x: numpy.ndarray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
+    return copy.deepcopy(x[(..., *idx)])
+
+@extract_dense_array.register
+def extract_dense_array_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
+    return _extract_dense_array_from_SparseNdarray(x, idx)
+
 @extract_sparse_array.register
-def extract_sparse_array(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> SparseNdArray:
-    new_contents = None
-    if x.__contents is not None:
-        if len(x.shape) > 1:
-            new_contents = _recursive_extract_sparse_array(x.__contents, idx, 0)
-        else:
-            new_contents = _extract_sparse_vector_to_sparse(x.__contents[0], x.__contents[1], idx[0])
-
-    idims = [len(y) for y in idx]
-    return SparseNdarray(shape = (*idims), contents = new_contents)
-
-
+def extract_sparse_array_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> SparseNdarray:
+    return _extract_sparse_array_from_SparseNdarray(x, idx)
