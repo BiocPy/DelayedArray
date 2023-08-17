@@ -41,16 +41,6 @@ class SparseNdarray:
                 _check_sparse_tuple(self._contents[0], self._contents[1], self._shape[0])
 
     @property
-    def sparse(self) -> bool:
-        """
-        Whether this array is sparse.
-
-        Returns:
-            True, obviously.
-        """
-        return True
-
-    @property
     def shape(self) -> Tuple[int, ...]:
         """
         Shape of the array.

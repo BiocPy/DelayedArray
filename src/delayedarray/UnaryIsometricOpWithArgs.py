@@ -1,5 +1,6 @@
-from collections import Sequence
-from .interface import extract_dense_array, extract_sparse_array
+from functools import singledispatch
+from typing import Union, Tuple
+from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 import numpy
 import operator
@@ -84,27 +85,29 @@ class UnaryIsometricOpWithArgs:
             else:
                 return f(v, s)
 
-        if isinstance(value, collections.Sequence):
+        if isinstance(value, numpy.ndarray):
+            if along < 0 or along >= len(seed.shape):
+                raise ValueError("'along' should be non-negative and less than the dimensionality of 'seed'")
             if len(value) != seed.shape[along]:
-                raise ValueError("length of sequence-like 'value' should equal seed dimension in 'dim'")
+                raise ValueError("length of array 'value' should equal the 'along' dimension extent in 'seed'")
 
-                is_sparse = True
-                for x in value:
-                    if check(0, x):
-                        is_sparse = False
-                        break
+            is_sparse = True
+            for x in value:
+                if check(0, x) != 0:
+                    is_sparse = False
+                    break
 
-                no_op = True
-                for x in value:
-                    if x != is_no_op:
-                        no_op = False
-                        break
+            no_op = True
+            for x in value:
+                if x != is_no_op:
+                    no_op = False
+                    break
         else:
-            is_sparse = check(0, value)
+            is_sparse = check(0, value) == 0
             no_op = value == is_no_op
 
         inplaceable = False
-        if x._right: # TODO: add something about types.
+        if right: # TODO: add something about types.
             inplaceable = True
 
         self._seed = seed
@@ -120,16 +123,14 @@ class UnaryIsometricOpWithArgs:
     def shape(self) -> Tuple[int, ...]:
         return self._seed.shape
 
-    @property
-    def sparse(self) -> bool:
-        if self._seed.sparse:
-            return self._preserves_sparse
-        else:
-            return False
+
+@is_sparse.register
+def is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
+    return x._preserves_sparse and is_sparse(x._seed)
 
 
-@extract_dense_array.UnaryIsometricArithmetic
-def extract_dense_array_UnaryIsometricArithmetic(x: UnaryIsometricArithemtic, idx) -> numpy.ndarray:
+@extract_dense_array.register
+def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> numpy.ndarray:
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:
         return base
@@ -176,8 +177,8 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
                 _recursive_apply_arg_to_sparse_array(contents[i], (*at, i), ndim, op)
 
 
-@extract_sparse_array.UnaryIsometricArithmetic
-def extract_sparse_array_UnaryIsometricArithmetic(x: UnaryIsometricArithmetic, idx) -> SparseNdarray:
+@extract_sparse_array.register
+def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> SparseNdarray:
     sparse = extract_sparse_array(x.__seed, idx)
     if x._is_no_op:
         return sparse
@@ -200,15 +201,15 @@ def extract_sparse_array_UnaryIsometricArithmetic(x: UnaryIsometricArithmetic, i
             if x._along == len(at):
                 operand = other[indices]
             else:
-                operand = other[x._along]]
+                operand = other[x._along]
             return f(values, operand)
     else:
         def execute(indices, values, at):
             return f(values, other)
 
     if isinstance(sparse._contents, list):
-        _recursive_apply_op_with_arg_to_sparse_array(sparse._contents, (,), len(sparse.shape), execute):
+        _recursive_apply_op_with_arg_to_sparse_array(sparse._contents, (), len(sparse.shape), execute)
     elif sparse._contents is not None:
         idx, val = sparse._contents
-        sparse._contents = (idx, execute(idx, val, (,)))
+        sparse._contents = (idx, execute(idx, val, ()))
     return sparse
