@@ -6,6 +6,10 @@ from .utils import sanitize_indices, sanitize_single_index
 import numpy
 import operator
 
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
+
 def _choose_operator(op: str, inplace: bool = False):
     if op == "+":
         if inplace:
