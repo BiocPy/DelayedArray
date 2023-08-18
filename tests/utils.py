@@ -43,7 +43,7 @@ def convert_SparseNdarray_to_numpy(contents, shape):
         idx, val = contents
         for j in range(len(idx)):
             triplets.append(((idx[j],), val[j]))
-    else:
+    elif contents is not None:
         _recursive_compute_reference(contents, (), len(shape), triplets)
 
     output = numpy.zeros(shape)

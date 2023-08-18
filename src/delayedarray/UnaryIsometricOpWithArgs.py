@@ -74,17 +74,26 @@ class UnaryIsometricOpWithArgs:
         no_op = False 
 
         is_no_op = None
-        if op == "+" or op == "-":
+        if op == "+":
             is_no_op = 0
-        elif op == "*" or op == "/" or op == "%" or op == "**":
-            is_no_op = 1
+        elif op == "*":
+            is_no_op == 1
+        else:
+            if right:
+                if op == "-":
+                    is_no_op = 0
+                elif op == "/" or op == "**":
+                    is_no_op = 1
 
         f = _choose_operator(op)
         def check(s, v):
-            if right:
-                return f(s, v)
-            else:
-                return f(v, s)
+            try:
+                if right:
+                    return f(s, v)
+                else:
+                    return f(v, s)
+            except ZeroDivisionError:
+                return numpy.inf
 
         if isinstance(value, numpy.ndarray):
             if along < 0 or along >= len(seed.shape):
