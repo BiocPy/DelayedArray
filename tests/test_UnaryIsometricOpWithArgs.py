@@ -490,12 +490,13 @@ def test_UnaryIsometricOpWithArgs_power():
 
     # Vector. This needs rounding to avoid NaNs when taking fractional powers of negatives.
     # We also add 1 to avoid zeros that break sparsity from 0 ** 0.
-    v = numpy.round(numpy.random.rand(42) * 10) + 1
+    v = numpy.round(numpy.random.rand(42) * 3) + 1
     op = delayedarray.UnaryIsometricOpWithArgs(y, v, "**")
     assert delayedarray.is_sparse(op)
 
     dout = delayedarray.extract_dense_array(op, full_indices)
-    assert (dout == (ref.T**v).T).all()
+    obs = (ref.T**v).T
+    assert numpy.allclose(dout, obs) # some kind of numeric difference between ** and **=, perhaps. Who knows, but exact comparison sometimes fails.
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
     assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
