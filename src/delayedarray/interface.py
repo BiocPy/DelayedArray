@@ -59,7 +59,7 @@ def extract_sparse_array(x, idx: Tuple[Sequence, ...]) -> SparseNdarray:
         x: Array to slice.
 
             ``x`` may be either a :py:class.`~scipy.sparse.spmatrix` or
-            :py:class.`~delayedarray.sparseNdarray.SparseNdarray`.
+            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.
 
         idx (Tuple[Sequence, ...]): Indices to slice, must be less
             than or equal to the number of dimensions in the sparse array.
