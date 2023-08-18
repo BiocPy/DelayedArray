@@ -2,6 +2,7 @@ from functools import singledispatch
 from typing import Union, Tuple
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
+from .utils import sanitize_indices, sanitize_single_index
 import numpy
 import operator
 
@@ -131,7 +132,6 @@ def is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
 
 @extract_dense_array.register
 def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> numpy.ndarray:
-    idx = sanitize_indices(idx, x.shape)
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:
         return base
@@ -147,8 +147,8 @@ def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, id
     value = x._value
     if isinstance(value, numpy.ndarray):
         curslice = idx[x._along]
-        if curslice:
-            value = value[curslice]
+        new_idx = sanitize_single_index((curslice,), (x.shape[x._along],))[0]
+        value = value[new_idx]
 
         if x._along < len(base.shape) and len(base.shape) > 1:
             # My brain too smooth to figure out how to get numpy to do this
@@ -167,7 +167,7 @@ def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, id
 
 
 def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
-    if dim == ndim - 2:
+    if len(at) == ndim - 2:
         for i in range(len(contents)):
             if contents[i] is not None:
                 idx, val = contents[i]
@@ -175,17 +175,17 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
     else:
         for i in range(len(contents)):
             if contents[i] is not None:
-                _recursive_apply_arg_to_sparse_array(contents[i], (*at, i), ndim, op)
+                _recursive_apply_op_with_arg_to_sparse_array(contents[i], (*at, i), ndim, op)
 
 
 @extract_sparse_array.register
 def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> SparseNdarray:
-    idx = sanitize_indices(idx, x.shape)
-    sparse = extract_sparse_array(x.__seed, idx)
+    sparse = extract_sparse_array(x._seed, idx)
     if x._is_no_op:
         return sparse
 
-    opfun = _choose_operator(op, inplace = x._do_inplace)
+    idx = sanitize_indices(idx, x.shape)
+    opfun = _choose_operator(x._op, inplace = x._do_inplace)
     if x._right:
         def f(s, v):
             return opfun(s, v)
@@ -194,16 +194,15 @@ def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, i
             return opfun(v, s)
 
     other = x._value
-    if isinstance(other, collections.Sequence):
+    if isinstance(other, numpy.ndarray):
         curslice = idx[x._along]
-        if curslice:
-            other = other[curslice]
+        other = other[curslice]
 
         def execute(indices, values, at):
             if x._along == len(at):
                 operand = other[indices]
             else:
-                operand = other[x._along]
+                operand = other[at[x._along]]
             return f(values, operand)
     else:
         def execute(indices, values, at):

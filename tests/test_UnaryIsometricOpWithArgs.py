@@ -100,22 +100,38 @@ def test_UnaryIsometricOpWithArgs_scalar_multiplication():
     # Full extraction.
     op = delayedarray.UnaryIsometricOpWithArgs(y, 5, "*")
     assert delayedarray.is_sparse(op)
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
-    assert (opout == delayedarray.extract_dense_array(y, (slice(None), slice(None))) * 5).all()
+
+    full_indices = (slice(None), slice(None), slice(None))
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert (dout == delayedarray.extract_dense_array(y, full_indices) * 5).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    assert isinstance(spout, delayedarray.SparseNdarray)
+    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
 
     # Partial extraction
     op = delayedarray.UnaryIsometricOpWithArgs(y, -2, "*")
-    opout = delayedarray.extract_dense_array(op, (slice(2, 50), slice(0, 30)))
-    assert (opout == delayedarray.extract_dense_array(y, (slice(2, 50), slice(0, 30))) * -2).all()
+    indices = (slice(2, 10), slice(0, 14, 2), slice(None))
+
+    dout = delayedarray.extract_dense_array(op, indices)
+    assert (dout == delayedarray.extract_dense_array(y, indices) * -2).all()
+
+    spout = delayedarray.extract_sparse_array(op, indices)
+    assert isinstance(spout, delayedarray.SparseNdarray)
+    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
 
     # Multiplying by one.
     op = delayedarray.UnaryIsometricOpWithArgs(y, 1, "*")
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
-    assert (opout == delayedarray.extract_dense_array(y, (slice(None), slice(None)))).all()
+
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert (dout == delayedarray.extract_dense_array(y, full_indices)).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    assert are_SparseNdarray_contents_equal(spout._contents, y._contents, len(test_shape))
 
     # Multiplying by some non-finite value.
     op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.NaN, "*")
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
+    opout = delayedarray.extract_dense_array(op, full_indices)
     assert not delayedarray.is_sparse(op)
 
 
@@ -128,39 +144,58 @@ def test_UnaryIsometricOpWithArgs_vector_multiplication():
     v = numpy.random.rand(10)
     op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=2)
     assert delayedarray.is_sparse(op)
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
-    assert (opout == delayedarray.extract_dense_array(y, (slice(None), slice(None))) * v).all()
+
+    full_indices = (slice(None), slice(None), slice(None))
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert (dout == delayedarray.extract_dense_array(y, full_indices) * v).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    assert isinstance(spout, delayedarray.SparseNdarray)
+    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
 
     # Partial extraction
     v = numpy.random.rand(15)
-    op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=1)
     indices = (slice(2, 18), slice(0, 15, 2), slice(None))
-    opout = delayedarray.extract_dense_array(op, indices)
+
     ref = delayedarray.extract_dense_array(y, indices)
     my_indices = range(*indices[1].indices(15))
     for i in range(len(my_indices)):
         ref[:,i,:] *= v[my_indices[i]]
-    assert (opout == ref).all()
 
-    v = numpy.random.rand(40)
-    op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=0)
+    op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=1)
+    dout = delayedarray.extract_dense_array(op, indices)
+    assert (dout == ref).all()
+
+    spout = delayedarray.extract_sparse_array(op, indices)
+    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == ref).all()
+
+    # Another partial extraction
+    v = numpy.random.rand(20)
     indices = (slice(10, 20), slice(None), slice(0, 10, 2))
-    opout = delayedarray.extract_dense_array(op, indices)
+
     ref = delayedarray.extract_dense_array(y, indices)
     my_indices = range(*indices[0].indices(20))
     for i in range(len(my_indices)):
         ref[i,:,:] *= v[my_indices[i]]
-    assert (opout == ref).all()
+
+    op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=0)
+    dout = delayedarray.extract_dense_array(op, indices)
+    assert (dout == ref).all()
+
+    spout = delayedarray.extract_sparse_array(op, indices)
+    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == ref).all()
 
     # Multiplying by one.
-    op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.ones(10), "*")
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
-    assert (opout == delayedarray.extract_dense_array(y, (slice(None), slice(None)))).all()
+    op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.ones(10), "*", along=2)
+
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert (dout == delayedarray.extract_dense_array(y, full_indices)).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    assert are_SparseNdarray_contents_equal(spout._contents, y._contents, len(y.shape))
 
     # Multiplying by a bad number.
     bad = numpy.zeros(10)
     bad[5] = numpy.NaN
-    op = delayedarray.UnaryIsometricOpWithArgs(y, bad, "*")
-    opout = delayedarray.extract_dense_array(op, (slice(None), slice(None)))
+    op = delayedarray.UnaryIsometricOpWithArgs(y, bad, "*", along=2)
     assert not delayedarray.is_sparse(op)
-    assert (opout == delayedarray.extract_dense_array(y, (slice(None), slice(None)))).all()
