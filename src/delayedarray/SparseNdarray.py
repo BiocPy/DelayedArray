@@ -121,6 +121,7 @@ def _characterize_indices(idx: Sequence):
     for i in range(1, len(idx)):
         if idx[i] != idx[i - 1] + 1:
             consecutive = False
+            break
     return (idx, first, last, consecutive)
 
 
