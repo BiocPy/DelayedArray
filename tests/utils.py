@@ -36,7 +36,7 @@ def _recursive_compute_reference(contents, at, max_depth, triplets):
                 _recursive_compute_reference(contents[i], (*at, i), max_depth, triplets)
 
 
-def convert_SparseNdarray_to_numpy(contents, shape):
+def convert_SparseNdarray_contents_to_numpy(contents, shape):
     triplets = []
 
     if len(shape) == 1:
@@ -51,6 +51,8 @@ def convert_SparseNdarray_to_numpy(contents, shape):
         output[(..., *pos)] = val
     return output
 
+def convert_SparseNdarray_to_numpy(x):
+    return convert_SparseNdarray_contents_to_numpy(x._contents, x.shape)
 
 def _compare_sparse_vectors(left, right):
     idx_l, val_l = left
@@ -95,3 +97,9 @@ def are_SparseNdarray_contents_equal(contents1, contents2, maxdim):
             return False 
     else:
         return _compare_sparse_vectors(contents1, contents2)
+
+def are_SparseNdarrays_equal(x, y):
+    if x.shape != y.shape:
+        return False
+    return are_SparseNdarray_contents_equal(x._contents, y._contents, len(x.shape)) 
+

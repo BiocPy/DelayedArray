@@ -132,7 +132,7 @@ def test_UnaryIsometricOpWithArgs_scalar_multiplication():
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
     assert isinstance(spout, delayedarray.SparseNdarray)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Partial extraction
     op = delayedarray.UnaryIsometricOpWithArgs(y, -2, "*")
@@ -143,7 +143,7 @@ def test_UnaryIsometricOpWithArgs_scalar_multiplication():
 
     spout = delayedarray.extract_sparse_array(op, indices)
     assert isinstance(spout, delayedarray.SparseNdarray)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Multiplying by one.
     op = delayedarray.UnaryIsometricOpWithArgs(y, 1, "*")
@@ -152,7 +152,7 @@ def test_UnaryIsometricOpWithArgs_scalar_multiplication():
     assert (dout == delayedarray.extract_dense_array(y, full_indices)).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert are_SparseNdarray_contents_equal(spout._contents, y._contents, len(test_shape))
+    assert are_SparseNdarrays_equal(spout, y)
 
     # Multiplying by some non-finite value.
     op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.NaN, "*")
@@ -176,7 +176,7 @@ def test_UnaryIsometricOpWithArgs_vector_multiplication():
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
     assert isinstance(spout, delayedarray.SparseNdarray)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Partial extraction
     v = numpy.random.rand(15)
@@ -192,7 +192,7 @@ def test_UnaryIsometricOpWithArgs_vector_multiplication():
     assert (dout == ref).all()
 
     spout = delayedarray.extract_sparse_array(op, indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == ref).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
 
     # Another partial extraction
     v = numpy.random.rand(20)
@@ -208,7 +208,7 @@ def test_UnaryIsometricOpWithArgs_vector_multiplication():
     assert (dout == ref).all()
 
     spout = delayedarray.extract_sparse_array(op, indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == ref).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
 
     # Multiplying by one.
     op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.ones(10), "*", along=2)
@@ -217,7 +217,7 @@ def test_UnaryIsometricOpWithArgs_vector_multiplication():
     assert (dout == delayedarray.extract_dense_array(y, full_indices)).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert are_SparseNdarray_contents_equal(spout._contents, y._contents, len(y.shape))
+    assert are_SparseNdarrays_equal(spout, y)
 
     # Multiplying by a bad number.
     bad = numpy.zeros(10)
@@ -237,7 +237,7 @@ def test_UnaryIsometricOpWithArgs_1d_multiplication():
     assert (dout == delayedarray.extract_dense_array(y, (slice(None),)) * 9).all()
 
     spout = delayedarray.extract_sparse_array(op, (slice(None),))
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Partial extraction.
     v = numpy.random.rand(test_shape[0])
@@ -248,7 +248,7 @@ def test_UnaryIsometricOpWithArgs_1d_multiplication():
     assert (dout == ref).all()
 
     spout = delayedarray.extract_sparse_array(op, (slice(10, 40),))
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
 
 ##############################################################
@@ -311,7 +311,7 @@ def test_UnaryIsometricOpWithArgs_division():
     assert (dout == (ref.T / v).T).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector, dividing on the left.
     with warnings.catch_warnings():
@@ -341,7 +341,7 @@ def test_UnaryIsometricOpWithArgs_division():
     assert (dout == ref).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == ref).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
 
 
 def test_UnaryIsometricOpWithArgs_modulo():
@@ -360,7 +360,7 @@ def test_UnaryIsometricOpWithArgs_modulo():
     assert (dout == ref % 0.2).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector
     v = numpy.random.rand(15)
@@ -371,7 +371,7 @@ def test_UnaryIsometricOpWithArgs_modulo():
     assert (dout == ref % v).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector, dividing on the left.
     v = numpy.random.rand(22)
@@ -426,7 +426,7 @@ def test_UnaryIsometricOpWithArgs_floordivision():
     assert (dout == (ref.T // v).T).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector, dividing on the left.
     v = numpy.random.rand(57)
@@ -465,7 +465,7 @@ def test_UnaryIsometricOpWithArgs_power():
     assert (dout == ref ** 2).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector. This needs rounding to avoid NaNs when taking fractional powers of negatives.
     # We also add 1 to avoid zeros that break sparsity from 0 ** 0.
@@ -477,7 +477,7 @@ def test_UnaryIsometricOpWithArgs_power():
     assert (dout == (ref.T ** v).T).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
-    assert (convert_SparseNdarray_to_numpy(spout._contents, spout.shape) == dout).all()
+    assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
 
     # Vector, on the left.
     v = numpy.round(numpy.random.rand(37) * 10)
