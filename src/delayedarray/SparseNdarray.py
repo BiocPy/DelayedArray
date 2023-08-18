@@ -141,7 +141,7 @@ def _extract_sparse_vector_internal(
         if last != last_dim_shape:
             end_pos = bisect_left(indices, last, lo=start_pos, hi=end_pos)
         for x in range(start_pos, end_pos):
-            f(indices[x] - start_pos, indices[x], values[x])
+            f(indices[x] - first, indices[x], values[x])
     else:
         pos = 0
         x = start_pos
