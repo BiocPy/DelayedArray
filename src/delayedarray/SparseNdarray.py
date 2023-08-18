@@ -80,6 +80,28 @@ class SparseNdarray:
         """
         return self._shape
 
+    def __get_item__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
+        """Extract sparse array by slicing this data array.
+
+        Args:
+            args (Tuple[Union[slice, Sequence], ...]): A :py:class`tuple` defining the
+                positions of the array to access along each dimension.
+
+                Each element in ``args`` may be a :py:func:`slice` object or
+                a list of integer indices. The length of the tuple
+                must not exceed the number of dimensions in the array.
+
+        Raises:
+            ValueError: If ``args`` contain more dimensions than the shape of the array.
+
+        Returns:
+            SparseNdarray: A SparseNdarray of the given indices.
+        """
+        if len(args) > len(self.shape):
+            raise ValueError("Slice exceeds the available dimensions in the array.")
+
+        return _extract_sparse_array_from_SparseNdarray(self, args)
+
 
 def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int):
     if len(indices) != len(values):
@@ -126,7 +148,11 @@ def _characterize_indices(idx: Sequence):
 
 
 def _extract_sparse_vector_internal(
-    indices: Sequence, values: Sequence, idx_summary, f: Callable, last_dim_shape
+    indices: Sequence,
+    values: Sequence,
+    idx_summary: Tuple[Sequence, int, int, int],
+    f: Callable,
+    last_dim_shape: int,
 ):
     idx, first, last, consecutive = idx_summary
     if len(idx) == 0:
@@ -189,7 +215,7 @@ def _recursive_extract_dense_array(contents, ndim, idx, dim, output, last_dim_sh
 
 
 def _extract_dense_array_from_SparseNdarray(
-    x: SparseNdarray, idx: Tuple[Sequence, ...]
+    x: SparseNdarray, idx: Tuple[Union[slice, Sequence], ...]
 ) -> numpy.ndarray:
     idx2 = sanitize_indices(idx, x.shape)
     idims = [len(y) for y in idx2]
@@ -263,7 +289,7 @@ def _recursive_extract_sparse_array(contents, shape, idx, dim, last_dim_shape):
 
 
 def _extract_sparse_array_from_SparseNdarray(
-    x: SparseNdarray, idx: Tuple[Sequence, ...]
+    x: SparseNdarray, idx: Tuple[Union[slice, Sequence], ...]
 ) -> SparseNdarray:
     idx2 = sanitize_indices(idx, x.shape)
     idims = [len(y) for y in idx2]
