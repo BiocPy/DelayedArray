@@ -1,16 +1,20 @@
-from functools import singledispatch
-from typing import Union, Tuple
+import operator
+from typing import Literal, Tuple, Union
+
+import numpy
+
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 from .utils import sanitize_indices, sanitize_single_index
-import numpy
-import operator
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
-def _choose_operator(op: str, inplace: bool = False):
+
+def _choose_operator(
+    op: Literal["+", "-", "/", "*", "//", "%", "**"], inplace: bool = False
+):
     if op == "+":
         if inplace:
             return operator.iadd
@@ -46,7 +50,7 @@ def _choose_operator(op: str, inplace: bool = False):
             return operator.ipow
         else:
             return operator.pow
-    else: 
+    else:
         raise ValueError("unknown operation '" + op + "'")
 
 
@@ -56,13 +60,13 @@ class UnaryIsometricOpWithArgs:
     Hey, I don't make the rules.
 
     Attributes:
-        seed: 
+        seed:
             An array-like object.
 
-        value (Union[float, numpy.ndarray]): 
+        value (Union[float, numpy.ndarray]):
             A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
 
-        op (str):
+        op (Literal["+", "-", "/", "*", "//", "%", "**"]):
             String specifying the operation.
             This should be one of "+", "-", "/", "*", "//", "%" or "**".
 
@@ -71,14 +75,22 @@ class UnaryIsometricOpWithArgs:
             If False, ``value`` is put to the left of ``seed``.
             Ignored for commutative operations in ``op``.
 
-        along (int, optional): 
+        along (int, optional):
             Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
             This assumes that ``value`` is of length equal to the dimension's extent.
             Ignored if ``value`` is a scalar.
     """
-    def __init__(self, seed, value: Union[float, numpy.ndarray], op: str, right: bool = True, along: int = 0):
-        is_sparse = False 
-        no_op = False 
+
+    def __init__(
+        self,
+        seed,
+        value: Union[float, numpy.ndarray],
+        op: Literal["+", "-", "/", "*", "//", "%", "**"],
+        right: bool = True,
+        along: int = 0,
+    ):
+        is_sparse = False
+        no_op = False
 
         is_no_op = None
         if op == "+":
@@ -93,6 +105,7 @@ class UnaryIsometricOpWithArgs:
                     is_no_op = 1
 
         f = _choose_operator(op)
+
         def check(s, v):
             try:
                 if right:
@@ -104,9 +117,13 @@ class UnaryIsometricOpWithArgs:
 
         if isinstance(value, numpy.ndarray):
             if along < 0 or along >= len(seed.shape):
-                raise ValueError("'along' should be non-negative and less than the dimensionality of 'seed'")
+                raise ValueError(
+                    "'along' should be non-negative and less than the dimensionality of 'seed'"
+                )
             if len(value) != seed.shape[along]:
-                raise ValueError("length of array 'value' should equal the 'along' dimension extent in 'seed'")
+                raise ValueError(
+                    "length of array 'value' should equal the 'along' dimension extent in 'seed'"
+                )
 
             is_sparse = True
             for x in value:
@@ -124,7 +141,7 @@ class UnaryIsometricOpWithArgs:
             no_op = value == is_no_op
 
         inplaceable = False
-        if right: # TODO: add something about types.
+        if right:  # TODO: add something about types.
             inplaceable = True
 
         self._seed = seed
@@ -142,21 +159,26 @@ class UnaryIsometricOpWithArgs:
 
 
 @is_sparse.register
-def is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
+def _is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
     return x._preserves_sparse and is_sparse(x._seed)
 
 
 @extract_dense_array.register
-def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> numpy.ndarray:
+def _extract_dense_array_UnaryIsometricOpWithArgs(
+    x: UnaryIsometricOpWithArgs, idx
+) -> numpy.ndarray:
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:
         return base
 
-    opfun = _choose_operator(x._op, inplace = x._do_inplace)
+    opfun = _choose_operator(x._op, inplace=x._do_inplace)
     if x._right:
+
         def f(s, v):
             return opfun(s, v)
+
     else:
+
         def f(s, v):
             return opfun(v, s)
 
@@ -174,9 +196,11 @@ def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, id
             for i in range(len(value)):
                 contents[x._along] = i
                 if x._do_inplace:
-                    f(base[(..., *contents)], value[i]) # this is a view, so inplace is fine.
+                    f(
+                        base[(..., *contents)], value[i]
+                    )  # this is a view, so inplace is fine.
                 else:
-                    base[(..., *contents)] = f(base[(..., *contents)], value[i]) 
+                    base[(..., *contents)] = f(base[(..., *contents)], value[i])
             return base
 
     return f(base, value)
@@ -191,21 +215,28 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
     else:
         for i in range(len(contents)):
             if contents[i] is not None:
-                _recursive_apply_op_with_arg_to_sparse_array(contents[i], (*at, i), ndim, op)
+                _recursive_apply_op_with_arg_to_sparse_array(
+                    contents[i], (*at, i), ndim, op
+                )
 
 
 @extract_sparse_array.register
-def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, idx) -> SparseNdarray:
+def extract_sparse_array_UnaryIsometricOpWithArgs(
+    x: UnaryIsometricOpWithArgs, idx
+) -> SparseNdarray:
     sparse = extract_sparse_array(x._seed, idx)
     if x._is_no_op:
         return sparse
 
     idx = sanitize_indices(idx, x.shape)
-    opfun = _choose_operator(x._op, inplace = x._do_inplace)
+    opfun = _choose_operator(x._op, inplace=x._do_inplace)
     if x._right:
+
         def f(s, v):
             return opfun(s, v)
+
     else:
+
         def f(s, v):
             return opfun(v, s)
 
@@ -220,12 +251,16 @@ def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, i
             else:
                 operand = other[at[x._along]]
             return f(values, operand)
+
     else:
+
         def execute(indices, values, at):
             return f(values, other)
 
     if isinstance(sparse._contents, list):
-        _recursive_apply_op_with_arg_to_sparse_array(sparse._contents, (), len(sparse.shape), execute)
+        _recursive_apply_op_with_arg_to_sparse_array(
+            sparse._contents, (), len(sparse.shape), execute
+        )
     elif sparse._contents is not None:
         idx, val = sparse._contents
         sparse._contents = (idx, execute(idx, val, ()))

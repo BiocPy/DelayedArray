@@ -45,7 +45,7 @@ def extract_dense_array_ndarray(x: ndarray, idx: Tuple[Sequence, ...]) -> ndarra
 
 
 @extract_dense_array.register
-def extract_dense_array_SparseNdarray(
+def _extract_dense_array_SparseNdarray(
     x: SparseNdarray, idx: Tuple[Sequence, ...]
 ) -> ndarray:
     return _extract_dense_array_from_SparseNdarray(x, idx)
@@ -75,7 +75,7 @@ def extract_sparse_array(x, idx: Tuple[Sequence, ...]) -> SparseNdarray:
 
 
 @extract_sparse_array.register
-def extract_sparse_array_SparseNdarray(
+def _extract_sparse_array_SparseNdarray(
     x: SparseNdarray, idx: Tuple[Sequence, ...]
 ) -> SparseNdarray:
     return _extract_sparse_array_from_SparseNdarray(x, idx)
@@ -99,10 +99,10 @@ def is_sparse(x) -> bool:
 
 
 @is_sparse.register
-def is_sparse_ndarray(x: ndarray) -> bool:
+def _is_sparse_ndarray(x: ndarray) -> bool:
     return False
 
 
 @is_sparse.register
-def is_sparse_SparseNdarray(x: SparseNdarray) -> bool:
+def _is_sparse_SparseNdarray(x: SparseNdarray) -> bool:
     return True
