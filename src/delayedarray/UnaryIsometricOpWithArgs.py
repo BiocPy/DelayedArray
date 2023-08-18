@@ -65,9 +65,12 @@ class UnaryIsometricOpWithArgs:
         right (bool, optional):
             Whether ``value`` is to the right of ``seed`` in the operation.
             If False, ``value`` is put to the left of ``seed``.
+            Ignored for commutative operations in ``op``.
 
         along (int, optional): 
             Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
+            This assumes that ``value`` is of length equal to the dimension's extent.
+            Ignored if ``value`` is a scalar.
     """
     def __init__(self, seed, value: Union[float, numpy.ndarray], op: str, right: bool = True, along: int = 0):
         is_sparse = False 
