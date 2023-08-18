@@ -16,4 +16,5 @@ finally:
     del version, PackageNotFoundError
 
 from .SparseNdarray import *
+from .UnaryIsometricOpWithArgs import *
 from .interface import *

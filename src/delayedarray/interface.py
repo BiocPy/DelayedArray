@@ -31,3 +31,15 @@ def extract_dense_array_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...
 @extract_sparse_array.register
 def extract_sparse_array_SparseNdarray(x: SparseNdarray, idx: Tuple[Sequence, ...]) -> SparseNdarray:
     return _extract_sparse_array_from_SparseNdarray(x, idx)
+
+@singledispatch
+def is_sparse(x: Any) -> bool:
+    return False
+
+@is_sparse.register
+def is_sparse_ndarray(x: numpy.ndarray) -> bool:
+    return False
+
+@is_sparse.register
+def is_sparse_SparseNdarray(x: SparseNdarray) -> bool:
+    return True

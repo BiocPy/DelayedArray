@@ -1,9 +1,10 @@
+def sanitize_single_index(idx, shape):
+    if isinstance(idx, slice):
+        return range(*idx.indices(shape))
+    return idx
+
 def sanitize_indices(idx, shape):
     idx2 = []
     for i in range(len(idx)):
-        curidx = idx[i]
-        if isinstance(curidx, slice):
-            idx2.append(range(*curidx.indices(shape[i])))
-        else:
-            idx2.append(curidx)
+        idx2.append(sanitize_single_index(idx[i], shape[i]))
     return idx2
