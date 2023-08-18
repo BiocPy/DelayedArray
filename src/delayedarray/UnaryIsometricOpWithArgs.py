@@ -11,9 +11,10 @@ __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
+OP = Literal["+", "-", "/", "*", "//", "%", "**"]
 
 def _choose_operator(
-    op: Literal["+", "-", "/", "*", "//", "%", "**"], inplace: bool = False
+    op: OP, inplace: bool = False
 ):
     if op == "+":
         if inplace:
@@ -66,7 +67,7 @@ class UnaryIsometricOpWithArgs:
         value (Union[float, numpy.ndarray]):
             A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
 
-        op (Literal["+", "-", "/", "*", "//", "%", "**"]):
+        op (OP):
             String specifying the operation.
             This should be one of "+", "-", "/", "*", "//", "%" or "**".
 
@@ -85,7 +86,7 @@ class UnaryIsometricOpWithArgs:
         self,
         seed,
         value: Union[float, numpy.ndarray],
-        op: Literal["+", "-", "/", "*", "//", "%", "**"],
+        op: OP,
         right: bool = True,
         along: int = 0,
     ):
@@ -221,7 +222,7 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
 
 
 @extract_sparse_array.register
-def extract_sparse_array_UnaryIsometricOpWithArgs(
+def _extract_sparse_array_UnaryIsometricOpWithArgs(
     x: UnaryIsometricOpWithArgs, idx
 ) -> SparseNdarray:
     sparse = extract_sparse_array(x._seed, idx)

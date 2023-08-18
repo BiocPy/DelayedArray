@@ -23,7 +23,7 @@ def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
         x: Array to slice.
 
             ``x`` may be either a :py:class.`~numpy.ndarray` or
-            :py:class.`~delayedarray.sparseNdarray.SparseNdarray`.
+            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.
 
         idx (Tuple[Sequence, ...]): Indices to slice, must be less
             than or equal to the number of dimensions in the dense matrix.
@@ -87,10 +87,6 @@ def is_sparse(x) -> bool:
 
     Args:
         x: Array to check.
-
-            ``x`` may be either a :py:class.`~numpy.ndarray` or
-            :py:class.`~delayedarray.sparseNdarray.SparseNdarray`.
-
 
     Returns:
         bool: True if ``x`` is a sparse array.

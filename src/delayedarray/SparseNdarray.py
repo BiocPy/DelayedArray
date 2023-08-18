@@ -13,7 +13,7 @@ __license__ = "MIT"
 class SparseNdarray:
     """The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional array.
     It is inspired by the **SVTArray** from the DelayedArray
-    [R/Bioconductor package](https://github.com/Bioconductor/DelayedArray).
+    `R/Bioconductor package <https://github.com/Bioconductor/DelayedArray>`_.
 
     Internally, the ``SparseNdarray`` is represented as a nested list where each
     nesting level corresponds to a dimension. The list at each level has length equal
@@ -23,7 +23,7 @@ class SparseNdarray:
     representing the sparse contents of the corresponding dimension element.
 
     In effect, this is a tree where the non-leaf nodes are lists and the leaf nodes
-    are tuples. ``index`` and ``value`` should be :py:class:`typing.Sequences` of equal
+    are tuples. ``index`` and ``value`` should be :py:class:`~typing.Sequence` of equal
     length, where ``index`` is integer, sorted, and contains values less than the extent
     of the final dimension.
 
@@ -31,7 +31,7 @@ class SparseNdarray:
     of the dimension contains no non-zero values. In fact, the entire tree may be None,
     indicating that there are no non-zero values in the entire array.
 
-    For 1-dimensional arrays, the array is represented by a single (index, value) tuple
+    For `1-dimensional` arrays, the array is represented by a single (index, value) tuple
     containing the sparse contents. This may also be None if there are no non-zero
     values in the array.
 
@@ -40,10 +40,10 @@ class SparseNdarray:
             Tuple containing the dimensions of the array.
 
         contents (Union[Tuple[Sequence, Sequence], List], optional):
-            For ***n-dimensional*** arrays where n > 1, a nested list representing a
+            For `n-dimensional` arrays where n > 1, a nested list representing a
             tree where each leaf node is a tuple containing a sparse vector (or None).
 
-            For ***1-dimensional*** arrays, a tuple containing a sparse vector.
+            For `1-dimensional` arrays, a tuple containing a sparse vector.
 
             Alternatively None, if the array is empty.
     """
