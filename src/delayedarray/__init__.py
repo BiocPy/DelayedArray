@@ -15,6 +15,6 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .SparseNdarray import *
-from .UnaryIsometricOpWithArgs import *
-from .interface import *
+from .interface import extract_dense_array, extract_sparse_array, is_sparse
+from .SparseNdarray import SparseNdarray
+from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs

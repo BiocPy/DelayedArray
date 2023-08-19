@@ -1,7 +1,9 @@
 import random
+
 import numpy
 
-def mock_SparseNdarray_contents(shape, density1 = 0.5, density2 = 0.5):
+
+def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5):
     if len(shape) == 1:
         new_indices = []
         new_values = []
@@ -19,7 +21,11 @@ def mock_SparseNdarray_contents(shape, density1 = 0.5, density2 = 0.5):
             if random.uniform(0, 1) < density1:
                 new_content.append(None)
             else:
-                new_content.append(mock_SparseNdarray_contents(shape[1:], density1=density1, density2=density2))
+                new_content.append(
+                    mock_SparseNdarray_contents(
+                        shape[1:], density1=density1, density2=density2
+                    )
+                )
         return new_content
 
 
@@ -51,8 +57,10 @@ def convert_SparseNdarray_contents_to_numpy(contents, shape):
         output[(..., *pos)] = val
     return output
 
+
 def convert_SparseNdarray_to_numpy(x):
     return convert_SparseNdarray_contents_to_numpy(x._contents, x.shape)
+
 
 def _compare_sparse_vectors(left, right):
     idx_l, val_l = left
@@ -79,7 +87,9 @@ def _recursive_compare_contents(left, right, at, max_depth):
     else:
         for i in range(len(left)):
             if left[i] is not None:
-                if not _recursive_compare_contents(left[i], right[i], (*at, i), max_depth):
+                if not _recursive_compare_contents(
+                    left[i], right[i], (*at, i), max_depth
+                ):
                     return False
     return True
 
@@ -92,14 +102,14 @@ def are_SparseNdarray_contents_equal(contents1, contents2, maxdim):
             return False
     elif contents1 is None:
         if contents2 is None:
-            return True 
+            return True
         else:
-            return False 
+            return False
     else:
         return _compare_sparse_vectors(contents1, contents2)
+
 
 def are_SparseNdarrays_equal(x, y):
     if x.shape != y.shape:
         return False
-    return are_SparseNdarray_contents_equal(x._contents, y._contents, len(x.shape)) 
-
+    return are_SparseNdarray_contents_equal(x._contents, y._contents, len(x.shape))

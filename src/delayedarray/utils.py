@@ -1,7 +1,13 @@
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
+
+
 def sanitize_single_index(idx, shape):
     if isinstance(idx, slice):
         return range(*idx.indices(shape))
     return idx
+
 
 def sanitize_indices(idx, shape):
     idx2 = []
