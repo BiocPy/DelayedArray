@@ -1,0 +1,45 @@
+delayedarray package
+====================
+
+Submodules
+----------
+
+delayedarray.SparseNdarray module
+---------------------------------
+
+.. automodule:: delayedarray.SparseNdarray
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.UnaryIsometricOpWithArgs module
+--------------------------------------------
+
+.. automodule:: delayedarray.UnaryIsometricOpWithArgs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.interface module
+-----------------------------
+
+.. automodule:: delayedarray.interface
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.utils module
+-------------------------
+
+.. automodule:: delayedarray.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: delayedarray
+   :members:
+   :undoc-members:
+   :show-inheritance:
