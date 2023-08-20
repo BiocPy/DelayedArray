@@ -23,9 +23,10 @@ class SparseNdarray:
     representing the sparse contents of the corresponding dimension element.
 
     In effect, this is a tree where the non-leaf nodes are lists and the leaf nodes
-    are tuples. ``index`` and ``value`` should be :py:class:`~typing.Sequence` of equal
-    length, where ``index`` is integer, sorted, and contains values less than the extent
-    of the final dimension.
+    are tuples. ``index`` should be a :py:class:`~typing.Sequence` of integers where
+    values are strictly increasing and less than the extent of the final dimension.
+    ``value`` may be any :py:class:`~numpy.ndarray` but the ``dtype`` should be
+    consistent across all ``value``s in the array.
 
     Any entry of any list may also be None, indicating that the corresponding element
     of the dimension contains no non-zero values. In fact, the entire tree may be None,
@@ -46,6 +47,10 @@ class SparseNdarray:
             For `1-dimensional` arrays, a tuple containing a sparse vector.
 
             Alternatively None, if the array is empty.
+
+        dtype (numpy.dtype, optional):
+            Type of the array as a NumPy type.
+            If None, this is inferred from ``contents``.
     """
 
     def __init__(
@@ -57,17 +62,28 @@ class SparseNdarray:
                 List,
             ]
         ],
-        check=True,
+        dtype: Optional[numpy.dtype] = None,
+        check=True
     ):
         self._shape = shape
         self._contents = contents
 
+        if dtype is None:
+            if contents is not None:
+                if len(shape) > 1:
+                    dtype = _peek_for_type(contents, 0, self._shape)
+                else:
+                    dtype = contents[1].dtype
+            if dtype is None:
+                raise ValueError("'dtype' should be provided if 'contents' is None")
+        self._dtype = dtype
+
         if check is True and contents is not None:
             if len(shape) > 1:
-                _recursive_check(self._contents, 0, self._shape)
+                _recursive_check(self._contents, 0, self._shape, self._dtype)
             else:
                 _check_sparse_tuple(
-                    self._contents[0], self._contents[1], self._shape[0]
+                    self._contents[0], self._contents[1], self._shape[0], self._dtype
                 )
 
     @property
@@ -79,6 +95,15 @@ class SparseNdarray:
             each dimension.
         """
         return self._shape
+
+    @property
+    def dtype(self) -> numpy.dtype:
+        """Type of the array.
+
+        Returns:
+            numpy.dtype: Type of the NumPy array containing the values of the non-zero elements.
+        """
+        return self._dtype
 
     def __get_item__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
         """Extract sparse array by slicing this data array.
@@ -103,9 +128,27 @@ class SparseNdarray:
         return _extract_sparse_array_from_SparseNdarray(self, args)
 
 
-def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int):
+def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
+    ndim = len(shape)
+    if dim == ndim - 2:
+        for x in contents:
+            if x is not None:
+                return x[1].dtype
+    else:
+        for x in contents:
+            if x is not None:
+                out = _peek_for_type(x, dim + 1, shape)
+                if out is not None:
+                    return out
+    return None
+
+
+def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int, dtype: numpy.dtype):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
+
+    if values.dtype != dtype:
+        raise ValueError("Inconsistent data types for different value vectors.")
 
     for i in range(len(indices)):
         if indices[i] < 0 or indices[i] >= max_index:
@@ -116,7 +159,7 @@ def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int):
             raise ValueError("Index vectors should be sorted.")
 
 
-def _recursive_check(contents: Sequence, dim: int, shape: Tuple[int, ...]):
+def _recursive_check(contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype):
     if len(contents) != shape[dim]:
         raise ValueError(
             "Length of 'contents' or its components should match the extent of the corresponding dimension."
@@ -126,11 +169,11 @@ def _recursive_check(contents: Sequence, dim: int, shape: Tuple[int, ...]):
     if dim == ndim - 2:
         for x in contents:
             if x is not None:
-                _check_sparse_tuple(x[0], x[1], shape[ndim - 1])
+                _check_sparse_tuple(x[0], x[1], shape[ndim - 1], dtype)
     else:
         for x in contents:
             if x is not None:
-                _recursive_check(x, dim + 1, shape)
+                _recursive_check(x, dim + 1, shape, dtype)
 
 
 def _characterize_indices(idx: Sequence):

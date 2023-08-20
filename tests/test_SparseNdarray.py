@@ -3,13 +3,14 @@ import copy
 import delayedarray
 import pytest
 from utils import *
-
+import numpy
 
 def test_SparseNdarray_check():
     test_shape = (10, 15, 20)
     contents = mock_SparseNdarray_contents(test_shape)
     y = delayedarray.SparseNdarray(test_shape, contents)
     assert y.shape == test_shape
+    assert y.dtype == numpy.float64
 
     with pytest.raises(ValueError, match="match the extent"):
         y = delayedarray.SparseNdarray((5, 15, 20), contents)
@@ -48,6 +49,15 @@ def test_SparseNdarray_check():
     with pytest.raises(ValueError, match="should be the same"):
         y = delayedarray.SparseNdarray(test_shape, contents2)
 
+    with pytest.raises(ValueError, match="Inconsistent data type"):
+        y = delayedarray.SparseNdarray(test_shape, contents, dtype = numpy.int32)
+
+    with pytest.raises(ValueError, match="'dtype' should be provided"):
+        y = delayedarray.SparseNdarray(test_shape, None)
+
+    empty = delayedarray.SparseNdarray(test_shape, None, dtype = numpy.int32)
+    assert empty.shape == test_shape
+    assert empty.dtype == numpy.int32
 
 def test_SparseNdarray_extract_dense_array_3d():
     test_shape = (16, 32, 8)
@@ -109,6 +119,7 @@ def test_SparseNdarray_extract_dense_array_1d():
     test_shape = (99,)
     contents = mock_SparseNdarray_contents(test_shape)
     y = delayedarray.SparseNdarray(test_shape, contents)
+    assert y.dtype == numpy.float64
 
     # Full extraction.
     output = delayedarray.extract_dense_array(y, (slice(None),))
