@@ -80,6 +80,10 @@ class UnaryIsometricOpWithArgs:
             Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
             This assumes that ``value`` is of length equal to the dimension's extent.
             Ignored if ``value`` is a scalar.
+
+        dtype (numpy.dtype, optional):
+            Data type of the output.
+            This should generally be a floating-point type to avoid incorrect results from integer truncation or overflow.
     """
 
     def __init__(
@@ -89,21 +93,25 @@ class UnaryIsometricOpWithArgs:
         op: OP,
         right: bool = True,
         along: int = 0,
+        dtype: numpy.dtype = numpy.float64
     ):
         is_sparse = False
         no_op = False
 
+        same_type = (dtype == seed.dtype)
+
         is_no_op = None
-        if op == "+":
-            is_no_op = 0
-        elif op == "*":
-            is_no_op == 1
-        else:
-            if right:
-                if op == "-":
-                    is_no_op = 0
-                elif op == "/" or op == "**":
-                    is_no_op = 1
+        if same_type:
+            if op == "+":
+                is_no_op = 0
+            elif op == "*":
+                is_no_op == 1
+            else:
+                if right:
+                    if op == "-":
+                        is_no_op = 0
+                    elif op == "/" or op == "**":
+                        is_no_op = 1
 
         f = _choose_operator(op)
 
@@ -142,7 +150,7 @@ class UnaryIsometricOpWithArgs:
             no_op = value == is_no_op
 
         inplaceable = False
-        if right:  # TODO: add something about types.
+        if right and same_type:
             inplaceable = True
 
         self._seed = seed
@@ -153,10 +161,15 @@ class UnaryIsometricOpWithArgs:
         self._preserves_sparse = is_sparse
         self._is_no_op = no_op
         self._do_inplace = inplaceable
+        self._dtype = dtype
 
     @property
     def shape(self) -> Tuple[int, ...]:
         return self._seed.shape
+
+    @property
+    def dtype(self) -> numpy.dtype:
+        return self._dtype
 
 
 @is_sparse.register
@@ -176,12 +189,12 @@ def _extract_dense_array_UnaryIsometricOpWithArgs(
     if x._right:
 
         def f(s, v):
-            return opfun(s, v)
+            return opfun(s, v).astype(x._dtype, copy=False)
 
     else:
 
         def f(s, v):
-            return opfun(v, s)
+            return opfun(v, s).astype(x._dtype, copy=False)
 
     value = x._value
     if isinstance(value, numpy.ndarray):
@@ -234,12 +247,12 @@ def _extract_sparse_array_UnaryIsometricOpWithArgs(
     if x._right:
 
         def f(s, v):
-            return opfun(s, v)
+            return opfun(s, v).astype(x._dtype, copy=False)
 
     else:
 
         def f(s, v):
-            return opfun(v, s)
+            return opfun(v, s).astype(x._dtype, copy=False)
 
     other = x._value
     if isinstance(other, numpy.ndarray):
@@ -265,4 +278,6 @@ def _extract_sparse_array_UnaryIsometricOpWithArgs(
     elif sparse._contents is not None:
         idx, val = sparse._contents
         sparse._contents = (idx, execute(idx, val, ()))
+
+    sparse._dtype = x._dtype
     return sparse

@@ -11,6 +11,7 @@ def test_UnaryIsometricOpWithArgs_check():
     y = numpy.random.rand(*test_shape)
     op = delayedarray.UnaryIsometricOpWithArgs(y, 5, "+")
     assert op.shape == test_shape
+    assert op.dtype == numpy.float64
     assert not delayedarray.is_sparse(op)
 
     op = delayedarray.UnaryIsometricOpWithArgs(y, numpy.random.rand(10), "+")
@@ -268,6 +269,48 @@ def test_UnaryIsometricOpWithArgs_1d_multiplication():
 
     spout = delayedarray.extract_sparse_array(op, (slice(10, 40),))
     assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
+
+
+# Check that the operation correctly coerces to the right (float)
+# type when the seed type is different.
+def test_UnaryIsometricOpWithArgs_int_multiplication():
+    test_shape = (20, 10)
+    contents = mock_SparseNdarray_contents(test_shape, density1=0)
+    for i in range(len(contents)):
+        if contents[i] is not None:
+            contents[i] = (contents[i][0], (contents[i][1]*10).astype(numpy.int32))
+       
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    assert y.dtype == numpy.int32
+    full_indices = (slice(None), slice(None))
+
+    # With vectors.
+    v = numpy.random.rand(10)
+    ref = delayedarray.extract_dense_array(y, full_indices).astype(numpy.float64) * v
+    op = delayedarray.UnaryIsometricOpWithArgs(y, v, "*", along=1)
+    assert op.dtype == numpy.float64
+
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert dout.dtype == numpy.float64
+    assert (dout == ref).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    print(spout._contents)
+    assert spout.dtype == numpy.float64
+    assert (delayedarray.extract_dense_array(spout, full_indices) == ref).all()
+
+    # With scalars.
+    ref = delayedarray.extract_dense_array(y, full_indices).astype(numpy.float64) * 9
+    op = delayedarray.UnaryIsometricOpWithArgs(y, 9, "*")
+    assert op.dtype == numpy.float64
+
+    dout = delayedarray.extract_dense_array(op, full_indices)
+    assert dout.dtype == numpy.float64
+    assert (dout ==  ref).all()
+
+    spout = delayedarray.extract_sparse_array(op, full_indices)
+    assert spout.dtype == numpy.float64
+    assert (delayedarray.extract_dense_array(spout, full_indices) == ref).all()
 
 
 ##############################################################
