@@ -4,7 +4,7 @@ from copy import deepcopy
 from numpy import dtype, array, ndarray, ix_
 from bisect import bisect_left
 
-from .interface import extract_dense_array, extract_sparse_array
+from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 from .utils import sanitize_single_index
 
@@ -299,3 +299,8 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
     final_shape = [len(m) for m in mappings]
     compact._shape = (*final_shape,)
     return compact
+
+
+@is_sparse.register
+def _is_sparse_Subset(x: Subset) -> bool:
+    return is_sparse(x._seed)
