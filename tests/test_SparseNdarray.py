@@ -223,3 +223,20 @@ def test_SparseNdarray_extract_sparse_array_1d():
     assert (
         delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]
     ).all()
+
+def test_SparseNdarray_int_type():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    assert y.shape == test_shape
+    assert y.dtype == numpy.int16
+
+    dout = delayedarray.extract_dense_array(y, (slice(None), slice(None)))
+    assert dout.dtype == numpy.int16
+    ref = convert_SparseNdarray_to_numpy(y)
+    assert (dout == ref).all()
+
+    spout = delayedarray.extract_sparse_array(y, (slice(None), slice(None)))
+    assert spout.dtype == numpy.int16
+    assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
+

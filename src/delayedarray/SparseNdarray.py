@@ -264,7 +264,7 @@ def _extract_dense_array_from_SparseNdarray(
     idims = [len(y) for y in idx2]
     idx2[-1] = _characterize_indices(idx2[-1])
 
-    output = numpy.zeros((*idims,))
+    output = numpy.zeros((*idims,), dtype=x._dtype)
     ndims = len(x.shape)
     if ndims > 1:
         _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output, x.shape[-1])
