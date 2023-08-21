@@ -57,8 +57,11 @@ def _choose_operator(
 
 class UnaryIsometricOpWithArgs:
     """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.
-    Only n-dimensional array is involved here, hence the "unary" in the name.
-    Hey, I don't make the rules.
+    This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
+    Only one n-dimensional array is involved here, hence the "unary" in the name. 
+
+    The data type of the result is determined by NumPy casting given the ``seed`` and ``value`` data types.
+    We suggest supplying a floating-point ``value`` to avoid unexpected results from integer truncation or overflow.
 
     Attributes:
         seed:
@@ -80,10 +83,6 @@ class UnaryIsometricOpWithArgs:
             Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
             This assumes that ``value`` is of length equal to the dimension's extent.
             Ignored if ``value`` is a scalar.
-
-        dtype (numpy.dtype, optional):
-            Data type of the output.
-            This should generally be a floating-point type to avoid incorrect results from integer truncation or overflow.
     """
 
     def __init__(
@@ -92,12 +91,16 @@ class UnaryIsometricOpWithArgs:
         value: Union[float, numpy.ndarray],
         op: OP,
         right: bool = True,
-        along: int = 0,
-        dtype: numpy.dtype = numpy.float64
+        along: int = 0
     ):
-        is_sparse = False
-        no_op = False
+        f = _choose_operator(op)
 
+        dummy = numpy.zeros(0, dtype=seed.dtype)
+        if isinstance(value, numpy.ndarray):
+            dummy = f(dummy, value[:0])
+        else:
+            dummy = f(dummy, value)
+        dtype = dummy.dtype
         same_type = (dtype == seed.dtype)
 
         is_no_op = None
@@ -113,8 +116,6 @@ class UnaryIsometricOpWithArgs:
                     elif op == "/" or op == "**":
                         is_no_op = 1
 
-        f = _choose_operator(op)
-
         def check(s, v):
             try:
                 if right:
@@ -123,6 +124,9 @@ class UnaryIsometricOpWithArgs:
                     return f(v, s)
             except ZeroDivisionError:
                 return numpy.inf
+
+        is_sparse = False
+        no_op = False
 
         if isinstance(value, numpy.ndarray):
             if along < 0 or along >= len(seed.shape):
@@ -189,12 +193,12 @@ def _extract_dense_array_UnaryIsometricOpWithArgs(
     if x._right:
 
         def f(s, v):
-            return opfun(s, v).astype(x._dtype, copy=False)
+            return opfun(s, v)
 
     else:
 
         def f(s, v):
-            return opfun(v, s).astype(x._dtype, copy=False)
+            return opfun(v, s)
 
     value = x._value
     if isinstance(value, numpy.ndarray):
@@ -202,10 +206,10 @@ def _extract_dense_array_UnaryIsometricOpWithArgs(
         new_idx = sanitize_single_index((curslice,), (x.shape[x._along],))[0]
         value = value[new_idx]
 
-        if x._along < len(base.shape) and len(base.shape) > 1:
-            # My brain too smooth to figure out how to get numpy to do this
-            # quickly for me. I also can't just use an OP() here, because
-            # the LHS could become a scalar and then there's no point.
+        # My brain too smooth to figure out how to get numpy to do this
+        # quickly for me, so we'll just loop over the targeted dimension.
+        if x._along < len(base.shape) - 1 and len(base.shape) > 1:
+            base = base.astype(x._dtype, copy=False)
             contents = [slice(None)] * len(base.shape)
             for i in range(len(value)):
                 contents[x._along] = i
@@ -247,12 +251,12 @@ def _extract_sparse_array_UnaryIsometricOpWithArgs(
     if x._right:
 
         def f(s, v):
-            return opfun(s, v).astype(x._dtype, copy=False)
+            return opfun(s, v)
 
     else:
 
         def f(s, v):
-            return opfun(v, s).astype(x._dtype, copy=False)
+            return opfun(v, s)
 
     other = x._value
     if isinstance(other, numpy.ndarray):
