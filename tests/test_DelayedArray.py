@@ -14,7 +14,7 @@ def test_DelayedArray_dense():
     assert x.dtype == raw.dtype
     assert not delayedarray.is_sparse(x)
 
-    out = repr(x)
+    out = str(x)
     assert out.find("<40 x 30> DelayedArray object of type 'int32'") != -1
 
     dump = numpy.array(x)
@@ -31,7 +31,7 @@ def test_DelayedArray_sparse():
     assert x.dtype == numpy.float64
     assert delayedarray.is_sparse(x)
 
-    out = repr(x)
+    out = str(x)
     assert out.find("<10 x 20 x 30> sparse DelayedArray object of type 'float64'") != -1
 
     dump = numpy.array(x)
