@@ -44,14 +44,15 @@ def _normalize_subset(subset, is_sorted, is_unique):
         if is_sorted:
             return (subset, range(len(subset)))
         else:
-            new_indices = {}
-            for i in range(len(subset)):
-                new_indices[subset[i]] = i
-
-            subsorted = deepcopy(subset)
+            subsorted = list(set(subset))
             subsorted.sort()
+
+            new_indices = {}
+            for i in range(len(subsorted)):
+                new_indices[subsorted[i]] = i
+
             mapping = []
-            for s in subsorted:
+            for s in subset:
                 mapping.append(new_indices[s])
 
             return (subsorted, mapping)
@@ -154,7 +155,7 @@ def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
             for j in curidx:
                 subsub.append(cursub[j])
 
-            n, m = _normalize_subset(subsub, x._is_unique[i], x._is_sorted[i])
+            n, m = _normalize_subset(subsub, is_sorted=x._is_sorted[i], is_unique=x._is_unique[i])
             out_sub.append(n)
             out_map.append(m)
 
@@ -202,9 +203,7 @@ def _inflate_sparse_vector(indices, values, last_info):
     if not last_info.is_sorted:
         for i in range(1, len(new_indices)):
             if new_indices[i] < new_indices[i - 1]:
-                combined = zip(new_indices, new_values)
-                combined.sort()
-                new_indices, new_values = zip(*combined)
+                new_indices, new_values = zip(*sorted(zip(new_indices, new_values)))
                 break
 
     if len(new_indices):
