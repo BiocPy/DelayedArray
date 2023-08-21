@@ -67,6 +67,7 @@ def _is_sparse_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple) -> bool:
 def _extract_dense_array_UnaryIsometricOpSimple(
     x: UnaryIsometricOpSimple, idx
 ) -> numpy.ndarray:
+    idx = sanitize_indices(idx, x.shape)
     base = extract_dense_array(x._seed, idx)
     opfun = _choose_operator(x._op)
     return opfun(base).astype(x._dtype, copy=False)
@@ -90,6 +91,7 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
 def _extract_sparse_array_UnaryIsometricOpSimple(
     x: UnaryIsometricOpSimple, idx
 ) -> SparseNdarray:
+    idx = sanitize_indices(idx, x.shape)
     sparse = extract_sparse_array(x._seed, idx)
 
     opfun = _choose_operator(x._op)
