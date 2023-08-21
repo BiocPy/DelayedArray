@@ -265,13 +265,15 @@ def _extract_dense_array_from_SparseNdarray(
     idx2[-1] = _characterize_indices(idx2[-1])
 
     output = numpy.zeros((*idims,), dtype=x._dtype)
-    ndims = len(x.shape)
-    if ndims > 1:
-        _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output, x.shape[-1])
-    else:
-        _extract_sparse_vector_to_dense(
-            x._contents[0], x._contents[1], idx2[0], output, x.shape[-1]
-        )
+    if x._contents is not None:
+        ndims = len(x.shape)
+        if ndims > 1:
+            _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output, x.shape[-1])
+        else:
+            _extract_sparse_vector_to_dense(
+                x._contents[0], x._contents[1], idx2[0], output, x.shape[-1]
+            )
+
     return output
 
 
@@ -349,4 +351,4 @@ def _extract_sparse_array_from_SparseNdarray(
                 x._contents[0], x._contents[1], idx2[0], x.shape[-1]
             )
 
-    return SparseNdarray(shape=(*idims,), contents=new_contents)
+    return SparseNdarray(shape=(*idims,), contents=new_contents, dtype=x.dtype, check=False)

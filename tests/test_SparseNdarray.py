@@ -240,3 +240,20 @@ def test_SparseNdarray_int_type():
     assert spout.dtype == numpy.int16
     assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
 
+def test_SparseNdarray_empty():
+    test_shape = (20, 21, 22)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.uint32)
+    assert y.shape == test_shape
+    assert y.dtype == numpy.uint32 
+
+    dout = delayedarray.extract_dense_array(y, (slice(None), slice(None), slice(None)))
+    assert (dout == numpy.zeros(test_shape)).all()
+    dout = delayedarray.extract_dense_array(y, ([1,2,3],[4,5,6,7],[8,9,10,11,12]))
+    assert (dout == numpy.zeros((3,4,5))).all()
+
+    spout = delayedarray.extract_sparse_array(y, (slice(None), slice(None), slice(None)))
+    assert spout._contents is None
+    assert spout.shape == test_shape
+    assert spout.dtype == numpy.uint32 
+    spout = delayedarray.extract_sparse_array(y, ([1,2,3],[4,5,6,7],[8,9,10,11,12]))
+    assert spout.shape == (3,4,5)
