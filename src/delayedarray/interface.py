@@ -2,7 +2,7 @@ import copy
 from functools import singledispatch
 from typing import Sequence, Tuple
 
-from numpy import ndarray
+from numpy import ix_, ndarray
 
 from .SparseNdarray import (
     SparseNdarray,
@@ -32,7 +32,7 @@ def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
         NotImplementedError: When ``x`` is not an supported type.
 
     Returns:
-        ndarray: A sliced :py:class.`numpy.ndarray`.
+        ndarray: A sliced :py:class.`~numpy.ndarray`.
     """
     raise NotImplementedError(
         f"extract_dense_array is not supported for '{type(x)}' objects"
@@ -40,8 +40,8 @@ def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
 
 
 @extract_dense_array.register
-def extract_dense_array_ndarray(x: ndarray, idx: Tuple[Sequence, ...]) -> ndarray:
-    return copy.deepcopy(x[(..., *idx)])
+def _extract_dense_array_ndarray(x: ndarray, idx: Tuple[Sequence, ...]) -> ndarray:
+    return copy.deepcopy(x[ix_(*idx)])
 
 
 @extract_dense_array.register
