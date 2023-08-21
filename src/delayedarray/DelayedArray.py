@@ -1,6 +1,6 @@
 from typing import Sequence, Tuple
 
-from numpy import array2string, get_printoptions, ndarray
+from numpy import array2string, dtype, get_printoptions, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -82,11 +82,22 @@ class DelayedArray:
         self._seed = seed
 
     @property
-    def shape(self):
+    def shape(self) -> Tuple[int, ...]:
+        """Shape of the delayed array.
+
+        Returns:
+            Tuple[int, ...]: Tuple of integers containing the array shape along
+            each dimension.
+        """
         return self._seed.shape
 
     @property
-    def dtype(self):
+    def dtype(self) -> dtype:
+        """Type of the elements in the array.
+
+        Returns:
+            dtype: Type of the NumPy array containing the values of the non-zero elements.
+        """
         return self._seed.dtype
 
     def __str__(self):
@@ -126,6 +137,18 @@ class DelayedArray:
         return extract_dense_array(self._seed, (*full_indices,))
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        """Interface with NumPy array methods.
+
+        Usage:
+
+        .. code-block:: python
+
+            np.sqrt(delayed_array)
+
+        Returns:
+            An object with the same type as caller.
+        """
+
         if ufunc.__name__ in translate_ufunc_to_op_with_args:
             # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
@@ -138,7 +161,8 @@ class DelayedArray:
             return DelayedArray(UnaryIsometricOpSimple(inputs[0], op=ufunc.__name__))
         elif ufunc.__name__ == "absolute":
             return DelayedArray(UnaryIsometricOpSimple(inputs[0], op="abs"))
-        return NotImplemented
+
+        raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
     def __add__(self, other):
         return wrap_isometric_with_args(self, other, op="+", right=True)
