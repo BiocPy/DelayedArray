@@ -2,7 +2,7 @@ import copy
 from functools import singledispatch
 from typing import Sequence, Tuple
 
-from numpy import ndarray
+from numpy import ndarray, ix_
 
 from .SparseNdarray import (
     SparseNdarray,
@@ -41,7 +41,7 @@ def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
 
 @extract_dense_array.register
 def extract_dense_array_ndarray(x: ndarray, idx: Tuple[Sequence, ...]) -> ndarray:
-    return copy.deepcopy(x[(..., *idx)])
+    return copy.deepcopy(x[ix_(*idx)])
 
 
 @extract_dense_array.register
