@@ -89,7 +89,7 @@ class DelayedArray:
     def dtype(self):
         return self._seed.dtype
 
-    def __repr__(self):
+    def __str__(self):
         total = 1
         for s in self._seed.shape:
             total *= s
