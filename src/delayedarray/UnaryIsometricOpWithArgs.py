@@ -1,6 +1,7 @@
 import operator
 from typing import Literal, Tuple, Union
 
+import warnings
 import numpy
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
@@ -96,10 +97,12 @@ class UnaryIsometricOpWithArgs:
         f = _choose_operator(op)
 
         dummy = numpy.zeros(0, dtype=seed.dtype)
-        if isinstance(value, numpy.ndarray):
-            dummy = f(dummy, value[:0])
-        else:
-            dummy = f(dummy, value)
+        with warnings.catch_warnings(): # silence warnings from divide by zero. 
+            warnings.simplefilter("ignore")
+            if isinstance(value, numpy.ndarray):
+                dummy = f(dummy, value[:0])
+            else:
+                dummy = f(dummy, value)
         dtype = dummy.dtype
         same_type = (dtype == seed.dtype)
 
@@ -118,10 +121,12 @@ class UnaryIsometricOpWithArgs:
 
         def check(s, v):
             try:
-                if right:
-                    return f(s, v)
-                else:
-                    return f(v, s)
+                with warnings.catch_warnings(): # silence warnings from divide by zero. 
+                    warnings.simplefilter("ignore")
+                    if right:
+                        return f(s, v)
+                    else:
+                        return f(v, s)
             except ZeroDivisionError:
                 return numpy.inf
 

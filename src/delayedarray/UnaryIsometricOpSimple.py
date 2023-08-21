@@ -11,7 +11,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 OP = Literal[
-    "log1p", "log2", "log10", 
+    "log", "log1p", "log2", "log10", 
     "exp", "expm1", 
     "sqrt", "abs", 
     "sin", "cos", "tan", 

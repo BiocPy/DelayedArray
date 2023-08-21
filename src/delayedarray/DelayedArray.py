@@ -1,3 +1,4 @@
+from typing import Tuple, Sequence
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
@@ -15,8 +16,41 @@ def wrap_isometric_with_args(x, other, op, right):
         right=right
     ))
 
+translate_ufunc_to_op_with_args = {
+    "add": "+",
+    "subtract": "-",
+    "multiply": "*",
+    "divide": "/",
+    "floor_divide": "//",
+    "remainder": "%",
+    "power": "**"
+}
+
+translate_ufunc_to_op_simple = set([
+    "log", "log1p", "log2", "log10", 
+    "exp", "expm1", 
+    "sqrt", 
+    "sin", "cos", "tan", 
+    "sinh", "cosh", "tanh", 
+    "arcsin", "arccos", "arctan", 
+    "arcsinh", "arccosh", "arctanh",
+    "ceil", "floor", "trunc", 
+    "sign"
+])
 
 class DelayedArray:
+    """Array containing delayed operations.
+    This allows users to efficiently operate on large matrices without actually evaluating the operation or creating new copies.
+
+    Attributes:
+        seed:
+            Any array-like object with the ``shape`` and ``dtype`` properties.
+            This should also have methods for the 
+            :py:meth:`~delayedarray.interface.is_sparse`,
+            :py:meth:`~delayedarray.interface.extract_dense_array`,
+            and (if ``is_sparse`` may return True)
+            :py:meth:`~delayedarray.interface.extract_sparse_array` generics.
+    """
     def __init__(self, seed):
         self._seed = seed
 
@@ -54,10 +88,29 @@ class DelayedArray:
                 indices.append(slice(None))
 
         bits_and_pieces = extract_dense_array(self._seed, (*indices,))
-        converted = numpy.array2string(bits_and_pieces, separator=", ", prefix=prefix, suffix=suffix, threshold=0)
+        converted = numpy.array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
-    # Adding in all the magic methods with an 'other' argument.
+    # For NumPy:
+    def __array__(self):
+        full_indices = sanitize_indices([slice(None)] * len(self.shape), self.shape)
+        return extract_dense_array(self._seed, (*full_indices,))
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        if ufunc.__name__ in translate_ufunc_to_op_with_args:
+            # This is required to support situations where the NumPy array is on 
+            # the LHS, such that the ndarray method gets called first.
+            op = translate_ufunc_to_op_with_args[ufunc.__name__]
+            first_is_da = isinstance(inputs[0], DelayedArray)
+            da = inputs[1 - int(first_is_da)]
+            v = inputs[int(first_is_da)]
+            return wrap_isometric_with_args(da, v, op=op, right=first_is_da)
+        elif ufunc.__name__ in translate_ufunc_to_op_simple:
+            return DelayedArray(UnaryIsometricOpSimple(inputs[0], op=ufunc.__name__))
+        elif ufunc.__name__ == "absolute":
+            return DelayedArray(UnaryIsometricOpSimple(inputs[0], op="abs"))
+        return NotImplemented
+
     def __add__(self, other):
         return wrap_isometric_with_args(self, other, op="+", right=True)
 
@@ -67,13 +120,13 @@ class DelayedArray:
     def __sub__(self, other):
         return wrap_isometric_with_args(self, other, op="-", right=True)
 
-    def __sub__(self, other):
+    def __rsub__(self, other):
         return wrap_isometric_with_args(self, other, op="-", right=False)
 
     def __mul__(self, other):
         return wrap_isometric_with_args(self, other, op="*", right=True)
 
-    def __mul__(self, other):
+    def __rmul__(self, other):
         return wrap_isometric_with_args(self, other, op="*", right=False)
 
     def __truediv__(self, other):
@@ -100,31 +153,21 @@ class DelayedArray:
     def __rpow__(self, other):
         return wrap_isometric_with_args(self, other, op="**", right=False)
 
-    # Adding all the true unary magic methods.
     def __neg__(self):
         return wrap_isometric_with_args(self, 0, op="-", right=False)
 
     def __abs__(self):
-        return DelayedArray(UnaryIsometricSimple(self._seed, op="abs"))
-
-    def __ceil__(self):
-        return DelayedArray(UnaryIsometricSimple(self._seed, op="ceil"))
-
-    def __floor__(self):
-        return DelayedArray(UnaryIsometricSimple(self._seed, op="floor"))
-
-    def __trunc__(self):
-        return DelayedArray(UnaryIsometricSimple(self._seed, op="trunc"))
+        return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
 
 
 @extract_dense_array.register
-def _extract_dense_array_DelayedArray(x: DelayedArray) -> numpy.ndarray:
-    return extract_dense_array(x._seed)
+def _extract_dense_array_DelayedArray(x: DelayedArray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
+    return extract_dense_array(x._seed, idx)
 
 
 @extract_sparse_array.register
-def _extract_sparse_array_DelayedArray(x: DelayedArray) -> SparseNdarray:
-    return extract_sparse_array(x._seed)
+def _extract_sparse_array_DelayedArray(x: DelayedArray, idx: Tuple[Sequence, ...]) -> SparseNdarray:
+    return extract_sparse_array(x._seed, idx)
 
 
 @is_sparse.register
