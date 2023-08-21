@@ -105,7 +105,7 @@ class SparseNdarray:
         """
         return self._dtype
 
-    def __get_item__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
+    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
         """Extract sparse array by slicing this data array.
 
         Args:
