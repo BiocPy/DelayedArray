@@ -1,7 +1,7 @@
 import operator
+import warnings
 from typing import Literal, Tuple, Union
 
-import warnings
 import numpy
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
@@ -14,9 +14,8 @@ __license__ = "MIT"
 
 OP = Literal["+", "-", "/", "*", "//", "%", "**"]
 
-def _choose_operator(
-    op: OP, inplace: bool = False
-):
+
+def _choose_operator(op: OP, inplace: bool = False):
     if op == "+":
         if inplace:
             return operator.iadd
@@ -59,7 +58,7 @@ def _choose_operator(
 class UnaryIsometricOpWithArgs:
     """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.
     This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
-    Only one n-dimensional array is involved here, hence the "unary" in the name. 
+    Only one n-dimensional array is involved here, hence the "unary" in the name.
 
     The data type of the result is determined by NumPy casting given the ``seed`` and ``value`` data types.
     We suggest supplying a floating-point ``value`` to avoid unexpected results from integer truncation or overflow.
@@ -92,19 +91,19 @@ class UnaryIsometricOpWithArgs:
         value: Union[float, numpy.ndarray],
         op: OP,
         right: bool = True,
-        along: int = 0
+        along: int = 0,
     ):
         f = _choose_operator(op)
 
         dummy = numpy.zeros(0, dtype=seed.dtype)
-        with warnings.catch_warnings(): # silence warnings from divide by zero. 
+        with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
             if isinstance(value, numpy.ndarray):
                 dummy = f(dummy, value[:0])
             else:
                 dummy = f(dummy, value)
         dtype = dummy.dtype
-        same_type = (dtype == seed.dtype)
+        same_type = dtype == seed.dtype
 
         is_no_op = None
         if same_type:
@@ -121,7 +120,7 @@ class UnaryIsometricOpWithArgs:
 
         def check(s, v):
             try:
-                with warnings.catch_warnings(): # silence warnings from divide by zero. 
+                with warnings.catch_warnings():  # silence warnings from divide by zero.
                     warnings.simplefilter("ignore")
                     if right:
                         return f(s, v)

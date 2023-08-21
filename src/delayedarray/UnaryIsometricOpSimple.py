@@ -1,52 +1,64 @@
-from typing import Literal, Tuple, Union
+from typing import Literal, Tuple
 
 import numpy
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
-from .utils import sanitize_indices, sanitize_single_index
+from .utils import sanitize_indices
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
 OP = Literal[
-    "log", "log1p", "log2", "log10", 
-    "exp", "expm1", 
-    "sqrt", "abs", 
-    "sin", "cos", "tan", 
-    "sinh", "cosh", "tanh", 
-    "arcsin", "arccos", "arctan", 
-    "arcsinh", "arccosh", "arctanh",
-    "ceil", "floor", "trunc", 
-    "sign"
+    "log",
+    "log1p",
+    "log2",
+    "log10",
+    "exp",
+    "expm1",
+    "sqrt",
+    "abs",
+    "sin",
+    "cos",
+    "tan",
+    "sinh",
+    "cosh",
+    "tanh",
+    "arcsin",
+    "arccos",
+    "arctan",
+    "arcsinh",
+    "arccosh",
+    "arctanh",
+    "ceil",
+    "floor",
+    "trunc",
+    "sign",
 ]
+
 
 def _choose_operator(op: OP):
     return getattr(numpy, op)
 
+
 class UnaryIsometricOpSimple:
-    """Unary isometric operation involving an n-dimensional seed array with no additional arguments. 
+    """Unary isometric operation involving an n-dimensional seed array with no additional arguments.
 
     Attributes:
-        seed:
-            An array-like object.
+        seed: An array-like object.
 
         op (OP):
             String specifying the unary operation.
     """
 
-    def __init__(
-        self,
-        seed,
-        op: OP
-    ):
+    def __init__(self, seed, op: OP):
         f = _choose_operator(op)
         dummy = f(numpy.zeros(1, dtype=seed.dtype))
 
         self._seed = seed
         self._op = op
-        self._preserves_sparse = (dummy[0] == 0)
+        self._preserves_sparse = dummy[0] == 0
         self._dtype = dummy.dtype
 
     @property
@@ -95,6 +107,7 @@ def _extract_sparse_array_UnaryIsometricOpSimple(
     sparse = extract_sparse_array(x._seed, idx)
 
     opfun = _choose_operator(x._op)
+
     def execute(indices, values, at):
         return opfun(values)
 

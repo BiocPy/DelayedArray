@@ -1,20 +1,26 @@
-from typing import Tuple, Sequence
+from typing import Sequence, Tuple
+
+from numpy import array2string, get_printoptions, ndarray
+
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
-from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
-from .utils import sanitize_indices, sanitize_single_index
-import numpy
+from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
+from .utils import sanitize_indices
+
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
+
 
 def wrap_isometric_with_args(x, other, op, right):
     # TO DO: handle binary operations for DelayedArray 'other'.
-    return DelayedArray(UnaryIsometricOpWithArgs(
-        x._seed, 
-        value=other,
-        op=op,
-        along=len(x.shape) - 1, 
-        right=right
-    ))
+    return DelayedArray(
+        UnaryIsometricOpWithArgs(
+            x._seed, value=other, op=op, along=len(x.shape) - 1, right=right
+        )
+    )
+
 
 translate_ufunc_to_op_with_args = {
     "add": "+",
@@ -23,34 +29,55 @@ translate_ufunc_to_op_with_args = {
     "divide": "/",
     "floor_divide": "//",
     "remainder": "%",
-    "power": "**"
+    "power": "**",
 }
 
-translate_ufunc_to_op_simple = set([
-    "log", "log1p", "log2", "log10", 
-    "exp", "expm1", 
-    "sqrt", 
-    "sin", "cos", "tan", 
-    "sinh", "cosh", "tanh", 
-    "arcsin", "arccos", "arctan", 
-    "arcsinh", "arccosh", "arctanh",
-    "ceil", "floor", "trunc", 
-    "sign"
-])
+translate_ufunc_to_op_simple = set(
+    [
+        "log",
+        "log1p",
+        "log2",
+        "log10",
+        "exp",
+        "expm1",
+        "sqrt",
+        "sin",
+        "cos",
+        "tan",
+        "sinh",
+        "cosh",
+        "tanh",
+        "arcsin",
+        "arccos",
+        "arctan",
+        "arcsinh",
+        "arccosh",
+        "arctanh",
+        "ceil",
+        "floor",
+        "trunc",
+        "sign",
+    ]
+)
+
 
 class DelayedArray:
     """Array containing delayed operations.
-    This allows users to efficiently operate on large matrices without actually evaluating the operation or creating new copies.
+
+    This allows users to efficiently operate on large matrices without actually
+    evaluating the operation or creating new copies.
 
     Attributes:
         seed:
             Any array-like object with the ``shape`` and ``dtype`` properties.
-            This should also have methods for the 
+
+            This should also have methods for the
             :py:meth:`~delayedarray.interface.is_sparse`,
             :py:meth:`~delayedarray.interface.extract_dense_array`,
             and (if ``is_sparse`` may return True)
             :py:meth:`~delayedarray.interface.extract_sparse_array` generics.
     """
+
     def __init__(self, seed):
         self._seed = seed
 
@@ -60,35 +87,37 @@ class DelayedArray:
 
     @property
     def dtype(self):
-        return self._seed.dtype 
+        return self._seed.dtype
 
     def __repr__(self):
         total = 1
         for s in self._seed.shape:
             total *= s
 
-        preamble = "<" + ' x '.join([str(x) for x in self._seed.shape]) + ">"
+        preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
         if is_sparse(self._seed):
             preamble += " sparse"
         preamble += " DelayedArray object of type '" + self._seed.dtype.name + "'"
 
         ndims = len(self._seed.shape)
-        if total <= numpy.get_printoptions()['threshold']:
+        if total <= get_printoptions()["threshold"]:
             full_indices = [slice(None)] * ndims
             bits_and_pieces = extract_dense_array(self._seed, (*full_indices,))
             return preamble + "\n" + repr(bits_and_pieces)
 
         indices = []
-        edge_size = numpy.get_printoptions()["edgeitems"]
+        edge_size = get_printoptions()["edgeitems"]
         for d in range(ndims):
             extent = self._seed.shape[d]
             if extent > edge_size * 2:
-                indices.append(list(range(edge_size + 1)) + list(range(extent - edge_size, extent)))
+                indices.append(
+                    list(range(edge_size + 1)) + list(range(extent - edge_size, extent))
+                )
             else:
                 indices.append(slice(None))
 
         bits_and_pieces = extract_dense_array(self._seed, (*indices,))
-        converted = numpy.array2string(bits_and_pieces, separator=", ", threshold=0)
+        converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
     # For NumPy:
@@ -98,7 +127,7 @@ class DelayedArray:
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         if ufunc.__name__ in translate_ufunc_to_op_with_args:
-            # This is required to support situations where the NumPy array is on 
+            # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
             op = translate_ufunc_to_op_with_args[ufunc.__name__]
             first_is_da = isinstance(inputs[0], DelayedArray)
@@ -161,12 +190,16 @@ class DelayedArray:
 
 
 @extract_dense_array.register
-def _extract_dense_array_DelayedArray(x: DelayedArray, idx: Tuple[Sequence, ...]) -> numpy.ndarray:
+def _extract_dense_array_DelayedArray(
+    x: DelayedArray, idx: Tuple[Sequence, ...]
+) -> ndarray:
     return extract_dense_array(x._seed, idx)
 
 
 @extract_sparse_array.register
-def _extract_sparse_array_DelayedArray(x: DelayedArray, idx: Tuple[Sequence, ...]) -> SparseNdarray:
+def _extract_sparse_array_DelayedArray(
+    x: DelayedArray, idx: Tuple[Sequence, ...]
+) -> SparseNdarray:
     return extract_sparse_array(x._seed, idx)
 
 
