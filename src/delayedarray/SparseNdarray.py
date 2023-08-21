@@ -1,7 +1,7 @@
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-from numpy import array, dtype, ndarray, zeros
+import numpy
 
 from .utils import sanitize_indices
 
@@ -25,7 +25,7 @@ class SparseNdarray:
     In effect, this is a tree where the non-leaf nodes are lists and the leaf nodes
     are tuples. ``index`` should be a :py:class:`~typing.Sequence` of integers where
     values are strictly increasing and less than the extent of the final dimension.
-    ``value`` may be any :py:class:`~ndarray` but the ``dtype`` should be
+    ``value`` may be any :py:class:`~numpy.ndarray` but the ``dtype`` should be
     consistent across all ``value``s in the array.
 
     Any entry of any list may also be None, indicating that the corresponding element
@@ -48,7 +48,7 @@ class SparseNdarray:
 
             Alternatively None, if the array is empty.
 
-        dtype (dtype, optional):
+        dtype (numpy.dtype, optional):
             Type of the array as a NumPy type.
             If None, this is inferred from ``contents``.
     """
@@ -58,12 +58,12 @@ class SparseNdarray:
         shape: Tuple[int, ...],
         contents: Optional[
             Union[
-                Tuple[ndarray, ndarray],
+                Tuple[Sequence, Sequence],
                 List,
             ]
         ],
-        dtype: Optional[dtype] = None,
-        check=True,
+        dtype: Optional[numpy.dtype] = None,
+        check=True
     ):
         self._shape = shape
         self._contents = contents
@@ -97,15 +97,15 @@ class SparseNdarray:
         return self._shape
 
     @property
-    def dtype(self) -> dtype:
+    def dtype(self) -> numpy.dtype:
         """Type of the array.
 
         Returns:
-            dtype: Type of the NumPy array containing the values of the non-zero elements.
+            numpy.dtype: Type of the NumPy array containing the values of the non-zero elements.
         """
         return self._dtype
 
-    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
+    def __get_item__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
         """Extract sparse array by slicing this data array.
 
         Args:
@@ -143,9 +143,7 @@ def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
     return None
 
 
-def _check_sparse_tuple(
-    indices: Sequence, values: ndarray, max_index: int, dtype: dtype
-):
+def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int, dtype: numpy.dtype):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
 
@@ -161,9 +159,7 @@ def _check_sparse_tuple(
             raise ValueError("Index vectors should be sorted.")
 
 
-def _recursive_check(
-    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: dtype
-):
+def _recursive_check(contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype):
     if len(contents) != shape[dim]:
         raise ValueError(
             "Length of 'contents' or its components should match the extent of the corresponding dimension."
@@ -263,12 +259,12 @@ def _recursive_extract_dense_array(contents, ndim, idx, dim, output, last_dim_sh
 
 def _extract_dense_array_from_SparseNdarray(
     x: SparseNdarray, idx: Tuple[Union[slice, Sequence], ...]
-) -> ndarray:
+) -> numpy.ndarray:
     idx2 = sanitize_indices(idx, x.shape)
     idims = [len(y) for y in idx2]
     idx2[-1] = _characterize_indices(idx2[-1])
 
-    output = zeros((*idims,), dtype=x._dtype)
+    output = numpy.zeros((*idims,), dtype=x._dtype)
     ndims = len(x.shape)
     if ndims > 1:
         _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output, x.shape[-1])
@@ -292,10 +288,10 @@ def _extract_sparse_vector_to_sparse(indices, values, idx_summary, last_dim_shap
     if len(new_indices) == 0:
         return None
 
-    if isinstance(indices, ndarray):
-        new_indices = array(new_indices, dtype=indices.dtype)
-    if isinstance(values, ndarray):
-        new_values = array(new_values, dtype=values.dtype)
+    if isinstance(indices, numpy.ndarray):
+        new_indices = numpy.array(new_indices, dtype=indices.dtype)
+    if isinstance(values, numpy.ndarray):
+        new_values = numpy.array(new_values, dtype=values.dtype)
     return new_indices, new_values
 
 
