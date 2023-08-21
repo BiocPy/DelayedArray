@@ -1,7 +1,11 @@
-from .interface from extract_dense_array, extract_sparse_array
+from typing import Tuple, Sequence
+from collections import namedtuple
 from copy import deepcopy
-from numpy import dtype, ndarray, ix_
+from numpy import dtype, array, ndarray, ix_
 from bisect import bisect_left
+
+from .interface import extract_dense_array, extract_sparse_array
+from .SparseNdarray import SparseNdarray
 from .utils import sanitize_single_index
 
 
@@ -84,38 +88,13 @@ def _normalize_subset(subset, is_sorted, is_unique):
 
 
 def is_subset_noop(idx, full):
+    if len(idx) != full:
+        return False
     for i in range(full):
         if idx[i] != i:
             return False
     return True
 
-
-# Combines the subset in the class instance with the indexing request in the
-# extract_*_array call. This will fall back to the full normalized subset 
-# if it figures out that we're dealing with a no-op index; otherwise it
-# will take an indexed slice of the subset and re-normalize it.
-def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
-    out_sub = []
-    out_map = []
-
-    for i in range(len(idx)):
-        curshape = x.shape[i]
-        curidx = sanitize_single_index(idx[i], curshape)
-
-        if is_subset_noop(curdex, curshape):
-            out_sub.append(x._full_normalized_subset[i])
-            out_map.append(x._full_subset_mapping[i])
-        else:
-            subsub = []
-            cursub = x._subset[i]
-            for j in curidx:
-                subsub.append(cursub[j])
-
-            n, m = _normalize_subset(subsub, x._is_unique[i], x._is_sorted[i])
-            out_sub.append(s)
-            out_map.append(m)
-
-    return out_sub, out_map
 
 class Subset:
     def __init__(self, seed, subset):
@@ -137,7 +116,7 @@ class Subset:
             self._is_unique.append(u)
             self._is_sorted.append(s)
 
-            n, m = _normalize_subset(subset[i])
+            n, m = _normalize_subset(subset[i], is_sorted=s, is_unique=u)
             self._full_normalized_subset.append(n)
             self._full_subset_mapping.append(m)
 
@@ -150,6 +129,34 @@ class Subset:
     @property
     def dtype(self) -> dtype:
         return self.seed.dtype
+
+
+# Combines the subset in the class instance with the indexing request in the
+# extract_*_array call. This will fall back to the full normalized subset 
+# if it figures out that we're dealing with a no-op index; otherwise it
+# will take an indexed slice of the subset and re-normalize it.
+def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
+    out_sub = []
+    out_map = []
+
+    for i in range(len(idx)):
+        curshape = x.shape[i]
+        curidx = sanitize_single_index(idx[i], curshape)
+
+        if is_subset_noop(curidx, curshape):
+            out_sub.append(x._full_normalized_subset[i])
+            out_map.append(x._full_subset_mapping[i])
+        else:
+            subsub = []
+            cursub = x._subset[i]
+            for j in curidx:
+                subsub.append(cursub[j])
+
+            n, m = _normalize_subset(subsub, x._is_unique[i], x._is_sorted[i])
+            out_sub.append(n)
+            out_map.append(m)
+
+    return out_sub, out_map
 
 
 @extract_dense_array.register
@@ -175,7 +182,7 @@ def _inflate_sparse_vector(indices, values, last_info):
 
     end_pos = len(indices)
     if last_info.last != last_info.full:
-        end_pos = bisect_left(indices, last, lo=start_pos, hi=end_pos)
+        end_pos = bisect_left(indices, last_info.last, lo=start_pos, hi=end_pos)
 
     if last_info.is_unique:
         for i in range(start_pos, end_pos):
@@ -217,15 +224,11 @@ def _recursive_inflater(contents, dim, ndim, mappings, last_info):
     
             latest = contents[i]
             if latest is not None:
-                latest = _inflate_sparse_vector(latest[0], latest[1], inverted))
+                latest = _inflate_sparse_vector(latest[0], latest[1], last_info)
 
             replacement.append(latest)
             seen[i] = latest
     else:
-        present = False
-        replacement = []
-        seen = {}
-
         for i in mappings[dim]:
             if i in seen: # speed up matters if we've got duplicated indices.
                 replacement.append(deepcopy(seen[i]))
@@ -233,7 +236,7 @@ def _recursive_inflater(contents, dim, ndim, mappings, last_info):
 
             latest = contents[i]
             if latest is not None:
-                latest = _recursive_inflater(latest, dim + 1, ndim, mappings, last_dim)
+                latest = _recursive_inflater(latest, dim + 1, ndim, mappings, last_info)
 
             replacement.append(latest)
             seen[i] = latest
@@ -255,7 +258,7 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
     inverted = None
     last_unique = x._is_unique[-1]
     last_sorted = x._is_sorted[-1]
-    last_shape = x.shape[-1]
+    last_shape = len(last_subset)
 
     if last_unique:
         is_consecutive = False
@@ -263,12 +266,12 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
             is_consecutive = is_subset_noop(last_mapping, last_shape)
 
         if not is_consecutive:
-            inverted = [None] * compact.shape
+            inverted = [None] * last_shape
             for i in range(len(last_mapping)):
                 inverted[last_mapping[i]] = i
 
     else:
-        inverted = [None] * compact.shape
+        inverted = [None] * last_shape
         for i in range(len(last_mapping)):
             m = last_mapping[i]
             if inverted[m] is None:
@@ -278,8 +281,8 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
 
     if inverted is not None:
         last_info = LastIndexInfo(
-            first=min(last_subset), 
-            last=max(last_subset),
+            first=min(last_mapping), 
+            last=max(last_mapping),
             full=last_shape,
             inverted=inverted,
             is_sorted=last_sorted,
@@ -289,10 +292,10 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
         last_info = None
 
     if isinstance(compact._contents, list):
-        compact._contents = _recursive_inflater(compact._contents, 0, len(x.shape), mapping, last_info)
+        compact._contents = _recursive_inflater(compact._contents, 0, len(x.shape), mappings, last_info)
     elif compact._contents is not None:
         compact._contents = _inflate_sparse_vector(compact._contents[0], compact._contents[1], last_info)
 
     final_shape = [len(m) for m in mappings]
-    compact._shape = final_shape
+    compact._shape = (*final_shape,)
     return compact
