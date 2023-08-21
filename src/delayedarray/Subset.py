@@ -71,21 +71,16 @@ def _normalize_subset(subset, is_sorted, is_unique):
 
             return (subuniq, mapping)
         else:
-            output = list(set(subset)).sort()
-            mappings = {}
-            for i in range(len(output)):
-                mappings[output[i]] = i
-
-            for s in subset:
-                if s in mappings:
-                    new_indices[subset[i]] = []
-                new_indices[subset[i]].append(i)
-
-            subsorted = list(new_indices.keys())
+            subsorted = list(set(subset))
             subsorted.sort()
+
+            converter = {}
+            for i in range(len(subsorted)):
+                converter[subsorted[i]] = i
+
             mapping = []
-            for s in subsorted:
-                mapping.append(new_indices[s])
+            for s in subset:
+                mapping.append(converter[s])
 
             return (subsorted, mapping)
 
