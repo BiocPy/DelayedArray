@@ -48,7 +48,8 @@ def _normalize_subset(subset, is_sorted, is_unique):
             for i in range(len(subset)):
                 new_indices[subset[i]] = i
 
-            subsorted = deepcopy(subset).sort()
+            subsorted = deepcopy(subset)
+            subsorted.sort()
             mapping = []
             for s in subsorted:
                 mapping.append(new_indices[s])
@@ -63,8 +64,8 @@ def _normalize_subset(subset, is_sorted, is_unique):
                 mapping.append(0)
 
             for i in range(1, len(subset)):
-                if subset[i-1] < sub[i]:
-                    subuniq.append(sub[i])
+                if subset[i-1] < subset[i]:
+                    subuniq.append(subset[i])
                 mapping.append(len(subuniq) - 1)
 
             return (subuniq, mapping)
@@ -79,7 +80,8 @@ def _normalize_subset(subset, is_sorted, is_unique):
                     new_indices[subset[i]] = []
                 new_indices[subset[i]].append(i)
 
-            subsorted = list(new_indices.keys()).sort()
+            subsorted = list(new_indices.keys())
+            subsorted.sort()
             mapping = []
             for s in subsorted:
                 mapping.append(new_indices[s])
@@ -112,7 +114,7 @@ class Subset:
             current = sanitize_single_index(subset[i], seed.shape[i])
             self._subset.append(current)
 
-            u, s = _is_unique_and_sorted(current)
+            s, u = _is_unique_and_sorted(current)
             self._is_unique.append(u)
             self._is_sorted.append(s)
 
@@ -282,7 +284,7 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
     if inverted is not None:
         last_info = LastIndexInfo(
             first=min(last_mapping), 
-            last=max(last_mapping),
+            last=max(last_mapping) + 1,
             full=last_shape,
             inverted=inverted,
             is_sorted=last_sorted,
