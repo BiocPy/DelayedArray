@@ -94,10 +94,6 @@ def is_subset_noop(idx, full):
     return True
 
 
-def is_dimension_lost(x):
-    return isinstance(x, int)
-
-
 class Subset:
     """Delayed subset operation.
 
@@ -128,7 +124,7 @@ class Subset:
         final_shape = []
         for i in range(len(seed.shape)):
             cursub = subset[i]
-            if is_dimension_lost(cursub):
+            if isinstance(cursub, int):
                 self._subset.append(cursub)
                 continue
 
@@ -162,6 +158,7 @@ class Subset:
 def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
     out_sub = []
     out_map = []
+    not_lost = []
 
     xshape = x._shape
     raw_subsets = x._subset
@@ -169,36 +166,53 @@ def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
 
     for i in range(len(raw_subsets)):
         cursub = raw_subsets[i]
-        if is_dimension_lost(cursub):
+        if isinstance(cursub, int):
             out_sub.append([cursub])
-            out_map.append(0) # should remove a dimension on NumPy indexing; also propagates lost-ness in 'out_map'.
+            out_map.append([0]) 
             continue
 
         curshape = xshape[xcount]
         curidx = sanitize_single_index(idx[xcount], curshape)
 
         if is_subset_noop(curidx, curshape):
-            out_sub.append(x._full_normalized_subset[i])
-            out_map.append(x._full_subset_mapping[i])
+            out_sub.append(x._full_normalized_subset[xcount])
+            out_map.append(x._full_subset_mapping[xcount])
         else:
             subsub = []
             for j in curidx:
                 subsub.append(cursub[j])
 
-            n, m = _normalize_subset(subsub, is_sorted=x._is_sorted[i], is_unique=x._is_unique[i])
+            n, m = _normalize_subset(
+                subsub, 
+                is_sorted=x._is_sorted[xcount], 
+                is_unique=x._is_unique[xcount]
+            )
             out_sub.append(n)
             out_map.append(m)
 
+        not_lost.append(i)
         xcount += 1
 
-    return out_sub, out_map
+    return out_sub, out_map, not_lost
 
 
 @extract_dense_array.register
 def _extract_dense_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> ndarray:
-    subsets, mappings = _indexed_subsets(x, idx)
+    subsets, mappings, not_lost = _indexed_subsets(x, idx)
     compact = extract_dense_array(x._seed, (*subsets,))
-    return compact[ix_(*mappings)]
+    expanded = compact[ix_(*mappings)]
+
+    if len(not_lost) < len(mappings):
+        if len(not_lost):
+            final_shape = []
+            for l in not_lost:
+                final_shape.append(len(mappings[l]))
+            expanded = expanded.reshape(*final_shape)
+        else:
+            idx = [0] * len(mappings)
+            expanded = array(compact[(*idx,)])
+
+    return expanded
 
 
 LastIndexInfo = namedtuple('LastIndexInfo', ["first", "last", "inverted", "full", "is_sorted", "is_unique"])
@@ -244,48 +258,57 @@ def _inflate_sparse_vector(indices, values, last_info):
         return None
 
 
-def _recursive_inflater(contents, dim, mappings, last_real_dim, last_info):
-    replacement = []
+def _recursive_inflater(contents, dim, mappings, was_lost, last_notlost_dim, last_info):
     seen = {}
     ndim = len(mappings)
 
     # This clause is necessary to handle cases where the last dimension is lost,
     # meaning that we need to construct an entirely new sparse vector.
-    if dim == last_real_dim:
+    if dim == last_notlost_dim:
         count = 0
+        dtype = None
+        new_indices = []
+        new_values = []
+
         for i in mappings[dim]:
             if i in seen:
                 if seen[i] is not None:
-                    replacement.append(seen[i])
-                count += 1 
-                continue
-
-            latest = contents[i]
-            for d in range(dim + 1, ndim):
-                if latest is not None:
+                    new_indices.append(count)
+                    new_values.append(seen[i])
+            else:
+                latest = contents[i]
+                while isinstance(latest, list):
                     latest = latest[0]
 
-            seen[i] = latest
-            if latest is not None:
-                replacement.append((count, latest[1]))
+                if latest is not None:
+                    if dtype is not None:
+                        dtype = latest.dtype
+                    latest = latest[1][0]
+                    new_indices.append(count)
+                    new_values.append(latest)
+
+                seen[i] = latest
+
             count += 1 
 
-        if len(replacement) == 0:
+        if len(new_indices) == 0:
             return None
         else:
-            return replacement
+            return new_indices, array(new_values, dtype=dtype)
 
     # This clause handles cases where an intermediate dimension is lost,
     # but there is still at least one remaining dimension to be processed.
-    curmap = mappings[dim]
-    if is_dimension_lost(curmap):
+    if was_lost[dim]:
         latest = contents[0]
         if latest is None:
             return None
         elif dim == ndim - 2:
             return _inflate_sparse_vector(latest[0], latest[1], last_info)
         else:
-            return _recursive_inflater(latest, dim + 1, mappings, last_real_dim, last_info)
+            return _recursive_inflater(latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info)
+
+    curmap = mappings[dim]
+    replacement = []
 
     # Now we finally get onto the standard recursion for SparseNdarrays.
     if dim == ndim - 2:
@@ -309,7 +332,7 @@ def _recursive_inflater(contents, dim, mappings, last_real_dim, last_info):
 
             latest = contents[i]
             if latest is not None:
-                latest = _recursive_inflater(latest, dim + 1, mappings, last_real_dim, last_info)
+                latest = _recursive_inflater(latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info)
 
             replacement.append(latest)
             seen[i] = latest
@@ -323,12 +346,16 @@ def _recursive_inflater(contents, dim, mappings, last_real_dim, last_info):
 
 @extract_sparse_array.register
 def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> SparseNdarray:
-    subsets, mappings = _indexed_subsets(x, idx)
+    subsets, mappings, not_lost = _indexed_subsets(x, idx)
     compact = extract_sparse_array(x._seed, (*subsets,))
 
+    was_lost = [True] * len(mappings)
+    for d in not_lost:
+        was_lost[d] = False
+
     last_info = None
-    last_mapping = mappings[-1]
-    if last_mapping != 0:
+    if len(was_lost) and not was_lost[-1]:
+        last_mapping = mappings[-1]
         last_subset = subsets[-1]
         inverted = None
         last_unique = x._is_unique[-1]
@@ -364,14 +391,9 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
                 is_unique=last_unique
             )
 
-    last_real_dim = -1
-    for d in range(len(mappings)):
-        if not isinstance(mappings[d], int):
-            last_real_dim = d
-
     # If there are no dimensions, we're dealing with a 0-dimensional
     # SparseNdarray, i.e., a scalar.
-    if last_real_dim < 0:
+    if len(not_lost) == 0:
         contents = compact._contents
         while contents is not None:
             contents = contents[0]
@@ -380,14 +402,13 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
         return SparseNdarray(contents, shape=(), dtype=compact.dtype)
 
     if isinstance(compact._contents, list):
-        compact._contents = _recursive_inflater(compact._contents, 0, mappings, last_real_dim, last_info)
+        compact._contents = _recursive_inflater(compact._contents, 0, mappings, was_lost, not_lost[-1], last_info)
     elif compact._contents is not None:
         compact._contents = _inflate_sparse_vector(compact._contents[0], compact._contents[1], last_info)
 
     final_shape = []
-    for m in mappings:
-        if not isinstance(m, int):
-            final_shape.append(len(m))
+    for d in not_lost:
+        final_shape.append(len(mappings[d]))
     compact._shape = (*final_shape,)
     return compact
 
