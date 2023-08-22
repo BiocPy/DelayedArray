@@ -2,6 +2,7 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy
+from numpy import array, ndarray, zeros
 
 from .utils import sanitize_indices
 
@@ -144,7 +145,7 @@ def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
 
 
 def _check_sparse_tuple(
-    indices: Sequence, values: Sequence, max_index: int, dtype: numpy.dtype
+    indices: Sequence, values: ndarray, max_index: int, dtype: numpy.dtype
 ):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
@@ -263,12 +264,12 @@ def _recursive_extract_dense_array(contents, ndim, idx, dim, output, last_dim_sh
 
 def _extract_dense_array_from_SparseNdarray(
     x: SparseNdarray, idx: Tuple[Union[slice, Sequence], ...]
-) -> numpy.ndarray:
+) -> ndarray:
     idx2 = sanitize_indices(idx, x.shape)
     idims = [len(y) for y in idx2]
     idx2[-1] = _characterize_indices(idx2[-1])
 
-    output = numpy.zeros((*idims,), dtype=x._dtype)
+    output = zeros((*idims,), dtype=x._dtype)
     if x._contents is not None:
         ndims = len(x.shape)
         if ndims > 1:
@@ -296,10 +297,10 @@ def _extract_sparse_vector_to_sparse(indices, values, idx_summary, last_dim_shap
     if len(new_indices) == 0:
         return None
 
-    if isinstance(indices, numpy.ndarray):
-        new_indices = numpy.array(new_indices, dtype=indices.dtype)
-    if isinstance(values, numpy.ndarray):
-        new_values = numpy.array(new_values, dtype=values.dtype)
+    if isinstance(indices, ndarray):
+        new_indices = array(new_indices, dtype=indices.dtype)
+    if isinstance(values, ndarray):
+        new_values = array(new_values, dtype=values.dtype)
     return new_indices, new_values
 
 

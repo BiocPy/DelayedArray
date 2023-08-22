@@ -1,6 +1,7 @@
 from typing import Literal, Tuple
 
 import numpy
+from numpy import ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -78,7 +79,7 @@ def _is_sparse_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple) -> bool:
 @extract_dense_array.register
 def _extract_dense_array_UnaryIsometricOpSimple(
     x: UnaryIsometricOpSimple, idx
-) -> numpy.ndarray:
+) -> ndarray:
     idx = sanitize_indices(idx, x.shape)
     base = extract_dense_array(x._seed, idx)
     opfun = _choose_operator(x._op)

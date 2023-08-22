@@ -3,6 +3,7 @@ import warnings
 from typing import Literal, Tuple, Union
 
 import numpy
+from numpy import ndarray, inf
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -56,18 +57,21 @@ def _choose_operator(op: OP, inplace: bool = False):
 
 
 class UnaryIsometricOpWithArgs:
-    """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.
+    """Unary isometric operation involving an n-dimensional seed array with a scalar or 
+    1-dimensional vector.
+    
     This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.
 
-    The data type of the result is determined by NumPy casting given the ``seed`` and ``value`` data types.
-    We suggest supplying a floating-point ``value`` to avoid unexpected results from integer truncation or overflow.
+    The data type of the result is determined by NumPy casting given the ``seed`` and ``value`` 
+    data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from 
+    integer truncation or overflow.
 
     Attributes:
         seed:
             An array-like object.
 
-        value (Union[float, numpy.ndarray]):
+        value (Union[float, ndarray]):
             A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
 
         op (OP):
@@ -80,15 +84,15 @@ class UnaryIsometricOpWithArgs:
             Ignored for commutative operations in ``op``.
 
         along (int, optional):
-            Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.
-            This assumes that ``value`` is of length equal to the dimension's extent.
-            Ignored if ``value`` is a scalar.
+            Dimension along which the ``value`` is to be added, if ``value`` is a 
+            -dimensional array. This assumes that ``value`` is of length equal to the dimension's 
+            extent. Ignored if ``value`` is a scalar.
     """
 
     def __init__(
         self,
         seed,
-        value: Union[float, numpy.ndarray],
+        value: Union[float, ndarray],
         op: OP,
         right: bool = True,
         along: int = 0,
@@ -98,7 +102,7 @@ class UnaryIsometricOpWithArgs:
         dummy = numpy.zeros(0, dtype=seed.dtype)
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
-            if isinstance(value, numpy.ndarray):
+            if isinstance(value, ndarray):
                 dummy = f(dummy, value[:0])
             else:
                 dummy = f(dummy, value)
@@ -127,12 +131,12 @@ class UnaryIsometricOpWithArgs:
                     else:
                         return f(v, s)
             except ZeroDivisionError:
-                return numpy.inf
+                return inf
 
         is_sparse = False
         no_op = False
 
-        if isinstance(value, numpy.ndarray):
+        if isinstance(value, ndarray):
             if along < 0 or along >= len(seed.shape):
                 raise ValueError(
                     "'along' should be non-negative and less than the dimensionality of 'seed'"
@@ -188,7 +192,7 @@ def _is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
 @extract_dense_array.register
 def _extract_dense_array_UnaryIsometricOpWithArgs(
     x: UnaryIsometricOpWithArgs, idx
-) -> numpy.ndarray:
+) -> ndarray:
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:
         return base
@@ -205,7 +209,7 @@ def _extract_dense_array_UnaryIsometricOpWithArgs(
             return opfun(v, s)
 
     value = x._value
-    if isinstance(value, numpy.ndarray):
+    if isinstance(value, ndarray):
         curslice = idx[x._along]
         new_idx = sanitize_single_index((curslice,), (x.shape[x._along],))[0]
         value = value[new_idx]
@@ -263,7 +267,7 @@ def _extract_sparse_array_UnaryIsometricOpWithArgs(
             return opfun(v, s)
 
     other = x._value
-    if isinstance(other, numpy.ndarray):
+    if isinstance(other, ndarray):
         curslice = idx[x._along]
         other = other[curslice]
 
