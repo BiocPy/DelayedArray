@@ -1,10 +1,11 @@
 import copy
+import random
 
-import delayedarray
+import numpy
 import pytest
 from utils import *
-import numpy
-import random
+
+import delayedarray
 
 
 def test_Subset_consecutive_dense():
@@ -21,7 +22,7 @@ def test_Subset_consecutive_dense():
     assert (full == y).all()
 
     # Sliced:
-    slices = ([1,3,5,7,9], [2,4,6,8])
+    slices = ([1, 3, 5, 7, 9], [2, 4, 6, 8])
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (full[numpy.ix_(*slices)] == partial).all()
 
@@ -36,11 +37,13 @@ def test_Subset_sorted_unique_dense():
     assert sub.shape == (*[len(x) for x in subset],)
 
     # Full:
-    full = delayedarray.extract_dense_array(sub, (slice(None), slice(None), slice(None)))
+    full = delayedarray.extract_dense_array(
+        sub, (slice(None), slice(None), slice(None))
+    )
     assert (full == y[numpy.ix_(*subset)]).all()
 
     # Sliced:
-    slices = ([0,2,4], [2,4,6,8], [0, 1, 2, 3, 5 ])
+    slices = ([0, 2, 4], [2, 4, 6, 8], [0, 1, 2, 3, 5])
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (full[numpy.ix_(*slices)] == partial).all()
 
@@ -49,7 +52,10 @@ def test_Subset_sorted_dense():
     test_shape = (50, 10)
     y = numpy.random.rand(*test_shape)
 
-    subset = ([5,5,5,10,20,20,25,30,30,30,40,45,45,45], [0,0,0,2,5,5,5,6,8,8,8,8,8,9,9])
+    subset = (
+        [5, 5, 5, 10, 20, 20, 25, 30, 30, 30, 40, 45, 45, 45],
+        [0, 0, 0, 2, 5, 5, 5, 6, 8, 8, 8, 8, 8, 9, 9],
+    )
     sub = delayedarray.Subset(y, subset)
     assert not delayedarray.is_sparse(sub)
     assert sub.shape == (*[len(x) for x in subset],)
@@ -59,7 +65,7 @@ def test_Subset_sorted_dense():
     assert (full == y[numpy.ix_(*subset)]).all()
 
     # Sliced:
-    slices = ([0,2,4,6,8,10], [3,6,9,12])
+    slices = ([0, 2, 4, 6, 8, 10], [3, 6, 9, 12])
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (full[numpy.ix_(*slices)] == partial).all()
 
@@ -79,11 +85,17 @@ def test_Subset_unique_dense():
     assert sub.shape == (*[len(x) for x in subset],)
 
     # Full:
-    full = delayedarray.extract_dense_array(sub, (slice(None), slice(None), slice(None)))
+    full = delayedarray.extract_dense_array(
+        sub, (slice(None), slice(None), slice(None))
+    )
     assert (full == y[numpy.ix_(*subset)]).all()
 
     # Sliced:
-    slices = (range(3, len(subset[0]), 2), range(0, len(subset[1]), 2), range(1, len(subset[2]), 2))
+    slices = (
+        range(3, len(subset[0]), 2),
+        range(0, len(subset[1]), 2),
+        range(1, len(subset[2]), 2),
+    )
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (full[numpy.ix_(*slices)] == partial).all()
 
@@ -121,10 +133,10 @@ def test_Subset_1d_dense():
     sub = delayedarray.Subset(y, subset)
     assert not delayedarray.is_sparse(sub)
 
-    full = delayedarray.extract_dense_array(sub, (slice(None),)) 
+    full = delayedarray.extract_dense_array(sub, (slice(None),))
     assert (full == y[subset[0]]).all()
 
-    slices = ([2,4,6],)
+    slices = ([2, 4, 6],)
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (partial == full[slices[0]]).all()
 
@@ -140,11 +152,13 @@ def test_Subset_consecutive_sparse():
     assert sub.shape == test_shape
 
     # Full:
-    full = delayedarray.extract_sparse_array(sub, (slice(None), slice(None), slice(None)))
+    full = delayedarray.extract_sparse_array(
+        sub, (slice(None), slice(None), slice(None))
+    )
     assert are_SparseNdarrays_equal(full, y)
 
     # Sliced:
-    slices = ([1,3,5,7,9], [2,4,6,8], [10,12,14,16])
+    slices = ([1, 3, 5, 7, 9], [2, 4, 6, 8], [10, 12, 14, 16])
     partial = delayedarray.extract_sparse_array(sub, slices)
     ref = delayedarray.extract_sparse_array(y, slices)
     assert are_SparseNdarrays_equal(partial, ref)
@@ -166,7 +180,7 @@ def test_Subset_sorted_unique_sparse():
     assert are_SparseNdarrays_equal(full, ref)
 
     # Sliced:
-    slices = ([0,2,4,6,8], [1,3,7,9,11,13])
+    slices = ([0, 2, 4, 6, 8], [1, 3, 7, 9, 11, 13])
     partial = delayedarray.extract_sparse_array(sub, slices)
     refsub = []
     for i in range(2):
@@ -183,7 +197,10 @@ def test_Subset_sorted_sparse():
     contents = mock_SparseNdarray_contents(test_shape)
     y = delayedarray.SparseNdarray(test_shape, contents)
 
-    subset = ([3,6,6,9,12,12,12,15,21,24,24,24,24], [5, 6, 7, 7, 8, 14, 14, 15, 16,16,18])
+    subset = (
+        [3, 6, 6, 9, 12, 12, 12, 15, 21, 24, 24, 24, 24],
+        [5, 6, 7, 7, 8, 14, 14, 15, 16, 16, 18],
+    )
     sub = delayedarray.Subset(y, subset)
     assert delayedarray.is_sparse(sub)
     assert sub.shape == (*[len(x) for x in subset],)
@@ -195,7 +212,7 @@ def test_Subset_sorted_sparse():
     assert (delayedarray.extract_dense_array(full, full_indices) == ref).all()
 
     # Sliced:
-    slices = ([2,5,8,11], [2,3,4,7,8,9])
+    slices = ([2, 5, 8, 11], [2, 3, 4, 7, 8, 9])
     partial = delayedarray.extract_sparse_array(sub, slices)
     refsub = ref[numpy.ix_(*slices)]
     assert (delayedarray.extract_dense_array(partial, full_indices) == refsub).all()
@@ -223,7 +240,7 @@ def test_Subset_unique_sparse():
     assert (delayedarray.extract_dense_array(full, full_indices) == ref).all()
 
     # Sliced:
-    slices = ([2,4,6], [1,3,5], [4,5,10,15,20,21])
+    slices = ([2, 4, 6], [1, 3, 5], [4, 5, 10, 15, 20, 21])
     partial = delayedarray.extract_sparse_array(sub, slices)
     refsub = ref[numpy.ix_(*slices)]
     assert (delayedarray.extract_dense_array(partial, full_indices) == refsub).all()
@@ -255,7 +272,10 @@ def test_Subset_general_sparse():
     # Sliced:
     slices = (range(2, len(subset[0]), 2), range(1, len(subset[1]), 2))
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (delayedarray.extract_dense_array(partial, full_indices) == refsub[numpy.ix_(*slices)]).all()
+    assert (
+        delayedarray.extract_dense_array(partial, full_indices)
+        == refsub[numpy.ix_(*slices)]
+    ).all()
 
 
 def test_Subset_1d_sparse():
@@ -266,13 +286,15 @@ def test_Subset_1d_sparse():
     sub = delayedarray.Subset(y, subset)
     assert delayedarray.is_sparse(sub)
 
-    full = delayedarray.extract_sparse_array(sub, (slice(None),)) 
+    full = delayedarray.extract_sparse_array(sub, (slice(None),))
     ref = delayedarray.extract_dense_array(y, (slice(None),))[subset[0]]
-    assert (delayedarray.extract_dense_array(full, (slice(None),)) == ref).all() 
+    assert (delayedarray.extract_dense_array(full, (slice(None),)) == ref).all()
 
-    slices = ([2,4,6],)
+    slices = ([2, 4, 6],)
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (delayedarray.extract_dense_array(partial, (slice(None),)) == ref[slices[0]]).all()
+    assert (
+        delayedarray.extract_dense_array(partial, (slice(None),)) == ref[slices[0]]
+    ).all()
 
 
 def test_Subset_empty():
@@ -288,11 +310,14 @@ def test_Subset_empty():
     full_indices = (slice(None), slice(None), slice(None))
     full = delayedarray.extract_sparse_array(sub, full_indices)
     ref = delayedarray.extract_dense_array(y, full_indices)[numpy.ix_(*subset)]
-    assert (delayedarray.extract_dense_array(full, full_indices) == ref).all() 
+    assert (delayedarray.extract_dense_array(full, full_indices) == ref).all()
 
-    slices = ([0,2,4,6], [0,1,2,3,4,10,20], [1,3,5,7,9,11])
+    slices = ([0, 2, 4, 6], [0, 1, 2, 3, 4, 10, 20], [1, 3, 5, 7, 9, 11])
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (delayedarray.extract_dense_array(partial, full_indices) == ref[numpy.ix_(*slices)]).all()
+    assert (
+        delayedarray.extract_dense_array(partial, full_indices)
+        == ref[numpy.ix_(*slices)]
+    ).all()
 
 
 def test_Subset_dimension_lost_dense():
@@ -307,7 +332,7 @@ def test_Subset_dimension_lost_dense():
     assert sub.dtype == numpy.float64
 
     ext = delayedarray.extract_dense_array(sub, (slice(None), slice(None)))
-    assert (ext == y[5,:,:][numpy.ix_(*subset[1:])]).all()
+    assert (ext == y[5, :, :][numpy.ix_(*subset[1:])]).all()
 
     slices = (range(0, 5), range(10, 15))
     partial = delayedarray.extract_dense_array(sub, slices)
@@ -321,9 +346,9 @@ def test_Subset_dimension_lost_dense():
     assert sub.dtype == numpy.float64
 
     ext = delayedarray.extract_dense_array(sub, (slice(None), slice(None)))
-    assert (ext == y[:,:,20][numpy.ix_(*subset[:-1])]).all()
+    assert (ext == y[:, :, 20][numpy.ix_(*subset[:-1])]).all()
 
-    slices = (range(0, 5), [1,3,5])
+    slices = (range(0, 5), [1, 3, 5])
     partial = delayedarray.extract_dense_array(sub, slices)
     assert (ext[numpy.ix_(*slices)] == partial).all()
 
@@ -335,7 +360,7 @@ def test_Subset_dimension_lost_dense():
     assert sub.dtype == numpy.float64
 
     ext = delayedarray.extract_dense_array(sub, (slice(None),))
-    assert (ext == y[5,:,20][subset[1]]).all()
+    assert (ext == y[5, :, 20][subset[1]]).all()
 
     slices = ([0, 2, 4],)
     partial = delayedarray.extract_dense_array(sub, slices)
@@ -350,7 +375,7 @@ def test_Subset_dimension_lost_dense():
 
     ext = delayedarray.extract_dense_array(sub, ())
     assert ext.shape == ()
-    assert (ext == numpy.array(y[5,10,20])).all()
+    assert (ext == numpy.array(y[5, 10, 20])).all()
 
 
 def test_Subset_dimension_lost_sparse():
@@ -368,27 +393,33 @@ def test_Subset_dimension_lost_sparse():
 
     full_indices = (slice(None), slice(None))
     ext = delayedarray.extract_sparse_array(sub, full_indices)
-    ref = rawref[5,:,:][numpy.ix_(*subset[1:])]
+    ref = rawref[5, :, :][numpy.ix_(*subset[1:])]
     assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
     slices = (range(2, 6), range(10, 15))
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+    assert (
+        ref[numpy.ix_(*slices)]
+        == delayedarray.extract_dense_array(partial, full_indices)
+    ).all()
 
     # Last dimension lost.
     subset = (range(22, 38), range(2, 25, 3), 20)
     sub = delayedarray.Subset(y, subset)
     assert delayedarray.is_sparse(sub)
-    assert sub.shape == (16, 8) 
+    assert sub.shape == (16, 8)
     assert sub.dtype == numpy.float64
 
     ext = delayedarray.extract_sparse_array(sub, full_indices)
-    ref = rawref[:,:,20][numpy.ix_(*subset[:-1])]
+    ref = rawref[:, :, 20][numpy.ix_(*subset[:-1])]
     assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
-    slices = (range(4, 12), [2,4,6])
+    slices = (range(4, 12), [2, 4, 6])
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+    assert (
+        ref[numpy.ix_(*slices)]
+        == delayedarray.extract_dense_array(partial, full_indices)
+    ).all()
 
     # Multiple dimensions lost.
     subset = (7, range(4, 28, 3), 19)
@@ -399,12 +430,15 @@ def test_Subset_dimension_lost_sparse():
 
     full_indices = (slice(None),)
     ext = delayedarray.extract_sparse_array(sub, full_indices)
-    ref = rawref[7,:,19][subset[1]]
+    ref = rawref[7, :, 19][subset[1]]
     assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
-    slices = ([1,3,5,7],)
+    slices = ([1, 3, 5, 7],)
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+    assert (
+        ref[numpy.ix_(*slices)]
+        == delayedarray.extract_dense_array(partial, full_indices)
+    ).all()
 
     # Multiple dimensions lost (II).
     subset = (range(0, 40, 5), 20, 19)
@@ -415,12 +449,15 @@ def test_Subset_dimension_lost_sparse():
 
     full_indices = (slice(None),)
     ext = delayedarray.extract_sparse_array(sub, full_indices)
-    ref = rawref[:,20,19][subset[0]]
+    ref = rawref[:, 20, 19][subset[0]]
     assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
-    slices = ([1,3,5,7],)
+    slices = ([1, 3, 5, 7],)
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+    assert (
+        ref[numpy.ix_(*slices)]
+        == delayedarray.extract_dense_array(partial, full_indices)
+    ).all()
 
     # Multiple dimensions lost (III).
     subset = (5, 10, range(1, 50, 7))
@@ -431,12 +468,15 @@ def test_Subset_dimension_lost_sparse():
 
     full_indices = (slice(None),)
     ext = delayedarray.extract_sparse_array(sub, full_indices)
-    ref = rawref[5,10,:][subset[2]]
+    ref = rawref[5, 10, :][subset[2]]
     assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
-    slices = ([0,2,4,6],)
+    slices = ([0, 2, 4, 6],)
     partial = delayedarray.extract_sparse_array(sub, slices)
-    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+    assert (
+        ref[numpy.ix_(*slices)]
+        == delayedarray.extract_dense_array(partial, full_indices)
+    ).all()
 
     # All dimensions lost.
     subset = (5, 10, 20)

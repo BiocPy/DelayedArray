@@ -3,7 +3,9 @@ import random
 import numpy
 
 
-def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upper=1, dtype=numpy.float64):
+def mock_SparseNdarray_contents(
+    shape, density1=0.5, density2=0.5, lower=-1, upper=1, dtype=numpy.float64
+):
     if len(shape) == 1:
         new_indices = []
         new_values = []
@@ -23,7 +25,12 @@ def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upp
             else:
                 new_content.append(
                     mock_SparseNdarray_contents(
-                        shape[1:], density1=density1, density2=density2, lower=lower, upper=upper, dtype=dtype
+                        shape[1:],
+                        density1=density1,
+                        density2=density2,
+                        lower=lower,
+                        upper=upper,
+                        dtype=dtype,
                     )
                 )
         return new_content
