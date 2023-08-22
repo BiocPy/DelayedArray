@@ -22,7 +22,8 @@ repos:
   hooks:
     - id: docformatter
       additional_dependencies: [tomli]
-      args: [--in-place, --config, ./pyproject.toml]
+      args: [--in-place]
+      # --config, ./pyproject.toml
 
 
 ## If you want to automatically "modernize" your Python code:
