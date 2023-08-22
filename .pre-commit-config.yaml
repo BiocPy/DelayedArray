@@ -1,6 +1,4 @@
-exclude: 
-  - '^docs/conf.py'
-  - "^tests/"
+exclude: '^docs/conf.py'
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -66,8 +64,10 @@ repos:
 
 - repo: https://github.com/PyCQA/flake8
   rev: 6.1.0
+  exclude: "tests"
   hooks:
   - id: flake8
+    args: ['--config=setup.cfg']
   ## You can add flake8 plugins via `additional_dependencies`:
   #  additional_dependencies: [flake8-bugbear]
 
