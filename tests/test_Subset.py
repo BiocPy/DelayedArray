@@ -276,10 +276,10 @@ def test_Subset_1d_sparse():
 
 
 def test_Subset_empty():
-    test_shape = (1000, 2000, 3000)
+    test_shape = (100, 200, 300)
     y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float32)
 
-    subset = (range(100, 900, 100), range(50, 1800, 50), range(1000, 2500, 100))
+    subset = (range(10, 90, 10), range(5, 180, 5), range(100, 250, 10))
     sub = delayedarray.Subset(y, subset)
     assert delayedarray.is_sparse(sub)
     assert sub.shape == (*[len(x) for x in subset],)
