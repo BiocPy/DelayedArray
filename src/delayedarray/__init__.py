@@ -20,3 +20,4 @@ from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
+from .Subset import Subset
