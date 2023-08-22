@@ -126,7 +126,7 @@ class Subset:
 
     @property
     def dtype(self) -> dtype:
-        return self.seed.dtype
+        return self._seed.dtype
 
 
 # Combines the subset in the class instance with the indexing request in the
