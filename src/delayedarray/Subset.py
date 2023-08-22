@@ -1,8 +1,9 @@
-from typing import Tuple, Sequence
+from bisect import bisect_left
 from collections import namedtuple
 from copy import deepcopy
-from numpy import dtype, array, ndarray, ix_
-from bisect import bisect_left
+from typing import Sequence, Tuple
+
+from numpy import array, dtype, ix_, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -14,14 +15,14 @@ from .utils import sanitize_single_index
 def _is_unique_and_sorted(subset):
     is_sorted = True
     for i in range(1, len(subset)):
-        if subset[i] < subset[i-1]:
+        if subset[i] < subset[i - 1]:
             is_sorted = False
             break
 
     is_unique = True
     if is_sorted:
         for i in range(1, len(subset)):
-            if subset[i] == subset[i-1]:
+            if subset[i] == subset[i - 1]:
                 is_unique = False
                 break
     else:
@@ -36,7 +37,7 @@ def _is_unique_and_sorted(subset):
 
 
 # Converts the subset into a sorted and unique sequence for use in
-# extract_*_array(), while also creating a mapping that expands to the 
+# extract_*_array(), while also creating a mapping that expands to the
 # original subset, i.e., given 'x, y = _normalize_subset(z, ...)',
 # we are guaranteed that 'z == x[y]'.
 def _normalize_subset(subset, is_sorted, is_unique):
@@ -65,7 +66,7 @@ def _normalize_subset(subset, is_sorted, is_unique):
                 mapping.append(0)
 
             for i in range(1, len(subset)):
-                if subset[i-1] < subset[i]:
+                if subset[i - 1] < subset[i]:
                     subuniq.append(subset[i])
                 mapping.append(len(subuniq) - 1)
 
@@ -96,28 +97,34 @@ def is_subset_noop(idx, full):
 
 class Subset:
     """Delayed subset operation.
-    This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.
-    The subset can also be used to reduce the dimensionality of the array by extracting only one element from one or more dimensions.
+    This will slice the array along one or more dimensions, equivalent to the outer product of
+    subset indices. The subset can also be used to reduce the dimensionality of the array by
+    extracting only one element from one or more dimensions.
 
     Attributes:
-        seed: 
+        seed:
             Any object that satisfies the seed contract,
             see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
 
         subset (Tuple[Sequence, ...]):
-            Tuple of length equal to the dimensionality of ``seed``, containing the subsetted elements for each dimension.
+            Tuple of length equal to the dimensionality of ``seed``, containing the subsetted
+            elements for each dimension.
 
-            Each entry may be a vector of integer indices specifying the elements of the corresponding dimension to retain,
-            where each integer is non-negative and less than the extent of the dimension.
-            (Unsorted and/or duplicate indices are allowed.)
+            Each entry may be a vector of integer indices specifying the elements of the
+            corresponding dimension to retain, where each integer is non-negative and less than the
+            extent of the dimension. Unsorted and/or duplicate indices are allowed.
 
-            Alternatively, each entry may be an integer specifying the single element of interest for its dimension.
-            In this case, the result of the subsetting operation will have a lower dimensionality than ``seed``.
+            Alternatively, each entry may be an integer specifying the single element of interest
+            for its dimension. In this case, the result of the subsetting operation will have a
+            lower dimensionality than ``seed``.
     """
+
     def __init__(self, seed, subset: Tuple[Sequence, ...]):
         self._seed = seed
         if len(subset) != len(seed.shape):
-            raise ValueError("Dimensionality of 'seed' and 'subset' should be the same.")
+            raise ValueError(
+                "Dimensionality of 'seed' and 'subset' should be the same."
+            )
 
         self._subset = []
 
@@ -150,18 +157,29 @@ class Subset:
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """Shape of the array.
+
+        Returns:
+            Tuple[int, ...]: Tuple of integers containing the array shape along
+            each dimension.
+        """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
+        """Type of the array.
+
+        Returns:
+            numpy.dtype: Type of the NumPy array containing the values of the non-zero elements.
+        """
         return self._seed.dtype
 
 
 # Combines the subset in the class instance with the indexing request in the
-# extract_*_array call. This will fall back to the full normalized subset 
+# extract_*_array call. This will fall back to the full normalized subset
 # if it figures out that we're dealing with a no-op index; otherwise it
 # will take an indexed slice of the subset and re-normalize it.
-def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
+def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list, list]:
     out_sub = []
     out_map = []
     not_lost = []
@@ -174,7 +192,7 @@ def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
         cursub = raw_subsets[i]
         if isinstance(cursub, int):
             out_sub.append([cursub])
-            out_map.append([0]) 
+            out_map.append([0])
             continue
 
         curshape = xshape[xcount]
@@ -189,9 +207,7 @@ def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list]:
                 subsub.append(cursub[j])
 
             n, m = _normalize_subset(
-                subsub, 
-                is_sorted=x._is_sorted[xcount], 
-                is_unique=x._is_unique[xcount]
+                subsub, is_sorted=x._is_sorted[xcount], is_unique=x._is_unique[xcount]
             )
             out_sub.append(n)
             out_map.append(m)
@@ -221,7 +237,9 @@ def _extract_dense_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> ndarray
     return expanded
 
 
-LastIndexInfo = namedtuple('LastIndexInfo', ["first", "last", "inverted", "full", "is_sorted", "is_unique"])
+LastIndexInfo = namedtuple(
+    "LastIndexInfo", ["first", "last", "inverted", "full", "is_sorted", "is_unique"]
+)
 
 
 def _inflate_sparse_vector(indices, values, last_info):
@@ -259,7 +277,9 @@ def _inflate_sparse_vector(indices, values, last_info):
                 break
 
     if len(new_indices):
-        return array(new_indices, dtype=indices.dtype), array(new_values, dtype=values.dtype)
+        return array(new_indices, dtype=indices.dtype), array(
+            new_values, dtype=values.dtype
+        )
     else:
         return None
 
@@ -295,7 +315,7 @@ def _recursive_inflater(contents, dim, mappings, was_lost, last_notlost_dim, las
 
                 seen[i] = latest
 
-            count += 1 
+            count += 1
 
         if len(new_indices) == 0:
             return None
@@ -311,7 +331,9 @@ def _recursive_inflater(contents, dim, mappings, was_lost, last_notlost_dim, las
         elif dim == ndim - 2:
             return _inflate_sparse_vector(latest[0], latest[1], last_info)
         else:
-            return _recursive_inflater(latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info)
+            return _recursive_inflater(
+                latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info
+            )
 
     curmap = mappings[dim]
     replacement = []
@@ -319,10 +341,10 @@ def _recursive_inflater(contents, dim, mappings, was_lost, last_notlost_dim, las
     # Now we finally get onto the standard recursion for SparseNdarrays.
     if dim == ndim - 2:
         for i in curmap:
-            if i in seen: # speed up matters if we've got duplicated indices.
+            if i in seen:  # speed up matters if we've got duplicated indices.
                 replacement.append(deepcopy(seen[i]))
                 continue
-    
+
             latest = contents[i]
             if latest is not None:
                 latest = _inflate_sparse_vector(latest[0], latest[1], last_info)
@@ -332,13 +354,15 @@ def _recursive_inflater(contents, dim, mappings, was_lost, last_notlost_dim, las
 
     else:
         for i in curmap:
-            if i in seen: # speed up matters if we've got duplicated indices.
+            if i in seen:  # speed up matters if we've got duplicated indices.
                 replacement.append(deepcopy(seen[i]))
                 continue
 
             latest = contents[i]
             if latest is not None:
-                latest = _recursive_inflater(latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info)
+                latest = _recursive_inflater(
+                    latest, dim + 1, mappings, was_lost, last_notlost_dim, last_info
+                )
 
             replacement.append(latest)
             seen[i] = latest
@@ -389,12 +413,12 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
 
         if inverted is not None:
             last_info = LastIndexInfo(
-                first=min(last_mapping), 
+                first=min(last_mapping),
                 last=max(last_mapping) + 1,
                 full=last_shape,
                 inverted=inverted,
                 is_sorted=last_sorted,
-                is_unique=last_unique
+                is_unique=last_unique,
             )
 
     # If there are no dimensions, we're dealing with a 0-dimensional
@@ -408,9 +432,13 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
         return SparseNdarray((), contents, dtype=compact.dtype)
 
     if isinstance(compact._contents, list):
-        compact._contents = _recursive_inflater(compact._contents, 0, mappings, was_lost, not_lost[-1], last_info)
+        compact._contents = _recursive_inflater(
+            compact._contents, 0, mappings, was_lost, not_lost[-1], last_info
+        )
     elif compact._contents is not None:
-        compact._contents = _inflate_sparse_vector(compact._contents[0], compact._contents[1], last_info)
+        compact._contents = _inflate_sparse_vector(
+            compact._contents[0], compact._contents[1], last_info
+        )
 
     final_shape = []
     for d in not_lost:
