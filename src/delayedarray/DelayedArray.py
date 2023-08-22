@@ -4,9 +4,9 @@ from numpy import array2string, dtype, get_printoptions, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
+from .Subset import Subset
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .Subset import Subset
 from .utils import sanitize_indices
 
 __author__ = "ltla"
