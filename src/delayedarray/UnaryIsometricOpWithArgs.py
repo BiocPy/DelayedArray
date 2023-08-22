@@ -3,7 +3,7 @@ import warnings
 from typing import Literal, Tuple, Union
 
 import numpy
-from numpy import ndarray, inf
+from numpy import inf, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -57,14 +57,14 @@ def _choose_operator(op: OP, inplace: bool = False):
 
 
 class UnaryIsometricOpWithArgs:
-    """Unary isometric operation involving an n-dimensional seed array with a scalar or 
-    1-dimensional vector.
-    
+    """Unary isometric operation involving an n-dimensional seed array with a
+    scalar or 1-dimensional vector.
+
     This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.
 
-    The data type of the result is determined by NumPy casting given the ``seed`` and ``value`` 
-    data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from 
+    The data type of the result is determined by NumPy casting given the ``seed`` and ``value``
+    data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from
     integer truncation or overflow.
 
     Attributes:
@@ -84,8 +84,8 @@ class UnaryIsometricOpWithArgs:
             Ignored for commutative operations in ``op``.
 
         along (int, optional):
-            Dimension along which the ``value`` is to be added, if ``value`` is a 
-            -dimensional array. This assumes that ``value`` is of length equal to the dimension's 
+            Dimension along which the ``value`` is to be added, if ``value`` is a
+            -dimensional array. This assumes that ``value`` is of length equal to the dimension's
             extent. Ignored if ``value`` is a scalar.
     """
 

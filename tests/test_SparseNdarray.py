@@ -1,9 +1,11 @@
 import copy
 
-import delayedarray
+import numpy
 import pytest
 from utils import *
-import numpy
+
+import delayedarray
+
 
 def test_SparseNdarray_check():
     test_shape = (10, 15, 20)
@@ -50,14 +52,15 @@ def test_SparseNdarray_check():
         y = delayedarray.SparseNdarray(test_shape, contents2)
 
     with pytest.raises(ValueError, match="Inconsistent data type"):
-        y = delayedarray.SparseNdarray(test_shape, contents, dtype = numpy.int32)
+        y = delayedarray.SparseNdarray(test_shape, contents, dtype=numpy.int32)
 
     with pytest.raises(ValueError, match="cannot infer 'dtype'"):
         y = delayedarray.SparseNdarray(test_shape, None)
 
-    empty = delayedarray.SparseNdarray(test_shape, None, dtype = numpy.int32)
+    empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.int32)
     assert empty.shape == test_shape
     assert empty.dtype == numpy.int32
+
 
 def test_SparseNdarray_extract_dense_array_3d():
     test_shape = (16, 32, 8)
@@ -224,9 +227,12 @@ def test_SparseNdarray_extract_sparse_array_1d():
         delayedarray.extract_dense_array(sliced, full_indices) == ref[(..., *indices)]
     ).all()
 
+
 def test_SparseNdarray_int_type():
     test_shape = (30, 40)
-    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    contents = mock_SparseNdarray_contents(
+        test_shape, lower=-100, upper=100, dtype=numpy.int16
+    )
     y = delayedarray.SparseNdarray(test_shape, contents)
     assert y.shape == test_shape
     assert y.dtype == numpy.int16
@@ -240,33 +246,40 @@ def test_SparseNdarray_int_type():
     assert spout.dtype == numpy.int16
     assert (convert_SparseNdarray_to_numpy(spout) == ref).all()
 
+
 def test_SparseNdarray_empty():
     test_shape = (20, 21, 22)
     y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.uint32)
     assert y.shape == test_shape
-    assert y.dtype == numpy.uint32 
+    assert y.dtype == numpy.uint32
 
     dout = delayedarray.extract_dense_array(y, (slice(None), slice(None), slice(None)))
     assert (dout == numpy.zeros(test_shape)).all()
-    dout = delayedarray.extract_dense_array(y, ([1,2,3],[4,5,6,7],[8,9,10,11,12]))
-    assert (dout == numpy.zeros((3,4,5))).all()
+    dout = delayedarray.extract_dense_array(
+        y, ([1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11, 12])
+    )
+    assert (dout == numpy.zeros((3, 4, 5))).all()
 
-    spout = delayedarray.extract_sparse_array(y, (slice(None), slice(None), slice(None)))
+    spout = delayedarray.extract_sparse_array(
+        y, (slice(None), slice(None), slice(None))
+    )
     assert spout._contents is None
     assert spout.shape == test_shape
-    assert spout.dtype == numpy.uint32 
-    spout = delayedarray.extract_sparse_array(y, ([1,2,3],[4,5,6,7],[8,9,10,11,12]))
-    assert spout.shape == (3,4,5)
+    assert spout.dtype == numpy.uint32
+    spout = delayedarray.extract_sparse_array(
+        y, ([1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11, 12])
+    )
+    assert spout.shape == (3, 4, 5)
+
 
 def test_SparseNdarray_0d():
     y = delayedarray.SparseNdarray((), None, dtype=numpy.uint32)
-    assert y.shape == () 
-    assert y.dtype == numpy.uint32 
+    assert y.shape == ()
+    assert y.dtype == numpy.uint32
 
     y = delayedarray.SparseNdarray((), 5, dtype=numpy.uint32)
-    assert y.shape == () 
-    assert y.dtype == numpy.uint32 
+    assert y.shape == ()
+    assert y.dtype == numpy.uint32
 
     with pytest.raises(ValueError, match="0-dimensional"):
         y = delayedarray.SparseNdarray((), {}, dtype=numpy.uint32)
-
