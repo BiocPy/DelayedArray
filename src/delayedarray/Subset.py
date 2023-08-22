@@ -96,6 +96,8 @@ def is_subset_noop(idx, full):
 
 class Subset:
     """Delayed subset operation.
+    This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.
+    The subset can also be used to reduce the dimensionality of the array by extracting only one element from one or more dimensions.
 
     Attributes:
         seed: 
@@ -104,9 +106,13 @@ class Subset:
 
         subset (Tuple[Sequence, ...]):
             Tuple of length equal to the dimensionality of ``seed``, containing the subsetted elements for each dimension.
-            Each entry may either be a vector of integer indices specifying the elements of its dimension to retain,
-            or an integer specifying the single element of interest for its dimension.
-            In the latter case, the subset result will have a lower dimensionality than ``subset``.
+
+            Each entry may be a vector of integer indices specifying the elements of the corresponding dimension to retain,
+            where each integer is non-negative and less than the extent of the dimension.
+            (Unsorted and/or duplicate indices are allowed.)
+
+            Alternatively, each entry may be an integer specifying the single element of interest for its dimension.
+            In this case, the result of the subsetting operation will have a lower dimensionality than ``seed``.
     """
     def __init__(self, seed, subset: Tuple[Sequence, ...]):
         self._seed = seed
