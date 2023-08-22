@@ -63,7 +63,7 @@ class SparseNdarray:
             ]
         ],
         dtype: Optional[numpy.dtype] = None,
-        check=True
+        check=True,
     ):
         self._shape = shape
         self._contents = contents
@@ -105,7 +105,7 @@ class SparseNdarray:
         """
         return self._dtype
 
-    def __get_item__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
+    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
         """Extract sparse array by slicing this data array.
 
         Args:
@@ -143,7 +143,9 @@ def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
     return None
 
 
-def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int, dtype: numpy.dtype):
+def _check_sparse_tuple(
+    indices: Sequence, values: Sequence, max_index: int, dtype: numpy.dtype
+):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
 
@@ -159,7 +161,9 @@ def _check_sparse_tuple(indices: Sequence, values: Sequence, max_index: int, dty
             raise ValueError("Index vectors should be sorted.")
 
 
-def _recursive_check(contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype):
+def _recursive_check(
+    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype
+):
     if len(contents) != shape[dim]:
         raise ValueError(
             "Length of 'contents' or its components should match the extent of the corresponding dimension."
@@ -268,7 +272,9 @@ def _extract_dense_array_from_SparseNdarray(
     if x._contents is not None:
         ndims = len(x.shape)
         if ndims > 1:
-            _recursive_extract_dense_array(x._contents, ndims, idx2, 0, output, x.shape[-1])
+            _recursive_extract_dense_array(
+                x._contents, ndims, idx2, 0, output, x.shape[-1]
+            )
         else:
             _extract_sparse_vector_to_dense(
                 x._contents[0], x._contents[1], idx2[0], output, x.shape[-1]
@@ -351,4 +357,6 @@ def _extract_sparse_array_from_SparseNdarray(
                 x._contents[0], x._contents[1], idx2[0], x.shape[-1]
             )
 
-    return SparseNdarray(shape=(*idims,), contents=new_contents, dtype=x.dtype, check=False)
+    return SparseNdarray(
+        shape=(*idims,), contents=new_contents, dtype=x.dtype, check=False
+    )
