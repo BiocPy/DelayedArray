@@ -52,7 +52,7 @@ def test_SparseNdarray_check():
     with pytest.raises(ValueError, match="Inconsistent data type"):
         y = delayedarray.SparseNdarray(test_shape, contents, dtype = numpy.int32)
 
-    with pytest.raises(ValueError, match="'dtype' should be provided"):
+    with pytest.raises(ValueError, match="cannot infer 'dtype'"):
         y = delayedarray.SparseNdarray(test_shape, None)
 
     empty = delayedarray.SparseNdarray(test_shape, None, dtype = numpy.int32)
@@ -257,3 +257,16 @@ def test_SparseNdarray_empty():
     assert spout.dtype == numpy.uint32 
     spout = delayedarray.extract_sparse_array(y, ([1,2,3],[4,5,6,7],[8,9,10,11,12]))
     assert spout.shape == (3,4,5)
+
+def test_SparseNdarray_0d():
+    y = delayedarray.SparseNdarray((), None, dtype=numpy.uint32)
+    assert y.shape == () 
+    assert y.dtype == numpy.uint32 
+
+    y = delayedarray.SparseNdarray((), 5, dtype=numpy.uint32)
+    assert y.shape == () 
+    assert y.dtype == numpy.uint32 
+
+    with pytest.raises(ValueError, match="0-dimensional"):
+        y = delayedarray.SparseNdarray((), {}, dtype=numpy.uint32)
+

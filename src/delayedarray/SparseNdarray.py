@@ -1,3 +1,4 @@
+import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
@@ -15,6 +16,9 @@ class SparseNdarray:
     """The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional array.
     It is inspired by the **SVTArray** from the DelayedArray
     `R/Bioconductor package <https://github.com/Bioconductor/DelayedArray>`_.
+    This class is intended for developers, either as a seed to newly constructed
+    (sparse) :py:class:`~delayedarray.DelayedArray.DelayedArray` instances or
+    as the output of :py:meth:`~delayedarray.interface.extract_sparse_array`.
 
     Internally, the ``SparseNdarray`` is represented as a nested list where each
     nesting level corresponds to a dimension. The list at each level has length equal
@@ -33,9 +37,11 @@ class SparseNdarray:
     of the dimension contains no non-zero values. In fact, the entire tree may be None,
     indicating that there are no non-zero values in the entire array.
 
-    For `1-dimensional` arrays, the array is represented by a single (index, value) tuple
+    For 1-dimensional arrays, the contents should be a single (index, value) tuple
     containing the sparse contents. This may also be None if there are no non-zero
     values in the array.
+
+    For 0-dimensional arrays, the contents should be a single numeric scalar, or None.
 
     Attributes:
         shape (Tuple[int, ...]):
@@ -73,19 +79,24 @@ class SparseNdarray:
             if contents is not None:
                 if len(shape) > 1:
                     dtype = _peek_for_type(contents, 0, self._shape)
-                else:
+                elif len(shape) == 1:
                     dtype = contents[1].dtype
             if dtype is None:
-                raise ValueError("'dtype' should be provided if 'contents' is None")
+                raise ValueError("cannot infer 'dtype' from 'contents'")
         self._dtype = dtype
 
         if check is True and contents is not None:
             if len(shape) > 1:
                 _recursive_check(self._contents, 0, self._shape, self._dtype)
-            else:
+            elif len(shape) == 1:
                 _check_sparse_tuple(
                     self._contents[0], self._contents[1], self._shape[0], self._dtype
                 )
+            else:
+                if not isinstance(contents, numbers.Number):
+                    raise ValueError(
+                        "expected a numeric scalar 'contents' for a 0-dimensional SparseNdarray"
+                    )
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -106,27 +117,23 @@ class SparseNdarray:
         """
         return self._dtype
 
-    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "SparseNdarray":
-        """Extract sparse array by slicing this data array.
-
-        Args:
-            args (Tuple[Union[slice, Sequence], ...]): A :py:class`tuple` defining the
-                positions of the array to access along each dimension.
-
-                Each element in ``args`` may be a :py:func:`slice` object or
-                a list of integer indices. The length of the tuple
-                must not exceed the number of dimensions in the array.
-
-        Raises:
-            ValueError: If ``args`` contain more dimensions than the shape of the array.
+    @property
+    def contents(self):
+        """Contents of the array.
+        This is intended to be read-only; in general, ``contents`` should only be modified by developers of
+        :py:meth:`~delayedarray.interface.extract_sparse_array` methods or creators of new
+        :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
 
         Returns:
-            SparseNdarray: A SparseNdarray of the given indices.
-        """
-        if len(args) > len(self.shape):
-            raise ValueError("Slice exceeds the available dimensions in the array.")
+            A nested list, for a n-dimensional array where n > 1.
 
-        return _extract_sparse_array_from_SparseNdarray(self, args)
+            A tuple containing a sparse vector (i.e., indices and values), for a 1-dimensional array.
+
+            A single scalar, for a 0-dimensional array.
+
+            Alternatively None, if the array contains no non-zero elements.
+        """
+        return self._contents
 
 
 def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
