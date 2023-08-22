@@ -101,7 +101,7 @@ class DelayedArray:
         """
         return self._seed.dtype
 
-    def __str__(self):
+    def __repr__(self):
         total = 1
         for s in self._seed.shape:
             total *= s
