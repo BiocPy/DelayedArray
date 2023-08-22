@@ -149,7 +149,7 @@ class Subset:
             self._is_unique.append(u)
             self._is_sorted.append(s)
 
-            n, m = _normalize_subset(subset[i], is_sorted=s, is_unique=u)
+            n, m = _normalize_subset(cursan, is_sorted=s, is_unique=u)
             self._full_normalized_subset.append(n)
             self._full_subset_mapping.append(m)
 

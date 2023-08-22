@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Union
 
 from numpy import array2string, dtype, get_printoptions, ndarray
 
@@ -6,6 +6,7 @@ from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
+from .Subset import Subset
 from .utils import sanitize_indices
 
 __author__ = "ltla"
@@ -211,6 +212,25 @@ class DelayedArray:
 
     def __abs__(self):
         return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
+
+    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "DelayedArray":
+        """Create a delayed subset wrapper around this array.
+
+        Args:
+            args (Tuple[Union[slice, Sequence], ...]): A :py:class`tuple` defining the
+                positions of the array to access along each dimension.
+
+                Each element in ``args`` may be a :py:func:`slice` object or
+                a list of integer indices. The length of the tuple
+                must not exceed the number of dimensions in the array.
+
+        Raises:
+            ValueError: If ``args`` contain more dimensions than the shape of the array.
+
+        Returns:
+            A DelayedArray containing a delayed subset operation.
+        """
+        return DelayedArray(Subset(self._seed, args))
 
 
 @extract_dense_array.register

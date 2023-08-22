@@ -323,3 +323,21 @@ def test_DelayedArray_isometric_simple():
         obs[missing] = 0
         expected[missing] = 0
         assert (obs == expected).all()
+
+
+def test_DelayedArray_subset():
+    test_shape = (30, 55, 20)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-5, upper=5)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    x = delayedarray.DelayedArray(y)
+
+    sub = x[2,[20,30,40],[10,11,12,13]]
+    assert sub.shape == (3,4)
+    assert isinstance(sub._seed, delayedarray.Subset)
+    assert (numpy.array(sub) == numpy.array(x)[2,:,:][numpy.ix_([20,30,40], [10,11,12,13])]).all()
+
+    sub = x[:,:,range(0, 20, 2)]
+    assert sub.shape == (30,55,10)
+    assert isinstance(sub._seed, delayedarray.Subset)
+    assert (numpy.array(sub) == numpy.array(x)[:,:,range(0, 20, 2)]).all()
+
