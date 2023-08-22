@@ -390,31 +390,60 @@ def test_Subset_dimension_lost_sparse():
     partial = delayedarray.extract_sparse_array(sub, slices)
     assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
 
-#    # Multiple dimensions lost.
-#    subset = (5, [5, 8, 11, 14, 17], 20)
-#    sub = delayedarray.Subset(y, subset)
-#    assert not delayedarray.is_sparse(sub)
-#    assert sub.shape == (5,)
-#    assert sub.dtype == numpy.float64
-#
-#    ext = delayedarray.extract_dense_array(sub, (slice(None),))
-#    assert (ext == y[5,:,20][subset[1]]).all()
-#
-#    slices = ([0, 2, 4],)
-#    partial = delayedarray.extract_dense_array(sub, slices)
-#    assert (ext[numpy.ix_(*slices)] == partial).all()
-#
-#    # All dimensions lost.
-#    subset = (5, 10, 20)
-#    sub = delayedarray.Subset(y, subset)
-#    assert not delayedarray.is_sparse(sub)
-#    assert sub.shape == ()
-#    assert sub.dtype == numpy.float64
-#
-#    ext = delayedarray.extract_dense_array(sub, ())
-#    assert ext.shape == ()
-#    assert (ext == numpy.array(y[5,10,20])).all()
+    # Multiple dimensions lost.
+    subset = (7, range(4, 28, 3), 19)
+    sub = delayedarray.Subset(y, subset)
+    assert delayedarray.is_sparse(sub)
+    assert sub.shape == (8,)
+    assert sub.dtype == numpy.float64
 
+    full_indices = (slice(None),)
+    ext = delayedarray.extract_sparse_array(sub, full_indices)
+    ref = rawref[7,:,19][subset[1]]
+    assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
 
+    slices = ([1,3,5,7],)
+    partial = delayedarray.extract_sparse_array(sub, slices)
+    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
 
+    # Multiple dimensions lost (II).
+    subset = (range(0, 40, 5), 20, 19)
+    sub = delayedarray.Subset(y, subset)
+    assert delayedarray.is_sparse(sub)
+    assert sub.shape == (8,)
+    assert sub.dtype == numpy.float64
 
+    full_indices = (slice(None),)
+    ext = delayedarray.extract_sparse_array(sub, full_indices)
+    ref = rawref[:,20,19][subset[0]]
+    assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
+
+    slices = ([1,3,5,7],)
+    partial = delayedarray.extract_sparse_array(sub, slices)
+    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+
+    # Multiple dimensions lost (III).
+    subset = (5, 10, range(1, 50, 7))
+    sub = delayedarray.Subset(y, subset)
+    assert delayedarray.is_sparse(sub)
+    assert sub.shape == (7,)
+    assert sub.dtype == numpy.float64
+
+    full_indices = (slice(None),)
+    ext = delayedarray.extract_sparse_array(sub, full_indices)
+    ref = rawref[5,10,:][subset[2]]
+    assert (delayedarray.extract_dense_array(ext, full_indices) == ref).all()
+
+    slices = ([0,2,4,6],)
+    partial = delayedarray.extract_sparse_array(sub, slices)
+    assert (ref[numpy.ix_(*slices)] == delayedarray.extract_dense_array(partial, full_indices)).all()
+
+    # All dimensions lost.
+    subset = (5, 10, 20)
+    sub = delayedarray.Subset(y, subset)
+    assert delayedarray.is_sparse(sub)
+    assert sub.shape == ()
+    assert sub.dtype == numpy.float64
+
+    ext = delayedarray.extract_sparse_array(sub, ())
+    assert ext.shape == ()

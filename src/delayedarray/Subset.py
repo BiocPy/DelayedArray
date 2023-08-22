@@ -399,7 +399,7 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
             contents = contents[0]
         if contents is not None:
             contents = contents[1]
-        return SparseNdarray(contents, shape=(), dtype=compact.dtype)
+        return SparseNdarray((), contents, dtype=compact.dtype)
 
     if isinstance(compact._contents, list):
         compact._contents = _recursive_inflater(compact._contents, 0, mappings, was_lost, not_lost[-1], last_info)
