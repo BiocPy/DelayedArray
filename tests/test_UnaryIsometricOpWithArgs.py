@@ -497,7 +497,9 @@ def test_UnaryIsometricOpWithArgs_power():
 
     dout = delayedarray.extract_dense_array(op, full_indices)
     obs = (ref.T**v).T
-    assert numpy.allclose(dout, obs) # some kind of numeric difference between ** and **=, perhaps. Who knows, but exact comparison sometimes fails.
+    assert numpy.allclose(
+        dout, obs
+    )  # some kind of numeric difference between ** and **=, perhaps. Who knows, but exact comparison sometimes fails.
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
     assert (convert_SparseNdarray_to_numpy(spout) == dout).all()
@@ -531,8 +533,8 @@ def test_UnaryIsometricOpWithArgs_int_promotion():
     contents = mock_SparseNdarray_contents(test_shape, density1=0)
     for i in range(len(contents)):
         if contents[i] is not None:
-            contents[i] = (contents[i][0], (contents[i][1]*10).astype(numpy.int32))
-       
+            contents[i] = (contents[i][0], (contents[i][1] * 10).astype(numpy.int32))
+
     y = delayedarray.SparseNdarray(test_shape, contents)
     assert y.dtype == numpy.int32
     full_indices = (slice(None), slice(None))
@@ -558,7 +560,7 @@ def test_UnaryIsometricOpWithArgs_int_promotion():
 
     dout = delayedarray.extract_dense_array(op, full_indices)
     assert dout.dtype == numpy.float64
-    assert (dout ==  ref).all()
+    assert (dout == ref).all()
 
     spout = delayedarray.extract_sparse_array(op, full_indices)
     assert spout.dtype == numpy.float64
@@ -566,7 +568,9 @@ def test_UnaryIsometricOpWithArgs_int_promotion():
 
     # Making sure it works on the other side.
     v = numpy.random.rand(20)
-    ref = (v - delayedarray.extract_dense_array(y, full_indices).astype(numpy.float64).T).T
+    ref = (
+        v - delayedarray.extract_dense_array(y, full_indices).astype(numpy.float64).T
+    ).T
     op = delayedarray.UnaryIsometricOpWithArgs(y, v, "-", along=0, right=False)
     assert op.dtype == numpy.float64
 

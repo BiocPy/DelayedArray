@@ -96,10 +96,10 @@ def is_subset_noop(idx, full):
 
 
 class Subset:
-    """Delayed subset operation.
-    This will slice the array along one or more dimensions, equivalent to the outer product of
-    subset indices. The subset can also be used to reduce the dimensionality of the array by
-    extracting only one element from one or more dimensions.
+    """Delayed subset operation. This will slice the array along one or more dimensions,
+    equivalent to the outer product of subset indices. The subset can also be used to
+    reduce the dimensionality of the array by extracting only one element from one or
+    more dimensions.
 
     Attributes:
         seed:
@@ -227,8 +227,8 @@ def _extract_dense_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> ndarray
     if len(not_lost) < len(mappings):
         if len(not_lost):
             final_shape = []
-            for l in not_lost:
-                final_shape.append(len(mappings[l]))
+            for nl in not_lost:
+                final_shape.append(len(mappings[nl]))
             expanded = expanded.reshape(*final_shape)
         else:
             idx = [0] * len(mappings)
