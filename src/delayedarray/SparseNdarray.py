@@ -119,10 +119,9 @@ class SparseNdarray:
 
     @property
     def contents(self):
-        """Contents of the array. This is intended to be read-only; in general,
-        ``contents`` should only be modified by developers of
-        :py:meth:`~delayedarray.interface.extract_sparse_array` methods or creators of
-        new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
+        """Contents of the array. This is intended to be read-only; in general, ``contents`` should only be modified by
+        developers of :py:meth:`~delayedarray.interface.extract_sparse_array` methods or creators of new
+        :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
 
         Returns:
             A nested list, for a n-dimensional array where n > 1.
