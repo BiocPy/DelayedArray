@@ -17,14 +17,13 @@ __license__ = "MIT"
 
 @singledispatch
 def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
-    """Extract a dense array from a seed.
-    This uses the outer product of the indices specified in `idx`.
+    """Extract a dense array from a seed. This uses the outer product of the indices specified in `idx`.
 
     Args:
         x: Any object satisfying the seed contract,
             see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-        idx (Tuple[Sequence, ...]): 
+        idx (Tuple[Sequence, ...]):
             Tuple of length equal to the number of dimensions in ``x``.
             Each entry should be a sequence of sorted and unique non-negative integers that are less than the extent of the corresponding dimension of ``x``,
             specifying the indices of the dimension to extract.
@@ -55,14 +54,13 @@ def _extract_dense_array_SparseNdarray(
 
 @singledispatch
 def extract_sparse_array(x, idx: Tuple[Sequence, ...]) -> SparseNdarray:
-    """Extract a sparse array from a seed.
-    This uses the outer product of the indices specified in `idx`.
+    """Extract a sparse array from a seed. This uses the outer product of the indices specified in `idx`.
 
     Args:
         x: Any object satisfying the seed contract,
             see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-        idx (Tuple[Sequence, ...]): 
+        idx (Tuple[Sequence, ...]):
             Tuple of length equal to the number of dimensions in ``x``.
             Each entry should be a sequence of sorted and unique non-negative integers that are less than the extent of the corresponding dimension of ``x``,
             specifying the indices of the dimension to extract.

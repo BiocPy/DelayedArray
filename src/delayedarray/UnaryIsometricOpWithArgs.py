@@ -179,8 +179,8 @@ class UnaryIsometricOpWithArgs:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``UnaryIsometricOpWithArgs`` object.
-        As the name of the class suggests, this is the same as the ``seed`` array.
+        """Shape of the ``UnaryIsometricOpWithArgs`` object. As the name of the class suggests, this is the same as the
+        ``seed`` array.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpWithArgs`` object.
@@ -189,8 +189,8 @@ class UnaryIsometricOpWithArgs:
 
     @property
     def dtype(self) -> numpy.dtype:
-        """Type of the ``UnaryIsometricOpWithArgs`` object.
-        This may or may not be the same as the ``seed`` array, depending on how NumPy does the casting for the requested operation.
+        """Type of the ``UnaryIsometricOpWithArgs`` object. This may or may not be the same as the ``seed`` array,
+        depending on how NumPy does the casting for the requested operation.
 
         Returns:
             dtype: NumPy type for the ``UnaryIsometricOpWithArgs`` contents.

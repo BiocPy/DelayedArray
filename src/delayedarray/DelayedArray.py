@@ -63,7 +63,7 @@ translate_ufunc_to_op_simple = set(
 
 
 class DelayedArray:
-    """Array containing delayed operations. This is equivalent to the class of the same name from 
+    """Array containing delayed operations. This is equivalent to the class of the same name from
     the `R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_ of the same name.
     It allows users to efficiently operate on large matrices without actually evaluating the
     operation or creating new copies; instead, the operations will transparently return another ``DelayedArray`` instance
@@ -102,7 +102,8 @@ class DelayedArray:
         return self._seed.dtype
 
     def __repr__(self) -> str:
-        """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its options.
+        """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
+        options.
 
         Returns:
             str: String containing a prettified display of the array contents.
@@ -372,9 +373,9 @@ class DelayedArray:
         return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
 
     def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "DelayedArray":
-        """Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-dimension
-        indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to using
-        NumPy's :py:meth:`~numpy.ix_` function.
+        """Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-
+        dimension indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to
+        using NumPy's :py:meth:`~numpy.ix_` function.
 
         Args:
             args (Tuple[Union[slice, Sequence], ...]):

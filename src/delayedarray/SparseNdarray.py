@@ -2,7 +2,6 @@ import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import numpy
 from numpy import array, ndarray, zeros, dtype
 
 from .utils import sanitize_indices
@@ -26,7 +25,7 @@ class SparseNdarray:
     the contents of the corresponding element of that dimension. This proceeds until
     the penultimate dimension, where each entry instead ``(index, value)`` tuples.
     In effect, this is a tree where the non-leaf nodes are lists and the leaf nodes
-    are tuples. 
+    are tuples.
 
     Each ``(index, value)`` tuple represents a sparse vector for the corresponding element of the final dimension of the SparseNdarray.
     ``index`` should be a :py:class:`~typing.Sequence` of integers where
@@ -101,7 +100,7 @@ class SparseNdarray:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the SparseNdarray. 
+        """Shape of the SparseNdarray.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the SparseNdarray.

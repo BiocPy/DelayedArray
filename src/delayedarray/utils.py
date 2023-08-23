@@ -6,11 +6,10 @@ from typing import Tuple, Union, Sequence
 
 
 def sanitize_single_index(idx, shape: int) -> Sequence[int]:
-    """Sanitize a single index sequence.
-    This is called by :py:meth:`~delayedarray.utils.sanitize_indices`.
+    """Sanitize a single index sequence. This is called by :py:meth:`~delayedarray.utils.sanitize_indices`.
 
     Args:
-        idx (Union[slice, Sequence]): 
+        idx (Union[slice, Sequence]):
             Vector of indices to extract from a dimension.
             This can be a sequence of integers or a :py:class:`~slice`.
 
@@ -26,11 +25,13 @@ def sanitize_single_index(idx, shape: int) -> Sequence[int]:
     return idx
 
 
-def sanitize_indices(idx: Tuple[Union[slice, Sequence], ...], shape: Tuple[int, ...]) -> Tuple[Sequence[int], ...]:
+def sanitize_indices(
+    idx: Tuple[Union[slice, Sequence], ...], shape: Tuple[int, ...]
+) -> Tuple[Sequence[int], ...]:
     """Sanitize indices for use in methods like :py:meth:`~delayedarray.interface.extract_dense_array`.
 
     Args:
-        idx (Tuple[Union[slice, Sequence], ...]): 
+        idx (Tuple[Union[slice, Sequence], ...]):
             Tuple where each entry defines a vector of indices to extract from a dimension.
             This can be a sequence of integers or a :py:class:`~slice`.
 

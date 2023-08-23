@@ -44,8 +44,8 @@ def _choose_operator(op: OP):
 
 
 class UnaryIsometricOpSimple:
-    """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments.
-    This is used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
+    """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments. This is
+    used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
@@ -70,8 +70,8 @@ class UnaryIsometricOpSimple:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``UnaryIsometricOpSimple`` object.
-        As the name of the class suggests, this is the same as the ``seed`` array.
+        """Shape of the ``UnaryIsometricOpSimple`` object. As the name of the class suggests, this is the same as the
+        ``seed`` array.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpSimple`` object.
@@ -80,8 +80,8 @@ class UnaryIsometricOpSimple:
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``UnaryIsometricOpSimple`` object.
-        This may or may not be the same as the ``seed`` array, depending on how NumPy does the casting for the requested operation.
+        """Type of the ``UnaryIsometricOpSimple`` object. This may or may not be the same as the ``seed`` array,
+        depending on how NumPy does the casting for the requested operation.
 
         Returns:
             dtype: NumPy type for the ``UnaryIsometricOpSimple`` contents.

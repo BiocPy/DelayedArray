@@ -3,7 +3,6 @@ from collections import namedtuple
 from copy import deepcopy
 from typing import Sequence, Tuple
 
-import numpy
 from numpy import array, dtype, ix_, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
@@ -160,8 +159,7 @@ class Subset:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Subset`` object.
-        This may not be the same length as the ``seed`` if dimensions were discarded.
+        """Shape of the ``Subset`` object. This may not be the same length as the ``seed`` if dimensions were discarded.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Subset`` object,
@@ -171,8 +169,7 @@ class Subset:
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Subset`` object.
-        This will be the same as the ``seed``.
+        """Type of the ``Subset`` object. This will be the same as the ``seed``.
 
         Returns:
             dtype: NumPy type for the ``Subset`` contents.
