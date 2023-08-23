@@ -174,7 +174,8 @@ def _recursive_check(
 ):
     if len(contents) != shape[dim]:
         raise ValueError(
-            "Length of 'contents' or its components should match the extent of the corresponding dimension."
+            "Length of 'contents' or its components should match the extent of the "
+            "corresponding dimension."
         )
 
     ndim = len(shape)
