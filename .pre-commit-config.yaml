@@ -22,7 +22,7 @@ repos:
   hooks:
     - id: docformatter
       additional_dependencies: [tomli]
-      args: [--in-place --black --wrap-summaries 100 --wrap-descriptions 100]
+      args: [--in-place --black]
       # --config, ./pyproject.toml
 
 
