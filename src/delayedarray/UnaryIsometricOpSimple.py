@@ -44,8 +44,7 @@ def _choose_operator(op: OP):
 
 
 class UnaryIsometricOpSimple:
-    """Unary isometric operation involving an n-dimensional seed array with no
-    additional arguments.
+    """Unary isometric operation involving an n-dimensional seed array with no additional arguments.
 
     Attributes:
         seed: An array-like object.
