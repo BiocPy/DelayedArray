@@ -227,8 +227,8 @@ def _extract_dense_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> ndarray
     if len(not_lost) < len(mappings):
         if len(not_lost):
             final_shape = []
-            for l in not_lost:
-                final_shape.append(len(mappings[l]))
+            for nl in not_lost:
+                final_shape.append(len(mappings[nl]))
             expanded = expanded.reshape(*final_shape)
         else:
             idx = [0] * len(mappings)
