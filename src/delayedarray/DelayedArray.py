@@ -63,8 +63,9 @@ translate_ufunc_to_op_simple = set(
 
 
 class DelayedArray:
-    """Array containing delayed operations. This is equivalent to the class of the same name from the R/Bioconductor
-    package of the same name. It allows users to efficiently operate on large matrices without actually evaluating the
+    """Array containing delayed operations. This is equivalent to the class of the same name from 
+    the `R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_ of the same name.
+    It allows users to efficiently operate on large matrices without actually evaluating the
     operation or creating new copies; instead, the operations will transparently return another DelayedArray instance
     containing the delayed operations, which can be realized by calling :py:meth:`~numpy.array` or related methods.
 
@@ -87,8 +88,7 @@ class DelayedArray:
         """Shape of the DelayedArray.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers containing the array shape along
-            each dimension.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the DelayedArray.
         """
         return self._seed.shape
 
@@ -150,7 +150,7 @@ class DelayedArray:
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
-        This is used to implement mathematical operations like :py:meth:`~numpy.log`,
+        This is used to implement mathematical operations like NumPy's :py:meth:`~numpy.log`,
         or to override operations between NumPy class instances and DelayedArrays where the former is on the left hand side.
         Check out the NumPy's ``__array_ufunc__`` `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_ for more details.
 
