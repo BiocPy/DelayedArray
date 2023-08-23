@@ -1,11 +1,9 @@
 import warnings
-import copy
 
 import delayedarray
-import pytest
 from utils import *
 import numpy
-import math
+
 
 def test_DelayedArray_dense():
     raw = (numpy.random.rand(40, 30) * 5 - 10).astype(numpy.int32)
@@ -146,7 +144,7 @@ def test_DelayedArray_isometric_multiply():
 
 def test_DelayedArray_isometric_divide():
     test_shape = (35, 25)
-    contents = mock_SparseNdarray_contents(test_shape, lower = 1, upper = 10)
+    contents = mock_SparseNdarray_contents(test_shape, lower=1, upper=10)
     y = delayedarray.SparseNdarray(test_shape, contents)
     x = delayedarray.DelayedArray(y)
     expanded = numpy.array(x)
@@ -179,7 +177,7 @@ def test_DelayedArray_isometric_divide():
 
 def test_DelayedArray_isometric_modulo():
     test_shape = (22, 44)
-    contents = mock_SparseNdarray_contents(test_shape, lower = 1, upper = 10)
+    contents = mock_SparseNdarray_contents(test_shape, lower=1, upper=10)
     y = delayedarray.SparseNdarray(test_shape, contents)
     x = delayedarray.DelayedArray(y)
     expanded = numpy.array(x)
@@ -250,30 +248,30 @@ def test_DelayedArray_isometric_floordivide():
     x = delayedarray.DelayedArray(y)
     expanded = numpy.array(x)
 
-    z = x ** 2
+    z = x**2
     assert isinstance(z, delayedarray.DelayedArray)
     assert delayedarray.is_sparse(z)
     assert z.shape == x.shape
-    assert (numpy.array(z) == expanded ** 2).all()
+    assert (numpy.array(z) == expanded**2).all()
 
-    z = 5 ** x
+    z = 5**x
     assert isinstance(z, delayedarray.DelayedArray)
     assert not delayedarray.is_sparse(z)
     assert z.shape == x.shape
-    assert (numpy.array(z) == 5 ** expanded).all()
+    assert (numpy.array(z) == 5**expanded).all()
 
     v = numpy.random.rand(55)
-    z = v ** x
+    z = v**x
     assert isinstance(z, delayedarray.DelayedArray)
     assert not delayedarray.is_sparse(z)
     assert z.shape == x.shape
-    assert (numpy.array(z) == v ** expanded).all()
+    assert (numpy.array(z) == v**expanded).all()
 
-    z = x ** v
+    z = x**v
     assert isinstance(z, delayedarray.DelayedArray)
     assert delayedarray.is_sparse(z)
     assert z.shape == x.shape
-    assert (numpy.array(z) == expanded ** v).all()
+    assert (numpy.array(z) == expanded**v).all()
 
 
 def test_DelayedArray_isometric_simple():
@@ -296,15 +294,30 @@ def test_DelayedArray_isometric_simple():
     assert (numpy.array(z) == abs(expanded)).all()
 
     for op in [
-        "log", "log1p", "log2", "log10", 
-        "exp", "expm1", 
-        "sqrt", "abs", 
-        "sin", "cos", "tan", 
-        "sinh", "cosh", "tanh", 
-        "arcsin", "arccos", "arctan", 
-        "arcsinh", "arccosh", "arctanh",
-        "ceil", "floor", "trunc", 
-        "sign"
+        "log",
+        "log1p",
+        "log2",
+        "log10",
+        "exp",
+        "expm1",
+        "sqrt",
+        "abs",
+        "sin",
+        "cos",
+        "tan",
+        "sinh",
+        "cosh",
+        "tanh",
+        "arcsin",
+        "arccos",
+        "arctan",
+        "arcsinh",
+        "arccosh",
+        "arctanh",
+        "ceil",
+        "floor",
+        "trunc",
+        "sign",
     ]:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -331,13 +344,15 @@ def test_DelayedArray_subset():
     y = delayedarray.SparseNdarray(test_shape, contents)
     x = delayedarray.DelayedArray(y)
 
-    sub = x[2,[20,30,40],[10,11,12,13]]
-    assert sub.shape == (3,4)
+    sub = x[2, [20, 30, 40], [10, 11, 12, 13]]
+    assert sub.shape == (3, 4)
     assert isinstance(sub._seed, delayedarray.Subset)
-    assert (numpy.array(sub) == numpy.array(x)[2,:,:][numpy.ix_([20,30,40], [10,11,12,13])]).all()
+    assert (
+        numpy.array(sub)
+        == numpy.array(x)[2, :, :][numpy.ix_([20, 30, 40], [10, 11, 12, 13])]
+    ).all()
 
-    sub = x[:,:,range(0, 20, 2)]
-    assert sub.shape == (30,55,10)
+    sub = x[:, :, range(0, 20, 2)]
+    assert sub.shape == (30, 55, 10)
     assert isinstance(sub._seed, delayedarray.Subset)
-    assert (numpy.array(sub) == numpy.array(x)[:,:,range(0, 20, 2)]).all()
-
+    assert (numpy.array(sub) == numpy.array(x)[:, :, range(0, 20, 2)]).all()

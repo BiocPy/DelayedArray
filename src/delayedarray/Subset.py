@@ -96,10 +96,10 @@ def is_subset_noop(idx, full):
 
 
 class Subset:
-    """Delayed subset operation.
-    This will slice the array along one or more dimensions, equivalent to the outer product of
-    subset indices. The subset can also be used to reduce the dimensionality of the array by
-    extracting only one element from one or more dimensions.
+    """Delayed subset operation. This will slice the array along one or more dimensions,
+    equivalent to the outer product of subset indices. The subset can also be used to
+    reduce the dimensionality of the array by extracting only one element from one or
+    more dimensions.
 
     Attributes:
         seed:
