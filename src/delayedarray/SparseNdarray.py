@@ -127,7 +127,7 @@ class SparseNdarray:
         Returns:
             A nested list, for a n-dimensional array where n > 1.
 
-            A tuple containing a sparse vector (i.e., indices and values), for a 
+            A tuple containing a sparse vector (i.e., indices and values), for a
             1-dimensional array.
 
             A single scalar, for a 0-dimensional array.
