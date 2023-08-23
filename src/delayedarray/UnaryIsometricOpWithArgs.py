@@ -57,8 +57,8 @@ def _choose_operator(op: OP, inplace: bool = False):
 
 
 class UnaryIsometricOpWithArgs:
-    """Unary isometric operation involving an n-dimensional seed array with a
-    scalar or 1-dimensional vector.
+    """Unary isometric operation involving an n-dimensional seed array with a scalar or
+    1-dimensional vector.
 
     This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.
