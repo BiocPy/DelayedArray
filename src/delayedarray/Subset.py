@@ -3,6 +3,7 @@ from collections import namedtuple
 from copy import deepcopy
 from typing import Sequence, Tuple
 
+import numpy
 from numpy import array, dtype, ix_, ndarray
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
@@ -86,7 +87,7 @@ def _normalize_subset(subset, is_sorted, is_unique):
             return (subsorted, mapping)
 
 
-def is_subset_noop(idx, full):
+def _is_subset_noop(idx, full):
     if len(idx) != full:
         return False
     for i in range(full):
@@ -99,6 +100,9 @@ class Subset:
     """Delayed subset operation. This will slice the array along one or more dimensions, equivalent to the outer product
     of subset indices. The subset can also be used to reduce the dimensionality of the array by extracting only one
     element from one or more dimensions.
+
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
+    In general, end-users should not be interacting with ``Subset`` objects directly.
 
     Attributes:
         seed:
@@ -156,20 +160,22 @@ class Subset:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the array.
+        """Shape of the ``Subset`` object.
+        This may not be the same length as the ``seed`` if dimensions were discarded.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers containing the array shape along
-            each dimension.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Subset`` object,
+            (i.e., after subsetting was applied to the ``seed``).
         """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the array.
+        """Type of the ``Subset`` object.
+        This will be the same as the ``seed``.
 
         Returns:
-            numpy.dtype: Type of the NumPy array containing the values of the non-zero elements.
+            dtype: NumPy type for the ``Subset`` contents.
         """
         return self._seed.dtype
 
@@ -197,7 +203,7 @@ def _indexed_subsets(x: Subset, idx: Tuple[Sequence, ...]) -> Tuple[list, list, 
         curshape = xshape[xcount]
         curidx = sanitize_single_index(idx[xcount], curshape)
 
-        if is_subset_noop(curidx, curshape):
+        if _is_subset_noop(curidx, curshape):
             out_sub.append(x._full_normalized_subset[xcount])
             out_map.append(x._full_subset_mapping[xcount])
         else:
@@ -236,8 +242,8 @@ def _extract_dense_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> ndarray
     return expanded
 
 
-LastIndexInfo = namedtuple(
-    "LastIndexInfo", ["first", "last", "inverted", "full", "is_sorted", "is_unique"]
+_LastIndexInfo = namedtuple(
+    "_LastIndexInfo", ["first", "last", "inverted", "full", "is_sorted", "is_unique"]
 )
 
 
@@ -394,7 +400,7 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
         if last_unique:
             is_consecutive = False
             if last_sorted:
-                is_consecutive = is_subset_noop(last_mapping, last_shape)
+                is_consecutive = _is_subset_noop(last_mapping, last_shape)
 
             if not is_consecutive:
                 inverted = [None] * last_shape
@@ -411,7 +417,7 @@ def _extract_sparse_array_Subset(x: Subset, idx: Tuple[Sequence, ...]) -> Sparse
                     inverted[m].append(i)
 
         if inverted is not None:
-            last_info = LastIndexInfo(
+            last_info = _LastIndexInfo(
                 first=min(last_mapping),
                 last=max(last_mapping) + 1,
                 full=last_shape,

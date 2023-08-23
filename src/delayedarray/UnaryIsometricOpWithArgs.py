@@ -1,6 +1,6 @@
 import operator
 import warnings
-from typing import Literal, Tuple, Union
+from typing import Literal, Tuple, Union, Sequence
 
 import numpy
 from numpy import ndarray, inf
@@ -58,24 +58,27 @@ def _choose_operator(op: OP, inplace: bool = False):
 
 class UnaryIsometricOpWithArgs:
     """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.
-
     This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.
+    (I don't make the rules.)
 
     The data type of the result is determined by NumPy casting given the ``seed`` and ``value``
     data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from
     integer truncation or overflow.
 
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
+    In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.
+
     Attributes:
         seed:
-            An array-like object.
+            Any object satisfying the seed contract,
+            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
         value (Union[float, ndarray]):
             A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
 
-        op (OP):
+        op (str):
             String specifying the operation.
-            This should be one of "+", "-", "/", "*", "//", "%" or "**".
 
         right (bool, optional):
             Whether ``value`` is to the right of ``seed`` in the operation.
@@ -84,7 +87,7 @@ class UnaryIsometricOpWithArgs:
 
         along (int, optional):
             Dimension along which the ``value`` is to be added, if ``value`` is a
-            -dimensional array. This assumes that ``value`` is of length equal to the dimension's
+            1-dimensional array. This assumes that ``value`` is of length equal to the dimension's
             extent. Ignored if ``value`` is a scalar.
     """
 
@@ -176,10 +179,22 @@ class UnaryIsometricOpWithArgs:
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """Shape of the ``UnaryIsometricOpWithArgs`` object.
+        As the name of the class suggests, this is the same as the ``seed`` array.
+
+        Returns:
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpWithArgs`` object.
+        """
         return self._seed.shape
 
     @property
     def dtype(self) -> numpy.dtype:
+        """Type of the ``UnaryIsometricOpWithArgs`` object.
+        This may or may not be the same as the ``seed`` array, depending on how NumPy does the casting for the requested operation.
+
+        Returns:
+            dtype: NumPy type for the ``UnaryIsometricOpWithArgs`` contents.
+        """
         return self._dtype
 
 
@@ -190,7 +205,7 @@ def _is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs) -> bool:
 
 @extract_dense_array.register
 def _extract_dense_array_UnaryIsometricOpWithArgs(
-    x: UnaryIsometricOpWithArgs, idx
+    x: UnaryIsometricOpWithArgs, idx: Tuple[Sequence, ...]
 ) -> ndarray:
     base = extract_dense_array(x._seed, idx)
     if x._is_no_op:

@@ -3,7 +3,7 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
 import numpy
-from numpy import array, ndarray, zeros
+from numpy import array, ndarray, zeros, dtype
 
 from .utils import sanitize_indices
 
@@ -56,7 +56,7 @@ class SparseNdarray:
 
             Alternatively None, if the array is empty.
 
-        dtype (numpy.dtype, optional):
+        dtype (dtype, optional):
             NumPy type of the SparseNdarray.
             If None, this is inferred from ``contents``.
     """
@@ -70,7 +70,7 @@ class SparseNdarray:
                 List,
             ]
         ],
-        dtype: Optional[numpy.dtype] = None,
+        dtype: Optional[dtype] = None,
         check=True,
     ):
         self._shape = shape
@@ -109,11 +109,11 @@ class SparseNdarray:
         return self._shape
 
     @property
-    def dtype(self) -> numpy.dtype:
+    def dtype(self) -> dtype:
         """Type of the elements in the SparseNdarray.
 
         Returns:
-            numpy.dtype: NumPy type of the values.
+            dtype: NumPy type of the values.
         """
         return self._dtype
 
@@ -151,7 +151,7 @@ def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
 
 
 def _check_sparse_tuple(
-    indices: Sequence, values: ndarray, max_index: int, dtype: numpy.dtype
+    indices: Sequence, values: ndarray, max_index: int, dtype: dtype
 ):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
@@ -169,7 +169,7 @@ def _check_sparse_tuple(
 
 
 def _recursive_check(
-    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype
+    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: dtype
 ):
     if len(contents) != shape[dim]:
         raise ValueError(

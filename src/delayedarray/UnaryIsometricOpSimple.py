@@ -1,7 +1,7 @@
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Sequence
 
 import numpy
-from numpy import ndarray
+from numpy import ndarray, dtype, zeros
 
 from .interface import extract_dense_array, extract_sparse_array, is_sparse
 from .SparseNdarray import SparseNdarray
@@ -44,18 +44,24 @@ def _choose_operator(op: OP):
 
 
 class UnaryIsometricOpSimple:
-    """Unary isometric operation involving an n-dimensional seed array with no additional arguments.
+    """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments.
+    This is used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
+
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
+    End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
 
     Attributes:
-        seed: An array-like object.
+        seed:
+            Any object that satisfies the seed contract,
+            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-        op (OP):
+        op (str):
             String specifying the unary operation.
     """
 
     def __init__(self, seed, op: OP):
         f = _choose_operator(op)
-        dummy = f(numpy.zeros(1, dtype=seed.dtype))
+        dummy = f(zeros(1, dtype=seed.dtype))
 
         self._seed = seed
         self._op = op
@@ -64,10 +70,22 @@ class UnaryIsometricOpSimple:
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """Shape of the ``UnaryIsometricOpSimple`` object.
+        As the name of the class suggests, this is the same as the ``seed`` array.
+
+        Returns:
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpSimple`` object.
+        """
         return self._seed.shape
 
     @property
-    def dtype(self) -> numpy.dtype:
+    def dtype(self) -> dtype:
+        """Type of the ``UnaryIsometricOpSimple`` object.
+        This may or may not be the same as the ``seed`` array, depending on how NumPy does the casting for the requested operation.
+
+        Returns:
+            dtype: NumPy type for the ``UnaryIsometricOpSimple`` contents.
+        """
         return self._dtype
 
 
@@ -78,7 +96,7 @@ def _is_sparse_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple) -> bool:
 
 @extract_dense_array.register
 def _extract_dense_array_UnaryIsometricOpSimple(
-    x: UnaryIsometricOpSimple, idx
+    x: UnaryIsometricOpSimple, idx: Tuple[Sequence, ...]
 ) -> ndarray:
     idx = sanitize_indices(idx, x.shape)
     base = extract_dense_array(x._seed, idx)
@@ -102,7 +120,7 @@ def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
 
 @extract_sparse_array.register
 def _extract_sparse_array_UnaryIsometricOpSimple(
-    x: UnaryIsometricOpSimple, idx
+    x: UnaryIsometricOpSimple, idx: Tuple[Sequence, ...]
 ) -> SparseNdarray:
     idx = sanitize_indices(idx, x.shape)
     sparse = extract_sparse_array(x._seed, idx)
