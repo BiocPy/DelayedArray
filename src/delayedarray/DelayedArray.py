@@ -17,7 +17,11 @@ def wrap_isometric_with_args(x, other, operation, right):
     # TO DO: handle binary operations for DelayedArray 'other'.
     return DelayedArray(
         UnaryIsometricOpWithArgs(
-            x._seed, value=other, operation=operation, along=len(x.shape) - 1, right=right
+            x._seed,
+            value=other,
+            operation=operation,
+            along=len(x.shape) - 1,
+            right=right,
         )
     )
 
@@ -169,7 +173,9 @@ class DelayedArray:
             v = inputs[int(first_is_da)]
             return wrap_isometric_with_args(da, v, operation=op, right=first_is_da)
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
-            return DelayedArray(UnaryIsometricOpSimple(inputs[0], operation=ufunc.__name__))
+            return DelayedArray(
+                UnaryIsometricOpSimple(inputs[0], operation=ufunc.__name__)
+            )
         elif ufunc.__name__ == "absolute":
             return DelayedArray(UnaryIsometricOpSimple(inputs[0], operation="abs"))
 
