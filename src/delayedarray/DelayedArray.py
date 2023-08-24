@@ -108,15 +108,6 @@ class DelayedArray:
         return self._seed.dtype
 
     @property
-    def ndim(self) -> int:
-        """Number of dimensions.
-
-        Returns:
-            int: Number of dimensions.
-        """
-        return len(self._seed.shape)
-
-    @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
 

@@ -2,7 +2,6 @@ import warnings
 
 import delayedarray
 import numpy
-import dask.array
 
 
 def test_DelayedArray_dense():
