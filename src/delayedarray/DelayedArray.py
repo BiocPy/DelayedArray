@@ -427,6 +427,59 @@ class DelayedArray:
         """
         return wrap_isometric_with_args(self, other, operation="power", right=False)
 
+    def __eq__(self, other) -> "DelayedArray":
+        """Check for equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="equal", right=True)
+
+    def __req__(self, other) -> "DelayedArray":
+        """Check for equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="equal", right=False)
+
+    def __ne__(self, other) -> "DelayedArray":
+        """Check for non-equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="not_equal", right=True)
+
+    def __rne__(self, other) -> "DelayedArray":
+        """Check for non-equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="not_equal", right=False)
+
+
     # Simple methods.
     def __neg__(self):
         """Negate the contents of a ``DelayedArray``.

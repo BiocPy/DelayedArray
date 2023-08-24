@@ -228,6 +228,48 @@ def test_DelayedArray_isometric_power():
     assert (numpy.array(z) == expanded**v).all()
 
 
+def test_DelayedArray_isometric_equal():
+    test_shape = (30, 55, 10)
+    y = numpy.random.rand(*test_shape)
+    x = delayedarray.DelayedArray(y)
+    expanded = numpy.array(x)
+
+    z = x == 2
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+    assert numpy.allclose(numpy.array(z), expanded == 2)
+
+    z = 2 == x
+    assert numpy.allclose(numpy.array(z), expanded == 2)
+
+    v = numpy.random.rand(10)
+    z = v == x
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+    assert (numpy.array(z) == (v == expanded)).all()
+
+
+def test_DelayedArray_isometric_not_equal():
+    test_shape = (12, 42)
+    y = numpy.random.rand(*test_shape)
+    x = delayedarray.DelayedArray(y)
+    expanded = numpy.array(x)
+
+    z = x != 2
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+    assert numpy.allclose(numpy.array(z), expanded != 2)
+
+    z = 2 != x
+    assert numpy.allclose(numpy.array(z), expanded != 2)
+
+    v = numpy.random.rand(42)
+    z = v != x
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+    assert (numpy.array(z) == (v != expanded)).all()
+
+
 def test_DelayedArray_isometric_simple():
     test_shape = (30, 55)
     y = numpy.random.rand(*test_shape)
