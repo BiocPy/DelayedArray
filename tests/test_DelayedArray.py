@@ -318,8 +318,12 @@ def test_DelayedArray_combine():
     assert x.seed.along == 0
     assert (numpy.array(x) == numpy.concatenate((y1.seed, y2.seed))).all()
 
-    y1 = delayedarray.DelayedArray((numpy.random.rand(19, 43) * 100).astype(numpy.int32))
-    y2 = delayedarray.DelayedArray((numpy.random.rand(19, 57) * 100).astype(numpy.int32))
+    y1 = delayedarray.DelayedArray(
+        (numpy.random.rand(19, 43) * 100).astype(numpy.int32)
+    )
+    y2 = delayedarray.DelayedArray(
+        (numpy.random.rand(19, 57) * 100).astype(numpy.int32)
+    )
     x = numpy.concatenate((y1, y2), axis=1)
     assert isinstance(x, delayedarray.DelayedArray)
     assert x.shape == (19, 100)

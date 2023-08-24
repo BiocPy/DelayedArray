@@ -202,7 +202,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
         """
-        if func  == numpy.concatenate:
+        if func == numpy.concatenate:
             seeds = []
             for x in args[0]:
                 seeds.append(_extract_seed(x))

@@ -1,4 +1,4 @@
-from typing import Sequence, Tuple
+from typing import Tuple
 
 from numpy import dtype, ndarray, concatenate
 from .utils import _create_dask_array
@@ -6,7 +6,8 @@ from dask.array.core import Array
 
 
 class Combine:
-    """Delayed combine operation. This will combine multiple arrays along a dimension, provided the extents of all other dimensions are the same.
+    """Delayed combine operation. This will combine multiple arrays along a dimension, provided the extents of all other
+    dimensions are the same.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     In general, end-users should not be interacting with ``Combine`` objects directly.
@@ -34,7 +35,9 @@ class Combine:
                 if d == along:
                     shape[d] += curshape[d]
                 elif shape[d] != curshape[d]:
-                    raise ValueError("expected seeds to have the same extent for non-'along' dimensions")
+                    raise ValueError(
+                        "expected seeds to have the same extent for non-'along' dimensions"
+                    )
 
         self._shape = (*shape,)
         self._along = along
@@ -57,7 +60,8 @@ class Combine:
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Combine`` object. This may or may not be the same as those in ``seeds``, depending on casting rules.
+        """Type of the ``Combine`` object. This may or may not be the same as those in ``seeds``, depending on casting
+        rules.
 
         Returns:
             dtype: NumPy type for the ``Combine`` contents.
