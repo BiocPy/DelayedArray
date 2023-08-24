@@ -135,7 +135,7 @@ class UnaryIsometricOpWithArgs:
                         along = i
 
                 if along == None:
-                    value = value[*([0] * ndim)]
+                    value = value[(*([0] * ndim), ...)]
 
         self._seed = seed
         self._value = value
