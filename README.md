@@ -116,14 +116,27 @@ n.seed
 Each layer has its own specific attributes that define the operation, e.g.,
 
 ```python
-n.seed.subsets
+n.seed.subset
 ## (range(1, 5), range(0, 20))
 ```
 
 Recursively drilling through the object will eventually reach the underlying array(s):
 
 ```python
-n.seed.seed.seed.seed
+n.seed.seed.seed.seed.seed
+## array([[0.78811524, 0.87684408, 0.56980128, ..., 0.92659988, 0.8716243 ,
+##         0.8855508 ],
+##        [0.96611119, 0.36928726, 0.30364589, ..., 0.14349135, 0.92921468,
+##         0.85097595],
+##        [0.98374144, 0.98197003, 0.18126507, ..., 0.5854122 , 0.48733974,
+##         0.90127042],
+##        ...,
+##        [0.05566008, 0.24581195, 0.4092705 , ..., 0.79169303, 0.36982844,
+##         0.59997214],
+##        [0.81744194, 0.78499666, 0.80940409, ..., 0.65706498, 0.16220355,
+##         0.46912681],
+##        [0.41896894, 0.58066043, 0.57069833, ..., 0.61640286, 0.47174326,
+##         0.7149704 ]])
 ```
 
 This approach is used to unpack each `DelayedArray` for transfer into other frameworks, e.g., R, C++.

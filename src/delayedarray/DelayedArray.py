@@ -170,13 +170,13 @@ class DelayedArray:
             first_is_da = isinstance(inputs[0], DelayedArray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
-            return wrap_isometric_with_args(da, v, operation=op, right=first_is_da)
+            return wrap_isometric_with_args(da._seed, v, operation=op, right=first_is_da)
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
             return DelayedArray(
-                UnaryIsometricOpSimple(inputs[0], operation=ufunc.__name__)
+                UnaryIsometricOpSimple(inputs[0]._seed, operation=ufunc.__name__)
             )
         elif ufunc.__name__ == "absolute":
-            return DelayedArray(UnaryIsometricOpSimple(inputs[0], operation="abs"))
+            return DelayedArray(UnaryIsometricOpSimple(inputs[0]._seed, operation="abs"))
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
