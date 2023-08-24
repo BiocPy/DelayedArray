@@ -19,3 +19,4 @@ from .DelayedArray import DelayedArray
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .Subset import Subset
+from .Combine import Combine
