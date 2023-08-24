@@ -17,12 +17,19 @@ def wrap_isometric_with_args(x, other, operation, right):
     # TO DO: handle binary operations for DelayedArray 'other'.
     return DelayedArray(
         UnaryIsometricOpWithArgs(
-            x._seed,
+            _extract_seed(x),
             value=other,
             operation=operation,
             right=right,
         )
     )
+
+
+def _extract_seed(x):
+    if isinstance(x, DelayedArray):
+        return x._seed
+    else:
+        return x
 
 
 translate_ufunc_to_op_with_args = {
@@ -170,13 +177,19 @@ class DelayedArray:
             first_is_da = isinstance(inputs[0], DelayedArray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
-            return wrap_isometric_with_args(da, v, operation=op, right=first_is_da)
+            return wrap_isometric_with_args(
+                _extract_seed(da), v, operation=op, right=first_is_da
+            )
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
             return DelayedArray(
-                UnaryIsometricOpSimple(inputs[0], operation=ufunc.__name__)
+                UnaryIsometricOpSimple(
+                    _extract_seed(inputs[0]), operation=ufunc.__name__
+                )
             )
         elif ufunc.__name__ == "absolute":
-            return DelayedArray(UnaryIsometricOpSimple(inputs[0], operation="abs"))
+            return DelayedArray(
+                UnaryIsometricOpSimple(_extract_seed(inputs[0]), operation="abs")
+            )
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
