@@ -4,6 +4,7 @@ from numpy import array2string, dtype, get_printoptions, ndarray
 from dask.array.core import Array
 
 from .Subset import Subset
+from .Combine import Combine
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import _create_dask_array
@@ -105,6 +106,15 @@ class DelayedArray:
             dtype: NumPy type of the values.
         """
         return self._seed.dtype
+
+    @property
+    def ndim(self) -> int:
+        """Number of dimensions.
+
+        Returns:
+            int: Number of dimensions.
+        """
+        return len(self._seed.shape)
 
     @property
     def seed(self):
@@ -391,6 +401,7 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
+    # Subsetting and combining.
     def __getitem__(
         self, args: Tuple[Union[slice, Sequence[int]], ...]
     ) -> "DelayedArray":
@@ -438,3 +449,11 @@ class DelayedArray:
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
         return self.as_dask_array().mean(*args, **kwargs).compute()
+
+
+def concatenate(arrs: list, axis=0, **kwargs) -> "DelayedArray":
+    """See :py:meth:`~numpy.concatenate` for more details."""
+    seeds = []
+    for x in arrs:
+        seeds.append(_extract_seed(x))
+    return DelayedArray(Combine(seeds, along=axis))
