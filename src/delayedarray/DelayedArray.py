@@ -393,13 +393,13 @@ class DelayedArray:
         return _create_dask_array(self._seed)
 
     def sum(self, *args, **kwargs):
-        """See :py:meth:`~numpy.sums` for details"""
+        """See :py:meth:`~numpy.sums` for details."""
         return self.as_dask_array().sum(*args, **kwargs).compute()
 
     def var(self, *args, **kwargs):
-        """See :py:meth:`~numpy.vars` for details"""
+        """See :py:meth:`~numpy.vars` for details."""
         return self.as_dask_array().var(*args, **kwargs).compute()
 
     def mean(self, *args, **kwargs):
-        """See :py:meth:`~numpy.means` for details"""
+        """See :py:meth:`~numpy.means` for details."""
         return self.as_dask_array().mean(*args, **kwargs).compute()
