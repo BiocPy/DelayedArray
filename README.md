@@ -16,22 +16,50 @@
 
 # DelayedArrays, in Python
 
-Pretty much as it says on the tin.
-We just translated the [Bioconductor package of the same name](https://bioconductor.org/packages/DelayedArray) into Python.
-We didn't even bother changing the class names, that's how ~lazy~ faithful we were to the original implementation.
+Pretty much as it says on the tin, we just translated the [R/Bioconductor package of the same name](https://bioconductor.org/packages/DelayedArray) into Python.
+This allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
+with particular focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
+and use with [**tatami**](https://github.com/tatami-inc/tatami)-compatible C++ libraries via [**mattress**](https://github.com/BiocPy/mattress).
+End-users can leverage **DelayedArray** objects to save time and memory by lazily operating on large matrices.
+This package is basically a poor man's [**dask**](https://docs.dask.org/en/stable/) that simplifies the class internals for easier cross-language development.
 
-## Install
+## Installation
 
-Package is published to [PyPI](https://pypi.org/project/delayedarray/)
+This package is published to [PyPI](https://pypi.org/project/delayedarray/) and can be installed via the usual methods:
 
 ```shell
 pip install delayedarray
 ```
 
-## Usage
+## Quick start
+
+We can create a `DelayedArray` from any object that respects the seed contract,
+i.e., has the `shape`/`dtype` properties and has methods for the `extract_dense_array()`, `is_sparse()` and (optionally) `extract_sparse_array()` generics.
+For example, a typical NumPy array qualifies:
 
 ```python
-COMING SOON
+import numpy
+x = numpy.random.rand(100, 20)
+```
+
+We can wrap this in a `DelayedArray` class:
+
+```python
+import delayedarray
+d = delayedarray.DelayedArray(x)
+```
+
+And then we can use it in a variety of operations.
+This will just return a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
+
+```python
+n = (numpy.log1p(d / 2) + 5)[1:5,:]
+```
+
+Users can then call `numpy.array()` to realize the delayed operations into a typical NumPy array for consumption.
+
+```python
+numpy.array(n)
 ```
 
 Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more info.

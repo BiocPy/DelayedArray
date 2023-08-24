@@ -2,8 +2,7 @@ import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
-import numpy
-from numpy import array, ndarray, zeros
+from numpy import array, ndarray, zeros, dtype
 
 from .utils import sanitize_indices
 
@@ -13,31 +12,32 @@ __license__ = "MIT"
 
 
 class SparseNdarray:
-    """The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional array.
-    It is inspired by the **SVTArray** from the DelayedArray
-    `R/Bioconductor package <https://github.com/Bioconductor/DelayedArray>`_.
-    This class is intended for developers, either as a seed to newly constructed
+    """The SparseNdarray, as its name suggests, is a sparse n-dimensional array.
+    It is inspired by the **SVTArray** from the `DelayedArray R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
+    This class is primarily intended for developers, either as a seed to newly constructed
     (sparse) :py:class:`~delayedarray.DelayedArray.DelayedArray` instances or
-    as the output of :py:meth:`~delayedarray.interface.extract_sparse_array`.
+    as the output of :py:meth:`~delayedarray.interface.extract_sparse_array`;
+    end-users should be interacting with :py:class:`~delayedarray.DelayedArray.DelayedArray` instances instead.
 
-    Internally, the ``SparseNdarray`` is represented as a nested list where each
+    Internally, the SparseNdarray is represented as a nested list where each
     nesting level corresponds to a dimension. The list at each level has length equal
-    to the extent of the dimension, where each entry contains another list representing
+    to the extent of its dimension, where each entry contains another list representing
     the contents of the corresponding element of that dimension. This proceeds until
-    the penultimate dimension, where each entry contains ``(index, value)`` tuples
-    representing the sparse contents of the corresponding dimension element.
-
+    the penultimate dimension, where each entry instead ``(index, value)`` tuples.
     In effect, this is a tree where the non-leaf nodes are lists and the leaf nodes
-    are tuples. ``index`` should be a :py:class:`~typing.Sequence` of integers where
-    values are strictly increasing and less than the extent of the final dimension.
+    are tuples.
+
+    Each ``(index, value)`` tuple represents a sparse vector for the corresponding element of the final dimension of the SparseNdarray.
+    ``index`` should be a :py:class:`~typing.Sequence` of integers where
+    entries are strictly increasing and less than the extent of the final dimension.
     ``value`` may be any :py:class:`~numpy.ndarray` but the ``dtype`` should be
-    consistent across all ``value``s in the array.
+    consistent across all ``value`` objects in the SparseNdarray.
 
     Any entry of any list may also be None, indicating that the corresponding element
     of the dimension contains no non-zero values. In fact, the entire tree may be None,
     indicating that there are no non-zero values in the entire array.
 
-    For 1-dimensional arrays, the contents should be a single (index, value) tuple
+    For 1-dimensional arrays, the contents should be a single ``(index, value)`` tuple
     containing the sparse contents. This may also be None if there are no non-zero
     values in the array.
 
@@ -45,18 +45,18 @@ class SparseNdarray:
 
     Attributes:
         shape (Tuple[int, ...]):
-            Tuple containing the dimensions of the array.
+            Tuple specifying the dimensions of the array.
 
         contents (Union[Tuple[Sequence, Sequence], List], optional):
-            For `n-dimensional` arrays where n > 1, a nested list representing a
+            For ``n``-dimensional arrays where ``n`` > 1, a nested list representing a
             tree where each leaf node is a tuple containing a sparse vector (or None).
 
-            For `1-dimensional` arrays, a tuple containing a sparse vector.
+            For 1-dimensional arrays, a tuple containing a sparse vector.
 
             Alternatively None, if the array is empty.
 
-        dtype (numpy.dtype, optional):
-            Type of the array as a NumPy type.
+        dtype (dtype, optional):
+            NumPy type of the SparseNdarray.
             If None, this is inferred from ``contents``.
     """
 
@@ -69,7 +69,7 @@ class SparseNdarray:
                 List,
             ]
         ],
-        dtype: Optional[numpy.dtype] = None,
+        dtype: Optional[dtype] = None,
         check=True,
     ):
         self._shape = shape
@@ -100,20 +100,19 @@ class SparseNdarray:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the array.
+        """Shape of the SparseNdarray.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers containing the array shape along
-            each dimension.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the SparseNdarray.
         """
         return self._shape
 
     @property
-    def dtype(self) -> numpy.dtype:
-        """Type of the array.
+    def dtype(self) -> dtype:
+        """Type of the elements in the SparseNdarray.
 
         Returns:
-            numpy.dtype: Type of the NumPy array containing the values of the non-zero elements.
+            dtype: NumPy type of the values.
         """
         return self._dtype
 
@@ -151,7 +150,7 @@ def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
 
 
 def _check_sparse_tuple(
-    indices: Sequence, values: ndarray, max_index: int, dtype: numpy.dtype
+    indices: Sequence, values: ndarray, max_index: int, dtype: dtype
 ):
     if len(indices) != len(values):
         raise ValueError("Length of index and value vectors should be the same.")
@@ -169,7 +168,7 @@ def _check_sparse_tuple(
 
 
 def _recursive_check(
-    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: numpy.dtype
+    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: dtype
 ):
     if len(contents) != shape[dim]:
         raise ValueError(

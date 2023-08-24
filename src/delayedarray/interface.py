@@ -17,22 +17,23 @@ __license__ = "MIT"
 
 @singledispatch
 def extract_dense_array(x, idx: Tuple[Sequence, ...]) -> ndarray:
-    """Extract slice from a dense array.
+    """Extract a dense array from a seed. This uses the outer product of the indices specified in `idx`.
 
     Args:
-        x: Array to slice.
+        x: Any object satisfying the seed contract,
+            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-            ``x`` may be either a :py:class.`~numpy.ndarray` or
-            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.
-
-        idx (Tuple[Sequence, ...]): Indices to slice, must be less
-            than or equal to the number of dimensions in the dense matrix.
+        idx (Tuple[Sequence, ...]):
+            Tuple of length equal to the number of dimensions in ``x``.
+            Each entry should be a sequence of sorted and unique non-negative integers that are less than the extent of the corresponding dimension of ``x``,
+            specifying the indices of the dimension to extract.
 
     Raises:
         NotImplementedError: When ``x`` is not an supported type.
 
     Returns:
-        ndarray: A sliced :py:class.`~numpy.ndarray`.
+        ndarray: An :py:class:`~numpy.ndarray` containing the dense contents of ``x`` at the requested indices.
+        This is guaranteed to be in C-contiguous layout and to not be a view.
     """
     raise NotImplementedError(
         f"extract_dense_array is not supported for '{type(x)}' objects"
@@ -53,21 +54,22 @@ def _extract_dense_array_SparseNdarray(
 
 @singledispatch
 def extract_sparse_array(x, idx: Tuple[Sequence, ...]) -> SparseNdarray:
-    """Extract slice from a sparse array.
+    """Extract a sparse array from a seed. This uses the outer product of the indices specified in `idx`.
 
     Args:
-        x: Array to slice.
+        x: Any object satisfying the seed contract,
+            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-            ``x`` may be either a :py:class.`~scipy.sparse.spmatrix` or
-            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.
-
-        idx (Tuple[Sequence, ...]): Indices to slice, must be less
-            than or equal to the number of dimensions in the sparse array.
+        idx (Tuple[Sequence, ...]):
+            Tuple of length equal to the number of dimensions in ``x``.
+            Each entry should be a sequence of sorted and unique non-negative integers that are less than the extent of the corresponding dimension of ``x``,
+            specifying the indices of the dimension to extract.
 
     Raises:
         NotImplementedError: When ``x`` is not an supported type.
+
     Returns:
-        SparseNdarray: A sliced sparse array object.
+        SparseNdarray: A ``SparseNdarray`` containing the sparse contents of ``x`` at the requested indices.
     """
     raise NotImplementedError(
         f"extract_sparse_array is not supported for '{type(x)}' objects"
@@ -86,7 +88,8 @@ def is_sparse(x) -> bool:
     """Check if ``x`` represents a sparse array.
 
     Args:
-        x: Array to check.
+        x: Any object satisfying the seed contract,
+            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
     Returns:
         bool: True if ``x`` is a sparse array.
