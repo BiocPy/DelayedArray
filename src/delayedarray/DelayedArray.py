@@ -223,6 +223,14 @@ class DelayedArray:
                 axis = 0
             return DelayedArray(Combine(seeds, along=axis))
 
+        if func == numpy.transpose:
+            seed = _extract_seed(args[0])
+            if "axes" in kwargs:
+                axes = kwargs["axes"]
+            else:
+                axes = None
+            return DelayedArray(Transpose(seed, perm=axes))
+
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
     def __add__(self, other) -> "DelayedArray":
