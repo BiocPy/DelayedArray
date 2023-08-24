@@ -13,11 +13,15 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def wrap_isometric_with_args(x, other, op, right):
+def wrap_isometric_with_args(x, other, operation, right):
     # TO DO: handle binary operations for DelayedArray 'other'.
     return DelayedArray(
         UnaryIsometricOpWithArgs(
-            x._seed, value=other, op=op, along=len(x.shape) - 1, right=right
+            x._seed,
+            value=other,
+            operation=operation,
+            along=len(x.shape) - 1,
+            right=right,
         )
     )
 
@@ -167,11 +171,13 @@ class DelayedArray:
             first_is_da = isinstance(inputs[0], DelayedArray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
-            return wrap_isometric_with_args(da, v, op=op, right=first_is_da)
+            return wrap_isometric_with_args(da, v, operation=op, right=first_is_da)
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
-            return DelayedArray(UnaryIsometricOpSimple(inputs[0], op=ufunc.__name__))
+            return DelayedArray(
+                UnaryIsometricOpSimple(inputs[0], operation=ufunc.__name__)
+            )
         elif ufunc.__name__ == "absolute":
-            return DelayedArray(UnaryIsometricOpSimple(inputs[0], op="abs"))
+            return DelayedArray(UnaryIsometricOpSimple(inputs[0], operation="abs"))
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
@@ -185,7 +191,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
         """
-        return wrap_isometric_with_args(self, other, op="+", right=True)
+        return wrap_isometric_with_args(self, other, operation="+", right=True)
 
     def __radd__(self, other) -> "DelayedArray":
         """Add something to the left-hand-side of a ``DelayedArray``.
@@ -199,7 +205,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
         """
-        return wrap_isometric_with_args(self, other, op="+", right=False)
+        return wrap_isometric_with_args(self, other, operation="+", right=False)
 
     def __sub__(self, other) -> "DelayedArray":
         """Subtract something from the right-hand-side of a ``DelayedArray``.
@@ -211,7 +217,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
         """
-        return wrap_isometric_with_args(self, other, op="-", right=True)
+        return wrap_isometric_with_args(self, other, operation="-", right=True)
 
     def __rsub__(self, other):
         """Subtract a ``DelayedArray`` from something else.
@@ -225,7 +231,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
         """
-        return wrap_isometric_with_args(self, other, op="-", right=False)
+        return wrap_isometric_with_args(self, other, operation="-", right=False)
 
     def __mul__(self, other):
         """Multiply a ``DelayedArray`` with something on the right hand side.
@@ -237,7 +243,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
         """
-        return wrap_isometric_with_args(self, other, op="*", right=True)
+        return wrap_isometric_with_args(self, other, operation="*", right=True)
 
     def __rmul__(self, other):
         """Multiply a ``DelayedArray`` with something on the left hand side.
@@ -251,7 +257,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
         """
-        return wrap_isometric_with_args(self, other, op="*", right=False)
+        return wrap_isometric_with_args(self, other, operation="*", right=False)
 
     def __truediv__(self, other):
         """Divide a ``DelayedArray`` by something.
@@ -263,7 +269,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return wrap_isometric_with_args(self, other, op="/", right=True)
+        return wrap_isometric_with_args(self, other, operation="/", right=True)
 
     def __rtruediv__(self, other):
         """Divide something by a ``DelayedArray``.
@@ -277,7 +283,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return wrap_isometric_with_args(self, other, op="/", right=False)
+        return wrap_isometric_with_args(self, other, operation="/", right=False)
 
     def __mod__(self, other):
         """Take the remainder after dividing a ``DelayedArray`` by something.
@@ -289,7 +295,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
         """
-        return wrap_isometric_with_args(self, other, op="%", right=True)
+        return wrap_isometric_with_args(self, other, operation="%", right=True)
 
     def __rmod__(self, other):
         """Take the remainder after dividing something by a ``DelayedArray``.
@@ -303,7 +309,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
         """
-        return wrap_isometric_with_args(self, other, op="%", right=False)
+        return wrap_isometric_with_args(self, other, operation="%", right=False)
 
     def __floordiv__(self, other):
         """Divide a ``DelayedArray`` by something and take the floor.
@@ -315,7 +321,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, op="//", right=True)
+        return wrap_isometric_with_args(self, other, operation="//", right=True)
 
     def __rfloordiv__(self, other):
         """Divide something by a ``DelayedArray`` and take the floor.
@@ -329,7 +335,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, op="//", right=False)
+        return wrap_isometric_with_args(self, other, operation="//", right=False)
 
     def __pow__(self, other):
         """Raise a ``DelayedArray`` to the power of something.
@@ -341,7 +347,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed power operation.
         """
-        return wrap_isometric_with_args(self, other, op="**", right=True)
+        return wrap_isometric_with_args(self, other, operation="**", right=True)
 
     def __rpow__(self, other):
         """Raise something to the power of the contents of a ``DelayedArray``.
@@ -355,7 +361,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed power operation.
         """
-        return wrap_isometric_with_args(self, other, op="**", right=False)
+        return wrap_isometric_with_args(self, other, operation="**", right=False)
 
     def __neg__(self):
         """Negate the contents of a ``DelayedArray``.
@@ -363,7 +369,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed negation.
         """
-        return wrap_isometric_with_args(self, 0, op="-", right=False)
+        return wrap_isometric_with_args(self, 0, operation="-", right=False)
 
     def __abs__(self):
         """Take the absolute value of the contents of a ``DelayedArray``.
@@ -371,7 +377,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
         """
-        return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
+        return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
     def __getitem__(
         self, args: Tuple[Union[slice, Sequence[int]], ...]
