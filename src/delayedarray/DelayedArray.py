@@ -7,6 +7,7 @@ from .Subset import Subset
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import _create_dask_array
+from .Transpose import Transpose
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -114,6 +115,14 @@ class DelayedArray:
             The seed object.
         """
         return self._seed
+
+    def T(self) -> "DelayedArray":
+        """Get the delayed transpose of this ``DelayedArray`` instance.
+
+        Returns:
+            DelayedArray: A DelayedArray containing a delayed transposition.
+        """
+        return DelayedArray(Transpose(self._seed, perm=None))
 
     def __repr__(self) -> str:
         """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
