@@ -39,7 +39,7 @@ pip install delayedarray
 ## Quick start
 
 We can create a `DelayedArray` from any object that respects the seed contract,
-i.e., has the `shape`/`dtype` properties and has methods for the `extract_dense_array()`, `is_sparse()` and (optionally) `extract_sparse_array()` generics.
+i.e., has the `shape`/`dtype` properties and supports NumPy slicing. 
 For example, a typical NumPy array qualifies:
 
 ```python
@@ -52,19 +52,53 @@ We can wrap this in a `DelayedArray` class:
 ```python
 import delayedarray
 d = delayedarray.DelayedArray(x)
+## <100 x 20> DelayedArray object of type 'float64'
+## [[0.87165637, 0.37536154, 0.49505459, ..., 0.90147358, 0.13091768,
+##   0.7288351 ],
+##  [0.06014594, 0.04758512, 0.1932337 , ..., 0.83628993, 0.63886397,
+##   0.37175146],
+##  [0.86038138, 0.1844154 , 0.45318283, ..., 0.411131  , 0.61720257,
+##   0.44831668],
+##  ...,
+##  [0.2960631 , 0.85775072, 0.83518558, ..., 0.32533032, 0.59257349,
+##   0.36232564],
+##  [0.7026017 , 0.86221974, 0.42704164, ..., 0.7612019 , 0.58842594,
+##   0.51895466],
+##  [0.4321901 , 0.29703596, 0.34399029, ..., 0.04685882, 0.20102342,
+##   0.05495118]]
 ```
 
 And then we can use it in a variety of operations.
-This will just return a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
+Each operation just return a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
 
 ```python
-n = (numpy.log1p(d / 2) + 5)[1:5,:]
+s = d.sum(axis=0)
+n = (numpy.log1p(d / s) + 5)[1:5,:]
+## <4 x 20> DelayedArray object of type 'float64'
+## array([[5.01864954, 5.01248763, 5.00465425, 5.01366904, 5.01444268,
+##         5.01740277, 5.00211704, 5.00456718, 5.01170253, 5.00268081,
+##         5.00069047, 5.01792154, 5.01174818, 5.007219  , 5.01613611,
+##         5.01998141, 5.00359273, 5.00891747, 5.00167042, 5.00480139],
+##        [5.01319369, 5.01366843, 5.00259837, 5.01438949, 5.0168967 ,
+##         5.0118356 , 5.01468261, 5.00266368, 5.00820377, 5.01519285,
+##         5.00880128, 5.01867732, 5.00597971, 5.0132913 , 5.0169869 ,
+##         5.02033736, 5.0054349 , 5.01064519, 5.01484268, 5.00933761],
+##        [5.01056552, 5.00430873, 5.01554934, 5.01523742, 5.00447682,
+##         5.00896808, 5.01702989, 5.00417863, 5.0106902 , 5.01643898,
+##         5.00436048, 5.01041755, 5.01358732, 5.01173475, 5.00581787,
+##         5.01454487, 5.0097424 , 5.01313867, 5.01227209, 5.01212552],
+##        [5.00265869, 5.01460805, 5.00834077, 5.01877699, 5.00009671,
+##         5.01027705, 5.00650493, 5.01116854, 5.00582936, 5.00997989,
+##         5.00213256, 5.00145715, 5.00797343, 5.01588012, 5.01435549,
+##         5.00294226, 5.01381951, 5.01344824, 5.020751  , 5.01294937]])
 ```
 
 Users can then call `numpy.array()` to realize the delayed operations into a typical NumPy array for consumption.
+Alternatively, users can use the `.as_dask_array()` method to obtain a **dask** array.
 
 ```python
 numpy.array(n)
+n.as_dask_array()
 ```
 
 Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more info.
