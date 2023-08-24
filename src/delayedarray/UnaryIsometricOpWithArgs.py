@@ -99,11 +99,7 @@ class UnaryIsometricOpWithArgs:
     """
 
     def __init__(
-        self,
-        seed,
-        value: Union[float, ndarray],
-        operation: OP,
-        right: bool = True
+        self, seed, value: Union[float, ndarray], operation: OP, right: bool = True
     ):
         f = _choose_operator(operation)
 
@@ -124,17 +120,23 @@ class UnaryIsometricOpWithArgs:
                 along = ndim - 1
             else:
                 if len(value.shape) != ndim:
-                    raise ValueError("length of 'value.shape' and 'seed.shape' should be equal")
+                    raise ValueError(
+                        "length of 'value.shape' and 'seed.shape' should be equal"
+                    )
 
                 for i in range(ndim):
                     if value.shape[i] != 1:
                         if along is not None:
-                            raise ValueError("no more than one entry of 'value.shape' should be greater than 1")
+                            raise ValueError(
+                                "no more than one entry of 'value.shape' should be greater than 1"
+                            )
                         if seed.shape[i] != value.shape[i]:
-                            raise ValueError("any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'")
+                            raise ValueError(
+                                "any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'"
+                            )
                         along = i
 
-                if along == None:
+                if along is None:
                     value = value[(*([0] * ndim), ...)]
 
         self._seed = seed
@@ -217,7 +219,8 @@ class UnaryIsometricOpWithArgs:
 
     @property
     def along(self) -> Union[int, None]:
-        """If :py:attr:`~value` is an array, this specifies the dimension of :py:attr:``~seed`` along which the array values are broadcast.
+        """If :py:attr:`~value` is an array, this specifies the dimension of :py:attr:``~seed`` along which the array
+        values are broadcast.
 
         Returns:
             Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.
