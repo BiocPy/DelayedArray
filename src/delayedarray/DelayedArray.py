@@ -112,7 +112,7 @@ class DelayedArray:
 
         ndims = len(self._seed.shape)
         if total <= get_printoptions()["threshold"]:
-            full_indices = [slice(None)] * ndims
+            [slice(None)] * ndims
             bits_and_pieces = self.as_dask_array().compute()
             return preamble + "\n" + repr(bits_and_pieces)
 
@@ -393,13 +393,13 @@ class DelayedArray:
         return _create_dask_array(self._seed)
 
     def sums(*args, **kwargs):
-        """See :py:meth:`~numpy.sums` for details"""
+        """See :py:meth:`~numpy.sums` for details."""
         return self._seed.as_dask_array().sums(*args, **kwargs).compute()
 
     def vars(*args, **kwargs):
-        """See :py:meth:`~numpy.vars` for details"""
+        """See :py:meth:`~numpy.vars` for details."""
         return self._seed.as_dask_array().sums(*args, **kwargs).compute()
 
     def means(*args, **kwargs):
-        """See :py:meth:`~numpy.means` for details"""
+        """See :py:meth:`~numpy.means` for details."""
         return self._seed.as_dask_array().means(*args, **kwargs).compute()

@@ -1,7 +1,7 @@
-from typing import Literal, Tuple, Sequence
+from typing import Literal, Tuple
 
 import numpy
-from numpy import ndarray, dtype, zeros
+from numpy import dtype, zeros
 from .utils import _create_dask_array
 from dask.array.core import Array
 

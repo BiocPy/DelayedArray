@@ -1,9 +1,9 @@
 import operator
 import warnings
-from typing import Literal, Tuple, Union, Sequence
+from typing import Literal, Tuple, Union
 
 import numpy
-from numpy import ndarray, inf
+from numpy import ndarray
 from dask.array.core import Array
 
 from .utils import _create_dask_array
@@ -108,7 +108,6 @@ class UnaryIsometricOpWithArgs:
             else:
                 dummy = f(dummy, value)
         dtype = dummy.dtype
-        same_type = dtype == seed.dtype
 
         if isinstance(value, ndarray):
             if along < 0 or along >= len(seed.shape):
@@ -147,7 +146,7 @@ class UnaryIsometricOpWithArgs:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:    
+    def as_dask_array(self) -> Array:
         """Create a dask array containing the delayed operation.
 
         Returns:
@@ -156,7 +155,10 @@ class UnaryIsometricOpWithArgs:
         target = _create_dask_array(self._seed)
 
         operand = self._value
-        if isinstance(self._value, numpy.ndarray) and self._along != len(self.shape) - 1:
+        if (
+            isinstance(self._value, numpy.ndarray)
+            and self._along != len(self.shape) - 1
+        ):
             dims = [1, 1, 1]
             dims[self._along] = self.shape[self._along]
             operand = operand.reshape(*dims)

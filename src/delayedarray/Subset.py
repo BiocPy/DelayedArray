@@ -1,16 +1,13 @@
-from bisect import bisect_left
-from collections import namedtuple
-from copy import deepcopy
 from typing import Sequence, Tuple
 
-from numpy import array, dtype, ix_, ndarray
+from numpy import dtype
 from .utils import _create_dask_array
 from dask.array.core import Array
 
 
 class Subset:
     """Delayed subset operation. This will slice the array along one or more dimensions, equivalent to the outer product
-    of subset indices. 
+    of subset indices.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     In general, end-users should not be interacting with ``Subset`` objects directly.

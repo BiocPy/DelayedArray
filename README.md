@@ -16,7 +16,7 @@
 
 # DelayedArrays, in Python
 
-This is a wrapper around [**dask**](https://docs.dask.org/en/stable) 
+This is a wrapper around [**dask**](https://docs.dask.org/en/stable)
 to provide a developer experience more like the [**DelayedArray** Bioconductor package](https://bioconductor.org/packages/DelayedArray).
 It allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
 with particular focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
