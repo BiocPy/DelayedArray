@@ -58,11 +58,11 @@ class UnaryIsometricOpSimple:
     """
 
     def __init__(self, seed, operation: OP):
-        f = _choose_operator(op)
+        f = _choose_operator(operation)
         dummy = f(zeros(1, dtype=seed.dtype))
 
         self._seed = seed
-        self._op = op 
+        self._op = operation
         self._dtype = dummy.dtype
 
     @property

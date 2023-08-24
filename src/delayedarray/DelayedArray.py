@@ -17,7 +17,7 @@ def wrap_isometric_with_args(x, other, operation, right):
     # TO DO: handle binary operations for DelayedArray 'other'.
     return DelayedArray(
         UnaryIsometricOpWithArgs(
-            x._seed, value=other, operation=op, along=len(x.shape) - 1, right=right
+            x._seed, value=other, operation=operation, along=len(x.shape) - 1, right=right
         )
     )
 
