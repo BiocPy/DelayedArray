@@ -101,7 +101,32 @@ numpy.array(n)
 n.as_dask_array()
 ```
 
-Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more info.
+Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more information.
+
+## For developers
+
+The main purpose of the **DelayedArray** package is to make it easier for developers to inspect the delayed operations.
+To this end, we can pull out the "seed" object underlying our `DelayedArray` instance:
+
+```python
+n.seed
+## <delayedarray.Subset.Subset object at 0x11cfbe690>
+```
+
+Each layer has its own specific attributes that define the operation, e.g.,
+
+```python
+n.seed.subsets
+## (range(1, 5), range(0, 20))
+```
+
+Recursively drilling through the object will eventually reach the underlying array(s):
+
+```python
+n.seed.seed.seed.seed
+```
+
+This approach is used to unpack each `DelayedArray` for transfer into other frameworks, e.g., R, C++.
 
 <!-- pyscaffold-notes -->
 
