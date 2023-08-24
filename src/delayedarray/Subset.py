@@ -17,7 +17,7 @@ class Subset:
             Any object that satisfies the seed contract,
             see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-        subset (Tuple[Sequence, ...]):
+        subset (Tuple[Sequence[int], ...]):
             Tuple of length equal to the dimensionality of ``seed``, containing the subsetted
             elements for each dimension.
             Each entry should be a vector of integer indices specifying the elements of the
@@ -25,24 +25,18 @@ class Subset:
             extent of the dimension. Unsorted and/or duplicate indices are allowed.
     """
 
-    def __init__(self, seed, subset: Tuple[Sequence, ...]):
+    def __init__(self, seed, subset: Tuple[Sequence[int], ...]):
         self._seed = seed
         if len(subset) != len(seed.shape):
             raise ValueError(
                 "Dimensionality of 'seed' and 'subset' should be the same."
             )
 
-        self._subset = []
-        final_shape = []
-        for i in range(len(seed.shape)):
-            idx = subset[i]
-            if isinstance(idx, slice):
-                idx = range(*idx.indices(seed.shape[i]))
-            if not isinstance(idx, list):
-                idx = list(idx)
-            self._subset.append(idx)
-            final_shape.append(len(idx))
+        self._subset = subset
 
+        final_shape = []
+        for idx in subset:
+            final_shape.append(len(idx))
         self._shape = (*final_shape,)
 
     @property
@@ -93,7 +87,12 @@ class Subset:
         # Oh god, this is horrible. But dask doesn't support ix_ yet.
         ndim = len(target.shape)
         for i in range(ndim):
+            replacement = self._subset[i]
+            if isinstance(replacement, range):
+                replacement = list(replacement) 
+
             current = [slice(None)] * ndim
-            current[i] = self._subset[i]
+            current[i] = replacement
             target = target[(..., *current)]
+
         return target
