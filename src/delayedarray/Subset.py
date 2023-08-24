@@ -89,7 +89,7 @@ class Subset:
         for i in range(ndim):
             replacement = self._subset[i]
             if isinstance(replacement, range):
-                replacement = list(replacement) 
+                replacement = list(replacement)
 
             current = [slice(None)] * ndim
             current[i] = replacement

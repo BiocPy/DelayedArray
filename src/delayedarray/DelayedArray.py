@@ -373,7 +373,9 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
 
-    def __getitem__(self, args: Tuple[Union[slice, Sequence[int]], ...]) -> "DelayedArray":
+    def __getitem__(
+        self, args: Tuple[Union[slice, Sequence[int]], ...]
+    ) -> "DelayedArray":
         """Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-
         dimension indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to
         using NumPy's :py:meth:`~numpy.ix_` function.
