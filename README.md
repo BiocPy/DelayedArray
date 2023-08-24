@@ -16,12 +16,17 @@
 
 # DelayedArrays, in Python
 
-Pretty much as it says on the tin, we just translated the [R/Bioconductor package of the same name](https://bioconductor.org/packages/DelayedArray) into Python.
-This allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
+This is a wrapper around [**dask**](https://docs.dask.org/en/stable) 
+to provide a developer experience more like the [**DelayedArray** Bioconductor package](https://bioconductor.org/packages/DelayedArray).
+It allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
 with particular focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
-and use with [**tatami**](https://github.com/tatami-inc/tatami)-compatible C++ libraries via [**mattress**](https://github.com/BiocPy/mattress).
-End-users can leverage **DelayedArray** objects to save time and memory by lazily operating on large matrices.
-This package is basically a poor man's [**dask**](https://docs.dask.org/en/stable/) that simplifies the class internals for easier cross-language development.
+and entry into [**tatami**](https://github.com/tatami-inc/tatami)-compatible C++ libraries via [**mattress**](https://github.com/BiocPy/mattress).
+
+Ideally, we would use **dask** directly and avoid creating a set of wrapper classes.
+Unfortunately, it proved too difficult to parse their `HighLevelGraph` objects containing the delayed operations;
+determining the internal representation of each operation required some trial and error, and it didn't seem like part of the supported API.
+Instead, our `DelayedArray` classes capture a subset of the operations in a much simpler format for easier development.
+Note that any Python-based compute on the `DelayedArray`s (e.g., `.sum()`, `.var()`) is still performed using **dask**.
 
 ## Installation
 
