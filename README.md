@@ -39,7 +39,7 @@ pip install delayedarray
 ## Quick start
 
 We can create a `DelayedArray` from any object that respects the seed contract,
-i.e., has the `shape`/`dtype` properties and supports NumPy slicing. 
+i.e., has the `shape`/`dtype` properties and supports NumPy slicing.
 For example, a typical NumPy array qualifies:
 
 ```python
