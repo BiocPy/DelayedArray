@@ -96,6 +96,15 @@ class DelayedArray:
         """
         return self._seed.dtype
 
+    @property
+    def seed(self):
+        """Get the underlying object satisfying the seed contract.
+
+        Returns:
+            The seed object.
+        """
+        return self._seed
+
     def __repr__(self) -> str:
         """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
         options.

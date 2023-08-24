@@ -27,6 +27,10 @@ def test_DelayedArray_isometric_add():
     z = x + 2
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
+    assert isinstance(z.seed.seed, numpy.ndarray)
+    assert z.seed.right
+    assert z.seed.operation == "+"
+    assert z.seed.value == 2
     assert (numpy.array(z) == expanded + 2).all()
 
     z = 5 + x
@@ -266,6 +270,7 @@ def test_DelayedArray_isometric_simple():
 
         assert isinstance(z, delayedarray.DelayedArray)
         assert z.shape == x.shape
+        assert z.seed.operation == op
 
         missing = numpy.isnan(obs)
         assert (missing == numpy.isnan(expected)).all()
@@ -281,7 +286,8 @@ def test_DelayedArray_subset():
 
     sub = x[slice(1, 10), [20, 30, 40], [10, 11, 12, 13]]
     assert sub.shape == (9, 3, 4)
-    assert isinstance(sub._seed, delayedarray.Subset)
+    assert isinstance(sub.seed.seed, numpy.ndarray)
+    assert len(sub.seed.subset) == 3
     assert (
         numpy.array(sub)
         == numpy.array(x)[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]

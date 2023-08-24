@@ -168,3 +168,40 @@ class UnaryIsometricOpWithArgs:
             return f(target, operand)
         else:
             return f(operand, target)
+
+    @property
+    def seed(self):
+        """Get the underlying object satisfying the seed contract.
+
+        Returns:
+            The seed object.
+        """
+        return self._seed
+
+    @property
+    def operation(self) -> str:
+        """Get the name of the operation.
+
+        Returns:
+            str: Name of the operation.
+        """
+        return self._op
+
+    @property
+    def value(self) -> Union[float, ndarray]:
+        """Get the other operand used in the operation.
+
+        Returns:
+            Union[float, ndarray]: The other operand.
+            This can be a numeric scalar or a NumPy array.
+        """
+        return self._value
+
+    @property
+    def right(self) -> bool:
+        """Is the :py:attr:`~value` applied to the right of the seed?
+
+        Returns:
+            bool: Whether to apply the operation to the right of the seed.
+        """
+        return self._right

@@ -95,3 +95,21 @@ class UnaryIsometricOpSimple:
         target = _create_dask_array(self._seed)
         f = _choose_operator(self._op)
         return f(target)
+
+    @property
+    def seed(self):
+        """Get the underlying object satisfying the seed contract.
+
+        Returns:
+            The seed object.
+        """
+        return self._seed
+
+    @property
+    def operation(self) -> str:
+        """Get the name of the operation.
+
+        Returns:
+            str: Name of the operation.
+        """
+        return self._op

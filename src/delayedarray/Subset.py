@@ -64,6 +64,24 @@ class Subset:
         """
         return self._seed.dtype
 
+    @property
+    def seed(self):
+        """Get the underlying object satisfying the seed contract.
+
+        Returns:
+            The seed object.
+        """
+        return self._seed
+
+    @property
+    def subset(self) -> Tuple[Sequence[int], ...]:
+        """Get the subset of elements to extract from each dimension of the seed.
+
+        Returns:
+            Tuple[Sequence[int], ...]: Subset vectors to be applied to each dimension of the seed.
+        """
+        return self._subset
+
     def as_dask_array(self) -> Array:
         """Create a dask array containing the delayed subset.
 
