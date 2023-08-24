@@ -373,13 +373,15 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, op="abs"))
 
-    def __getitem__(self, args: Tuple[Union[slice, Sequence], ...]) -> "DelayedArray":
+    def __getitem__(
+        self, args: Tuple[Union[slice, Sequence[int]], ...]
+    ) -> "DelayedArray":
         """Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-
         dimension indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to
         using NumPy's :py:meth:`~numpy.ix_` function.
 
         Args:
-            args (Tuple[Union[slice, Sequence], ...]):
+            args (Tuple[Union[slice, Sequence[int]], ...]):
                 A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
                 Each entry should contain a sequence of integer indices (e.g., a list, :py:class:`~numpy.ndarray` or :py:func:`slice`),
                 specifying the elements of the corresponding dimension to extract.
@@ -390,7 +392,13 @@ class DelayedArray:
         Returns:
             A ``DelayedArray`` containing a delayed subset operation.
         """
-        return DelayedArray(Subset(self._seed, args))
+        sanitized = []
+        for i in range(len(args)):
+            idx = args[i]
+            if isinstance(idx, slice):
+                idx = range(*idx.indices(self._seed.shape[i]))
+            sanitized.append(idx)
+        return DelayedArray(Subset(self._seed, (*sanitized,)))
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
