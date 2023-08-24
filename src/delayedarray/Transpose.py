@@ -6,8 +6,8 @@ from dask.array.core import Array
 
 
 class Transpose:
-    """Delayed transposition. This will create a matrix transpose in the 2-dimensional case;
-    for a high-dimensional array, it will permute the dimensions.
+    """Delayed transposition. This will create a matrix transpose in the 2-dimensional case; for a high-dimensional
+    array, it will permute the dimensions.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     In general, end-users should not be interacting with ``Transpose`` objects directly.
@@ -45,7 +45,7 @@ class Transpose:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Transpose`` object. 
+        """Shape of the ``Transpose`` object.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Transpose`` object,
