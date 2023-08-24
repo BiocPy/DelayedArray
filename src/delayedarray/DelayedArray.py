@@ -1,5 +1,6 @@
 from typing import Sequence, Tuple, Union
 
+import numpy
 from numpy import array2string, dtype, get_printoptions, ndarray
 from dask.array.core import Array
 
@@ -170,7 +171,6 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
         """
-
         if ufunc.__name__ in translate_ufunc_to_op_with_args:
             # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
@@ -193,6 +193,27 @@ class DelayedArray:
             )
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
+
+    def __array_function__(self, func, types, args, kwargs):
+        """Interface to NumPy's high-level array functions.
+        This is used to implement array operations like NumPy's :py:meth:`~numpy.concatenate`,
+        Check out the NumPy's ``__array_function__`` `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__>`_ for more details.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
+        """
+        if func  == numpy.concatenate:
+            seeds = []
+            for x in args[0]:
+                seeds.append(_extract_seed(x))
+
+            if "axis" in kwargs:
+                axis = kwargs["axis"]
+            else:
+                axis = 0
+            return DelayedArray(Combine(seeds, along=axis))
+
+        raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
     def __add__(self, other) -> "DelayedArray":
         """Add something to the right-hand-side of a ``DelayedArray``.
@@ -440,11 +461,3 @@ class DelayedArray:
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
         return self.as_dask_array().mean(*args, **kwargs).compute()
-
-
-def concatenate(arrs: list, axis=0, **kwargs) -> "DelayedArray":
-    """See :py:meth:`~numpy.concatenate` for more details."""
-    seeds = []
-    for x in arrs:
-        seeds.append(_extract_seed(x))
-    return DelayedArray(Combine(seeds, along=axis))
