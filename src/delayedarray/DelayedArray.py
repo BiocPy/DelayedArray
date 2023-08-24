@@ -9,6 +9,7 @@ from .Combine import Combine
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import _create_dask_array
+from .Transpose import Transpose
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -117,6 +118,15 @@ class DelayedArray:
         """
         return self._seed
 
+    @property
+    def T(self) -> "DelayedArray":
+        """Get the delayed transpose of this ``DelayedArray`` instance.
+
+        Returns:
+            DelayedArray: A DelayedArray containing a delayed transposition.
+        """
+        return DelayedArray(Transpose(self._seed, perm=None))
+
     def __repr__(self) -> str:
         """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
         options.
@@ -212,6 +222,14 @@ class DelayedArray:
             else:
                 axis = 0
             return DelayedArray(Combine(seeds, along=axis))
+
+        if func == numpy.transpose:
+            seed = _extract_seed(args[0])
+            if "axes" in kwargs:
+                axes = kwargs["axes"]
+            else:
+                axes = None
+            return DelayedArray(Transpose(seed, perm=axes))
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 

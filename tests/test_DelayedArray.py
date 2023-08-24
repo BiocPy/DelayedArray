@@ -330,3 +330,32 @@ def test_DelayedArray_combine():
     assert x.dtype == numpy.int32
     assert x.seed.along == 1
     assert (numpy.array(x) == numpy.concatenate((y1.seed, y2.seed), axis=1)).all()
+
+
+def test_DelayedArray_transpose():
+    y = numpy.random.rand(30, 23)
+    x = delayedarray.DelayedArray(y)
+
+    t = x.T
+    assert isinstance(t.seed, delayedarray.Transpose)
+    assert t.shape == (23, 30)
+    assert (numpy.array(t) == y.T).all()
+
+    t = numpy.transpose(x)
+    assert isinstance(t.seed, delayedarray.Transpose)
+    assert t.shape == (23, 30)
+    assert (numpy.array(t) == numpy.transpose(y)).all()
+
+    # Adding more dimensions.
+    y = numpy.random.rand(30, 23, 10)
+    x = delayedarray.DelayedArray(y)
+
+    t = numpy.transpose(x, axes=(1, 2, 0))
+    assert isinstance(t.seed, delayedarray.Transpose)
+    assert t.shape == (23, 10, 30)
+    assert (numpy.array(t) == numpy.transpose(y, axes=(1, 2, 0))).all()
+
+    t = numpy.transpose(x)
+    assert isinstance(t.seed, delayedarray.Transpose)
+    assert t.shape == (10, 23, 30)
+    assert (numpy.array(t) == numpy.transpose(y)).all()
