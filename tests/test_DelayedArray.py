@@ -1,7 +1,6 @@
 import warnings
 
 import delayedarray
-from utils import *
 import numpy
 
 
