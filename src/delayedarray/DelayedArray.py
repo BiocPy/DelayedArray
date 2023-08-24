@@ -20,7 +20,6 @@ def wrap_isometric_with_args(x, other, operation, right):
             x._seed,
             value=other,
             operation=operation,
-            along=len(x.shape) - 1,
             right=right,
         )
     )

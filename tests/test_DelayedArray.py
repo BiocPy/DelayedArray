@@ -31,6 +31,7 @@ def test_DelayedArray_isometric_add():
     assert z.seed.right
     assert z.seed.operation == "+"
     assert z.seed.value == 2
+    assert z.seed.along is None
     assert (numpy.array(z) == expanded + 2).all()
 
     z = 5 + x
@@ -49,6 +50,14 @@ def test_DelayedArray_isometric_add():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == expanded + v).all()
+    assert z.seed.along == 1
+
+    v = numpy.random.rand(55, 1)
+    z = x + v
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+    assert (numpy.array(z) == expanded + v).all()
+    assert z.seed.along == 0
 
 
 def test_DelayedArray_isometric_subtract():

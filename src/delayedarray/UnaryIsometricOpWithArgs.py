@@ -74,7 +74,15 @@ class UnaryIsometricOpWithArgs:
             see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
 
         value (Union[float, ndarray]):
-            A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
+            A scalar or NumPy array with which to perform an operation on the ``seed``.
+
+            If scalar, the operation is applied element-wise to all entries of ``seed``.
+
+            If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.
+
+            If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.
+            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the corresponding dimension of ``seed``.
+            The operation is then broadcast along that dimension.
 
         operation (str):
             String specifying the operation.
@@ -95,8 +103,7 @@ class UnaryIsometricOpWithArgs:
         seed,
         value: Union[float, ndarray],
         operation: OP,
-        right: bool = True,
-        along: int = 0,
+        right: bool = True
     ):
         f = _choose_operator(operation)
 
@@ -109,15 +116,26 @@ class UnaryIsometricOpWithArgs:
                 dummy = f(dummy, value)
         dtype = dummy.dtype
 
+        along = None
         if isinstance(value, ndarray):
-            if along < 0 or along >= len(seed.shape):
-                raise ValueError(
-                    "'along' should be non-negative and less than the dimensionality of 'seed'"
-                )
-            if len(value) != seed.shape[along]:
-                raise ValueError(
-                    "length of array 'value' should equal the 'along' dimension extent in 'seed'"
-                )
+            ndim = len(seed.shape)
+
+            if len(value.shape) == 1:
+                along = ndim - 1
+            else:
+                if len(value.shape) != ndim:
+                    raise ValueError("length of 'value.shape' and 'seed.shape' should be equal")
+
+                for i in range(ndim):
+                    if value.shape[i] != 1:
+                        if along is not None:
+                            raise ValueError("no more than one entry of 'value.shape' should be greater than 1")
+                        if seed.shape[i] != value.shape[i]:
+                            raise ValueError("any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'")
+                        along = i
+
+                if along == None:
+                    value = value[*([0] * ndim)]
 
         self._seed = seed
         self._value = value
@@ -153,16 +171,7 @@ class UnaryIsometricOpWithArgs:
             Array: dask array with the delayed subset.
         """
         target = _create_dask_array(self._seed)
-
         operand = self._value
-        if (
-            isinstance(self._value, numpy.ndarray)
-            and self._along != len(self.shape) - 1
-        ):
-            dims = [1, 1, 1]
-            dims[self._along] = self.shape[self._along]
-            operand = operand.reshape(*dims)
-
         f = _choose_operator(self._op)
         if self._right:
             return f(target, operand)
@@ -205,3 +214,12 @@ class UnaryIsometricOpWithArgs:
             bool: Whether to apply the operation to the right of the seed.
         """
         return self._right
+
+    @property
+    def along(self) -> Union[int, None]:
+        """If :py:attr:`~value` is an array, this specifies the dimension of :py:attr:``~seed`` along which the array values are broadcast.
+
+        Returns:
+            Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.
+        """
+        return self._along
