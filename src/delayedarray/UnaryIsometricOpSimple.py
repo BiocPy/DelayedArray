@@ -53,17 +53,16 @@ class UnaryIsometricOpSimple:
             Any object that satisfies the seed contract,
             see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
 
-        op (str):
+        operation (str):
             String specifying the unary operation.
     """
 
-    def __init__(self, seed, op: OP):
+    def __init__(self, seed, operation: OP):
         f = _choose_operator(op)
         dummy = f(zeros(1, dtype=seed.dtype))
 
         self._seed = seed
-        self._op = op
-        self._preserves_sparse = dummy[0] == 0
+        self._op = op 
         self._dtype = dummy.dtype
 
     @property

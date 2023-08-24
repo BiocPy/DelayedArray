@@ -76,7 +76,7 @@ class UnaryIsometricOpWithArgs:
         value (Union[float, ndarray]):
             A scalar or 1-dimensional array with which to perform an operation on the ``seed``.
 
-        op (str):
+        operation (str):
             String specifying the operation.
 
         right (bool, optional):
@@ -94,7 +94,7 @@ class UnaryIsometricOpWithArgs:
         self,
         seed,
         value: Union[float, ndarray],
-        op: OP,
+        operation: OP,
         right: bool = True,
         along: int = 0,
     ):
