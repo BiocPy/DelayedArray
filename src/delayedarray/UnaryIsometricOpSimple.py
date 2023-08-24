@@ -1,11 +1,9 @@
-from typing import Literal, Tuple, Sequence
+from typing import Literal, Tuple
 
 import numpy
-from numpy import ndarray, dtype, zeros
-
-from .interface import extract_dense_array, extract_sparse_array, is_sparse
-from .SparseNdarray import SparseNdarray
-from .utils import sanitize_indices
+from numpy import dtype, zeros
+from .utils import _create_dask_array
+from dask.array.core import Array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -88,55 +86,12 @@ class UnaryIsometricOpSimple:
         """
         return self._dtype
 
+    def as_dask_array(self) -> Array:
+        """Create a dask array containing the delayed unary operation.
 
-@is_sparse.register
-def _is_sparse_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple) -> bool:
-    return x._preserves_sparse and is_sparse(x._seed)
-
-
-@extract_dense_array.register
-def _extract_dense_array_UnaryIsometricOpSimple(
-    x: UnaryIsometricOpSimple, idx: Tuple[Sequence, ...]
-) -> ndarray:
-    idx = sanitize_indices(idx, x.shape)
-    base = extract_dense_array(x._seed, idx)
-    opfun = _choose_operator(x._op)
-    return opfun(base).astype(x._dtype, copy=False)
-
-
-def _recursive_apply_op_with_arg_to_sparse_array(contents, at, ndim, op):
-    if len(at) == ndim - 2:
-        for i in range(len(contents)):
-            if contents[i] is not None:
-                idx, val = contents[i]
-                contents[i] = (idx, op(idx, val, (*at, i)))
-    else:
-        for i in range(len(contents)):
-            if contents[i] is not None:
-                _recursive_apply_op_with_arg_to_sparse_array(
-                    contents[i], (*at, i), ndim, op
-                )
-
-
-@extract_sparse_array.register
-def _extract_sparse_array_UnaryIsometricOpSimple(
-    x: UnaryIsometricOpSimple, idx: Tuple[Sequence, ...]
-) -> SparseNdarray:
-    idx = sanitize_indices(idx, x.shape)
-    sparse = extract_sparse_array(x._seed, idx)
-
-    opfun = _choose_operator(x._op)
-
-    def execute(indices, values, at):
-        return opfun(values)
-
-    if isinstance(sparse._contents, list):
-        _recursive_apply_op_with_arg_to_sparse_array(
-            sparse._contents, (), len(sparse.shape), execute
-        )
-    elif sparse._contents is not None:
-        idx, val = sparse._contents
-        sparse._contents = (idx, execute(idx, val, ()))
-
-    sparse._dtype = x._dtype
-    return sparse
+        Returns:
+            Array: dask array with the delayed unary operation.
+        """
+        target = _create_dask_array(self._seed)
+        f = _choose_operator(self._op)
+        return f(target)

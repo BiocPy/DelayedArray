@@ -1,13 +1,12 @@
 from typing import Sequence, Tuple, Union
 
 from numpy import array2string, dtype, get_printoptions, ndarray
+from dask.array.core import Array
 
-from .interface import extract_dense_array, extract_sparse_array, is_sparse
-from .SparseNdarray import SparseNdarray
 from .Subset import Subset
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import sanitize_indices
+from .utils import _create_dask_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -71,13 +70,9 @@ class DelayedArray:
 
     Attributes:
         seed:
-            Any array-like object that satisfies the "seed contract".
+            Any array-like object that satisfies the seed contract.
             This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.
-            It should also have methods for the
-            :py:meth:`~delayedarray.interface.is_sparse`,
-            :py:meth:`~delayedarray.interface.extract_dense_array`,
-            and (if :py:meth:`~delayedarray.interface.is_sparse` could return True)
-            :py:meth:`~delayedarray.interface.extract_sparse_array` generics.
+            It should also have either an :py:attr`~as_dask_array` method or be usable in :py:meth:`~dask.array.from_array`.
     """
 
     def __init__(self, seed):
@@ -113,14 +108,12 @@ class DelayedArray:
             total *= s
 
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
-        if is_sparse(self._seed):
-            preamble += " sparse"
         preamble += " DelayedArray object of type '" + self._seed.dtype.name + "'"
 
         ndims = len(self._seed.shape)
         if total <= get_printoptions()["threshold"]:
-            full_indices = [slice(None)] * ndims
-            bits_and_pieces = extract_dense_array(self._seed, (*full_indices,))
+            [slice(None)] * ndims
+            bits_and_pieces = self.as_dask_array().compute()
             return preamble + "\n" + repr(bits_and_pieces)
 
         indices = []
@@ -134,7 +127,7 @@ class DelayedArray:
             else:
                 indices.append(slice(None))
 
-        bits_and_pieces = extract_dense_array(self._seed, (*indices,))
+        bits_and_pieces = Subset(self._seed, indices).as_dask_array().compute()
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
@@ -146,8 +139,7 @@ class DelayedArray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        full_indices = sanitize_indices([slice(None)] * len(self.shape), self.shape)
-        return extract_dense_array(self._seed, (*full_indices,))
+        return self.as_dask_array().compute()
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
@@ -391,21 +383,23 @@ class DelayedArray:
         """
         return DelayedArray(Subset(self._seed, args))
 
+    # For python-level compute.
+    def as_dask_array(self) -> Array:
+        """Convert the DelayedArray to a dask array for Python-based computation.
 
-@extract_dense_array.register
-def _extract_dense_array_DelayedArray(
-    x: DelayedArray, idx: Tuple[Sequence, ...]
-) -> ndarray:
-    return extract_dense_array(x._seed, idx)
+        Returns:
+            Array: A dask array containing the delayed operations.
+        """
+        return _create_dask_array(self._seed)
 
+    def sum(self, *args, **kwargs):
+        """See :py:meth:`~numpy.sums` for details."""
+        return self.as_dask_array().sum(*args, **kwargs).compute()
 
-@extract_sparse_array.register
-def _extract_sparse_array_DelayedArray(
-    x: DelayedArray, idx: Tuple[Sequence, ...]
-) -> SparseNdarray:
-    return extract_sparse_array(x._seed, idx)
+    def var(self, *args, **kwargs):
+        """See :py:meth:`~numpy.vars` for details."""
+        return self.as_dask_array().var(*args, **kwargs).compute()
 
-
-@is_sparse.register
-def _is_sparse_DelayedArray(x: DelayedArray) -> bool:
-    return is_sparse(x._seed)
+    def mean(self, *args, **kwargs):
+        """See :py:meth:`~numpy.means` for details."""
+        return self.as_dask_array().mean(*args, **kwargs).compute()
