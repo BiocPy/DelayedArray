@@ -17,6 +17,11 @@ def test_DelayedArray_dense():
     assert isinstance(dump, numpy.ndarray)
     assert (dump == raw).all()
 
+    t = x.T
+    assert isinstance(t.seed, delayedarray.Transpose)
+    assert t.shape == (30, 40)
+    assert (numpy.array(t) == dump.T).all()
+
 
 def test_DelayedArray_isometric_add():
     test_shape = (55, 15)

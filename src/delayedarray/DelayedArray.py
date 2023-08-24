@@ -116,6 +116,7 @@ class DelayedArray:
         """
         return self._seed
 
+    @property
     def T(self) -> "DelayedArray":
         """Get the delayed transpose of this ``DelayedArray`` instance.
 

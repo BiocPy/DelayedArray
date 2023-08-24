@@ -1,6 +1,6 @@
-from typing import Sequence, Tuple
+from typing import Tuple, Optional
 
-from numpy import dtype
+from numpy import dtype, transpose
 from .utils import _create_dask_array
 from dask.array.core import Array
 
@@ -87,4 +87,4 @@ class Transpose:
             Array: dask array with the delayed transposition.
         """
         target = _create_dask_array(self._seed)
-        return numpy.transpose(target, axes=self._perm)
+        return transpose(target, axes=self._perm)
