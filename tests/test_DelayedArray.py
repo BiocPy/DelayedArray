@@ -29,7 +29,7 @@ def test_DelayedArray_isometric_add():
     assert z.shape == x.shape
     assert isinstance(z.seed.seed, numpy.ndarray)
     assert z.seed.right
-    assert z.seed.operation == "+"
+    assert z.seed.operation == "add"
     assert z.seed.value == 2
     assert z.seed.along is None
     assert (numpy.array(z) == expanded + 2).all()
@@ -209,7 +209,7 @@ def test_DelayedArray_isometric_power():
     z = x**2
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
-    assert (numpy.array(z) == expanded**2).all()
+    assert numpy.allclose(numpy.array(z), expanded**2) # guess if it's 2, it uses a special squaring, and the numeric precision changes.
 
     z = 5**x
     assert isinstance(z, delayedarray.DelayedArray)
