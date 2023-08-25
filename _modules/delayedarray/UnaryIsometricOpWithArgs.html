@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.0.1 documentation</title>
+    <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
+        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.0.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.0.1 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -156,6 +156,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -198,277 +199,215 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.UnaryIsometricOpWithArgs</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">operator</span>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
+<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 
-<span class="kn">from</span> <span class="nn">.interface</span> <span class="kn">import</span> <span class="n">extract_dense_array</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">,</span> <span class="n">is_sparse</span>
-<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">SparseNdarray</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">sanitize_indices</span><span class="p">,</span> <span class="n">sanitize_single_index</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
 
-<span class="n">OP</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;//&quot;</span><span class="p">,</span> <span class="s2">&quot;%&quot;</span><span class="p">,</span> <span class="s2">&quot;**&quot;</span><span class="p">]</span>
+<span class="n">OP</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;add&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;subtract&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;multiply&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;divide&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;remainder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;floor_divide&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;power&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;equal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;greater_equal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;greater&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less_equal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;less&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;not_equal&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;logical_and&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;logical_or&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;logical_xor&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
-<span class="k">def</span> <span class="nf">_choose_operator</span><span class="p">(</span>
-    <span class="n">op</span><span class="p">:</span> <span class="n">OP</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">):</span>
-    <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">iadd</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">isub</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">sub</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">imul</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">mul</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">itruediv</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">truediv</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;//&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">ifloordiv</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">floordiv</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">imod</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">mod</span>
-    <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;**&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">ipow</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">operator</span><span class="o">.</span><span class="n">pow</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown operation &#39;&quot;</span> <span class="o">+</span> <span class="n">op</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_choose_operator</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="UnaryIsometricOpWithArgs">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs">[docs]</a>
 <span class="k">class</span> <span class="nc">UnaryIsometricOpWithArgs</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.</span>
-<span class="sd">    Only n-dimensional array is involved here, hence the &quot;unary&quot; in the name.</span>
-<span class="sd">    Hey, I don&#39;t make the rules.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector,</span>
+<span class="sd">    based on Bioconductor&#39;s ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.</span>
+<span class="sd">    Only one n-dimensional array is involved here, hence the &quot;unary&quot; in the name.</span>
+<span class="sd">    (Hey, I don&#39;t make the rules.)</span>
+
+<span class="sd">    The data type of the result is determined by NumPy casting given the ``seed`` and ``value``</span>
+<span class="sd">    data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from</span>
+<span class="sd">    integer truncation or overflow.</span>
+
+<span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.</span>
+<span class="sd">    In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        seed:</span>
-<span class="sd">            An array-like object.</span>
+<span class="sd">            Any object satisfying the seed contract,</span>
+<span class="sd">            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
 
-<span class="sd">        value (Union[float, numpy.ndarray]):</span>
-<span class="sd">            A scalar or 1-dimensional array with which to perform an operation on the ``seed``.</span>
+<span class="sd">        value (Union[float, ndarray]):</span>
+<span class="sd">            A scalar or NumPy array with which to perform an operation on the ``seed``.</span>
 
-<span class="sd">        op (OP):</span>
+<span class="sd">            If scalar, the operation is applied element-wise to all entries of ``seed``.</span>
+
+<span class="sd">            If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.</span>
+
+<span class="sd">            If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.</span>
+<span class="sd">            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the corresponding dimension of ``seed``.</span>
+<span class="sd">            The operation is then broadcast along that dimension.</span>
+
+<span class="sd">        operation (str):</span>
 <span class="sd">            String specifying the operation.</span>
-<span class="sd">            This should be one of &quot;+&quot;, &quot;-&quot;, &quot;/&quot;, &quot;*&quot;, &quot;//&quot;, &quot;%&quot; or &quot;**&quot;.</span>
 
 <span class="sd">        right (bool, optional):</span>
 <span class="sd">            Whether ``value`` is to the right of ``seed`` in the operation.</span>
 <span class="sd">            If False, ``value`` is put to the left of ``seed``.</span>
 <span class="sd">            Ignored for commutative operations in ``op``.</span>
-
-<span class="sd">        along (int, optional):</span>
-<span class="sd">            Dimension along which the ``value`` is to be added, if ``value`` is a 1-dimensional array.</span>
-<span class="sd">            This assumes that ``value`` is of length equal to the dimension&#39;s extent.</span>
-<span class="sd">            Ignored if ``value`` is a scalar.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">seed</span><span class="p">,</span>
-        <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
-        <span class="n">op</span><span class="p">:</span> <span class="n">OP</span><span class="p">,</span>
-        <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">along</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">OP</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">):</span>
-        <span class="n">is_sparse</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="n">no_op</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
 
-        <span class="n">is_no_op</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
-            <span class="n">is_no_op</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
-            <span class="n">is_no_op</span> <span class="o">==</span> <span class="mi">1</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;-&quot;</span><span class="p">:</span>
-                    <span class="n">is_no_op</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">elif</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;/&quot;</span> <span class="ow">or</span> <span class="n">op</span> <span class="o">==</span> <span class="s2">&quot;**&quot;</span><span class="p">:</span>
-                    <span class="n">is_no_op</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">dummy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>  <span class="c1"># silence warnings from divide by zero.</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">[:</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span>
 
-        <span class="n">f</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">op</span><span class="p">)</span>
+        <span class="n">along</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">inf</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">along</span> <span class="o">=</span> <span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;length of &#39;value.shape&#39; and &#39;seed.shape&#39; should be equal&quot;</span>
+                    <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">along</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">along</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;&#39;along&#39; should be non-negative and less than the dimensionality of &#39;seed&#39;&quot;</span>
-                <span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">along</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;length of array &#39;value&#39; should equal the &#39;along&#39; dimension extent in &#39;seed&#39;&quot;</span>
-                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;no more than one entry of &#39;value.shape&#39; should be greater than 1&quot;</span>
+                            <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                                <span class="s2">&quot;any entry of &#39;value.shape&#39; that is not 1 should be equal to the corresponding entry of &#39;seed.shape&#39;&quot;</span>
+                            <span class="p">)</span>
+                        <span class="n">along</span> <span class="o">=</span> <span class="n">i</span>
 
-            <span class="n">is_sparse</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">check</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">is_sparse</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="k">break</span>
-
-            <span class="n">no_op</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">is_no_op</span><span class="p">:</span>
-                    <span class="n">no_op</span> <span class="o">=</span> <span class="kc">False</span>
-                    <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">is_sparse</span> <span class="o">=</span> <span class="n">check</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="n">no_op</span> <span class="o">=</span> <span class="n">value</span> <span class="o">==</span> <span class="n">is_no_op</span>
-
-        <span class="n">inplaceable</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">right</span><span class="p">:</span>  <span class="c1"># TODO: add something about types.</span>
-            <span class="n">inplaceable</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[(</span><span class="o">*</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">),</span> <span class="o">...</span><span class="p">)]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">op</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">operation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">right</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_along</span> <span class="o">=</span> <span class="n">along</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_preserves_sparse</span> <span class="o">=</span> <span class="n">is_sparse</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_no_op</span> <span class="o">=</span> <span class="n">no_op</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_do_inplace</span> <span class="o">=</span> <span class="n">inplaceable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``UnaryIsometricOpWithArgs`` object. As the name of the class suggests, this is the same as the</span>
+<span class="sd">        ``seed`` array.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpWithArgs`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the ``UnaryIsometricOpWithArgs`` object. This may or may not be the same as the ``seed`` array,</span>
+<span class="sd">        depending on how NumPy does the casting for the requested operation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype: NumPy type for the ``UnaryIsometricOpWithArgs`` contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
+
+<div class="viewcode-block" id="UnaryIsometricOpWithArgs.as_dask_array">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.as_dask_array">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dask array containing the delayed operation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Array: dask array with the delayed subset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">_create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="n">operand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">operand</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
 
-<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_is_sparse_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">_preserves_sparse</span> <span class="ow">and</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            The seed object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">operation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the name of the operation.</span>
 
-<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_extract_dense_array_UnaryIsometricOpWithArgs</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">idx</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-    <span class="n">base</span> <span class="o">=</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_is_no_op</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">base</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            str: Name of the operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span>
 
-    <span class="n">opfun</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_do_inplace</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the other operand used in the operation.</span>
 
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">opfun</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[float, ndarray]: The other operand.</span>
+<span class="sd">            This can be a numeric scalar or a NumPy array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
 
-    <span class="k">else</span><span class="p">:</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Is the :py:attr:`~value` applied to the right of the seed?</span>
 
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">opfun</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: Whether to apply the operation to the right of the seed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span>
 
-    <span class="n">value</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">_value</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">curslice</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
-        <span class="n">new_idx</span> <span class="o">=</span> <span class="n">sanitize_single_index</span><span class="p">((</span><span class="n">curslice</span><span class="p">,),</span> <span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">],))[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[</span><span class="n">new_idx</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">along</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If :py:attr:`~value` is an array, this specifies the dimension of :py:attr:``~seed`` along which the array</span>
+<span class="sd">        values are broadcast.</span>
 
-        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_along</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="c1"># My brain too smooth to figure out how to get numpy to do this</span>
-            <span class="c1"># quickly for me. I also can&#39;t just use an OP() here, because</span>
-            <span class="c1"># the LHS could become a scalar and then there&#39;s no point.</span>
-            <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
-                <span class="n">contents</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
-                <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_do_inplace</span><span class="p">:</span>
-                    <span class="n">f</span><span class="p">(</span>
-                        <span class="n">base</span><span class="p">[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">)],</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                    <span class="p">)</span>  <span class="c1"># this is a view, so inplace is fine.</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">base</span><span class="p">[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">)]</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">base</span><span class="p">[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">contents</span><span class="p">)],</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="k">return</span> <span class="n">base</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span></div>
 
-    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">base</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_recursive_apply_op_with_arg_to_sparse_array</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">at</span><span class="p">,</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">at</span><span class="p">)</span> <span class="o">==</span> <span class="n">ndim</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">at</span><span class="p">,</span> <span class="n">i</span><span class="p">)))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)):</span>
-            <span class="k">if</span> <span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">_recursive_apply_op_with_arg_to_sparse_array</span><span class="p">(</span>
-                    <span class="n">contents</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="o">*</span><span class="n">at</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span> <span class="n">ndim</span><span class="p">,</span> <span class="n">op</span>
-                <span class="p">)</span>
-
-
-<span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_extract_sparse_array_UnaryIsometricOpWithArgs</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">idx</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
-    <span class="n">sparse</span> <span class="o">=</span> <span class="n">extract_sparse_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_is_no_op</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">sparse</span>
-
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">sanitize_indices</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-    <span class="n">opfun</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_do_inplace</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
-
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">opfun</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">opfun</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-
-    <span class="n">other</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">_value</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-        <span class="n">curslice</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
-        <span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">curslice</span><span class="p">]</span>
-
-        <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">at</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_along</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">at</span><span class="p">):</span>
-                <span class="n">operand</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">operand</span> <span class="o">=</span> <span class="n">other</span><span class="p">[</span><span class="n">at</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]]</span>
-            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">operand</span><span class="p">)</span>
-
-    <span class="k">else</span><span class="p">:</span>
-
-        <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">at</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sparse</span><span class="o">.</span><span class="n">_contents</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="n">_recursive_apply_op_with_arg_to_sparse_array</span><span class="p">(</span>
-            <span class="n">sparse</span><span class="o">.</span><span class="n">_contents</span><span class="p">,</span> <span class="p">(),</span> <span class="nb">len</span><span class="p">(</span><span class="n">sparse</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">execute</span>
-        <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">sparse</span><span class="o">.</span><span class="n">_contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">_contents</span>
-        <span class="n">sparse</span><span class="o">.</span><span class="n">_contents</span> <span class="o">=</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">execute</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="p">()))</span>
-    <span class="k">return</span> <span class="n">sparse</span>
 </pre></div>
         </article>
       </div>
@@ -501,7 +440,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

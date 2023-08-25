@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="delayedarray package" href="delayedarray.html" /><link rel="prev" title="Changelog" href="../changelog.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>delayedarray - DelayedArray 0.0.1 documentation</title>
+    <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
+        <title>delayedarray - DelayedArray 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">DelayedArray 0.0.1 documentation</div></a>
+      <a href="../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.0.1 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -157,6 +157,7 @@
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../readme.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developers.html">Developer Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
@@ -205,11 +206,131 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="delayedarray.html">delayedarray package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="delayedarray.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-sparsendarray-module">delayedarray.SparseNdarray module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.SparseNdarray.SparseNdarray"><code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.shape"><code class="docutils literal notranslate"><span class="pre">SparseNdarray.shape</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.contents"><code class="docutils literal notranslate"><span class="pre">SparseNdarray.contents</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id0"><code class="docutils literal notranslate"><span class="pre">SparseNdarray.shape</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-binaryisometricop-module">delayedarray.BinaryIsometricOp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.left"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.left</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.right"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.right</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.operation"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.operation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.as_dask_array"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.dtype"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id0"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.left</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id1"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.operation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id2"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.right</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.BinaryIsometricOp.shape"><code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp.shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-cast-module">delayedarray.Cast module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.Cast"><code class="docutils literal notranslate"><span class="pre">Cast</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.Cast.seed"><code class="docutils literal notranslate"><span class="pre">Cast.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.Cast.dtype"><code class="docutils literal notranslate"><span class="pre">Cast.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.Cast.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Cast.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id3"><code class="docutils literal notranslate"><span class="pre">Cast.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id4"><code class="docutils literal notranslate"><span class="pre">Cast.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.Cast.shape"><code class="docutils literal notranslate"><span class="pre">Cast.shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-combine-module">delayedarray.Combine module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine"><code class="docutils literal notranslate"><span class="pre">Combine</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine.seeds"><code class="docutils literal notranslate"><span class="pre">Combine.seeds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine.along"><code class="docutils literal notranslate"><span class="pre">Combine.along</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id5"><code class="docutils literal notranslate"><span class="pre">Combine.along</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Combine.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine.dtype"><code class="docutils literal notranslate"><span class="pre">Combine.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id6"><code class="docutils literal notranslate"><span class="pre">Combine.seeds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.Combine.shape"><code class="docutils literal notranslate"><span class="pre">Combine.shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-delayedarray-module">delayedarray.DelayedArray module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray"><code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.seed"><code class="docutils literal notranslate"><span class="pre">DelayedArray.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.T"><code class="docutils literal notranslate"><span class="pre">DelayedArray.T</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__abs__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__abs__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__add__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__add__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_function__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array_function__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_ufunc__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array_ufunc__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__eq__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__eq__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__floordiv__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__floordiv__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__ge__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__ge__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__getitem__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__getitem__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__gt__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__gt__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__hash__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__hash__</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__le__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__le__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__lt__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__lt__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__mod__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__mod__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__mul__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__mul__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__ne__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__ne__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__neg__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__neg__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__pow__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__pow__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__radd__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__radd__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__repr__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__repr__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__req__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__req__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rfloordiv__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rfloordiv__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rge__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rge__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rgt__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rgt__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rle__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rle__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rlt__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rlt__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rmod__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rmod__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rmul__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rmul__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rne__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rne__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rpow__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rpow__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rsub__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rsub__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rtruediv__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__rtruediv__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__sub__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__sub__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__truediv__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__truediv__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.as_dask_array"><code class="docutils literal notranslate"><span class="pre">DelayedArray.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.astype"><code class="docutils literal notranslate"><span class="pre">DelayedArray.astype()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.dtype"><code class="docutils literal notranslate"><span class="pre">DelayedArray.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.mean"><code class="docutils literal notranslate"><span class="pre">DelayedArray.mean()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id8"><code class="docutils literal notranslate"><span class="pre">DelayedArray.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.shape"><code class="docutils literal notranslate"><span class="pre">DelayedArray.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.sum"><code class="docutils literal notranslate"><span class="pre">DelayedArray.sum()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.var"><code class="docutils literal notranslate"><span class="pre">DelayedArray.var()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-subset-module">delayedarray.Subset module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset"><code class="docutils literal notranslate"><span class="pre">Subset</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset.seed"><code class="docutils literal notranslate"><span class="pre">Subset.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset.subset"><code class="docutils literal notranslate"><span class="pre">Subset.subset</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Subset.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset.dtype"><code class="docutils literal notranslate"><span class="pre">Subset.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id9"><code class="docutils literal notranslate"><span class="pre">Subset.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.Subset.shape"><code class="docutils literal notranslate"><span class="pre">Subset.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id10"><code class="docutils literal notranslate"><span class="pre">Subset.subset</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-transpose-module">delayedarray.Transpose module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose"><code class="docutils literal notranslate"><span class="pre">Transpose</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose.seed"><code class="docutils literal notranslate"><span class="pre">Transpose.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose.perm"><code class="docutils literal notranslate"><span class="pre">Transpose.perm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Transpose.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose.dtype"><code class="docutils literal notranslate"><span class="pre">Transpose.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id11"><code class="docutils literal notranslate"><span class="pre">Transpose.perm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id12"><code class="docutils literal notranslate"><span class="pre">Transpose.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.Transpose.shape"><code class="docutils literal notranslate"><span class="pre">Transpose.shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-unaryisometricopsimple-module">delayedarray.UnaryIsometricOpSimple module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.seed"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.operation"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.operation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.as_dask_array"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.dtype"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id13"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.operation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id14"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.seed</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.shape"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.shape</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -218,26 +339,21 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.seed"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.seed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.value"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.value</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.op"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.op</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.operation"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.operation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.right"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.right</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.along"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.along</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.as_dask_array"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.as_dask_array()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.dtype"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.dtype</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id15"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.operation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id16"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.right</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id17"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.seed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.shape"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.shape</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#id18"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.value</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-interface-module">delayedarray.interface module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.interface.extract_dense_array"><code class="docutils literal notranslate"><span class="pre">extract_dense_array()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.interface.extract_dense_array_ndarray"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_ndarray()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.interface.extract_sparse_array"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.interface.is_sparse"><code class="docutils literal notranslate"><span class="pre">is_sparse()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-utils-module">delayedarray.utils module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.utils.sanitize_indices"><code class="docutils literal notranslate"><span class="pre">sanitize_indices()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.utils.sanitize_single_index"><code class="docutils literal notranslate"><span class="pre">sanitize_single_index()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#delayedarray-utils-module">delayedarray.utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="delayedarray.html#module-contents">Module contents</a></li>
 </ul>
 </li>
@@ -294,7 +410,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=d45e8c67"></script>
+</div><script src="../_static/documentation_options.js?v=01f34227"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

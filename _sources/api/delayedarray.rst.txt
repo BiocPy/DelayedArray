@@ -4,10 +4,58 @@ delayedarray package
 Submodules
 ----------
 
-delayedarray.SparseNdarray module
----------------------------------
+delayedarray.BinaryIsometricOp module
+-------------------------------------
 
-.. automodule:: delayedarray.SparseNdarray
+.. automodule:: delayedarray.BinaryIsometricOp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.Cast module
+------------------------
+
+.. automodule:: delayedarray.Cast
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.Combine module
+---------------------------
+
+.. automodule:: delayedarray.Combine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.DelayedArray module
+--------------------------------
+
+.. automodule:: delayedarray.DelayedArray
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.Subset module
+--------------------------
+
+.. automodule:: delayedarray.Subset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.Transpose module
+-----------------------------
+
+.. automodule:: delayedarray.Transpose
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.UnaryIsometricOpSimple module
+------------------------------------------
+
+.. automodule:: delayedarray.UnaryIsometricOpSimple
    :members:
    :undoc-members:
    :show-inheritance:
@@ -16,14 +64,6 @@ delayedarray.UnaryIsometricOpWithArgs module
 --------------------------------------------
 
 .. automodule:: delayedarray.UnaryIsometricOpWithArgs
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delayedarray.interface module
------------------------------
-
-.. automodule:: delayedarray.interface
    :members:
    :undoc-members:
    :show-inheritance:

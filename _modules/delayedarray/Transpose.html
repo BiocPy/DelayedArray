@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>delayedarray.utils - DelayedArray 0.0.1 documentation</title>
+    <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
+        <title>delayedarray.Transpose - DelayedArray 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.0.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.0.1 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -156,6 +156,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -197,28 +198,102 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for delayedarray.utils</h1><div class="highlight"><pre>
-<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
-<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
-<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
+          <h1>Source code for delayedarray.Transpose</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">transpose</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
+<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 
 
-<div class="viewcode-block" id="sanitize_single_index">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.utils.sanitize_single_index">[docs]</a>
-<span class="k">def</span> <span class="nf">sanitize_single_index</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">idx</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">idx</span></div>
+<div class="viewcode-block" id="Transpose">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.Transpose">[docs]</a>
+<span class="k">class</span> <span class="nc">Transpose</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delayed transposition, based on Bioconductor&#39;s ``DelayedArray::DelayedAperm`` class.</span>
+<span class="sd">    This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the dimensions.</span>
 
+<span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.</span>
+<span class="sd">    In general, end users should not be interacting with ``Transpose`` objects directly.</span>
 
+<span class="sd">    Attributes:</span>
+<span class="sd">        seed:</span>
+<span class="sd">            Any object that satisfies the seed contract,</span>
+<span class="sd">            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
 
-<div class="viewcode-block" id="sanitize_indices">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.utils.sanitize_indices">[docs]</a>
-<span class="k">def</span> <span class="nf">sanitize_indices</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">shape</span><span class="p">):</span>
-    <span class="n">idx2</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)):</span>
-        <span class="n">idx2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sanitize_single_index</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-    <span class="k">return</span> <span class="n">idx2</span></div>
+<span class="sd">        perm (Optional[Tuple[int, ...]]):</span>
+<span class="sd">            Tuple of length equal to the dimensionality of ``seed``, containing the permutation of dimensions.</span>
+<span class="sd">            If None, the dimension ordering is assumed to be reversed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
+
+        <span class="n">curshape</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">curshape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">perm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Dimensionality of &#39;seed&#39; and &#39;perm&#39; should be the same.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">perm</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_perm</span> <span class="o">=</span> <span class="n">perm</span>
+
+        <span class="n">final_shape</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">:</span>
+            <span class="n">final_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curshape</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">final_shape</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``Transpose`` object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Transpose`` object,</span>
+<span class="sd">            (i.e., after transposition of ``seed``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the ``Transpose`` object. This will be the same as the ``seed``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype: NumPy type for the ``Transpose`` contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The seed object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the permutation of dimensions used in the transposition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, ...]: Permutation of dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_perm</span>
+
+<div class="viewcode-block" id="Transpose.as_dask_array">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.Transpose.as_dask_array">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dask array containing the delayed transposition.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Array: dask array with the delayed transposition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">_create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">transpose</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_perm</span><span class="p">)</span></div>
+</div>
 
 </pre></div>
         </article>
@@ -252,7 +327,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

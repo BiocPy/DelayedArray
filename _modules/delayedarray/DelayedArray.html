@@ -1,0 +1,1067 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
+        <title>delayedarray.DelayedArray - DelayedArray 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../api/modules.html">Module Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Module Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/delayedarray.html">delayedarray package</a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <h1>Source code for delayedarray.DelayedArray</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array2string</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">get_printoptions</span><span class="p">,</span> <span class="n">ndarray</span>
+<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
+
+<span class="kn">from</span> <span class="nn">.Subset</span> <span class="kn">import</span> <span class="n">Subset</span>
+<span class="kn">from</span> <span class="nn">.Combine</span> <span class="kn">import</span> <span class="n">Combine</span>
+<span class="kn">from</span> <span class="nn">.UnaryIsometricOpSimple</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpSimple</span>
+<span class="kn">from</span> <span class="nn">.UnaryIsometricOpWithArgs</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpWithArgs</span>
+<span class="kn">from</span> <span class="nn">.BinaryIsometricOp</span> <span class="kn">import</span> <span class="n">BinaryIsometricOp</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
+<span class="kn">from</span> <span class="nn">.Transpose</span> <span class="kn">import</span> <span class="n">Transpose</span>
+<span class="kn">from</span> <span class="nn">.Cast</span> <span class="kn">import</span> <span class="n">Cast</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_wrap_isometric_with_args</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">other</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left</span> <span class="o">=</span> <span class="n">other</span>
+            <span class="n">right</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span>
+            <span class="n">BinaryIsometricOp</span><span class="p">(</span><span class="n">_extract_seed</span><span class="p">(</span><span class="n">left</span><span class="p">),</span> <span class="n">_extract_seed</span><span class="p">(</span><span class="n">right</span><span class="p">),</span> <span class="n">operation</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span>
+        <span class="n">UnaryIsometricOpWithArgs</span><span class="p">(</span>
+            <span class="n">_extract_seed</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+            <span class="n">value</span><span class="o">=</span><span class="n">other</span><span class="p">,</span>
+            <span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">,</span>
+            <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_seed</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DelayedArray</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">_seed</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="n">translate_ufunc_to_op_with_args</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;add&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;subtract&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;multiply&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;divide&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;remainder&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;floor_divide&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;power&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;equal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;greater_equal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;greater&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;less_equal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;less&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;not_equal&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;logical_and&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;logical_or&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;logical_xor&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">translate_ufunc_to_op_simple</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;log&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log1p&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log2&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log10&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;exp&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;expm1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sqrt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sinh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cosh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tanh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arcsin&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arccos&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arctan&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arcsinh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arccosh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;arctanh&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ceil&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;trunc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;sign&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DelayedArray">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray">[docs]</a>
+<span class="k">class</span> <span class="nc">DelayedArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing delayed operations. This is equivalent to the class of the same name from</span>
+<span class="sd">    the `R/Bioconductor package &lt;https://bioconductor.org/packages/DelayedArray&gt;`_ of the same name.</span>
+<span class="sd">    It allows users to efficiently operate on large matrices without actually evaluating the</span>
+<span class="sd">    operation or creating new copies; instead, the operations will transparently return another ``DelayedArray`` instance</span>
+<span class="sd">    containing the delayed operations, which can be realized by calling :py:meth:`~numpy.array` or related methods.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        seed:</span>
+<span class="sd">            Any array-like object that satisfies the seed contract.</span>
+<span class="sd">            This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.</span>
+<span class="sd">            It should also have either an :py:attr`~as_dask_array` method or be usable in :py:meth:`~dask.array.from_array`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``DelayedArray``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``DelayedArray``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the elements in the ``DelayedArray``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype: NumPy type of the values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The seed object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the delayed transpose of this ``DelayedArray`` instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A DelayedArray containing a delayed transposition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Transpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="kc">None</span><span class="p">))</span>
+
+<div class="viewcode-block" id="DelayedArray.__repr__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__repr__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its</span>
+<span class="sd">        options.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: String containing a prettified display of the array contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">total</span> <span class="o">*=</span> <span class="n">s</span>
+
+        <span class="n">preamble</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="s2">&quot; x &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span>
+        <span class="n">preamble</span> <span class="o">+=</span> <span class="s2">&quot; DelayedArray object of type &#39;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
+
+        <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]:</span>
+            <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="n">ndims</span>
+            <span class="n">bits_and_pieces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">preamble</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">bits_and_pieces</span><span class="p">)</span>
+
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edge_size</span> <span class="o">=</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;edgeitems&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndims</span><span class="p">):</span>
+            <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">extent</span> <span class="o">&gt;</span> <span class="n">edge_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">edge_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">extent</span> <span class="o">-</span> <span class="n">edge_size</span><span class="p">,</span> <span class="n">extent</span><span class="p">))</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+
+        <span class="n">bits_and_pieces</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="n">converted</span> <span class="o">=</span> <span class="n">array2string</span><span class="p">(</span><span class="n">bits_and_pieces</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">preamble</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">converted</span></div>
+
+
+    <span class="c1"># For NumPy:</span>
+<div class="viewcode-block" id="DelayedArray.__array__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a ``DelayedArray`` to a NumPy array.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.</span>
+<span class="sd">            This is guaranteed to be in C-contiguous order and to not be a view on other data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__array_ufunc__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_ufunc__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__array_ufunc__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ufunc</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface with NumPy array methods.</span>
+<span class="sd">        This is used to implement mathematical operations like NumPy&#39;s :py:meth:`~numpy.log`,</span>
+<span class="sd">        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the left hand side.</span>
+<span class="sd">        Check out the NumPy&#39;s ``__array_ufunc__`` `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__&gt;`_ for more details.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">translate_ufunc_to_op_with_args</span><span class="p">:</span>
+            <span class="c1"># This is required to support situations where the NumPy array is on</span>
+            <span class="c1"># the LHS, such that the ndarray method gets called first.</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">first_is_da</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">DelayedArray</span><span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">first_is_da</span><span class="p">)]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">first_is_da</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+                <span class="n">_extract_seed</span><span class="p">(</span><span class="n">da</span><span class="p">),</span> <span class="n">v</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="n">op</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">first_is_da</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">in</span> <span class="n">translate_ufunc_to_op_simple</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span>
+                <span class="n">UnaryIsometricOpSimple</span><span class="p">(</span>
+                    <span class="n">_extract_seed</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">operation</span><span class="o">=</span><span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;absolute&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span>
+                <span class="n">UnaryIsometricOpSimple</span><span class="p">(</span><span class="n">_extract_seed</span><span class="p">(</span><span class="n">inputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;abs&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">ufunc</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; is not implemented!&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__array_function__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_function__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__array_function__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface to NumPy&#39;s high-level array functions.</span>
+<span class="sd">        This is used to implement array operations like NumPy&#39;s :py:meth:`~numpy.concatenate`,</span>
+<span class="sd">        Check out the NumPy&#39;s ``__array_function__`` `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__&gt;`_ for more details.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">:</span>
+            <span class="n">seeds</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="n">seeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_extract_seed</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="s2">&quot;axis&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;axis&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Combine</span><span class="p">(</span><span class="n">seeds</span><span class="p">,</span> <span class="n">along</span><span class="o">=</span><span class="n">axis</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">func</span> <span class="o">==</span> <span class="n">numpy</span><span class="o">.</span><span class="n">transpose</span><span class="p">:</span>
+            <span class="n">seed</span> <span class="o">=</span> <span class="n">_extract_seed</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">&quot;axes&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;axes&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Transpose</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">perm</span><span class="o">=</span><span class="n">axes</span><span class="p">))</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; is not implemented!&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.astype">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.astype">[docs]</a>
+    <span class="k">def</span> <span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.ndarray.astype` for details.</span>
+
+<span class="sd">        All keyword arguments are currently ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">dtype</span><span class="p">))</span></div>
+
+
+    <span class="c1"># Assorted dunder methods.</span>
+<div class="viewcode-block" id="DelayedArray.__add__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__add__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add something to the right-hand-side of a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__radd__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__radd__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add something to the left-hand-side of a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__sub__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__sub__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtract something from the right-hand-side of a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;subtract&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rsub__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rsub__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtract a ``DelayedArray`` from something else.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;subtract&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__mul__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__mul__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiply a ``DelayedArray`` with something on the right hand side.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;multiply&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rmul__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rmul__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiply a ``DelayedArray`` with something on the left hand side.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;multiply&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__truediv__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__truediv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide a ``DelayedArray`` by something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed division operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;divide&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rtruediv__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rtruediv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide something by a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed division operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;divide&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__mod__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__mod__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the remainder after dividing a ``DelayedArray`` by something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;remainder&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rmod__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rmod__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rmod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the remainder after dividing something by a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;remainder&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__floordiv__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__floordiv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide a ``DelayedArray`` by something and take the floor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;floor_divide&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rfloordiv__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rfloordiv__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rfloordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide something by a ``DelayedArray`` and take the floor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;floor_divide&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__pow__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__pow__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise a ``DelayedArray`` to the power of something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed power operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;power&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rpow__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rpow__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__rpow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise something to the power of the contents of a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed power operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;power&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__eq__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__eq__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for equality between a ``DelayedArray`` and something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__req__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__req__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__req__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for equality between something and a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__ne__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__ne__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for non-equality between a ``DelayedArray`` and something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;not_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rne__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rne__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__rne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for non-equality between something and a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;not_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__ge__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__ge__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``DelayedArray`` is greater than or equal to something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;greater_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rge__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rge__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__rge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than or equal to a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;greater_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__le__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__le__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``DelayedArray`` is less than or equal to something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;less_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rle__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rle__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__rle__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than or equal to a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;less_equal&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__gt__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__gt__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``DelayedArray`` is greater than something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;greater&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rgt__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rgt__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__rgt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;greater&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__lt__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__lt__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``DelayedArray`` is less than something.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;less&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__rlt__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__rlt__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__rlt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is less than a ``DelayedArray``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            other:</span>
+<span class="sd">                A numeric scalar;</span>
+<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed check.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;less&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Simple methods.</span>
+<div class="viewcode-block" id="DelayedArray.__neg__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__neg__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Negate the contents of a ``DelayedArray``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed negation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_wrap_isometric_with_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;subtract&quot;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__abs__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__abs__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the absolute value of the contents of a ``DelayedArray``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">UnaryIsometricOpSimple</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;abs&quot;</span><span class="p">))</span></div>
+
+
+    <span class="c1"># Subsetting and combining.</span>
+<div class="viewcode-block" id="DelayedArray.__getitem__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__getitem__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="o">...</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-</span>
+<span class="sd">        dimension indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to</span>
+<span class="sd">        using NumPy&#39;s :py:meth:`~numpy.ix_` function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            args (Tuple[Union[slice, Sequence[int]], ...]):</span>
+<span class="sd">                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.</span>
+<span class="sd">                Each entry should contain a sequence of integer indices (e.g., a list, :py:class:`~numpy.ndarray` or :py:func:`slice`),</span>
+<span class="sd">                specifying the elements of the corresponding dimension to extract.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If ``args`` contain more dimensions than the shape of the array.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A ``DelayedArray`` containing a delayed subset operation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sanitized</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">idx</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">sanitized</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">sanitized</span><span class="p">,)))</span></div>
+
+
+    <span class="c1"># For python-level compute.</span>
+<div class="viewcode-block" id="DelayedArray.as_dask_array">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.as_dask_array">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the DelayedArray to a dask array for Python-based computation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Array: A dask array containing the delayed operations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.sum">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.sum">[docs]</a>
+    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.sums` for details.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.var">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.var">[docs]</a>
+    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.vars` for details.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.mean">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.mean">[docs]</a>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.means` for details.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Aaron Lun
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>

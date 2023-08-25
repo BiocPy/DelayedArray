@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer notes" href="developers.html" /><link rel="prev" title="DelayedArrays, in Python" href="readme.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Contributing" href="contributing.html" /><link rel="prev" title="Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
-        <title>Tutorial - DelayedArray 0.1.0 documentation</title>
+        <title>Developer notes - DelayedArray 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -156,8 +156,8 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="readme.html">Overview</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developers.html">Developer Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Developer Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="authors.html">Authors</a></li>
@@ -200,64 +200,77 @@
           </label>
         </div>
         <article role="main">
-          <section class="tex2jax_ignore mathjax_ignore" id="tutorial">
-<h1>Tutorial<a class="headerlink" href="#tutorial" title="Link to this heading">#</a></h1>
-<p>Oh.
-There’s not much to say that wasn’t already covered in the <a class="reference internal" href="readme.html"><span class="std std-doc">Overview</span></a>, but I guess I could talk about it a bit more.
-Let’s start off with a count matrix:</p>
+          <section id="developer-notes">
+<h1>Developer notes<a class="headerlink" href="#developer-notes" title="Link to this heading">#</a></h1>
+<p>As mentioned elsewhere: ideally, we would use <strong>dask</strong> directly, as it supports all of the desired operations and provides a NumPy-compatible interface.
+We could then reach into the <code class="docutils literal notranslate"><span class="pre">.dask</span></code> attribute to recover the <code class="docutils literal notranslate"><span class="pre">HighLevelGraph</span></code> and parse it to determine the sequence of delayed operations.
+This would save us the trouble of writing the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> classes.</p>
+<p>Unfortunately, parsing the call graph exposes BiocPy packages to <strong>dask</strong> internals like the <a class="reference external" href="https://docs.dask.org/en/latest/spec.html">task specification</a>.
+While this is not too complicated (usually), it’s a risk that could cause our packages to break with different versions of <strong>dask</strong>.
+Indeed, from their own <a class="reference external" href="https://docs.dask.org/en/latest/graphs.html">documentation</a>:</p>
+<blockquote>
+<div><p>Working directly with dask graphs is rare, though, unless you intend to develop new modules with Dask. Even then, dask.delayed is often a better choice. If you are a core developer, then you should start here.</p>
+</div></blockquote>
+<p>… which does not give me confidence that third-party developers parsing the call graph will be a priority for the <strong>dask</strong> team when they’re thinking about backwards compatibility.</p>
+<p>Similarly, the deeper parts of the task specification are not well-documented.
+For example, each task is represented by a callable object, but these are <strong>dask</strong>-internal objects that do not have clear descriptions of their attributes.
+We need to do some further digging to actually get the function involved (<code class="docutils literal notranslate"><span class="pre">log2</span></code>); who knows what the <code class="docutils literal notranslate"><span class="pre">__dask_blockwise__0</span></code> means.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span>
-<span class="n">counts</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="c1"># Finding the log2 step:</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">dask</span><span class="o">.</span><span class="n">get_all_external_keys</span><span class="p">())</span>
+<span class="n">key</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;log2-&quot;</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">x</span>
+
+<span class="n">key</span>
+<span class="c1">## (&#39;log2-3999c8c7866c0ec86d68c8ed4da7d784&#39;, 0, 0)</span>
+
+<span class="c1"># Retrieving the callable:</span>
+<span class="n">logstep</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">dask</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+<span class="n">logstep</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1">## subgraph_callable-38677753-1f25-4846-ac5c-0fd63671121f</span>
+
+<span class="c1"># Actually unpacking the callable:</span>
+<span class="n">logstep</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dsk</span>
+<span class="p">{</span><span class="s1">&#39;log2-3999c8c7866c0ec86d68c8ed4da7d784&#39;</span><span class="p">:</span> <span class="p">(</span><span class="o">&lt;</span><span class="n">ufunc</span> <span class="s1">&#39;log2&#39;</span><span class="o">&gt;</span><span class="p">,</span> <span class="s1">&#39;__dask_blockwise__0&#39;</span><span class="p">)}</span>
 </pre></div>
 </div>
-<p>And then we wrap it in a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">delayedarray</span>
-<span class="n">wrapped</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">DelayedArray</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
-<span class="nb">type</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
-<span class="c1">## &lt;class &#39;delayedarray.DelayedArray.DelayedArray&#39;&gt;</span>
+<p>Also, there are occasions when the <strong>dask</strong> does something magical to the call graph, usually when we’re operating on multiple arrays.
+In the example below, the <code class="docutils literal notranslate"><span class="pre">all_sums</span></code> array is silently split and distributed to the two submatrices
+(i.e., the <code class="docutils literal notranslate"><span class="pre">rechunk-*</span></code> operations) when it is used to divide the combined matrix.
+This is transparent to end users but surprising for developers who expect to recover the same sequence of delayed operations that they put in.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">dask.array</span> <span class="k">as</span> <span class="nn">da</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+<span class="n">combined</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">all_sums</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+<span class="n">normalized</span> <span class="o">=</span> <span class="n">combined</span> <span class="o">/</span> <span class="n">all_sums</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">normalized</span><span class="o">.</span><span class="n">dask</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="c1">## (&#39;truediv-78719db305246fd474d0136dd804a738&#39;, 0, 0)</span>
+<span class="c1">## (&#39;truediv-78719db305246fd474d0136dd804a738&#39;, 0, 1)</span>
+<span class="c1">## (&#39;concatenate-fea8d498137cb283a1ccd462d1f978aa&#39;, 0, 0)</span>
+<span class="c1">## (&#39;concatenate-fea8d498137cb283a1ccd462d1f978aa&#39;, 0, 1)</span>
+<span class="c1">## (&#39;array-eb5604e3cb2e184e5a2e5b6769b87871&#39;, 0, 0)</span>
+<span class="c1">## (&#39;array-81bcf7d160e27bf3266f48572db16a6e&#39;, 0, 0)</span>
+<span class="c1">## (&#39;array-1f6097f7707042f07edf65a6a9eb020e&#39;, 0)</span>
+<span class="c1">## (&#39;rechunk-merge-22938068fb344dacd51a37e23fefd574&#39;, 0)</span>
+<span class="c1">## (&#39;rechunk-merge-22938068fb344dacd51a37e23fefd574&#39;, 1)</span>
+<span class="c1">## (&#39;rechunk-split-22938068fb344dacd51a37e23fefd574&#39;, 0)</span>
+<span class="c1">## (&#39;rechunk-split-22938068fb344dacd51a37e23fefd574&#39;, 1)</span>
 </pre></div>
 </div>
-<p>We can now apply some transformations.
-In genomics, a typical quality control task is to slice the matrix to remove uninteresting features (rows) or samples (columns):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">filtered</span> <span class="o">=</span> <span class="n">wrapped</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">100</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="mi">8</span><span class="p">]</span>
-<span class="n">filtered</span><span class="o">.</span><span class="n">shape</span>
-<span class="c1">## (50, 7)</span>
-</pre></div>
-</div>
-<p>We then divide by the total sum of each column to compute normalized values between samples.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">total</span> <span class="o">=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">normalized</span> <span class="o">=</span> <span class="n">filtered</span> <span class="o">/</span> <span class="n">total</span>
-<span class="n">normalized</span><span class="o">.</span><span class="n">dtype</span>
-<span class="c1">## dtype(&#39;float64&#39;)</span>
-</pre></div>
-</div>
-<p>And finally we compute a log-transformation to get some log-normalized values for visualization.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">transformed</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>The general idea is that <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>s should be a drop-in replacement for NumPy arrays, at least for <a class="reference external" href="https://github.com/BiocPy">BiocPy</a> applications.
-So, for example, we can stuff the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> inside a <code class="docutils literal notranslate"><span class="pre">SummarizedExperiment</span></code>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">summarizedexperiment</span> <span class="k">as</span> <span class="nn">SE</span>
-<span class="n">se</span> <span class="o">=</span> <span class="n">SE</span><span class="o">.</span><span class="n">SummarizedExperiment</span><span class="p">({</span> <span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="n">filtered</span><span class="p">,</span> <span class="s2">&quot;lognorm&quot;</span><span class="p">:</span> <span class="n">transformed</span> <span class="p">})</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">se</span><span class="p">)</span>
-<span class="c1">## Class SummarizedExperiment with 50 features and 7 samples</span>
-<span class="c1">##   assays: [&#39;counts&#39;, &#39;lognorm&#39;]</span>
-<span class="c1">##   features: []</span>
-<span class="c1">##   sample data: []</span>
-</pre></div>
-</div>
-<p>If we need NumPy methods that are not exposed by the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> interface, we can just convert our <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>s to regular NumPy arrays:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">realized</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span>
-<span class="nb">type</span><span class="p">(</span><span class="n">realized</span><span class="p">)</span>
-<span class="c1">## &lt;class &#39;numpy.ndarray&#39;&gt;</span>
-</pre></div>
-</div>
-<p>Or even better, we can convert them to <strong>dask</strong> arrays, which preserves the delayed nature of the operations to avoid unnecessary copies/evalution.
-(You might wonder why we didn’t just do this in the first place - check out the <a class="reference internal" href="developers.html"><span class="std std-doc">developer notes</span></a> for commentary.)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">daskified</span> <span class="o">=</span> <span class="n">transformed</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span>
-<span class="nb">type</span><span class="p">(</span><span class="n">daskified</span><span class="p">)</span>
-<span class="c1">## &lt;class &#39;dask.array.core.Array&#39;&gt;</span>
-</pre></div>
-</div>
+<p>These experiences were the motivation for the <strong>DelayedArray</strong> package, which captures delayed operations in a much simpler format for robust BiocPy package development.
+And hey, at least we control the representation, so we can coordinate changes across the BiocPy suite of packages.
+Note that we still use <strong>dask</strong> to do some Python-level compute (e.g., sums, variances) via the NumPy interface;
+this should be fine as it’s more stable than the internals.</p>
 </section>
 
         </article>
@@ -265,23 +278,23 @@ So, for example, we can stuff the <code class="docutils literal notranslate"><sp
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="developers.html">
+          <a class="next-page" href="contributing.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Developer notes</div>
+                <div class="title">Contributing</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="readme.html">
+          <a class="prev-page" href="tutorial.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">DelayedArrays, in Python</div>
+                <div class="title">Tutorial</div>
                 
               </div>
             </a>

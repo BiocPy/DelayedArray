@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.2 and Furo 2023.08.19 -->
-        <title>delayedarray.interface - DelayedArray 0.0.1 documentation</title>
+    <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
+        <title>delayedarray.Cast - DelayedArray 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.0.1 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.0.1 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -156,6 +156,7 @@
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -197,123 +198,79 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for delayedarray.interface</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">copy</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">singledispatch</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+          <h1>Source code for delayedarray.Cast</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
-
-<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SparseNdarray</span><span class="p">,</span>
-    <span class="n">_extract_dense_array_from_SparseNdarray</span><span class="p">,</span>
-    <span class="n">_extract_sparse_array_from_SparseNdarray</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">dtype</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
+<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
 
 
-<div class="viewcode-block" id="extract_dense_array">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.interface.extract_dense_array">[docs]</a>
-<span class="nd">@singledispatch</span>
-<span class="k">def</span> <span class="nf">extract_dense_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract slice from a dense array.</span>
+<div class="viewcode-block" id="Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast">[docs]</a>
+<span class="k">class</span> <span class="nc">Cast</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delayed cast to a different NumPy type. This is most useful for promoting integer matrices to floating point to</span>
+<span class="sd">    avoid problems with integer overflow in arithmetic operations.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        x: Array to slice.</span>
+<span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.</span>
+<span class="sd">    End users should not be interacting with ``Cast`` objects directly.</span>
 
-<span class="sd">            ``x`` may be either a :py:class.`~numpy.ndarray` or</span>
-<span class="sd">            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.</span>
+<span class="sd">    Attributes:</span>
+<span class="sd">        seed:</span>
+<span class="sd">            Any object that satisfies the seed contract,</span>
+<span class="sd">            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
 
-<span class="sd">        idx (Tuple[Sequence, ...]): Indices to slice, must be less</span>
-<span class="sd">            than or equal to the number of dimensions in the dense matrix.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        NotImplementedError: When ``x`` is not an supported type.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        ndarray: A sliced :py:class.`numpy.ndarray`.</span>
+<span class="sd">        dtype (dtype):</span>
+<span class="sd">            The desired type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;extract_dense_array is not supported for &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; objects&quot;</span>
-    <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">dtype</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``Cast`` object. This is the same as the ``seed`` object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Cast`` object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the ``Cast`` object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dtype: NumPy type for the ``Cast`` contents.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
+
+<div class="viewcode-block" id="Cast.as_dask_array">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast.as_dask_array">[docs]</a>
+    <span class="k">def</span> <span class="nf">as_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dask array containing the delayed cast.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Array: dask array with the delayed cast.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">_create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
 
-<div class="viewcode-block" id="extract_dense_array_ndarray">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.interface.extract_dense_array_ndarray">[docs]</a>
-<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_dense_array_ndarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">x</span><span class="p">[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">idx</span><span class="p">)])</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">            The seed object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span></div>
 
-
-
-<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_extract_dense_array_SparseNdarray</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ndarray</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">_extract_dense_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="extract_sparse_array">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.interface.extract_sparse_array">[docs]</a>
-<span class="nd">@singledispatch</span>
-<span class="k">def</span> <span class="nf">extract_sparse_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract slice from a sparse array.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: Array to slice.</span>
-
-<span class="sd">            ``x`` may be either a :py:class.`~scipy.sparse.spmatrix` or</span>
-<span class="sd">            :py:class.`~delayedarray.SparseNdarray.SparseNdarray`.</span>
-
-<span class="sd">        idx (Tuple[Sequence, ...]): Indices to slice, must be less</span>
-<span class="sd">            than or equal to the number of dimensions in the sparse array.</span>
-
-<span class="sd">    Raises:</span>
-<span class="sd">        NotImplementedError: When ``x`` is not an supported type.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        SparseNdarray: A sliced sparse array object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;extract_sparse_array is not supported for &#39;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; objects&quot;</span>
-    <span class="p">)</span></div>
-
-
-
-<span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_extract_sparse_array_SparseNdarray</span><span class="p">(</span>
-    <span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">_extract_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="is_sparse">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.interface.is_sparse">[docs]</a>
-<span class="nd">@singledispatch</span>
-<span class="k">def</span> <span class="nf">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if ``x`` represents a sparse array.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: Array to check.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        bool: True if ``x`` is a sparse array.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span></div>
-
-
-
-<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_is_sparse_ndarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">False</span>
-
-
-<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">_is_sparse_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-    <span class="k">return</span> <span class="kc">True</span>
 </pre></div>
         </article>
       </div>
@@ -346,7 +303,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d45e8c67"></script>
+</div><script src="../../_static/documentation_options.js?v=01f34227"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
