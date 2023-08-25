@@ -14,7 +14,7 @@ class Cast:
     avoid problems with integer overflow in arithmetic operations.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    End-users should not be interacting with ``Cast`` objects directly.
+    End users should not be interacting with ``Cast`` objects directly.
 
     Attributes:
         seed:

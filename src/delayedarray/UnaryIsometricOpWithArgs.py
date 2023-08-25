@@ -36,10 +36,10 @@ def _choose_operator(operation):
 
 
 class UnaryIsometricOpWithArgs:
-    """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector.
-    This is based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
+    """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector,
+    based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.
-    (I don't make the rules.)
+    (Hey, I don't make the rules.)
 
     The data type of the result is determined by NumPy casting given the ``seed`` and ``value``
     data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from

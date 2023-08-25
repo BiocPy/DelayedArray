@@ -21,7 +21,7 @@ class BinaryIsometricOp:
     to avoid problems due to integer overflow.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.
+    In general, end users should not be interacting with ``BinaryIsometricOp`` objects directly.
 
     Attributes:
         left:

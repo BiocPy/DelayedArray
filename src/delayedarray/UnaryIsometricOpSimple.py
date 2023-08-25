@@ -42,8 +42,9 @@ def _choose_operator(op: OP):
 
 
 class UnaryIsometricOpSimple:
-    """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments. This is
-    used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
+    """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments,
+    similar to Bioconductor's ``DelayedArray::DelayedUnaryIsoOpStack`` class. 
+    This is used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
