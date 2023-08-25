@@ -483,6 +483,188 @@ class DelayedArray:
         """
         return wrap_isometric_with_args(self, other, operation="not_equal", right=False)
 
+    def __ge__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater_equal", right=True)
+
+    def __rge__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater_equal", right=False)
+
+    def __le__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less_equal", right=True)
+
+    def __rle__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less_equal", right=False)
+
+    def __gt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater", right=True)
+
+    def __rgt__(self, other) -> "DelayedArray":
+        """Check whether something is greater than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater", right=False)
+
+    def __lt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less", right=True)
+
+    def __rlt__(self, other) -> "DelayedArray":
+        """Check whether something is less than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less", right=False)
+
+    def __and__(self, other) -> "DelayedArray":
+        """Perform a boolean AND between a ``DelayedArray`` and something else.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed AND.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_and", right=True)
+
+    def __rand__(self, other) -> "DelayedArray":
+        """Perform a boolean AND between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed AND.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_and", right=False)
+
+    def __or__(self, other) -> "DelayedArray":
+        """Perform a boolean OR between a ``DelayedArray`` and something else.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed OR.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_or", right=True)
+
+    def __ror__(self, other) -> "DelayedArray":
+        """Perform a boolean OR between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed OR.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_or", right=False)
+
+    def __xor__(self, other) -> "DelayedArray":
+        """Perform a boolean XOR between a ``DelayedArray`` and something else.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed XOR.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_xor", right=True)
+
+    def __rxor__(self, other) -> "DelayedArray":
+        """Perform a boolean XOR between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed XOR.
+        """
+        return wrap_isometric_with_args(self, other, operation="logical_xor", right=False)
+
     # Simple methods.
     def __neg__(self):
         """Negate the contents of a ``DelayedArray``.
