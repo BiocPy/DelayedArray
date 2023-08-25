@@ -1,5 +1,5 @@
 import warnings
-from typing import Literal, Tuple, Union
+from typing import Tuple
 
 import numpy
 from dask.array.core import Array
@@ -18,7 +18,7 @@ class BinaryIsometricOp:
 
     The data type of the result is determined by NumPy casting given the ``seed`` and ``value``
     data types. It is probably safest to cast at least one array to floating-point
-    to avoid problems due to integer overflow. 
+    to avoid problems due to integer overflow.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.
@@ -65,8 +65,8 @@ class BinaryIsometricOp:
 
     @property
     def dtype(self) -> numpy.dtype:
-        """Type of the ``BinaryIsometricOp`` object. This may or may not be the same as the ``left`` or ``right`` objects,
-        depending on how NumPy does the casting for the requested operation.
+        """Type of the ``BinaryIsometricOp`` object. This may or may not be the same as the ``left`` or ``right``
+        objects, depending on how NumPy does the casting for the requested operation.
 
         Returns:
             dtype: NumPy type for the ``BinaryIsometricOp`` contents.

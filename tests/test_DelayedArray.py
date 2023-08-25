@@ -268,10 +268,10 @@ def test_DelayedArray_isometric_power():
 
     y2 = numpy.random.rand(*test_shape)
     x2 = delayedarray.DelayedArray(y2)
-    z = x ** x2
+    z = x**x2
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
-    assert (numpy.array(z) == y ** y2).all()
+    assert (numpy.array(z) == y**y2).all()
 
 
 def test_DelayedArray_isometric_equal():
