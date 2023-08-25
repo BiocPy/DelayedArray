@@ -2,7 +2,7 @@
 
 As mentioned elsewhere: ideally, we would use **dask** directly, as it supports all of the desired operations and provides a NumPy-compatible interface.
 We could then reach into the `.dask` attribute to recover the `HighLevelGraph` and parse it to determine the sequence of delayed operations.
-This would save us the trouble of writing the `DelayedArray` classes. 
+This would save us the trouble of writing the `DelayedArray` classes.
 
 Unfortunately, parsing the call graph exposes BiocPy packages to **dask** internals like the [task specification](https://docs.dask.org/en/latest/spec.html).
 While this is not too complicated (usually), it's a risk that could cause our packages to break with different versions of **dask**.
@@ -13,7 +13,7 @@ Indeed, from their own [documentation](https://docs.dask.org/en/latest/graphs.ht
 ... which does not give me confidence that third-party developers parsing the call graph will be a priority for the **dask** team when they're thinking about backwards compatibility.
 
 Similarly, the deeper parts of the task specification are not well-documented.
-For example, each task is represented by a callable object, but these are **dask**-internal objects that do not have clear descriptions of their attributes. 
+For example, each task is represented by a callable object, but these are **dask**-internal objects that do not have clear descriptions of their attributes.
 We need to do some further digging to actually get the function involved (`log2`); who knows what the `__dask_blockwise__0` means.
 
 ```python
@@ -43,7 +43,7 @@ logstep[0].dsk
 ```
 
 Also, there are occasions when the **dask** does something magical to the call graph, usually when we're operating on multiple arrays.
-In the example below, the `all_sums` array is silently split and distributed to the two submatrices 
+In the example below, the `all_sums` array is silently split and distributed to the two submatrices
 (i.e., the `rechunk-*` operations) when it is used to divide the combined matrix.
 This is transparent to end users but surprising for developers who expect to recover the same sequence of delayed operations that they put in.
 
@@ -56,7 +56,7 @@ combined = numpy.concatenate((X, Y), axis=1)
 all_sums = combined.sum(axis=0).compute()
 normalized = combined / all_sums
 
-for x in normalized.dask.keys(): 
+for x in normalized.dask.keys():
     print(x)
 ## ('truediv-78719db305246fd474d0136dd804a738', 0, 0)
 ## ('truediv-78719db305246fd474d0136dd804a738', 0, 1)
