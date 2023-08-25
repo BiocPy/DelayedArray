@@ -7,6 +7,7 @@
 
 Overview <readme>
 Tutorial <tutorial>
+Developer Notes <developers>
 Contributions & Help <contributing>
 License <license>
 Authors <authors>
