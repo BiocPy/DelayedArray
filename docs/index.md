@@ -1,15 +1,4 @@
-# DelayedArray
-
-Python package to support file backed arrays and matrices stored in H5 file. Will soon support tiledb and zarr based formats.
-
-
-## Install
-
-Package is published to [PyPI](https://pypi.org/project/delayedarray/)
-
-```shell
-pip install delayedarray
-```
+# DelayedArrays, in Python
 
 ## Contents
 
