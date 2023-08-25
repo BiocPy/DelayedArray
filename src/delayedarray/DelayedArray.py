@@ -493,7 +493,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
-        return wrap_isometric_with_args(self, other, operation="greater_equal", right=True)
+        return wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=True
+        )
 
     def __rge__(self, other) -> "DelayedArray":
         """Check whether something is greater than or equal to a ``DelayedArray``.
@@ -507,7 +509,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
-        return wrap_isometric_with_args(self, other, operation="greater_equal", right=False)
+        return wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=False
+        )
 
     def __le__(self, other) -> "DelayedArray":
         """Check whether a ``DelayedArray`` is less than or equal to something.
@@ -533,7 +537,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
-        return wrap_isometric_with_args(self, other, operation="less_equal", right=False)
+        return wrap_isometric_with_args(
+            self, other, operation="less_equal", right=False
+        )
 
     def __gt__(self, other) -> "DelayedArray":
         """Check whether a ``DelayedArray`` is greater than something.
