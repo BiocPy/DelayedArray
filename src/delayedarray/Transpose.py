@@ -6,11 +6,11 @@ from dask.array.core import Array
 
 
 class Transpose:
-    """Delayed transposition. This will create a matrix transpose in the 2-dimensional case; for a high-dimensional
-    array, it will permute the dimensions.
+    """Delayed transposition, based on Bioconductor's ``DelayedArray::DelayedAperm`` class.
+    This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the dimensions.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end-users should not be interacting with ``Transpose`` objects directly.
+    In general, end users should not be interacting with ``Transpose`` objects directly.
 
     Attributes:
         seed:

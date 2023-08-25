@@ -6,11 +6,11 @@ from dask.array.core import Array
 
 
 class Subset:
-    """Delayed subset operation. This will slice the array along one or more dimensions, equivalent to the outer product
-    of subset indices.
+    """Delayed subset operation, based on Bioconductor's ``DelayedArray::DelayedSubset`` class.
+    This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end-users should not be interacting with ``Subset`` objects directly.
+    In general, end users should not be interacting with ``Subset`` objects directly.
 
     Attributes:
         seed:

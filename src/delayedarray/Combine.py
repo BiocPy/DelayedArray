@@ -6,11 +6,11 @@ from dask.array.core import Array
 
 
 class Combine:
-    """Delayed combine operation. This will combine multiple arrays along a dimension, provided the extents of all other
-    dimensions are the same.
+    """Delayed combine operation, based on Bioconductor's ``DelayedArray::DelayedAbind`` class.
+    This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are the same.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end-users should not be interacting with ``Combine`` objects directly.
+    In general, end users should not be interacting with ``Combine`` objects directly.
 
     Attributes:
         seeds (list):

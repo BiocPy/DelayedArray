@@ -16,17 +16,10 @@
 
 # DelayedArrays, in Python
 
-This is a wrapper around [**dask**](https://docs.dask.org/en/stable)
-to provide a developer experience more like the [**DelayedArray** Bioconductor package](https://bioconductor.org/packages/DelayedArray).
+This package implements classes for delayed array operations, mirroring the [Bioconductor package](https://bioconductor.org/packages/DelayedArray) of the same name.
 It allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
-with particular focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
+with focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
 and entry into [**tatami**](https://github.com/tatami-inc/tatami)-compatible C++ libraries via [**mattress**](https://github.com/BiocPy/mattress).
-
-Ideally, we would use **dask** directly and avoid creating a set of wrapper classes.
-Unfortunately, it proved too difficult to parse their `HighLevelGraph` objects containing the delayed operations;
-determining the internal representation of each operation required some trial and error, and it didn't seem like part of the supported API.
-Instead, our `DelayedArray` classes capture a subset of the operations in a much simpler format for easier development.
-Note that any Python-based compute on the `DelayedArray`s (e.g., `.sum()`, `.var()`) is still performed using **dask**.
 
 ## Installation
 
@@ -69,7 +62,7 @@ d = delayedarray.DelayedArray(x)
 ```
 
 And then we can use it in a variety of operations.
-Each operation just return a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
+Each operation just returns a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
 
 ```python
 s = d.sum(axis=0)
@@ -97,16 +90,24 @@ Users can then call `numpy.array()` to realize the delayed operations into a typ
 Alternatively, users can use the `.as_dask_array()` method to obtain a **dask** array.
 
 ```python
-numpy.array(n)
-n.as_dask_array()
+simple = numpy.array(n)
+type(simple)
+## <class 'numpy.ndarray'>
+
+dasky = n.as_dask_array()
+type(dasky)
+## <class 'dask.array.core.Array'>
 ```
 
 Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more information.
 
 ## For developers
 
-The main purpose of the **DelayedArray** package is to make it easier for developers to inspect the delayed operations.
-To this end, we can pull out the "seed" object underlying our `DelayedArray` instance:
+Ideally, we would use **dask** directly and avoid creating a set of `DelayedArray` wrapper classes.
+We could parse the `HighLevelGraph` objects and retrieve the delayed operations for serialization/reconstruction in other frameworks like R and C++.
+Unfortunately, it was tricky to parse the call graph reliably (see the [developer notes](https://biocpy.github.io/DelayedArray/developers.html)).
+So, the _real_ purpose of the **DelayedArray** package is to make it easier for Bioconductor developers to inspect the delayed operations.
+For example, we can pull out the "seed" object underlying our `DelayedArray` instance:
 
 ```python
 n.seed
@@ -139,7 +140,7 @@ n.seed.seed.seed.seed.seed
 ##         0.7149704 ]])
 ```
 
-This approach is used to unpack each `DelayedArray` for transfer into other frameworks, e.g., R, C++.
+All attributes required to reconstruct a delayed operation are public and considered part of the stable `DelayedArray` interface.
 
 <!-- pyscaffold-notes -->
 
