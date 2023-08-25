@@ -385,7 +385,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="floor_divide", right=True)
+        return wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=True
+        )
 
     def __rfloordiv__(self, other):
         """Divide something by a ``DelayedArray`` and take the floor.
@@ -399,7 +401,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="floor_divide", right=False)
+        return wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=False
+        )
 
     def __pow__(self, other):
         """Raise a ``DelayedArray`` to the power of something.
@@ -478,7 +482,6 @@ class DelayedArray:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
         return wrap_isometric_with_args(self, other, operation="not_equal", right=False)
-
 
     # Simple methods.
     def __neg__(self):
