@@ -11,6 +11,7 @@ from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .BinaryIsometricOp import BinaryIsometricOp
 from .utils import _create_dask_array
 from .Transpose import Transpose
+from .Cast import Cast
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -254,6 +255,13 @@ class DelayedArray:
             return DelayedArray(Transpose(seed, perm=axes))
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
+
+    def astype(self, dtype, **kwargs):
+        """See :py:meth:`~numpy.ndarray.astype` for details.
+
+        All keyword arguments are currently ignored.
+        """
+        return DelayedArray(Cast(self._seed, dtype))
 
     # Assorted dunder methods.
     def __add__(self, other) -> "DelayedArray":

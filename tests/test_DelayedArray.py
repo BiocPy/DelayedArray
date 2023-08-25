@@ -648,3 +648,14 @@ def test_DelayedArray_transpose():
     assert isinstance(t.seed, delayedarray.Transpose)
     assert t.shape == (10, 23, 30)
     assert (numpy.array(t) == numpy.transpose(y)).all()
+
+
+def test_DelayedArray_cast():
+    y = numpy.random.rand(30, 23) * 10
+    x = delayedarray.DelayedArray(y)
+
+    z = x.astype(numpy.int32)
+    assert isinstance(z.seed, delayedarray.Cast)
+    assert z.dtype == numpy.int32
+    assert z.shape == (30, 23)
+    assert (numpy.array(z) == y.astype(numpy.int32)).all()
