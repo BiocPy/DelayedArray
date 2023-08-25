@@ -1,4 +1,3 @@
-import operator
 import warnings
 from typing import Literal, Tuple, Union
 
@@ -12,47 +11,28 @@ __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
-OP = Literal["+", "-", "/", "*", "//", "%", "**"]
+OP = Literal[
+    "add",
+    "subtract",
+    "multiply",
+    "divide",
+    "remainder",
+    "floor_divide",
+    "power",
+    "equal",
+    "greater_equal",
+    "greater",
+    "less_equal",
+    "less",
+    "not_equal",
+    "logical_and",
+    "logical_or",
+    "logical_xor",
+]
 
 
-def _choose_operator(op: OP, inplace: bool = False):
-    if op == "+":
-        if inplace:
-            return operator.iadd
-        else:
-            return operator.add
-    elif op == "-":
-        if inplace:
-            return operator.isub
-        else:
-            return operator.sub
-    elif op == "*":
-        if inplace:
-            return operator.imul
-        else:
-            return operator.mul
-    elif op == "/":
-        if inplace:
-            return operator.itruediv
-        else:
-            return operator.truediv
-    elif op == "//":
-        if inplace:
-            return operator.ifloordiv
-        else:
-            return operator.floordiv
-    elif op == "%":
-        if inplace:
-            return operator.imod
-        else:
-            return operator.mod
-    elif op == "**":
-        if inplace:
-            return operator.ipow
-        else:
-            return operator.pow
-    else:
-        raise ValueError("unknown operation '" + op + "'")
+def _choose_operator(operation):
+    return getattr(numpy, operation)
 
 
 class UnaryIsometricOpWithArgs:
@@ -91,11 +71,6 @@ class UnaryIsometricOpWithArgs:
             Whether ``value`` is to the right of ``seed`` in the operation.
             If False, ``value`` is put to the left of ``seed``.
             Ignored for commutative operations in ``op``.
-
-        along (int, optional):
-            Dimension along which the ``value`` is to be added, if ``value`` is a
-            1-dimensional array. This assumes that ``value`` is of length equal to the dimension's
-            extent. Ignored if ``value`` is a scalar.
     """
 
     def __init__(

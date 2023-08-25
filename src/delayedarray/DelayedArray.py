@@ -35,15 +35,26 @@ def _extract_seed(x):
         return x
 
 
-translate_ufunc_to_op_with_args = {
-    "add": "+",
-    "subtract": "-",
-    "multiply": "*",
-    "divide": "/",
-    "floor_divide": "//",
-    "remainder": "%",
-    "power": "**",
-}
+translate_ufunc_to_op_with_args = set(
+    [
+        "add",
+        "subtract",
+        "multiply",
+        "divide",
+        "remainder",
+        "floor_divide",
+        "power",
+        "equal",
+        "greater_equal",
+        "greater",
+        "less_equal",
+        "less",
+        "not_equal",
+        "logical_and",
+        "logical_or",
+        "logical_xor",
+    ]
+)
 
 translate_ufunc_to_op_simple = set(
     [
@@ -184,7 +195,7 @@ class DelayedArray:
         if ufunc.__name__ in translate_ufunc_to_op_with_args:
             # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
-            op = translate_ufunc_to_op_with_args[ufunc.__name__]
+            op = ufunc.__name__
             first_is_da = isinstance(inputs[0], DelayedArray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
@@ -233,6 +244,7 @@ class DelayedArray:
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
+    # Assorted dunder methods.
     def __add__(self, other) -> "DelayedArray":
         """Add something to the right-hand-side of a ``DelayedArray``.
 
@@ -243,7 +255,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
         """
-        return wrap_isometric_with_args(self, other, operation="+", right=True)
+        return wrap_isometric_with_args(self, other, operation="add", right=True)
 
     def __radd__(self, other) -> "DelayedArray":
         """Add something to the left-hand-side of a ``DelayedArray``.
@@ -257,7 +269,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
         """
-        return wrap_isometric_with_args(self, other, operation="+", right=False)
+        return wrap_isometric_with_args(self, other, operation="add", right=False)
 
     def __sub__(self, other) -> "DelayedArray":
         """Subtract something from the right-hand-side of a ``DelayedArray``.
@@ -269,7 +281,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
         """
-        return wrap_isometric_with_args(self, other, operation="-", right=True)
+        return wrap_isometric_with_args(self, other, operation="subtract", right=True)
 
     def __rsub__(self, other):
         """Subtract a ``DelayedArray`` from something else.
@@ -283,7 +295,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
         """
-        return wrap_isometric_with_args(self, other, operation="-", right=False)
+        return wrap_isometric_with_args(self, other, operation="subtract", right=False)
 
     def __mul__(self, other):
         """Multiply a ``DelayedArray`` with something on the right hand side.
@@ -295,7 +307,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
         """
-        return wrap_isometric_with_args(self, other, operation="*", right=True)
+        return wrap_isometric_with_args(self, other, operation="multiply", right=True)
 
     def __rmul__(self, other):
         """Multiply a ``DelayedArray`` with something on the left hand side.
@@ -309,7 +321,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
         """
-        return wrap_isometric_with_args(self, other, operation="*", right=False)
+        return wrap_isometric_with_args(self, other, operation="multiply", right=False)
 
     def __truediv__(self, other):
         """Divide a ``DelayedArray`` by something.
@@ -321,7 +333,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="/", right=True)
+        return wrap_isometric_with_args(self, other, operation="divide", right=True)
 
     def __rtruediv__(self, other):
         """Divide something by a ``DelayedArray``.
@@ -335,7 +347,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="/", right=False)
+        return wrap_isometric_with_args(self, other, operation="divide", right=False)
 
     def __mod__(self, other):
         """Take the remainder after dividing a ``DelayedArray`` by something.
@@ -347,7 +359,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
         """
-        return wrap_isometric_with_args(self, other, operation="%", right=True)
+        return wrap_isometric_with_args(self, other, operation="remainder", right=True)
 
     def __rmod__(self, other):
         """Take the remainder after dividing something by a ``DelayedArray``.
@@ -361,7 +373,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
         """
-        return wrap_isometric_with_args(self, other, operation="%", right=False)
+        return wrap_isometric_with_args(self, other, operation="remainder", right=False)
 
     def __floordiv__(self, other):
         """Divide a ``DelayedArray`` by something and take the floor.
@@ -373,7 +385,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="//", right=True)
+        return wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=True
+        )
 
     def __rfloordiv__(self, other):
         """Divide something by a ``DelayedArray`` and take the floor.
@@ -387,7 +401,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
         """
-        return wrap_isometric_with_args(self, other, operation="//", right=False)
+        return wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=False
+        )
 
     def __pow__(self, other):
         """Raise a ``DelayedArray`` to the power of something.
@@ -399,7 +415,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed power operation.
         """
-        return wrap_isometric_with_args(self, other, operation="**", right=True)
+        return wrap_isometric_with_args(self, other, operation="power", right=True)
 
     def __rpow__(self, other):
         """Raise something to the power of the contents of a ``DelayedArray``.
@@ -413,15 +429,178 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed power operation.
         """
-        return wrap_isometric_with_args(self, other, operation="**", right=False)
+        return wrap_isometric_with_args(self, other, operation="power", right=False)
 
+    def __eq__(self, other) -> "DelayedArray":
+        """Check for equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="equal", right=True)
+
+    def __req__(self, other) -> "DelayedArray":
+        """Check for equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="equal", right=False)
+
+    def __ne__(self, other) -> "DelayedArray":
+        """Check for non-equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="not_equal", right=True)
+
+    def __rne__(self, other) -> "DelayedArray":
+        """Check for non-equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="not_equal", right=False)
+
+    def __ge__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=True
+        )
+
+    def __rge__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=False
+        )
+
+    def __le__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less_equal", right=True)
+
+    def __rle__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(
+            self, other, operation="less_equal", right=False
+        )
+
+    def __gt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater", right=True)
+
+    def __rgt__(self, other) -> "DelayedArray":
+        """Check whether something is greater than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="greater", right=False)
+
+    def __lt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than something.
+
+        Args:
+            other:
+                A numeric scalar or a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less", right=True)
+
+    def __rlt__(self, other) -> "DelayedArray":
+        """Check whether something is less than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar.
+                In theory, this could also be a NumPy array of length equal to the extent of the last dimension of the ``DelayedArray``,
+                but that is usually handled via :py:meth:`~__array_ufunc__`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return wrap_isometric_with_args(self, other, operation="less", right=False)
+
+    # Simple methods.
     def __neg__(self):
         """Negate the contents of a ``DelayedArray``.
 
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed negation.
         """
-        return wrap_isometric_with_args(self, 0, operation="-", right=False)
+        return wrap_isometric_with_args(self, 0, operation="subtract", right=False)
 
     def __abs__(self):
         """Take the absolute value of the contents of a ``DelayedArray``.
