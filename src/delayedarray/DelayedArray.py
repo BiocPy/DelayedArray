@@ -402,7 +402,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="remainder", right=False)
+        return _wrap_isometric_with_args(
+            self, other, operation="remainder", right=False
+        )
 
     def __floordiv__(self, other):
         """Divide a ``DelayedArray`` by something and take the floor.
@@ -518,7 +520,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
-        return _wrap_isometric_with_args(self, other, operation="not_equal", right=False)
+        return _wrap_isometric_with_args(
+            self, other, operation="not_equal", right=False
+        )
 
     def __ge__(self, other) -> "DelayedArray":
         """Check whether a ``DelayedArray`` is greater than or equal to something.
@@ -564,7 +568,9 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed check.
         """
-        return _wrap_isometric_with_args(self, other, operation="less_equal", right=True)
+        return _wrap_isometric_with_args(
+            self, other, operation="less_equal", right=True
+        )
 
     def __rle__(self, other) -> "DelayedArray":
         """Check whether something is greater than or equal to a ``DelayedArray``.
