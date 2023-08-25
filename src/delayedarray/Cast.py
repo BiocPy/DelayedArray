@@ -1,7 +1,6 @@
-from typing import Literal, Tuple
+from typing import Tuple
 
-import numpy
-from numpy import dtype, zeros
+from numpy import dtype
 from .utils import _create_dask_array
 from dask.array.core import Array
 
@@ -11,8 +10,8 @@ __license__ = "MIT"
 
 
 class Cast:
-    """Delayed cast to a different NumPy type.
-    This is most useful for promoting integer matrices to floating point to avoid problems with integer overflow in arithmetic operations.
+    """Delayed cast to a different NumPy type. This is most useful for promoting integer matrices to floating point to
+    avoid problems with integer overflow in arithmetic operations.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     End-users should not be interacting with ``Cast`` objects directly.
@@ -41,7 +40,7 @@ class Cast:
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Cast`` object. 
+        """Type of the ``Cast`` object.
 
         Returns:
             dtype: NumPy type for the ``Cast`` contents.

@@ -257,8 +257,10 @@ class DelayedArray:
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
     def astype(self, dtype, **kwargs):
-        """See :py:meth:`~numpy.ndarray.astype` for details. 
-        All keyword arguments are currently ignored."""
+        """See :py:meth:`~numpy.ndarray.astype` for details.
+
+        All keyword arguments are currently ignored.
+        """
         return DelayedArray(Cast(self._seed, dtype))
 
     # Assorted dunder methods.
