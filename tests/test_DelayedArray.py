@@ -659,3 +659,19 @@ def test_DelayedArray_cast():
     assert z.dtype == numpy.int32
     assert z.shape == (30, 23)
     assert (numpy.array(z) == y.astype(numpy.int32)).all()
+
+
+def test_DelayedArray_round():
+    y = numpy.random.rand(30, 23) * 10
+    x = delayedarray.DelayedArray(y)
+
+    # Default.
+    z = numpy.round(x)
+    assert isinstance(z.seed, delayedarray.Round)
+    assert z.dtype == numpy.float64
+    assert z.shape == (30, 23)
+    assert (numpy.array(z) == numpy.round(y)).all()
+
+    # Number of places.
+    z = numpy.round(x, decimals=1)
+    assert (numpy.array(z) == numpy.round(y, decimals=1)).all()

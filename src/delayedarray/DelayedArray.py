@@ -12,6 +12,7 @@ from .BinaryIsometricOp import BinaryIsometricOp
 from .utils import _create_dask_array
 from .Transpose import Transpose
 from .Cast import Cast
+from .Round import Round
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -260,6 +261,14 @@ class DelayedArray:
             else:
                 axes = None
             return DelayedArray(Transpose(seed, perm=axes))
+
+        if func == numpy.round:
+            seed = _extract_seed(args[0])
+            if "decimals" in kwargs:
+                decimals = kwargs["decimals"]
+            else:
+                decimals = 0
+            return DelayedArray(Round(seed, decimals=decimals))
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
