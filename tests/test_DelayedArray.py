@@ -167,7 +167,7 @@ def test_DelayedArray_isometric_divide():
     z = x / x2
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
-    assert (numpy.array(z) == y - y2).all()
+    assert (numpy.array(z) == y / y2).all()
 
 
 def test_DelayedArray_isometric_modulo():
