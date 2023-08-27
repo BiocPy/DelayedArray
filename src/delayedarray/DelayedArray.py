@@ -52,7 +52,6 @@ translate_ufunc_to_op_with_args = set(
         "add",
         "subtract",
         "multiply",
-        "divide",
         "true_divide",
         "remainder",
         "floor_divide",
