@@ -204,7 +204,10 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
         """
-        if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
+        if (
+            ufunc.__name__ in translate_ufunc_to_op_with_args
+            or ufunc.__name__ == "true_divide"
+        ):
             # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
 
