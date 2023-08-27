@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="delayedarray" href="modules.html" />
 
     <!-- Generated with Sphinx 7.2.3 and Furo 2023.08.19 -->
-        <title>delayedarray package - DelayedArray 0.1.0 documentation</title>
+        <title>delayedarray package - DelayedArray 0.1.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">DelayedArray 0.1.0 documentation</div></a>
+      <a href="../index.html"><div class="brand">DelayedArray 0.1.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1243,6 +1243,104 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 </dd></dl>
 
 </section>
+<section id="delayedarray-round-module">
+<h2>delayedarray.Round module<a class="headerlink" href="#delayedarray-round-module" title="Link to this heading">#</a></h2>
+<dl class="py class" id="module-delayedarray.Round">
+<dt class="sig sig-object py" id="delayedarray.Round.Round">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">delayedarray.Round.</span></span><span class="sig-name descname"><span class="pre">Round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decimals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/Round.html#Round"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.Round.Round" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Delayed rounding, resulting from <code class="xref py py-meth docutils literal notranslate"><span class="pre">round()</span></code>. This is very similar to
+<code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code> but accepts an argument for the number of decimal places.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
+End users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Round</span></code> objects directly.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="delayedarray.Round.Round.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.Round.Round.seed" title="Link to this definition">#</a></dt>
+<dd><p>Any object that satisfies the seed contract,
+see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="delayedarray.Round.Round.decimals">
+<span class="sig-name descname"><span class="pre">decimals</span></span><a class="headerlink" href="#delayedarray.Round.Round.decimals" title="Link to this definition">#</a></dt>
+<dd><p>Number of decimal places, possibly negative.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="delayedarray.Round.Round.as_dask_array">
+<span class="sig-name descname"><span class="pre">as_dask_array</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Array</span></span></span><a class="reference internal" href="../_modules/delayedarray/Round.html#Round.as_dask_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.Round.Round.as_dask_array" title="Link to this definition">#</a></dt>
+<dd><p>Create a dask array containing the delayed rounding operation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dask array with the delayed rounding operation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id9">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decimals</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></em><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
+<dd><p>Number of decimal places to round to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of decimal places.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="delayedarray.Round.Round.dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.25)"><span class="pre">dtype</span></a></em><a class="headerlink" href="#delayedarray.Round.Round.dtype" title="Link to this definition">#</a></dt>
+<dd><p>Type of the <code class="docutils literal notranslate"><span class="pre">Round</span></code> object, same as the <code class="docutils literal notranslate"><span class="pre">seed</span></code> array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>NumPy type for the <code class="docutils literal notranslate"><span class="pre">Round</span></code> contents.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dtype</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id10">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id10" title="Link to this definition">#</a></dt>
+<dd><p>Get the underlying object satisfying the seed contract.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The seed object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="delayedarray.Round.Round.shape">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#delayedarray.Round.Round.shape" title="Link to this definition">#</a></dt>
+<dd><p>Shape of the <code class="docutils literal notranslate"><span class="pre">Round</span></code> object. This is the same as the <code class="docutils literal notranslate"><span class="pre">seed</span></code> array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">Round</span></code> object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a>, …]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="delayedarray-subset-module">
 <h2>delayedarray.Subset module<a class="headerlink" href="#delayedarray-subset-module" title="Link to this heading">#</a></h2>
 <dl class="py class" id="module-delayedarray.Subset">
@@ -1304,8 +1402,8 @@ extent of the dimension. Unsorted and/or duplicate indices are allowed.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id9">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id9" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id11">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id11" title="Link to this definition">#</a></dt>
 <dd><p>Get the underlying object satisfying the seed contract.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1330,8 +1428,8 @@ extent of the dimension. Unsorted and/or duplicate indices are allowed.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id10">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id10" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id12">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">subset</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id12" title="Link to this definition">#</a></dt>
 <dd><p>Get the subset of elements to extract from each dimension of the seed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1404,8 +1502,8 @@ If None, the dimension ordering is assumed to be reversed.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id11">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id11" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id13">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">perm</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id13" title="Link to this definition">#</a></dt>
 <dd><p>Get the permutation of dimensions used in the transposition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1418,8 +1516,8 @@ If None, the dimension ordering is assumed to be reversed.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id12">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id12" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id14">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id14" title="Link to this definition">#</a></dt>
 <dd><p>Get the underlying object satisfying the seed contract.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1505,8 +1603,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id13">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#id13" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id15">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#id15" title="Link to this definition">#</a></dt>
 <dd><p>Get the name of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1519,8 +1617,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id14">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id14" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id16">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id16" title="Link to this definition">#</a></dt>
 <dd><p>Get the underlying object satisfying the seed contract.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1612,7 +1710,7 @@ Ignored for commutative operations in <code class="docutils literal notranslate"
 <dl class="py property">
 <dt class="sig sig-object py" id="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.along">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">along</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></em><a class="headerlink" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.along" title="Link to this definition">#</a></dt>
-<dd><p>If <a class="reference internal" href="#id18" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">value</span></code></a> is an array, this specifies the dimension of :py:attr:<code class="docutils literal notranslate"><span class="pre">~seed</span></code> along which the array
+<dd><p>If <a class="reference internal" href="#id20" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">value</span></code></a> is an array, this specifies the dimension of :py:attr:<code class="docutils literal notranslate"><span class="pre">~seed</span></code> along which the array
 values are broadcast.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1654,8 +1752,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id15">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#id15" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id17">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><span class="pre">str</span></a></em><a class="headerlink" href="#id17" title="Link to this definition">#</a></dt>
 <dd><p>Get the name of the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1668,9 +1766,9 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id16">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">right</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#id16" title="Link to this definition">#</a></dt>
-<dd><p>Is the <a class="reference internal" href="#id18" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">value</span></code></a> applied to the right of the seed?</p>
+<dt class="sig sig-object py" id="id18">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">right</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><span class="pre">bool</span></a></em><a class="headerlink" href="#id18" title="Link to this definition">#</a></dt>
+<dd><p>Is the <a class="reference internal" href="#id20" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.value"><code class="xref py py-attr docutils literal notranslate"><span class="pre">value</span></code></a> applied to the right of the seed?</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether to apply the operation to the right of the seed.</p>
@@ -1682,8 +1780,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id17">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id17" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id19">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#id19" title="Link to this definition">#</a></dt>
 <dd><p>Get the underlying object satisfying the seed contract.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1708,8 +1806,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="id18">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id18" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="id20">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#id20" title="Link to this definition">#</a></dt>
 <dd><p>Get the other operand used in the operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1872,15 +1970,28 @@ This can be a numeric scalar or a NumPy array.</p>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#delayedarray-round-module">delayedarray.Round module</a><ul>
+<li><a class="reference internal" href="#delayedarray.Round.Round"><code class="docutils literal notranslate"><span class="pre">Round</span></code></a><ul>
+<li><a class="reference internal" href="#delayedarray.Round.Round.seed"><code class="docutils literal notranslate"><span class="pre">Round.seed</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.Round.Round.decimals"><code class="docutils literal notranslate"><span class="pre">Round.decimals</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.Round.Round.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Round.as_dask_array()</span></code></a></li>
+<li><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">Round.decimals</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.Round.Round.dtype"><code class="docutils literal notranslate"><span class="pre">Round.dtype</span></code></a></li>
+<li><a class="reference internal" href="#id10"><code class="docutils literal notranslate"><span class="pre">Round.seed</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.Round.Round.shape"><code class="docutils literal notranslate"><span class="pre">Round.shape</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a class="reference internal" href="#delayedarray-subset-module">delayedarray.Subset module</a><ul>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset"><code class="docutils literal notranslate"><span class="pre">Subset</span></code></a><ul>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset.seed"><code class="docutils literal notranslate"><span class="pre">Subset.seed</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset.subset"><code class="docutils literal notranslate"><span class="pre">Subset.subset</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Subset.as_dask_array()</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset.dtype"><code class="docutils literal notranslate"><span class="pre">Subset.dtype</span></code></a></li>
-<li><a class="reference internal" href="#id9"><code class="docutils literal notranslate"><span class="pre">Subset.seed</span></code></a></li>
+<li><a class="reference internal" href="#id11"><code class="docutils literal notranslate"><span class="pre">Subset.seed</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Subset.Subset.shape"><code class="docutils literal notranslate"><span class="pre">Subset.shape</span></code></a></li>
-<li><a class="reference internal" href="#id10"><code class="docutils literal notranslate"><span class="pre">Subset.subset</span></code></a></li>
+<li><a class="reference internal" href="#id12"><code class="docutils literal notranslate"><span class="pre">Subset.subset</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1891,8 +2002,8 @@ This can be a numeric scalar or a NumPy array.</p>
 <li><a class="reference internal" href="#delayedarray.Transpose.Transpose.perm"><code class="docutils literal notranslate"><span class="pre">Transpose.perm</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Transpose.Transpose.as_dask_array"><code class="docutils literal notranslate"><span class="pre">Transpose.as_dask_array()</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Transpose.Transpose.dtype"><code class="docutils literal notranslate"><span class="pre">Transpose.dtype</span></code></a></li>
-<li><a class="reference internal" href="#id11"><code class="docutils literal notranslate"><span class="pre">Transpose.perm</span></code></a></li>
-<li><a class="reference internal" href="#id12"><code class="docutils literal notranslate"><span class="pre">Transpose.seed</span></code></a></li>
+<li><a class="reference internal" href="#id13"><code class="docutils literal notranslate"><span class="pre">Transpose.perm</span></code></a></li>
+<li><a class="reference internal" href="#id14"><code class="docutils literal notranslate"><span class="pre">Transpose.seed</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.Transpose.Transpose.shape"><code class="docutils literal notranslate"><span class="pre">Transpose.shape</span></code></a></li>
 </ul>
 </li>
@@ -1904,8 +2015,8 @@ This can be a numeric scalar or a NumPy array.</p>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.operation"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.operation</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.as_dask_array"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.as_dask_array()</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.dtype"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.dtype</span></code></a></li>
-<li><a class="reference internal" href="#id13"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.operation</span></code></a></li>
-<li><a class="reference internal" href="#id14"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.seed</span></code></a></li>
+<li><a class="reference internal" href="#id15"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.operation</span></code></a></li>
+<li><a class="reference internal" href="#id16"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.seed</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.shape"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple.shape</span></code></a></li>
 </ul>
 </li>
@@ -1920,11 +2031,11 @@ This can be a numeric scalar or a NumPy array.</p>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.along"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.along</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.as_dask_array"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.as_dask_array()</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.dtype"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.dtype</span></code></a></li>
-<li><a class="reference internal" href="#id15"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.operation</span></code></a></li>
-<li><a class="reference internal" href="#id16"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.right</span></code></a></li>
-<li><a class="reference internal" href="#id17"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.seed</span></code></a></li>
+<li><a class="reference internal" href="#id17"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.operation</span></code></a></li>
+<li><a class="reference internal" href="#id18"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.right</span></code></a></li>
+<li><a class="reference internal" href="#id19"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.seed</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.shape"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.shape</span></code></a></li>
-<li><a class="reference internal" href="#id18"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.value</span></code></a></li>
+<li><a class="reference internal" href="#id20"><code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs.value</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1942,7 +2053,7 @@ This can be a numeric scalar or a NumPy array.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=01f34227"></script>
+</div><script src="../_static/documentation_options.js?v=a58bc63e"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

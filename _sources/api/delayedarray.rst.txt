@@ -36,6 +36,14 @@ delayedarray.DelayedArray module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.Round module
+-------------------------
+
+.. automodule:: delayedarray.Round
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.Subset module
 --------------------------
 
