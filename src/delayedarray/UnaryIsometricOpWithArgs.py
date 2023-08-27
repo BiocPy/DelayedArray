@@ -15,7 +15,7 @@ OP = Literal[
     "add",
     "subtract",
     "multiply",
-    "true_divide",
+    "divide",
     "remainder",
     "floor_divide",
     "power",

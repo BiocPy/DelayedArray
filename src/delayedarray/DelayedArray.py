@@ -52,7 +52,7 @@ translate_ufunc_to_op_with_args = set(
         "add",
         "subtract",
         "multiply",
-        "true_divide",
+        "divide",
         "remainder",
         "floor_divide",
         "power",
@@ -204,10 +204,14 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
         """
-        if ufunc.__name__ in translate_ufunc_to_op_with_args:
+        if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
             # This is required to support situations where the NumPy array is on
             # the LHS, such that the ndarray method gets called first.
+
             op = ufunc.__name__
+            if ufunc.__name__ == "true_divide":
+                op = "divide"
+
             first_is_da = isinstance(inputs[0], DelayedArray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
@@ -360,7 +364,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="true_divide", right=True)
+        return _wrap_isometric_with_args(self, other, operation="divide", right=True)
 
     def __rtruediv__(self, other):
         """Divide something by a ``DelayedArray``.
@@ -374,7 +378,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="true_divide", right=False)
+        return _wrap_isometric_with_args(self, other, operation="divide", right=False)
 
     def __mod__(self, other):
         """Take the remainder after dividing a ``DelayedArray`` by something.
