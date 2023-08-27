@@ -1,4 +1,4 @@
-from typing import Literal, Tuple
+from typing import Tuple
 
 import numpy
 from numpy import dtype
@@ -11,8 +11,8 @@ __license__ = "MIT"
 
 
 class Round:
-    """Delayed rounding, resulting from :py:meth:`~numpy.round`.
-    This is very similar to :py:class:`~UnaryIsometricOpSimple` but accepts an argument for the number of decimal places.
+    """Delayed rounding, resulting from :py:meth:`~numpy.round`. This is very similar to
+    :py:class:`~UnaryIsometricOpSimple` but accepts an argument for the number of decimal places.
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
     End users should not be interacting with ``Round`` objects directly.
