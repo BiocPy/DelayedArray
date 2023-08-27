@@ -52,7 +52,6 @@ translate_ufunc_to_op_with_args = set(
         "add",
         "subtract",
         "multiply",
-        "divide",
         "true_divide",
         "remainder",
         "floor_divide",
@@ -361,7 +360,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="divide", right=True)
+        return _wrap_isometric_with_args(self, other, operation="true_divide", right=True)
 
     def __rtruediv__(self, other):
         """Divide something by a ``DelayedArray``.
@@ -375,7 +374,7 @@ class DelayedArray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed division operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="divide", right=False)
+        return _wrap_isometric_with_args(self, other, operation="true_divide", right=False)
 
     def __mod__(self, other):
         """Take the remainder after dividing a ``DelayedArray`` by something.
