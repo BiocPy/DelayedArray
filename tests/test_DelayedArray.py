@@ -604,6 +604,8 @@ def test_DelayedArray_subset():
     assert (sub.seed.subset[-1] == numpy.array([2, 3, 5])).all()
     assert (numpy.array(sub) == y[:, :, booled]).all()
 
+    stuff = x[:, :, 2]
+    assert (stuff == y[:,:,2]).all()
 
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]

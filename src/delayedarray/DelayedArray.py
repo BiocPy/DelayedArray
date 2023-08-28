@@ -741,6 +741,9 @@ class DelayedArray:
             ):
                 failed = True
                 break
+            elif not isinstance(idx, Sequence):
+                failed = True
+                break
 
         if not failed and slices == ndim - 1:
             sanitized = []
@@ -758,7 +761,7 @@ class DelayedArray:
             raise NotImplementedError(
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
             )
-        return test
+        return test.compute()
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
