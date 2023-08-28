@@ -616,6 +616,7 @@ def test_DelayedArray_subset():
     stuff = x[:, :, 2]
     assert (stuff == y[:, :, 2]).all()
 
+
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]
 #    assert stuff.shape == (3,)
