@@ -713,7 +713,9 @@ class DelayedArray:
         if len(args) < ndim:
             args = list(args) + [slice(None)] * (ndim - len(args))
         elif len(args) > ndim:
-            raise ValueError("more indices in 'args' than there are dimensions in 'seed'")
+            raise ValueError(
+                "more indices in 'args' than there are dimensions in 'seed'"
+            )
 
         # Checking if we're preserving the shape via a cross index.
         cross_index = True
