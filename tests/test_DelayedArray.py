@@ -590,11 +590,18 @@ def test_DelayedArray_subset():
         numpy.array(sub) == y[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]
     ).all()
 
+    # Works with slices for all (or all but one) dimensions.
+    sub = x[0:15, 30:50, 0:20:2]
+    assert sub.shape == (15, 20, 10)
+    assert isinstance(sub._seed, delayedarray.Subset)
+    assert (numpy.array(sub) == y[0:15, 30:50, 0:20:2]).all()
+
     sub = x[:, :, range(0, 20, 2)]
     assert sub.shape == (30, 55, 10)
     assert isinstance(sub._seed, delayedarray.Subset)
     assert (numpy.array(sub) == y[:, :, range(0, 20, 2)]).all()
 
+    # Works with booleans.
     booled = [False] * test_shape[-1]
     booled[2] = True
     booled[3] = True
@@ -604,6 +611,7 @@ def test_DelayedArray_subset():
     assert (sub.seed.subset[-1] == numpy.array([2, 3, 5])).all()
     assert (numpy.array(sub) == y[:, :, booled]).all()
 
+    # Works when fewer indices are supplied.
     sub = x[[1, 3, 5]]
     assert sub.shape == (3, 55, 20)
     assert (numpy.array(sub) == y[[1, 3, 5]]).all()
