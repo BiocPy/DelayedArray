@@ -41,7 +41,7 @@ class Subset:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Subset`` object. This may not be the same length as the ``seed`` if dimensions were discarded.
+        """Shape of the ``Subset`` object. This should be the same length as the ``seed``.
 
         Returns:
             Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Subset`` object,
