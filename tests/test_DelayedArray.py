@@ -604,6 +604,15 @@ def test_DelayedArray_subset():
     assert (sub.seed.subset[-1] == numpy.array([2, 3, 5])).all()
     assert (numpy.array(sub) == y[:, :, booled]).all()
 
+    sub = x[[1,3,5]]
+    assert sub.shape == (3, 55, 20)
+    assert (numpy.array(sub) == y[[1,3,5]]).all()
+
+    sub = x[:,[1,3,5]]
+    assert sub.shape == (30, 3, 20)
+    assert (numpy.array(sub) == y[:,[1,3,5]]).all()
+
+    # Falls back to a concrete numpy.ndarray
     stuff = x[:, :, 2]
     assert (stuff == y[:,:,2]).all()
 
