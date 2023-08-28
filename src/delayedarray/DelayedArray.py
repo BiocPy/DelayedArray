@@ -754,7 +754,7 @@ class DelayedArray:
                 failed = True
                 break
 
-        if not failed and slices == ndim - 1:
+        if not failed and slices >= ndim - 1:
             sanitized = []
             for d, idx in enumerate(args):
                 if isinstance(idx, slice):
