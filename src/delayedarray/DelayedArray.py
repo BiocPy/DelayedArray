@@ -736,11 +736,10 @@ class DelayedArray:
             if isinstance(idx, slice):
                 slices += 1
                 continue
-            elif isinstance(idx, ndarray) and (
-                not issubdtype(idx.dtype, integer) or len(idx.shape) != 1
-            ):
-                failed = True
-                break
+            elif isinstance(idx, ndarray):
+                if len(idx.shape) != 1:
+                    failed = True
+                    break
             elif not isinstance(idx, Sequence):
                 failed = True
                 break
