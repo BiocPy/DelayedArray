@@ -755,8 +755,10 @@ class DelayedArray:
         # WHATEVER. Fuck this shit. Just do whatever.
         test = self.as_dask_array()[*args]
         if len(test.shape) == ndim:
-            raise NotImplementedError("Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues.")
-        return test 
+            raise NotImplementedError(
+                "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
+            )
+        return test
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
