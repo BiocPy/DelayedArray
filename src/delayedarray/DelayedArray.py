@@ -1,7 +1,16 @@
 from typing import Sequence, Tuple, Union
 
 import numpy
-from numpy import array2string, dtype, get_printoptions, ndarray
+from numpy import (
+    array2string,
+    dtype,
+    get_printoptions,
+    ndarray,
+    integer,
+    issubdtype,
+    prod,
+    array,
+)
 from dask.array.core import Array
 
 from .Subset import Subset
@@ -677,33 +686,79 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
-    # Subsetting and combining.
+    # Subsetting.
     def __getitem__(
-        self, args: Tuple[Union[slice, Sequence[int]], ...]
+        self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
     ) -> "DelayedArray":
-        """Take a subset of this ``DelayedArray``. Unlike NumPy, the subset will be an outer product of the per-
-        dimension indices defined in ``args``; this aligns with the behavior of subsetting in R, and is equivalent to
-        using NumPy's :py:meth:`~numpy.ix_` function.
+        """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
+        :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
+        seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
-            args (Tuple[Union[slice, Sequence[int]], ...]):
+            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
                 A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
-                Each entry should contain a sequence of integer indices (e.g., a list, :py:class:`~numpy.ndarray` or :py:func:`slice`),
-                specifying the elements of the corresponding dimension to extract.
+                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a delayed subset operation.
 
         Raises:
             ValueError: If ``args`` contain more dimensions than the shape of the array.
 
         Returns:
-            A ``DelayedArray`` containing a delayed subset operation.
+            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is returned.
         """
-        sanitized = []
-        for i in range(len(args)):
-            idx = args[i]
+
+        # Checking if we're preserving the shape via a cross index.
+        ndim = len(self.shape)
+        cross_index = True
+        for d, idx in enumerate(args):
+            if (
+                not isinstance(idx, ndarray)
+                or not issubdtype(idx.dtype, integer)
+                or len(idx.shape) != ndim
+            ):
+                cross_index = False
+                break
+
+            for d2 in range(ndim):
+                if d != d2 and idx.shape[d2] != 1:
+                    cross_index = False
+                    break
+
+        if cross_index:
+            sanitized = []
+            for d, idx in enumerate(args):
+                sanitized.append(idx.reshape((prod(idx.shape),)))
+            return DelayedArray(Subset(self._seed, (*sanitized,)))
+
+        # Checking if we're preserving the shape via a slice.
+        slices = 0
+        failed = False
+        for d, idx in enumerate(args):
             if isinstance(idx, slice):
-                idx = range(*idx.indices(self._seed.shape[i]))
-            sanitized.append(idx)
-        return DelayedArray(Subset(self._seed, (*sanitized,)))
+                slices += 1
+                continue
+            elif isinstance(idx, ndarray) and (
+                not issubdtype(idx.dtype, integer) or len(idx.shape) != 1
+            ):
+                failed = True
+                break
+
+        if not failed and slices == ndim - 1:
+            sanitized = []
+            for d, idx in enumerate(args):
+                if isinstance(idx, slice):
+                    sanitized.append(range(*idx.indices(self.shape[d])))
+                else:
+                    dummy = array(range(self.shape[d]))[idx]
+                    sanitized.append(dummy)
+            return DelayedArray(Subset(self._seed, (*sanitized,)))
+
+        # WHATEVER. Fuck this shit. Just do whatever.
+        test = self.as_dask_array()[(..., *args)]
+        if len(test.shape) == ndim:
+            raise NotImplementedError(
+                "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
+            )
+        return test
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
