@@ -587,11 +587,10 @@ def test_DelayedArray_subset():
     assert isinstance(sub.seed.seed, numpy.ndarray)
     assert len(sub.seed.subset) == 3
     assert (
-        numpy.array(sub)
-        == y[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]
+        numpy.array(sub) == y[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]
     ).all()
 
-    sub = x[:,:,range(0, 20, 2)]
+    sub = x[:, :, range(0, 20, 2)]
     assert sub.shape == (30, 55, 10)
     assert isinstance(sub._seed, delayedarray.Subset)
     assert (numpy.array(sub) == y[:, :, range(0, 20, 2)]).all()
@@ -600,10 +599,11 @@ def test_DelayedArray_subset():
     booled[2] = True
     booled[3] = True
     booled[5] = True
-    sub = x[:,:,booled]
+    sub = x[:, :, booled]
     assert sub.shape == (30, 55, 3)
-    assert (sub.seed.subset[-1] == numpy.array([2,3,5])).all()
-    assert (numpy.array(sub) == y[:,:,booled]).all() 
+    assert (sub.seed.subset[-1] == numpy.array([2, 3, 5])).all()
+    assert (numpy.array(sub) == y[:, :, booled]).all()
+
 
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]

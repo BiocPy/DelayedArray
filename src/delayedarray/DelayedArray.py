@@ -1,7 +1,16 @@
 from typing import Sequence, Tuple, Union
 
 import numpy
-from numpy import array2string, dtype, get_printoptions, ndarray, integer, issubdtype, prod, array
+from numpy import (
+    array2string,
+    dtype,
+    get_printoptions,
+    ndarray,
+    integer,
+    issubdtype,
+    prod,
+    array,
+)
 from dask.array.core import Array
 
 from .Subset import Subset
@@ -677,13 +686,13 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
-    # Subsetting. 
+    # Subsetting.
     def __getitem__(
         self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
     ) -> "DelayedArray":
-        """Take a subset of this ``DelayedArray``. 
-        This follows the same logic as NumPy slicing and will generate a :py:class:`~delayedarray.Subset.Subset` object
-        when the subset operation preserves the dimensionality of the seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
+        """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
+        :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
+        seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
             args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
@@ -701,7 +710,11 @@ class DelayedArray:
         ndim = len(self.shape)
         cross_index = True
         for d, idx in enumerate(args):
-            if not isinstance(idx, ndarray) or not issubdtype(idx.dtype, integer) or len(idx.shape) != ndim:
+            if (
+                not isinstance(idx, ndarray)
+                or not issubdtype(idx.dtype, integer)
+                or len(idx.shape) != ndim
+            ):
                 cross_index = False
                 break
 
@@ -718,12 +731,14 @@ class DelayedArray:
 
         # Checking if we're preserving the shape via a slice.
         slices = 0
-        failed = False 
+        failed = False
         for d, idx in enumerate(args):
             if isinstance(idx, slice):
                 slices += 1
                 continue
-            elif isinstance(idx, ndarray) and (not issubdtype(idx.dtype, integer) or len(idx.shape) != 1):
+            elif isinstance(idx, ndarray) and (
+                not issubdtype(idx.dtype, integer) or len(idx.shape) != 1
+            ):
                 failed = True
                 break
 
@@ -739,7 +754,6 @@ class DelayedArray:
 
         # WHATEVER. Fuck this shit. Just do whatever.
         return self.as_dask_array()[*args].compute()
-
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
