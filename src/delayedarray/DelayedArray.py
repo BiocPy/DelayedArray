@@ -753,7 +753,7 @@ class DelayedArray:
             return DelayedArray(Subset(self._seed, (*sanitized,)))
 
         # WHATEVER. Fuck this shit. Just do whatever.
-        test = self.as_dask_array()[*args]
+        test = self.as_dask_array()[(..., *args)]
         if len(test.shape) == ndim:
             raise NotImplementedError(
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
