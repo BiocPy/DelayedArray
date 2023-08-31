@@ -2,8 +2,8 @@ import warnings
 from typing import Literal, Tuple, Union
 
 import numpy
-from numpy import ndarray
 from dask.array.core import Array
+from numpy import ndarray
 
 from .utils import _create_dask_array
 
@@ -45,8 +45,8 @@ class UnaryIsometricOpWithArgs:
     data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from
     integer truncation or overflow.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.
 
     Attributes:
         seed:
@@ -61,8 +61,8 @@ class UnaryIsometricOpWithArgs:
             If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.
 
             If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.
-            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the corresponding dimension of ``seed``.
-            The operation is then broadcast along that dimension.
+            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the
+            corresponding dimension of ``seed``. The operation is then broadcast along that dimension.
 
         operation (str):
             String specifying the operation.
@@ -107,7 +107,7 @@ class UnaryIsometricOpWithArgs:
                             )
                         if seed.shape[i] != value.shape[i]:
                             raise ValueError(
-                                "any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'"
+                                "any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'"  # noqa: E501
                             )
                         along = i
 
@@ -127,7 +127,8 @@ class UnaryIsometricOpWithArgs:
         ``seed`` array.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpWithArgs`` object.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the
+            ``UnaryIsometricOpWithArgs`` object.
         """
         return self._seed.shape
 

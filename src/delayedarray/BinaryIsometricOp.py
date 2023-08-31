@@ -20,8 +20,8 @@ class BinaryIsometricOp:
     data types. It is probably safest to cast at least one array to floating-point
     to avoid problems due to integer overflow.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end users should not be interacting with ``BinaryIsometricOp`` objects directly.
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. In general, end users should not be interacting with ``BinaryIsometricOp`` objects directly.
 
     Attributes:
         left:
@@ -59,7 +59,8 @@ class BinaryIsometricOp:
         ``left`` and ``right`` objects.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``BinaryIsometricOp`` object.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``BinaryIsometricOp``
+            object.
         """
         return self._left.shape
 

@@ -1,9 +1,10 @@
 from typing import Literal, Tuple
 
 import numpy
-from numpy import dtype, zeros
-from .utils import _create_dask_array
 from dask.array.core import Array
+from numpy import dtype, zeros
+
+from .utils import _create_dask_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -46,8 +47,8 @@ class UnaryIsometricOpSimple:
     similar to Bioconductor's ``DelayedArray::DelayedUnaryIsoOpStack`` class.
     This is used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
 
     Attributes:
         seed:
@@ -72,7 +73,8 @@ class UnaryIsometricOpSimple:
         ``seed`` array.
 
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpSimple`` object.
+            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpSimple``
+            object.
         """
         return self._seed.shape
 

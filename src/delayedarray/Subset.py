@@ -1,16 +1,21 @@
 from typing import Sequence, Tuple
 
-from numpy import dtype
-from .utils import _create_dask_array
 from dask.array.core import Array
+from numpy import dtype
+
+from .utils import _create_dask_array
+
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
 
 
 class Subset:
     """Delayed subset operation, based on Bioconductor's ``DelayedArray::DelayedSubset`` class.
     This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end users should not be interacting with ``Subset`` objects directly.
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. In general, end users should not be interacting with ``Subset`` objects directly.
 
     Attributes:
         seed:

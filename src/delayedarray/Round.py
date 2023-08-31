@@ -1,9 +1,10 @@
 from typing import Tuple
 
 import numpy
-from numpy import dtype
-from .utils import _create_dask_array
 from dask.array.core import Array
+from numpy import dtype
+
+from .utils import _create_dask_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -14,8 +15,8 @@ class Round:
     """Delayed rounding, resulting from :py:meth:`~numpy.round`. This is very similar to
     :py:class:`~UnaryIsometricOpSimple` but accepts an argument for the number of decimal places.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    End users should not be interacting with ``Round`` objects directly.
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. End users should not be interacting with ``Round`` objects directly.
 
     Attributes:
         seed:

@@ -1,16 +1,23 @@
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
-from numpy import dtype, transpose
-from .utils import _create_dask_array
 from dask.array.core import Array
+from numpy import dtype, transpose
+
+from .utils import _create_dask_array
+
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
 
 
 class Transpose:
     """Delayed transposition, based on Bioconductor's ``DelayedArray::DelayedAperm`` class.
-    This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the dimensions.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end users should not be interacting with ``Transpose`` objects directly.
+    This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the
+    dimensions.
+
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. In general, end users should not be interacting with ``Transpose`` objects directly.
 
     Attributes:
         seed:

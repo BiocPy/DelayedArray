@@ -15,12 +15,12 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
+from .BinaryIsometricOp import BinaryIsometricOp
+from .Cast import Cast
+from .Combine import Combine
 from .DelayedArray import DelayedArray
+from .Round import Round
+from .Subset import Subset
+from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .BinaryIsometricOp import BinaryIsometricOp
-from .Subset import Subset
-from .Combine import Combine
-from .Transpose import Transpose
-from .Cast import Cast
-from .Round import Round
