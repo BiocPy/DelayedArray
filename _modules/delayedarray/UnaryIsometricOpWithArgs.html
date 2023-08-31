@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.4 and Furo 2023.08.19 -->
-        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.1.4 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.1.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -203,8 +203,8 @@
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
 <span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
 
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
 
@@ -248,8 +248,8 @@
 <span class="sd">    data types. We suggest supplying a floating-point ``value`` to avoid unexpected results from</span>
 <span class="sd">    integer truncation or overflow.</span>
 
-<span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.</span>
-<span class="sd">    In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.</span>
+<span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`</span>
+<span class="sd">    instances. In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        seed:</span>
@@ -264,8 +264,8 @@
 <span class="sd">            If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.</span>
 
 <span class="sd">            If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.</span>
-<span class="sd">            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the corresponding dimension of ``seed``.</span>
-<span class="sd">            The operation is then broadcast along that dimension.</span>
+<span class="sd">            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the</span>
+<span class="sd">            corresponding dimension of ``seed``. The operation is then broadcast along that dimension.</span>
 
 <span class="sd">        operation (str):</span>
 <span class="sd">            String specifying the operation.</span>
@@ -310,7 +310,7 @@
                             <span class="p">)</span>
                         <span class="k">if</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
                             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                <span class="s2">&quot;any entry of &#39;value.shape&#39; that is not 1 should be equal to the corresponding entry of &#39;seed.shape&#39;&quot;</span>
+                                <span class="s2">&quot;any entry of &#39;value.shape&#39; that is not 1 should be equal to the corresponding entry of &#39;seed.shape&#39;&quot;</span>  <span class="c1"># noqa: E501</span>
                             <span class="p">)</span>
                         <span class="n">along</span> <span class="o">=</span> <span class="n">i</span>
 
@@ -330,7 +330,8 @@
 <span class="sd">        ``seed`` array.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpWithArgs`` object.</span>
+<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the</span>
+<span class="sd">            ``UnaryIsometricOpWithArgs`` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
 
@@ -440,7 +441,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=fd825880"></script>
+</div><script src="../../_static/documentation_options.js?v=59fadc99"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

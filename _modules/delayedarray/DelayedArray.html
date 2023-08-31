@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.4 and Furo 2023.08.19 -->
-        <title>delayedarray.DelayedArray - DelayedArray 0.1.4 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>delayedarray.DelayedArray - DelayedArray 0.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.1.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -202,27 +202,27 @@
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">array</span><span class="p">,</span>
     <span class="n">array2string</span><span class="p">,</span>
     <span class="n">dtype</span><span class="p">,</span>
     <span class="n">get_printoptions</span><span class="p">,</span>
-    <span class="n">ndarray</span><span class="p">,</span>
     <span class="n">integer</span><span class="p">,</span>
     <span class="n">issubdtype</span><span class="p">,</span>
+    <span class="n">ndarray</span><span class="p">,</span>
     <span class="n">prod</span><span class="p">,</span>
-    <span class="n">array</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 
-<span class="kn">from</span> <span class="nn">.Subset</span> <span class="kn">import</span> <span class="n">Subset</span>
+<span class="kn">from</span> <span class="nn">.BinaryIsometricOp</span> <span class="kn">import</span> <span class="n">BinaryIsometricOp</span>
+<span class="kn">from</span> <span class="nn">.Cast</span> <span class="kn">import</span> <span class="n">Cast</span>
 <span class="kn">from</span> <span class="nn">.Combine</span> <span class="kn">import</span> <span class="n">Combine</span>
+<span class="kn">from</span> <span class="nn">.Round</span> <span class="kn">import</span> <span class="n">Round</span>
+<span class="kn">from</span> <span class="nn">.Subset</span> <span class="kn">import</span> <span class="n">Subset</span>
+<span class="kn">from</span> <span class="nn">.Transpose</span> <span class="kn">import</span> <span class="n">Transpose</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpSimple</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpSimple</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpWithArgs</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpWithArgs</span>
-<span class="kn">from</span> <span class="nn">.BinaryIsometricOp</span> <span class="kn">import</span> <span class="n">BinaryIsometricOp</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
-<span class="kn">from</span> <span class="nn">.Transpose</span> <span class="kn">import</span> <span class="n">Transpose</span>
-<span class="kn">from</span> <span class="nn">.Cast</span> <span class="kn">import</span> <span class="n">Cast</span>
-<span class="kn">from</span> <span class="nn">.Round</span> <span class="kn">import</span> <span class="n">Round</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -311,17 +311,20 @@
 <div class="viewcode-block" id="DelayedArray">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray">[docs]</a>
 <span class="k">class</span> <span class="nc">DelayedArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing delayed operations. This is equivalent to the class of the same name from</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing delayed operations.</span>
+
+<span class="sd">    This is equivalent to the class of the same name from</span>
 <span class="sd">    the `R/Bioconductor package &lt;https://bioconductor.org/packages/DelayedArray&gt;`_ of the same name.</span>
 <span class="sd">    It allows users to efficiently operate on large matrices without actually evaluating the</span>
-<span class="sd">    operation or creating new copies; instead, the operations will transparently return another ``DelayedArray`` instance</span>
-<span class="sd">    containing the delayed operations, which can be realized by calling :py:meth:`~numpy.array` or related methods.</span>
+<span class="sd">    operation or creating new copies; instead, the operations will transparently return another ``DelayedArray``</span>
+<span class="sd">    instance containing the delayed operations, which can be realized by calling :py:meth:`~numpy.array` or related</span>
+<span class="sd">    methods.</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        seed:</span>
-<span class="sd">            Any array-like object that satisfies the seed contract.</span>
+<span class="sd">        seed: Any array-like object that satisfies the seed contract.</span>
 <span class="sd">            This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.</span>
-<span class="sd">            It should also have either an :py:attr`~as_dask_array` method or be usable in :py:meth:`~dask.array.from_array`.</span>
+<span class="sd">            It should also have either an :py:attr`~as_dask_array` method or be usable in</span>
+<span class="sd">            :py:meth:`~dask.array.from_array`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
@@ -418,9 +421,12 @@
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_ufunc__">[docs]</a>
     <span class="k">def</span> <span class="nf">__array_ufunc__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ufunc</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DelayedArray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface with NumPy array methods.</span>
+
 <span class="sd">        This is used to implement mathematical operations like NumPy&#39;s :py:meth:`~numpy.log`,</span>
-<span class="sd">        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the left hand side.</span>
-<span class="sd">        Check out the NumPy&#39;s ``__array_ufunc__`` `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__&gt;`_ for more details.</span>
+<span class="sd">        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the</span>
+<span class="sd">        left hand side. Check out the NumPy&#39;s ``__array_ufunc__``</span>
+<span class="sd">        `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__&gt;`_ for</span>
+<span class="sd">        more details.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.</span>
@@ -461,7 +467,9 @@
     <span class="k">def</span> <span class="nf">__array_function__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface to NumPy&#39;s high-level array functions.</span>
 <span class="sd">        This is used to implement array operations like NumPy&#39;s :py:meth:`~numpy.concatenate`,</span>
-<span class="sd">        Check out the NumPy&#39;s ``__array_function__`` `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__&gt;`_ for more details.</span>
+<span class="sd">        Check out the NumPy&#39;s ``__array_function__``</span>
+<span class="sd">        `documentation &lt;https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__&gt;`_</span>
+<span class="sd">        for more details.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.</span>
@@ -515,7 +523,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -532,7 +541,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -549,7 +559,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -566,7 +577,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -583,7 +595,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -600,7 +613,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -617,7 +631,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -634,7 +649,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -651,7 +667,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -668,7 +685,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -687,7 +705,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -706,7 +725,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -725,7 +745,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -742,7 +763,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -759,7 +781,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -776,7 +799,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -793,7 +817,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -810,7 +835,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -829,7 +855,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -848,7 +875,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -867,7 +895,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -886,7 +915,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -905,7 +935,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -922,7 +953,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -939,7 +971,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -956,7 +989,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            other:</span>
 <span class="sd">                A numeric scalar;</span>
-<span class="sd">                or a NumPy array with dimensions as described in :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
+<span class="sd">                or a NumPy array with dimensions as described in</span>
+<span class="sd">                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;</span>
 <span class="sd">                or any seed object of the same dimensions as :py:attr:`~shape`.</span>
 
 <span class="sd">        Returns:</span>
@@ -1001,14 +1035,15 @@
 <span class="sd">        Args:</span>
 <span class="sd">            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):</span>
 <span class="sd">                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.</span>
-<span class="sd">                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a delayed subset operation.</span>
+<span class="sd">                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a</span>
+<span class="sd">                delayed subset operation.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If ``args`` contain more dimensions than the shape of the array.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is returned.</span>
-<span class="sd">            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.</span>
+<span class="sd">            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is</span>
+<span class="sd">            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -1072,7 +1107,8 @@
         <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">ndim</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;Oops. Looks like the DelayedArray doesn&#39;t correctly handle this combination of index types, but it probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues.&quot;</span>
+                <span class="s2">&quot;Oops. Looks like the DelayedArray doesn&#39;t correctly handle this combination of index types, but it &quot;</span>
+                <span class="s2">&quot;probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">test</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
 
@@ -1142,7 +1178,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=fd825880"></script>
+</div><script src="../../_static/documentation_options.js?v=59fadc99"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

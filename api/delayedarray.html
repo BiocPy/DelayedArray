@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="delayedarray" href="modules.html" />
 
-    <!-- Generated with Sphinx 7.2.4 and Furo 2023.08.19 -->
-        <title>delayedarray package - DelayedArray 0.1.4 documentation</title>
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>delayedarray package - DelayedArray 0.1.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">DelayedArray 0.1.4 documentation</div></a>
+      <a href="../index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -216,8 +216,8 @@ This is based on Bioconductor’s <code class="docutils literal notranslate"><sp
 <p>The data type of the result is determined by NumPy casting given the <code class="docutils literal notranslate"><span class="pre">seed</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code>
 data types. It is probably safest to cast at least one array to floating-point
 to avoid problems due to integer overflow.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.BinaryIsometricOp.BinaryIsometricOp.left">
 <span class="sig-name descname"><span class="pre">left</span></span><a class="headerlink" href="#delayedarray.BinaryIsometricOp.BinaryIsometricOp.left" title="Link to this definition">#</a></dt>
@@ -315,7 +315,8 @@ objects, depending on how NumPy does the casting for the requested operation.</p
 <code class="docutils literal notranslate"><span class="pre">left</span></code> and <code class="docutils literal notranslate"><span class="pre">right</span></code> objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp</span></code> object.</p>
+<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">BinaryIsometricOp</span></code>
+object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a>, …]</p>
@@ -334,8 +335,8 @@ objects, depending on how NumPy does the casting for the requested operation.</p
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Delayed cast to a different NumPy type. This is most useful for promoting integer matrices to floating point to
 avoid problems with integer overflow in arithmetic operations.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-End users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Cast</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. End users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Cast</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.Cast.Cast.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.Cast.Cast.seed" title="Link to this definition">#</a></dt>
@@ -416,10 +417,11 @@ see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray"
 <dt class="sig sig-object py" id="delayedarray.Combine.Combine">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">delayedarray.Combine.</span></span><span class="sig-name descname"><span class="pre">Combine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><span class="pre">list</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">along</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/Combine.html#Combine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.Combine.Combine" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Delayed combine operation, based on Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedAbind</span></code> class.
-This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are the same.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Combine</span></code> objects directly.</p>
+<p>Delayed combine operation, based on Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedAbind</span></code> class.</p>
+<p>This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are
+the same.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Combine</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.Combine.Combine.seeds">
 <span class="sig-name descname"><span class="pre">seeds</span></span><a class="headerlink" href="#delayedarray.Combine.Combine.seeds" title="Link to this definition">#</a></dt>
@@ -524,17 +526,20 @@ rules.</p>
 <dt class="sig sig-object py" id="delayedarray.DelayedArray.DelayedArray">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">delayedarray.DelayedArray.</span></span><span class="sig-name descname"><span class="pre">DelayedArray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/DelayedArray.html#DelayedArray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.DelayedArray.DelayedArray" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Array containing delayed operations. This is equivalent to the class of the same name from
+<p>Array containing delayed operations.</p>
+<p>This is equivalent to the class of the same name from
 the <a class="reference external" href="https://bioconductor.org/packages/DelayedArray">R/Bioconductor package</a> of the same name.
 It allows users to efficiently operate on large matrices without actually evaluating the
-operation or creating new copies; instead, the operations will transparently return another <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> instance
-containing the delayed operations, which can be realized by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">array()</span></code> or related methods.</p>
+operation or creating new copies; instead, the operations will transparently return another <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>
+instance containing the delayed operations, which can be realized by calling <code class="xref py py-meth docutils literal notranslate"><span class="pre">array()</span></code> or related
+methods.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.DelayedArray.DelayedArray.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.DelayedArray.DelayedArray.seed" title="Link to this definition">#</a></dt>
 <dd><p>Any array-like object that satisfies the seed contract.
 This means that it has the <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a> and <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.dtype" title="delayedarray.DelayedArray.DelayedArray.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code></a> properties.
-It should also have either an :py:attr`~as_dask_array` method or be usable in <code class="xref py py-meth docutils literal notranslate"><span class="pre">from_array()</span></code>.</p>
+It should also have either an :py:attr`~as_dask_array` method or be usable in
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">from_array()</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -572,7 +577,8 @@ It should also have either an :py:attr`~as_dask_array` method or be usable in <c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -604,7 +610,9 @@ This is guaranteed to be in C-contiguous order and to not be a view on other dat
 <span class="sig-name descname"><span class="pre">__array_function__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/DelayedArray.html#DelayedArray.__array_function__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.DelayedArray.DelayedArray.__array_function__" title="Link to this definition">#</a></dt>
 <dd><p>Interface to NumPy’s high-level array functions.
 This is used to implement array operations like NumPy’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">concatenate()</span></code>,
-Check out the NumPy’s <code class="docutils literal notranslate"><span class="pre">__array_function__</span></code> <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__">documentation</a> for more details.</p>
+Check out the NumPy’s <code class="docutils literal notranslate"><span class="pre">__array_function__</span></code>
+<a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__">documentation</a>
+for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> instance containing the requested delayed operation.</p>
@@ -618,10 +626,12 @@ Check out the NumPy’s <code class="docutils literal notranslate"><span class="
 <dl class="py method">
 <dt class="sig sig-object py" id="delayedarray.DelayedArray.DelayedArray.__array_ufunc__">
 <span class="sig-name descname"><span class="pre">__array_ufunc__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ufunc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><span class="pre">DelayedArray</span></a></span></span><a class="reference internal" href="../_modules/delayedarray/DelayedArray.html#DelayedArray.__array_ufunc__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.DelayedArray.DelayedArray.__array_ufunc__" title="Link to this definition">#</a></dt>
-<dd><p>Interface with NumPy array methods.
-This is used to implement mathematical operations like NumPy’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">log()</span></code>,
-or to override operations between NumPy class instances and <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> objects where the former is on the left hand side.
-Check out the NumPy’s <code class="docutils literal notranslate"><span class="pre">__array_ufunc__</span></code> <a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__">documentation</a> for more details.</p>
+<dd><p>Interface with NumPy array methods.</p>
+<p>This is used to implement mathematical operations like NumPy’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">log()</span></code>,
+or to override operations between NumPy class instances and <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> objects where the former is on the
+left hand side. Check out the NumPy’s <code class="docutils literal notranslate"><span class="pre">__array_ufunc__</span></code>
+<a class="reference external" href="https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__">documentation</a> for
+more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> instance containing the requested delayed operation.</p>
@@ -639,7 +649,8 @@ Check out the NumPy’s <code class="docutils literal notranslate"><span class="
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -658,7 +669,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -677,7 +689,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -698,14 +711,15 @@ seed, i.e., <code class="docutils literal notranslate"><span class="pre">args</s
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>Tuple</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#slice" title="(in Python v3.9)"><em>slice</em></a><em>, </em><em>Sequence</em><em>[</em><em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a><em>]</em><em>]</em><em>]</em><em>, </em><em>...</em><em>]</em>) – A <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of length equal to the dimensionality of this <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>.
-Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a delayed subset operation.</p>
+Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
+delayed subset operation.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">args</span></code> contain more dimensions than the shape of the array.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>If the dimensionality is preserved by <code class="docutils literal notranslate"><span class="pre">args</span></code>, a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing a delayed subset operation is returned.
-Otherwise, a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> is returned containing the realized subset.</p>
+<dd class="field-odd"><p>If the dimensionality is preserved by <code class="docutils literal notranslate"><span class="pre">args</span></code>, a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing a delayed subset operation is
+returned. Otherwise, a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.25)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> is returned containing the realized subset.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -717,7 +731,8 @@ Otherwise, a <a class="reference external" href="https://numpy.org/doc/stable/re
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -741,7 +756,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -760,7 +776,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -779,7 +796,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -798,7 +816,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -817,7 +836,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -850,7 +870,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -869,7 +890,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -903,7 +925,8 @@ options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -922,7 +945,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -941,7 +965,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -960,7 +985,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -979,7 +1005,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -998,7 +1025,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1017,7 +1045,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1036,7 +1065,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1055,7 +1085,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1074,7 +1105,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1093,7 +1125,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1112,7 +1145,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1131,7 +1165,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1150,7 +1185,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>other</strong> – A numeric scalar;
-or a NumPy array with dimensions as described in <a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
+or a NumPy array with dimensions as described in
+<a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs" title="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code></a>;
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -1251,8 +1287,8 @@ or any seed object of the same dimensions as <a class="reference internal" href=
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Delayed rounding, resulting from <code class="xref py py-meth docutils literal notranslate"><span class="pre">round()</span></code>. This is very similar to
 <code class="xref py py-class docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code> but accepts an argument for the number of decimal places.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-End users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Round</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. End users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Round</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.Round.Round.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.Round.Round.seed" title="Link to this definition">#</a></dt>
@@ -1349,8 +1385,8 @@ see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray"
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Delayed subset operation, based on Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedSubset</span></code> class.
 This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Subset</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Subset</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.Subset.Subset.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.Subset.Subset.seed" title="Link to this definition">#</a></dt>
@@ -1450,10 +1486,11 @@ extent of the dimension. Unsorted and/or duplicate indices are allowed.</p>
 <dt class="sig sig-object py" id="delayedarray.Transpose.Transpose">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">delayedarray.Transpose.</span></span><span class="sig-name descname"><span class="pre">Transpose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/constants.html#None" title="(in Python v3.9)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/Transpose.html#Transpose"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.Transpose.Transpose" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Delayed transposition, based on Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedAperm</span></code> class.
-This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the dimensions.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Transpose</span></code> objects directly.</p>
+<p>Delayed transposition, based on Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedAperm</span></code> class.</p>
+<p>This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the
+dimensions.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. In general, end users should not be interacting with <code class="docutils literal notranslate"><span class="pre">Transpose</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.Transpose.Transpose.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.Transpose.Transpose.seed" title="Link to this definition">#</a></dt>
@@ -1553,8 +1590,8 @@ If None, the dimension ordering is assumed to be reversed.</p>
 <p>Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments,
 similar to Bioconductor’s <code class="docutils literal notranslate"><span class="pre">DelayedArray::DelayedUnaryIsoOpStack</span></code> class.
 This is used for simple mathematical operations like NumPy’s <code class="xref py py-meth docutils literal notranslate"><span class="pre">log()</span></code>.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-End-users should not be interacting with <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. End-users should not be interacting with <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.seed" title="Link to this definition">#</a></dt>
@@ -1634,7 +1671,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 <code class="docutils literal notranslate"><span class="pre">seed</span></code> array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code> object.</p>
+<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpSimple</span></code>
+object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a>, …]</p>
@@ -1658,8 +1696,8 @@ Only one n-dimensional array is involved here, hence the “unary” in the name
 <p>The data type of the result is determined by NumPy casting given the <code class="docutils literal notranslate"><span class="pre">seed</span></code> and <code class="docutils literal notranslate"><span class="pre">value</span></code>
 data types. We suggest supplying a floating-point <code class="docutils literal notranslate"><span class="pre">value</span></code> to avoid unexpected results from
 integer truncation or overflow.</p>
-<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> instances.
-In general, end-users should not be interacting with <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code> objects directly.</p>
+<p>This class is intended for developers to construct new <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
+instances. In general, end-users should not be interacting with <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code> objects directly.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.seed" title="Link to this definition">#</a></dt>
@@ -1674,8 +1712,8 @@ see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray"
 <p>If scalar, the operation is applied element-wise to all entries of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
 <p>If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
 <p>If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.
-All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the corresponding dimension of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.
-The operation is then broadcast along that dimension.</p>
+All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the
+corresponding dimension of <code class="docutils literal notranslate"><span class="pre">seed</span></code>. The operation is then broadcast along that dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Union[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)">float</a>, ndarray]</p>
@@ -1797,7 +1835,8 @@ depending on how NumPy does the casting for the requested operation.</p>
 <code class="docutils literal notranslate"><span class="pre">seed</span></code> array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the <code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code> object.</p>
+<dd class="field-odd"><p>Tuple of integers specifying the extent of each dimension of the
+<code class="docutils literal notranslate"><span class="pre">UnaryIsometricOpWithArgs</span></code> object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Tuple[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)">int</a>, …]</p>
@@ -2053,7 +2092,7 @@ This can be a numeric scalar or a NumPy array.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=fd825880"></script>
+</div><script src="../_static/documentation_options.js?v=59fadc99"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
