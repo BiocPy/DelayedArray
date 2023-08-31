@@ -723,7 +723,7 @@ class DelayedArray:
     # Subsetting.
     def __getitem__(
         self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
-    ) -> "DelayedArray":
+    ) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
@@ -738,12 +738,21 @@ class DelayedArray:
             ValueError: If ``args`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation
-            is returned.
+            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is 
+            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
 
-        # Checking if we're preserving the shape via a cross index.
         ndim = len(self.shape)
+        if not isinstance(args, tuple):
+            args = [args] + [slice(None)] * (ndim - 1)
+        if len(args) < ndim:
+            args = list(args) + [slice(None)] * (ndim - len(args))
+        elif len(args) > ndim:
+            raise ValueError(
+                "more indices in 'args' than there are dimensions in 'seed'"
+            )
+
+        # Checking if we're preserving the shape via a cross index.
         cross_index = True
         for d, idx in enumerate(args):
             if (
@@ -772,13 +781,15 @@ class DelayedArray:
             if isinstance(idx, slice):
                 slices += 1
                 continue
-            elif isinstance(idx, ndarray) and (
-                not issubdtype(idx.dtype, integer) or len(idx.shape) != 1
-            ):
+            elif isinstance(idx, ndarray):
+                if len(idx.shape) != 1:
+                    failed = True
+                    break
+            elif not isinstance(idx, Sequence):
                 failed = True
                 break
 
-        if not failed and slices == ndim - 1:
+        if not failed and slices >= ndim - 1:
             sanitized = []
             for d, idx in enumerate(args):
                 if isinstance(idx, slice):
@@ -795,7 +806,7 @@ class DelayedArray:
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
                 "probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
             )
-        return test
+        return test.compute()
 
     # For python-level compute.
     def as_dask_array(self) -> Array:
