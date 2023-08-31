@@ -1,7 +1,7 @@
 from typing import Sequence, Tuple
 
 from dask.array.core import Array
-from numpy import dtype
+from numpy import dtype, ndarray
 
 from .utils import create_dask_array, extract_array, _densify
 

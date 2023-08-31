@@ -1,6 +1,5 @@
-from typing import Tuple
+from typing import Tuple, Sequence
 
-from .utils import _create_dask_array, _extract_array
 from dask.array.core import Array
 from numpy import dtype
 
@@ -63,7 +62,7 @@ class Cast:
         target = create_dask_array(self._seed)
         return target.astype(self._dtype)
 
-    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         s = extract_array(self.seed, subset)
         try:

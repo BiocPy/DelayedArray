@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Sequence
 
 from dask.array.core import Array
 from numpy import concatenate, dtype, ndarray
@@ -100,7 +100,7 @@ class Combine:
             extracted.append(create_dask_array(x))
         return concatenate((*extracted,), axis=self._along)
 
-    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         # Figuring out which slices belong to who.
         chosen = subset[self._along]

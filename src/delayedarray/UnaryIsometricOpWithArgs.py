@@ -1,5 +1,5 @@
 import warnings
-from typing import Literal, Tuple, Union
+from typing import Literal, Tuple, Union, Sequence
 
 import numpy
 from dask.array.core import Array

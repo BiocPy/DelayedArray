@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Sequence
 
 from dask.array.core import Array
 from numpy import dtype, transpose
@@ -94,7 +94,11 @@ class Transpose:
 
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self._seed, subset)
+        permsub = [None] * len(subset)
+        for i, j in enumerate(self._perm):
+            permsub[j] = subset[i]
+
+        target = extract_array(self._seed, (*permsub,))
         try:
             return transpose(target, axes=self._perm)
         except:

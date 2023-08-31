@@ -21,7 +21,7 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import create_dask_array, extract_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -205,7 +205,7 @@ class DelayedArray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        return self.as_dask_array().compute()
+        return _densify(extract_array(self._seed))
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
@@ -805,7 +805,7 @@ class DelayedArray:
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
                 "probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
             )
-        return test.compute()
+        return test
 
     # For python-level compute.
     def sum(self, *args, **kwargs):

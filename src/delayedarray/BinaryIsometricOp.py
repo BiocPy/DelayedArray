@@ -108,7 +108,7 @@ class BinaryIsometricOp:
         rs = create_dask_array(self._right)
         return f(ls, rs)
 
-    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         ls = extract_array(self._left, subset)
         rs = extract_array(self._right, subset)

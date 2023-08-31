@@ -1,4 +1,4 @@
-from typing import Literal, Tuple
+from typing import Literal, Tuple, Sequence
 
 import numpy
 from dask.array.core import Array
@@ -115,6 +115,7 @@ class UnaryIsometricOpSimple:
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         target = extract_array(self._seed, subset)
+        f = _choose_operator(self._op)
         try:
             return f(target)
         except:
