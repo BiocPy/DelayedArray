@@ -738,7 +738,7 @@ class DelayedArray:
             ValueError: If ``args`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is 
+            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
 
