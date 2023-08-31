@@ -4,7 +4,7 @@ from .utils import _create_dask_array, _extract_array
 from dask.array.core import Array
 from numpy import dtype
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -49,22 +49,6 @@ class Cast:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed cast.
-
-        Returns:
-            Array: dask array with the delayed cast.
-        """
-        target = _create_dask_array(self._seed)
-        return target.astype(self._dtype)
-
-    def __DelayedArray__extract__(self, args):
-        s = _extract_array(self.seed, args)
-        try:
-            return s.astype(self._dtype)
-        except:
-            return numpy.array(s, dtype=self._dtype)
-
     @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
@@ -73,3 +57,17 @@ class Cast:
             The seed object.
         """
         return self._seed
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        return target.astype(self._dtype)
+
+    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        s = extract_array(self.seed, subset)
+        try:
+            return s.astype(self._dtype)
+        except:
+            s = _densify(s)
+            return s.astype(self._dtype)

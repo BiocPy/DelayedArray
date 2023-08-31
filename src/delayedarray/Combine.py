@@ -3,7 +3,7 @@ from typing import Tuple
 from dask.array.core import Array
 from numpy import concatenate, dtype, ndarray
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -93,20 +93,17 @@ class Combine:
         """
         return self._along
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed combination of arrays.
-
-        Returns:
-            Array: dask array with the delayed combination.
-        """
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         extracted = []
         for x in self._seeds:
-            extracted.append(_create_dask_array(x))
+            extracted.append(create_dask_array(x))
         return concatenate((*extracted,), axis=self._along)
 
-    def __DelayedArray__extract__(self, args):
+    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
         # Figuring out which slices belong to who.
-        chosen = args[self._along]
+        chosen = subset[self._along]
         limit = 0
         fragmented = []
         position = 0
@@ -120,15 +117,15 @@ class Combine:
             fragmented.append(current)
 
         extracted = []
-        flexargs = list(args)
+        flexargs = list(subset)
         for i, x in enumerate(self._seeds):
             if len(fragmented[i]):
                 flexargs[self._along] = fragmented[i]
-                extracted.append(_extract_array(x, (*flexargs,)))
+                extracted.append(extract_array(x, (*flexargs,)))
 
         try:
             return concatenate((*extracted,), axis=self.along)
         except:
             for i, x in enumerate(extracted):
-                extracted[i] = numpy.array(x)
+                extracted[i] = _densify(x)
             return concatenate((*extracted,), axis=self.along)

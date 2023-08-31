@@ -5,7 +5,7 @@ import numpy
 from dask.array.core import Array
 
 from .UnaryIsometricOpWithArgs import OP, _choose_operator
-from .utils import _create_dask_array, _extract_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -102,34 +102,20 @@ class BinaryIsometricOp:
         return self._op
 
     def __DelayedArray_dask__(self) -> Array:
-        """Create a dask array containing the delayed operation.
-
-        Returns:
-            Array: dask array with the delayed binary operation.
-        """
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         f = _choose_operator(self._op)
-        return f(_create_dask_array(self._left), _create_dask_array(self._right))
+        ls = create_dask_array(self._left)
+        rs = create_dask_array(self._right)
+        return f(ls, rs)
 
     def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
-        """Extract the realized contents (or a subset thereof) into some NumPy-like array. 
-
-        Args:
-            subset (Tuple[Sequence[int]]): Tuple of length equal to the number of dimensions,
-                each containing a sorted and unique sequence of integers specifying the
-                elements of each dimension to extract.
-
-        Returns:
-            Some array-like object where the binary operation has been evaluated
-            for the specified ``subset``.
-        """
-        ls = _extract_array(self._left, args)
-        rs = _extract_array(self._right, args)
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        ls = extract_array(self._left, subset)
+        rs = extract_array(self._right, subset)
         f = _choose_operator(self._op)
         try:
             return f(ls, rs)
         except:
-            ls = numpy.array(ls)
-            rs = numpy.array(rs)
+            ls = _densify(ls)
+            rs = _densify(rs)
             return f(ls, rs)
-
-

@@ -4,7 +4,7 @@ import numpy
 from dask.array.core import Array
 from numpy import dtype, zeros
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -88,16 +88,6 @@ class UnaryIsometricOpSimple:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed unary operation.
-
-        Returns:
-            Array: dask array with the delayed unary operation.
-        """
-        target = _create_dask_array(self._seed)
-        f = _choose_operator(self._op)
-        return f(target)
-
     @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
@@ -115,3 +105,18 @@ class UnaryIsometricOpSimple:
             str: Name of the operation.
         """
         return self._op
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        f = _choose_operator(self._op)
+        return f(target)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        target = extract_array(self._seed, subset)
+        try:
+            return f(target)
+        except:
+            target = _densify(target)
+            return f(target)

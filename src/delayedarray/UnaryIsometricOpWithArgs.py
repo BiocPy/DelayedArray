@@ -5,7 +5,7 @@ import numpy
 from dask.array.core import Array
 from numpy import ndarray
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -142,20 +142,6 @@ class UnaryIsometricOpWithArgs:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed operation.
-
-        Returns:
-            Array: dask array with the delayed subset.
-        """
-        target = _create_dask_array(self._seed)
-        operand = self._value
-        f = _choose_operator(self._op)
-        if self._right:
-            return f(target, operand)
-        else:
-            return f(operand, target)
-
     @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
@@ -202,3 +188,40 @@ class UnaryIsometricOpWithArgs:
             Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.
         """
         return self._along
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        operand = self._value
+        f = _choose_operator(self._op)
+        if self._right:
+            return f(target, operand)
+        else:
+            return f(operand, target)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        target = extract_array(self._seed, subset)
+
+        subvalue = self._value
+        if isinstance(subvalue, ndarray):
+            if len(subvalue.shape) == 1:
+                subvalue = subvalue[subset[-1]]
+            else:
+                resub = [slice(None)] * len(subset)
+                subdim = self.along
+                resub[subdim] = subset[subdim]
+                subvalue = subvalue[(*resub,)]
+
+        f = _choose_operator(self._op)
+        try:
+            if self._right:
+                return f(target, subvalue)
+            else:
+                return f(subvalue, target)
+        except:
+            target = _densify(target)
+            if self._right:
+                return f(target, subvalue)
+            else:
+                return f(subvalue, target)

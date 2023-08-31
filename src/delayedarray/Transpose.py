@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from dask.array.core import Array
 from numpy import dtype, transpose
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -87,11 +87,16 @@ class Transpose:
         """
         return self._perm
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed transposition.
-
-        Returns:
-            Array: dask array with the delayed transposition.
-        """
-        target = _create_dask_array(self._seed)
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
         return transpose(target, axes=self._perm)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        target = extract_array(self._seed, subset)
+        try:
+            return transpose(target, axes=self._perm)
+        except:
+            target = _densify(target)
+            return transpose(target, axes=self._perm)
