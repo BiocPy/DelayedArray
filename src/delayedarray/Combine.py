@@ -103,3 +103,32 @@ class Combine:
         for x in self._seeds:
             extracted.append(_create_dask_array(x))
         return concatenate((*extracted,), axis=self._along)
+
+    def __DelayedArray__extract__(self, args):
+        # Figuring out which slices belong to who.
+        chosen = args[self._along]
+        limit = 0
+        fragmented = []
+        position = 0
+        for x in self._seeds:
+            start = limit
+            limit += x.shape[self._along]
+            current = []
+            while position < len(chosen) and chosen[position] < limit:
+                current.append(chosen[position] - start)
+                position += 1
+            fragmented.append(current)
+
+        extracted = []
+        flexargs = list(args)
+        for i, x in enumerate(self._seeds):
+            if len(fragmented[i]):
+                flexargs[self._along] = fragmented[i]
+                extracted.append(_extract_array(x, (*flexargs,)))
+
+        try:
+            return concatenate((*extracted,), axis=self.along)
+        except:
+            for i, x in enumerate(extracted):
+                extracted[i] = numpy.array(x)
+            return concatenate((*extracted,), axis=self.along)

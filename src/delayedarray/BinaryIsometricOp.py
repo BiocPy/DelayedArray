@@ -1,11 +1,11 @@
 import warnings
-from typing import Tuple
+from typing import Tuple, Sequence
 
 import numpy
 from dask.array.core import Array
 
 from .UnaryIsometricOpWithArgs import OP, _choose_operator
-from .utils import _create_dask_array
+from .utils import _create_dask_array, _extract_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -74,15 +74,6 @@ class BinaryIsometricOp:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed operation.
-
-        Returns:
-            Array: dask array with the delayed subset.
-        """
-        f = _choose_operator(self._op)
-        return f(_create_dask_array(self._left), _create_dask_array(self._right))
-
     @property
     def left(self):
         """Get the left operand satisfying the seed contract.
@@ -109,3 +100,36 @@ class BinaryIsometricOp:
             str: Name of the operation.
         """
         return self._op
+
+    def __DelayedArray_dask__(self) -> Array:
+        """Create a dask array containing the delayed operation.
+
+        Returns:
+            Array: dask array with the delayed binary operation.
+        """
+        f = _choose_operator(self._op)
+        return f(_create_dask_array(self._left), _create_dask_array(self._right))
+
+    def __DelayedArray__extract__(self, subset: Tuple[Sequence[int]]):
+        """Extract the realized contents (or a subset thereof) into some NumPy-like array. 
+
+        Args:
+            subset (Tuple[Sequence[int]]): Tuple of length equal to the number of dimensions,
+                each containing a sorted and unique sequence of integers specifying the
+                elements of each dimension to extract.
+
+        Returns:
+            Some array-like object where the binary operation has been evaluated
+            for the specified ``subset``.
+        """
+        ls = _extract_array(self._left, args)
+        rs = _extract_array(self._right, args)
+        f = _choose_operator(self._op)
+        try:
+            return f(ls, rs)
+        except:
+            ls = numpy.array(ls)
+            rs = numpy.array(rs)
+            return f(ls, rs)
+
+

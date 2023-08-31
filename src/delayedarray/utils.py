@@ -10,3 +10,10 @@ def _create_dask_array(seed):
         return seed.as_dask_array()
     else:
         return from_array(seed)
+
+
+def _realize_seed(seed):
+    if hasattr(seed, "__DelayedArray_compute__"):
+        return seed.__DelayedArray_compute__()
+    else:
+        return seed

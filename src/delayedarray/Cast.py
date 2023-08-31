@@ -1,5 +1,6 @@
 from typing import Tuple
 
+from .utils import _create_dask_array, _extract_array
 from dask.array.core import Array
 from numpy import dtype
 
@@ -56,6 +57,13 @@ class Cast:
         """
         target = _create_dask_array(self._seed)
         return target.astype(self._dtype)
+
+    def __DelayedArray__extract__(self, args):
+        s = _extract_array(self.seed, args)
+        try:
+            return s.astype(self._dtype)
+        except:
+            return numpy.array(s, dtype=self._dtype)
 
     @property
     def seed(self):
