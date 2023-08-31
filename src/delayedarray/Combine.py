@@ -1,16 +1,23 @@
 from typing import Tuple
 
-from numpy import dtype, ndarray, concatenate
-from .utils import _create_dask_array
 from dask.array.core import Array
+from numpy import concatenate, dtype, ndarray
+
+from .utils import _create_dask_array
+
+__author__ = "ltla"
+__copyright__ = "ltla"
+__license__ = "MIT"
 
 
 class Combine:
     """Delayed combine operation, based on Bioconductor's ``DelayedArray::DelayedAbind`` class.
-    This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are the same.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
-    In general, end users should not be interacting with ``Combine`` objects directly.
+    This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are
+    the same.
+
+    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
+    instances. In general, end users should not be interacting with ``Combine`` objects directly.
 
     Attributes:
         seeds (list):

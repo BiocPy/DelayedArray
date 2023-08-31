@@ -1,8 +1,8 @@
+from dask.array import from_array
+
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
-
-from dask.array import from_array
 
 
 def _create_dask_array(seed):
