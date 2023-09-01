@@ -122,7 +122,7 @@ class BinaryIsometricOp:
                     + str(type(seed))
                     + " does not return the expected shape"
                 )
-        except:
+        except Exception:
             ls = _densify(ls)
             rs = _densify(rs)
             output = f(ls, rs)

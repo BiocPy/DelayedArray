@@ -131,7 +131,7 @@ class Combine:
                     + str(type(extracted[0]))
                     + " objects does not return the correct shape"
                 )
-        except:
+        except Exception:
             for i, x in enumerate(extracted):
                 extracted[i] = _densify(x)
             output = concatenate((*extracted,), axis=self.along)

@@ -97,6 +97,6 @@ def _retry_single(seed, f, expected_shape):
                 + str(type(seed))
                 + " does not return the expected shape"
             )
-    except:
+    except Exception:
         output = f(_densify(seed))
     return output

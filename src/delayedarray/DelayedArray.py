@@ -813,7 +813,7 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.sum(*args, **kwargs)
-        except:
+        except Exception:
             target = _densify(target)
             return target.sum(*args, **kwargs)
 
@@ -822,7 +822,7 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.var(*args, **kwargs)
-        except:
+        except Exception:
             target = _densify(target)
             return target.var(*args, **kwargs)
 
@@ -831,7 +831,7 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.mean(*args, **kwargs)
-        except:
+        except Exception:
             target = _densify(target)
             return target.mean(*args, **kwargs)
 
