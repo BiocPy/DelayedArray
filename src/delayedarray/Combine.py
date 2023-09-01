@@ -124,8 +124,16 @@ class Combine:
                 extracted.append(extract_array(x, (*flexargs,)))
 
         try:
-            return concatenate((*extracted,), axis=self.along)
+            output = concatenate((*extracted,), axis=self.along)
+            if output.shape != self.shape:
+                raise ValueError(
+                    "'numpy.concatenate' on " +
+                    str(type(extracted[0])) +
+                    " objects does not return the correct shape"
+                )
         except:
             for i, x in enumerate(extracted):
                 extracted[i] = _densify(x)
-            return concatenate((*extracted,), axis=self.along)
+            output = concatenate((*extracted,), axis=self.along)
+
+        return output

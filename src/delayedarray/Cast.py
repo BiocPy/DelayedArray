@@ -3,7 +3,7 @@ from typing import Tuple, Sequence
 from dask.array.core import Array
 from numpy import dtype
 
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -64,9 +64,7 @@ class Cast:
 
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
-        s = extract_array(self.seed, subset)
-        try:
+        target = extract_array(self.seed, subset)
+        def f(s):
             return s.astype(self._dtype)
-        except:
-            s = _densify(s)
-            return s.astype(self._dtype)
+        return _retry_single(target, f, self.shape)

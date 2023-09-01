@@ -5,7 +5,7 @@ import numpy
 from dask.array.core import Array
 from numpy import ndarray
 
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -213,15 +213,11 @@ class UnaryIsometricOpWithArgs:
                 resub[subdim] = subset[subdim]
                 subvalue = subvalue[(*resub,)]
 
-        f = _choose_operator(self._op)
-        try:
+        OP = _choose_operator(self._op)
+        def f(s):
             if self._right:
-                return f(target, subvalue)
+                return OP(s, subvalue)
             else:
-                return f(subvalue, target)
-        except:
-            target = _densify(target)
-            if self._right:
-                return f(target, subvalue)
-            else:
-                return f(subvalue, target)
+                return OP(subvalue, s)
+
+        return _retry_single(target, f, self.shape)

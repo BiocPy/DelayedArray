@@ -4,7 +4,7 @@ import numpy
 from dask.array.core import Array
 from numpy import dtype, zeros
 
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -116,8 +116,4 @@ class UnaryIsometricOpSimple:
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         target = extract_array(self._seed, subset)
         f = _choose_operator(self._op)
-        try:
-            return f(target)
-        except:
-            target = _densify(target)
-            return f(target)
+        return _retry_single(target, f, self._seed.shape)

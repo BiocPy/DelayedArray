@@ -116,7 +116,7 @@ class BinaryIsometricOp:
         f = _choose_operator(self._op)
         try:
             output = f(ls, rs)
-            if output.shape != expected_shape:
+            if output.shape != self.shape:
                 raise ValueError(
                     "operation on "
                     + str(type(seed))

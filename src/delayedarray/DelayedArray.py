@@ -177,23 +177,22 @@ class DelayedArray:
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
         preamble += " DelayedArray object of type '" + self._seed.dtype.name + "'"
 
-        ndims = len(self._seed.shape)
-        if total <= get_printoptions()["threshold"]:
-            bits_and_pieces = extract_array(self._seed)
-            return preamble + "\n" + repr(bits_and_pieces)
+        indices = None
+        if total > get_printoptions()["threshold"]:
+            ndims = len(self._seed.shape)
+            indices = []
+            edge_size = get_printoptions()["edgeitems"]
+            for d in range(ndims):
+                extent = self._seed.shape[d]
+                if extent > edge_size * 2:
+                    indices.append(
+                        list(range(edge_size + 1)) + list(range(extent - edge_size, extent))
+                    )
+                else:
+                    indices.append(slice(None))
+            indices = (*indices,)
 
-        indices = []
-        edge_size = get_printoptions()["edgeitems"]
-        for d in range(ndims):
-            extent = self._seed.shape[d]
-            if extent > edge_size * 2:
-                indices.append(
-                    list(range(edge_size + 1)) + list(range(extent - edge_size, extent))
-                )
-            else:
-                indices.append(slice(None))
-
-        bits_and_pieces = extract_array(self._seed, (*indices,))
+        bits_and_pieces = _densify(extract_array(self._seed, indices))
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
