@@ -1,6 +1,7 @@
 from typing import Optional, Tuple, Sequence
 from dask.array import from_array, Array
 from numpy import array, ndarray, ix_
+from scipy.sparse import coo_matrix
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -89,6 +90,14 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
                 + str(type(seed))
                 + " does not return the expected shape"
             )
+
+    # CSC/CSR matrices get coerced to COO matrices during arithmetic.
+    # Unfortunately, COO matrices don't support subscripting. Hence,
+    # we need to always coerce it back to a CSC matrix, just in case
+    # the caller needs to do some subscripting.
+    if isinstance(output, coo_matrix): 
+        output = output.tocsc()
+
     return output
 
 
