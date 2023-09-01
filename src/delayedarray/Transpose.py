@@ -9,6 +9,11 @@ __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
+def _transpose(x, perm):
+    if perm == (1, 0) and hasattr(x, "T"):
+        return x.T
+    return transpose(x, axes=perm)
+
 
 class Transpose:
     """Delayed transposition, based on Bioconductor's ``DelayedArray::DelayedAperm`` class.
@@ -90,7 +95,7 @@ class Transpose:
     def __DelayedArray_dask__(self) -> Array:
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
-        return transpose(target, axes=self._perm)
+        return _transpose(target, perm=self._perm)
 
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
@@ -101,6 +106,6 @@ class Transpose:
         target = extract_array(self._seed, (*permsub,))
 
         def f(s):
-            return transpose(s, axes=self._perm)
+            return _transpose(s, perm=self._perm)
 
         return _retry_single(target, f, self._shape)
