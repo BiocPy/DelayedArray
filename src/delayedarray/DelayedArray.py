@@ -811,7 +811,7 @@ class DelayedArray:
     def sum(self, *args, **kwargs):
         """See :py:meth:`~numpy.sums` for details."""
         target = extract_array(self._seed)
-        try: 
+        try:
             return target.sum(*args, **kwargs)
         except:
             target = _densify(target)
@@ -820,7 +820,7 @@ class DelayedArray:
     def var(self, *args, **kwargs):
         """See :py:meth:`~numpy.vars` for details."""
         target = extract_array(self._seed)
-        try: 
+        try:
             return target.var(*args, **kwargs)
         except:
             target = _densify(target)
@@ -829,7 +829,7 @@ class DelayedArray:
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
         target = extract_array(self._seed)
-        try: 
+        try:
             return target.mean(*args, **kwargs)
         except:
             target = _densify(target)

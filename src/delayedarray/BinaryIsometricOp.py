@@ -117,7 +117,11 @@ class BinaryIsometricOp:
         try:
             output = f(ls, rs)
             if output.shape != expected_shape:
-                raise ValueError("operation on " + str(type(seed)) + " does not return the expected shape") 
+                raise ValueError(
+                    "operation on "
+                    + str(type(seed))
+                    + " does not return the expected shape"
+                )
         except:
             ls = _densify(ls)
             rs = _densify(rs)

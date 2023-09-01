@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Sequence
 from dask.array.core import Array
 from numpy import dtype, transpose
 
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -99,6 +99,8 @@ class Transpose:
             permsub[j] = subset[i]
 
         target = extract_array(self._seed, (*permsub,))
+
         def f(s):
             return transpose(s, axes=self._perm)
+
         return _retry_single(target, f)

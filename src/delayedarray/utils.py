@@ -27,11 +27,11 @@ def create_dask_array(seed) -> Array:
 
 
 def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
-    """Extract the realized contents (or a subset thereof) into some NumPy-like array. 
+    """Extract the realized contents (or a subset thereof) into some NumPy-like array.
 
     Args:
         seed: Any object that supports slicing by :py:meth:`~numpy.ix_`, or has a
-            ``__DelayedArray_extract__`` method that accepts ``subset`` and 
+            ``__DelayedArray_extract__`` method that accepts ``subset`` and
             returns an array-like object containing the outer product of the subsets.
 
         subset (Tuple[Sequence[int]], optional): Tuple of length equal to the number of dimensions,
@@ -58,7 +58,11 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
     outshape = output.shape
     for i, s in enumerate(subset):
         if len(s) != outshape[i]:
-            raise ValueError("extract_array on " + str(type(seed)) + " does not return the expected shape") 
+            raise ValueError(
+                "extract_array on "
+                + str(type(seed))
+                + " does not return the expected shape"
+            )
     return output
 
 
@@ -71,10 +75,16 @@ def _densify(seed):
     elif hasattr(seed, "__array__"):
         output = array(seed)
     else:
-        raise ValueError("don't know how to convert " + str(type(seed)) + " to a NumPy array")
+        raise ValueError(
+            "don't know how to convert " + str(type(seed)) + " to a NumPy array"
+        )
 
     if seed.shape != output.shape:
-        raise ValueError("conversion to NumPy array for " + str(type(seed)) + " does not return the expected shape") 
+        raise ValueError(
+            "conversion to NumPy array for "
+            + str(type(seed))
+            + " does not return the expected shape"
+        )
     return output
 
 
@@ -82,7 +92,11 @@ def _retry_single(seed, f, expected_shape):
     try:
         output = f(seed)
         if output.shape != expected_shape:
-            raise ValueError("operation on " + str(type(seed)) + " does not return the expected shape") 
+            raise ValueError(
+                "operation on "
+                + str(type(seed))
+                + " does not return the expected shape"
+            )
     except:
         output = f(_densify(seed))
     return output

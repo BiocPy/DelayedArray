@@ -5,6 +5,7 @@ import numpy
 import dask.array
 import scipy.sparse
 
+
 def test_DelayedArray_dense():
     raw = (numpy.random.rand(40, 30) * 5 - 10).astype(numpy.int32)
     x = delayedarray.DelayedArray(raw)
@@ -702,6 +703,7 @@ def test_DelayedArray_subset():
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(x) == da.compute()).all()
 
+
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]
 #    assert stuff.shape == (3,)
@@ -813,4 +815,4 @@ def test_DelayedArray_sparse():
 
     z = x + 1
     out = delayedarray.extract_array(z)
-    assert isinstance(out, numpy.ndarray) is True 
+    assert isinstance(out, numpy.ndarray) is True
