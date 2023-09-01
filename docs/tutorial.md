@@ -63,11 +63,28 @@ type(realized)
 ## <class 'numpy.ndarray'>
 ```
 
-Or even better, we can convert them to **dask** arrays, which preserves the delayed nature of the operations to avoid unnecessary copies/evalution.
+Alternatively, we can attempt to preserve the properties of the original array (e.g., sparsity) by using `extract_array()`.
+This assumes that the original array supports the various delayed operations, otherwise `extract_array()` will fall back to creating a NumPy array.
+
+```python
+import scipy.sparse
+indptr = numpy.array([0, 2, 3, 6])
+indices = numpy.array([0, 2, 2, 0, 1, 2])
+data = numpy.array([1, 2, 3, 4, 5, 6])
+seed = scipy.sparse.csc_array((data, indices, indptr), shape=(3, 3))
+
+delayed = delayedarray.DelayedArray(seed)
+delayed = delayed * 5
+delayedarray.extract_array(delayed)
+## <3x3 sparse array of type '<class 'numpy.int64'>'
+## 	with 6 stored elements in Compressed Sparse Column format>
+```
+
+Even better, we can convert a `DelayedArray` to a **dask** array, which preserves the delayed nature of the operations to avoid unnecessary copies/evalution.
 (You might wonder why we didn't just do this in the first place - check out the [developer notes](developers.md) for commentary.)
 
 ```python
-daskified = transformed.as_dask_array()
+daskified = delayedarray.create_dask_array(transformed)
 type(daskified)
 ## <class 'dask.array.core.Array'>
 ```

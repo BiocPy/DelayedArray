@@ -86,15 +86,20 @@ n = (numpy.log1p(d / s) + 5)[1:5,:]
 ##         5.00294226, 5.01381951, 5.01344824, 5.020751  , 5.01294937]])
 ```
 
-Users can then call `numpy.array()` to realize the delayed operations into a typical NumPy array for consumption.
-Alternatively, users can use the `.as_dask_array()` method to obtain a **dask** array.
+Uusers can call `numpy.array()`, to realize the delayed operations into a typical NumPy array for consumption;
+or `delayedarray.extract_array()`, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices);
+or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations.
 
 ```python
 simple = numpy.array(n)
 type(simple)
 ## <class 'numpy.ndarray'>
 
-dasky = n.as_dask_array()
+preserved = delayedarray.extract_array(n)
+type(preserved)
+## <class 'numpy.ndarray'>
+
+dasky = delayedarray.create_dask_array(n)
 type(dasky)
 ## <class 'dask.array.core.Array'>
 ```
