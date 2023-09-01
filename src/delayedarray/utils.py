@@ -26,8 +26,19 @@ def create_dask_array(seed) -> Array:
         return from_array(seed)
 
 
+def _spawn_indices(shape):
+    raw = []
+    for s in shape:
+        raw.append(range(s))
+    return (*raw,)
+
+
 def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
     """Extract the realized contents (or a subset thereof) into some NumPy-like array.
+    For delayed operations, this attempts to preserve the class of the seed, which may
+    improve performance when dealing with objects like sparse matrices; if the 
+    class does not support the operation, this function will fall back to creating
+    a NumPy array and applying the operation on that instead.
 
     Args:
         seed: Any object that supports slicing by :py:meth:`~numpy.ix_`, or has a
@@ -43,17 +54,33 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
         Some array-like object where all delayed operations are evaluated
         for the specified ``subset``.
     """
-    if subset is None:
-        sh = seed.shape
-        raw = []
-        for s in sh:
-            raw.append(range(s))
-        subset = (*raw,)
 
     if hasattr(seed, "__DelayedArray_extract__"):
+        if subset is None:
+            subset = _spawn_indices(seed.shape)
         output = seed.__DelayedArray_extract__(subset)
     else:
-        output = seed[ix_(*subset)]
+        noop = True 
+        if subset is not None:
+            for i, s in enumerate(seed.shape):
+                cursub = subset[i]
+                if len(cursub) != s:
+                    noop = False
+                    break
+
+                for j in range(s):
+                    if cursub[j] != j:
+                        noop = False
+                        break
+                if not noop:
+                    break
+        else:
+            subset = _spawn_indices(seed.shape)
+
+        if noop:
+            output = seed
+        else:
+            output = seed[ix_(*subset)]
 
     outshape = output.shape
     for i, s in enumerate(subset):
