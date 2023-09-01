@@ -1,13 +1,19 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Sequence
 
 from dask.array.core import Array
 from numpy import dtype, transpose
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
+
+
+def _transpose(x, perm):
+    if perm == (1, 0) and hasattr(x, "T"):
+        return x.T
+    return transpose(x, axes=perm)
 
 
 class Transpose:
@@ -87,11 +93,20 @@ class Transpose:
         """
         return self._perm
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed transposition.
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        return _transpose(target, perm=self._perm)
 
-        Returns:
-            Array: dask array with the delayed transposition.
-        """
-        target = _create_dask_array(self._seed)
-        return transpose(target, axes=self._perm)
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        permsub = [None] * len(subset)
+        for i, j in enumerate(self._perm):
+            permsub[j] = subset[i]
+
+        target = extract_array(self._seed, (*permsub,))
+
+        def f(s):
+            return _transpose(s, perm=self._perm)
+
+        return _retry_single(target, f, self._shape)

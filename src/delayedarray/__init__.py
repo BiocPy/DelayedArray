@@ -24,3 +24,4 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
+from .utils import extract_array, create_dask_array

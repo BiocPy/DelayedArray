@@ -21,7 +21,7 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -120,8 +120,8 @@ class DelayedArray:
     Attributes:
         seed: Any array-like object that satisfies the seed contract.
             This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.
-            It should also have either an :py:attr`~as_dask_array` method or be usable in
-            :py:meth:`~dask.array.from_array`.
+            It should also NumPy slicing via :py:meth:`~numpy.ix_`; additional NumPy
+            interface support will be used where relevant.
     """
 
     def __init__(self, seed):
@@ -177,24 +177,23 @@ class DelayedArray:
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
         preamble += " DelayedArray object of type '" + self._seed.dtype.name + "'"
 
-        ndims = len(self._seed.shape)
-        if total <= get_printoptions()["threshold"]:
-            [slice(None)] * ndims
-            bits_and_pieces = self.as_dask_array().compute()
-            return preamble + "\n" + repr(bits_and_pieces)
+        indices = None
+        if total > get_printoptions()["threshold"]:
+            ndims = len(self._seed.shape)
+            indices = []
+            edge_size = get_printoptions()["edgeitems"]
+            for d in range(ndims):
+                extent = self._seed.shape[d]
+                if extent > edge_size * 2:
+                    indices.append(
+                        list(range(edge_size + 1))
+                        + list(range(extent - edge_size, extent))
+                    )
+                else:
+                    indices.append(slice(None))
+            indices = (*indices,)
 
-        indices = []
-        edge_size = get_printoptions()["edgeitems"]
-        for d in range(ndims):
-            extent = self._seed.shape[d]
-            if extent > edge_size * 2:
-                indices.append(
-                    list(range(edge_size + 1)) + list(range(extent - edge_size, extent))
-                )
-            else:
-                indices.append(slice(None))
-
-        bits_and_pieces = Subset(self._seed, indices).as_dask_array().compute()
+        bits_and_pieces = _densify(extract_array(self._seed, indices))
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
@@ -206,7 +205,7 @@ class DelayedArray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        return self.as_dask_array().compute()
+        return _densify(extract_array(self._seed))
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
@@ -800,31 +799,47 @@ class DelayedArray:
             return DelayedArray(Subset(self._seed, (*sanitized,)))
 
         # WHATEVER. Fuck this shit. Just do whatever.
-        test = self.as_dask_array()[(..., *args)]
+        test = extract_array(self._seed)[(..., *args)]
         if len(test.shape) == ndim:
             raise NotImplementedError(
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
                 "probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
             )
-        return test.compute()
+        return test
 
     # For python-level compute.
-    def as_dask_array(self) -> Array:
-        """Convert the DelayedArray to a dask array for Python-based computation.
-
-        Returns:
-            Array: A dask array containing the delayed operations.
-        """
-        return _create_dask_array(self._seed)
-
     def sum(self, *args, **kwargs):
         """See :py:meth:`~numpy.sums` for details."""
-        return self.as_dask_array().sum(*args, **kwargs).compute()
+        target = extract_array(self._seed)
+        try:
+            return target.sum(*args, **kwargs)
+        except Exception:
+            target = _densify(target)
+            return target.sum(*args, **kwargs)
 
     def var(self, *args, **kwargs):
         """See :py:meth:`~numpy.vars` for details."""
-        return self.as_dask_array().var(*args, **kwargs).compute()
+        target = extract_array(self._seed)
+        try:
+            return target.var(*args, **kwargs)
+        except Exception:
+            target = _densify(target)
+            return target.var(*args, **kwargs)
 
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
-        return self.as_dask_array().mean(*args, **kwargs).compute()
+        target = extract_array(self._seed)
+        try:
+            return target.mean(*args, **kwargs)
+        except Exception:
+            target = _densify(target)
+            return target.mean(*args, **kwargs)
+
+    # Coercion methods.
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        return create_dask_array(self._seed)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]) -> Array:
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        return extract_array(self._seed, subset)

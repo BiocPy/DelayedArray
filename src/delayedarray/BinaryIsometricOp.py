@@ -1,11 +1,11 @@
 import warnings
-from typing import Tuple
+from typing import Tuple, Sequence
 
 import numpy
 from dask.array.core import Array
 
 from .UnaryIsometricOpWithArgs import OP, _choose_operator
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -74,15 +74,6 @@ class BinaryIsometricOp:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed operation.
-
-        Returns:
-            Array: dask array with the delayed subset.
-        """
-        f = _choose_operator(self._op)
-        return f(_create_dask_array(self._left), _create_dask_array(self._right))
-
     @property
     def left(self):
         """Get the left operand satisfying the seed contract.
@@ -109,3 +100,30 @@ class BinaryIsometricOp:
             str: Name of the operation.
         """
         return self._op
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        f = _choose_operator(self._op)
+        ls = create_dask_array(self._left)
+        rs = create_dask_array(self._right)
+        return f(ls, rs)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        ls = extract_array(self._left, subset)
+        rs = extract_array(self._right, subset)
+
+        f = _choose_operator(self._op)
+        try:
+            output = f(ls, rs)
+            if output.shape != self.shape:
+                raise ValueError(
+                    "operation on "
+                    + str(type(seed))
+                    + " does not return the expected shape"
+                )
+        except Exception:
+            ls = _densify(ls)
+            rs = _densify(rs)
+            output = f(ls, rs)
+        return output

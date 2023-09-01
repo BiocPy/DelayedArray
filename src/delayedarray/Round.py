@@ -1,10 +1,10 @@
-from typing import Tuple
+from typing import Tuple, Sequence
 
 import numpy
 from dask.array.core import Array
 from numpy import dtype
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -49,15 +49,6 @@ class Round:
         """
         return self._seed.dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed rounding operation.
-
-        Returns:
-            Array: dask array with the delayed rounding operation.
-        """
-        target = _create_dask_array(self._seed)
-        return numpy.round(target, decimals=self._decimals)
-
     @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
@@ -75,3 +66,17 @@ class Round:
             int: Number of decimal places.
         """
         return self._decimals
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        return numpy.round(target, decimals=self._decimals)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        target = extract_array(self._seed, subset)
+
+        def f(s):
+            return numpy.round(s, decimals=self._decimals)
+
+        return _retry_single(target, f, self.shape)

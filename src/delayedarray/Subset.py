@@ -1,9 +1,9 @@
 from typing import Sequence, Tuple
 
 from dask.array.core import Array
-from numpy import dtype
+from numpy import dtype, ndarray
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -81,13 +81,9 @@ class Subset:
         """
         return self._subset
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed subset.
-
-        Returns:
-            Array: dask array with the delayed subset.
-        """
-        target = _create_dask_array(self._seed)
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
 
         # Oh god, this is horrible. But dask doesn't support ix_ yet.
         ndim = len(target.shape)
@@ -101,3 +97,15 @@ class Subset:
             target = target[(..., *current)]
 
         return target
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        newsub = list(subset)
+        for i, s in enumerate(newsub):
+            cursub = self._subset[i]
+            if isinstance(cursub, ndarray):
+                replacement = cursub[s]
+            else:
+                replacement = [cursub[j] for j in s]
+            newsub[i] = replacement
+        return extract_array(self._seed, (*newsub,))

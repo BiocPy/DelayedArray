@@ -1,9 +1,9 @@
-from typing import Tuple
+from typing import Tuple, Sequence
 
 from dask.array.core import Array
 from numpy import dtype
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -48,15 +48,6 @@ class Cast:
         """
         return self._dtype
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed cast.
-
-        Returns:
-            Array: dask array with the delayed cast.
-        """
-        target = _create_dask_array(self._seed)
-        return target.astype(self._dtype)
-
     @property
     def seed(self):
         """Get the underlying object satisfying the seed contract.
@@ -65,3 +56,17 @@ class Cast:
             The seed object.
         """
         return self._seed
+
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        target = create_dask_array(self._seed)
+        return target.astype(self._dtype)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        target = extract_array(self.seed, subset)
+
+        def f(s):
+            return s.astype(self._dtype)
+
+        return _retry_single(target, f, self.shape)

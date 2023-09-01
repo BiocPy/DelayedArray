@@ -1,9 +1,9 @@
-from typing import Tuple
+from typing import Tuple, Sequence
 
 from dask.array.core import Array
 from numpy import concatenate, dtype, ndarray
 
-from .utils import _create_dask_array
+from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -93,13 +93,47 @@ class Combine:
         """
         return self._along
 
-    def as_dask_array(self) -> Array:
-        """Create a dask array containing the delayed combination of arrays.
-
-        Returns:
-            Array: dask array with the delayed combination.
-        """
+    def __DelayedArray_dask__(self) -> Array:
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         extracted = []
         for x in self._seeds:
-            extracted.append(_create_dask_array(x))
+            extracted.append(create_dask_array(x))
         return concatenate((*extracted,), axis=self._along)
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        # Figuring out which slices belong to who.
+        chosen = subset[self._along]
+        limit = 0
+        fragmented = []
+        position = 0
+        for x in self._seeds:
+            start = limit
+            limit += x.shape[self._along]
+            current = []
+            while position < len(chosen) and chosen[position] < limit:
+                current.append(chosen[position] - start)
+                position += 1
+            fragmented.append(current)
+
+        extracted = []
+        flexargs = list(subset)
+        for i, x in enumerate(self._seeds):
+            if len(fragmented[i]):
+                flexargs[self._along] = fragmented[i]
+                extracted.append(extract_array(x, (*flexargs,)))
+
+        try:
+            output = concatenate((*extracted,), axis=self.along)
+            if output.shape != self.shape:
+                raise ValueError(
+                    "'numpy.concatenate' on "
+                    + str(type(extracted[0]))
+                    + " objects does not return the correct shape"
+                )
+        except Exception:
+            for i, x in enumerate(extracted):
+                extracted[i] = _densify(x)
+            output = concatenate((*extracted,), axis=self.along)
+
+        return output
