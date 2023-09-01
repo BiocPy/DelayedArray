@@ -51,17 +51,38 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
         subset = (*raw,)
 
     if hasattr(seed, "__DelayedArray_extract__"):
-        return seed.__DelayedArray_extract__(subset)
+        output = seed.__DelayedArray_extract__(subset)
     else:
-        return seed[ix_(*subset)]
+        output = seed[ix_(*subset)]
+
+    outshape = output.shape
+    for i, s in enumerate(subset):
+        if len(s) != outshape[i]:
+            raise ValueError("extract_array on " + str(type(seed)) + " does not return the expected shape") 
+    return output
 
 
 def _densify(seed):
     if isinstance(seed, ndarray):
         return seed
-    elif hasattr(seed, "toarray"):
-        return seed.toarray()
+
+    if hasattr(seed, "toarray"):
+        output = seed.toarray()
     elif hasattr(seed, "__array__"):
-        return array(seed)
+        output = array(seed)
     else:
         raise ValueError("don't know how to convert " + str(type(seed)) + " to a NumPy array")
+
+    if seed.shape != output.shape:
+        raise ValueError("conversion to NumPy array for " + str(type(seed)) + " does not return the expected shape") 
+    return output
+
+
+def _retry_single(seed, f, expected_shape):
+    try:
+        output = f(seed)
+        if output.shape != expected_shape:
+            raise ValueError("operation on " + str(type(seed)) + " does not return the expected shape") 
+    except:
+        output = f(_densify(seed))
+    return output

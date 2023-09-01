@@ -2,7 +2,8 @@ import warnings
 
 import delayedarray
 import numpy
-
+import dask.array
+import scipy.sparse
 
 def test_DelayedArray_dense():
     raw = (numpy.random.rand(40, 30) * 5 - 10).astype(numpy.int32)
@@ -16,6 +17,10 @@ def test_DelayedArray_dense():
     dump = numpy.array(x)
     assert isinstance(dump, numpy.ndarray)
     assert (dump == raw).all()
+
+    da = delayedarray.create_dask_array(x)
+    assert isinstance(da, dask.array.core.Array)
+    assert (dump == da.compute()).all()
 
 
 def test_DelayedArray_isometric_add():
@@ -67,6 +72,10 @@ def test_DelayedArray_isometric_add():
     assert z.seed.right.shape == test_shape
     assert (numpy.array(z) == y + y2).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_subtract():
     test_shape = (55, 15)
@@ -100,6 +109,10 @@ def test_DelayedArray_isometric_subtract():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y - y2).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_multiply():
@@ -135,6 +148,10 @@ def test_DelayedArray_isometric_multiply():
     assert z.shape == x.shape
     assert (numpy.array(z) == y - y2).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_divide():
     test_shape = (35, 25)
@@ -168,6 +185,10 @@ def test_DelayedArray_isometric_divide():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y / y2).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_modulo():
@@ -203,6 +224,10 @@ def test_DelayedArray_isometric_modulo():
     assert z.shape == x.shape
     assert (numpy.array(z) == y % y2).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_floordivide():
     test_shape = (30, 55)
@@ -236,6 +261,10 @@ def test_DelayedArray_isometric_floordivide():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y // y2).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_power():
@@ -273,6 +302,10 @@ def test_DelayedArray_isometric_power():
     assert z.shape == x.shape
     assert (numpy.array(z) == y**y2).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_equal():
     test_shape = (30, 55, 10)
@@ -299,6 +332,10 @@ def test_DelayedArray_isometric_equal():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (y == y2)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_not_equal():
@@ -327,6 +364,10 @@ def test_DelayedArray_isometric_not_equal():
     assert z.shape == x.shape
     assert (numpy.array(z) == (y != y2)).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_greater():
     test_shape = (42, 11)
@@ -353,6 +394,10 @@ def test_DelayedArray_isometric_greater():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (y > y2)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_greater_equal():
@@ -381,6 +426,10 @@ def test_DelayedArray_isometric_greater_equal():
     assert z.shape == x.shape
     assert (numpy.array(z) == (y >= y2)).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_less():
     test_shape = (24, 13)
@@ -407,6 +456,10 @@ def test_DelayedArray_isometric_less():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (y < y2)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_less_than():
@@ -435,6 +488,10 @@ def test_DelayedArray_isometric_less_than():
     assert z.shape == x.shape
     assert (numpy.array(z) == (y <= y2)).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_logical_and():
     test_shape = (23, 33)
@@ -461,6 +518,10 @@ def test_DelayedArray_isometric_logical_and():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_and(y, y2)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_logical_or():
@@ -489,6 +550,10 @@ def test_DelayedArray_isometric_logical_or():
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_or(y, y2)).all()
 
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
 
 def test_DelayedArray_isometric_logical_xor():
     test_shape = (44, 55)
@@ -515,6 +580,10 @@ def test_DelayedArray_isometric_logical_xor():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_xor(y, y2)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_isometric_simple():
@@ -564,6 +633,7 @@ def test_DelayedArray_isometric_simple():
             ufunc = getattr(numpy, op)
             z = ufunc(x)
             obs = numpy.array(z)
+            da = delayedarray.create_dask_array(z).compute()
             expected = ufunc(expanded)
 
         assert isinstance(z, delayedarray.DelayedArray)
@@ -572,9 +642,12 @@ def test_DelayedArray_isometric_simple():
 
         missing = numpy.isnan(obs)
         assert (missing == numpy.isnan(expected)).all()
+        assert (missing == numpy.isnan(da)).all()
         obs[missing] = 0
         expected[missing] = 0
+        da[missing] = 0
         assert (obs == expected).all()
+        assert (obs == da).all()
 
 
 def test_DelayedArray_subset():
@@ -624,6 +697,10 @@ def test_DelayedArray_subset():
     stuff = x[:, :, 2]
     assert (stuff == y[:, :, 2]).all()
 
+    # Works with dask arrays.
+    da = delayedarray.create_dask_array(x)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(x) == da.compute()).all()
 
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]
@@ -652,6 +729,10 @@ def test_DelayedArray_combine():
     assert x.dtype == numpy.int32
     assert x.seed.along == 1
     assert (numpy.array(x) == numpy.concatenate((y1.seed, y2.seed), axis=1)).all()
+
+    da = delayedarray.create_dask_array(x)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(x) == da.compute()).all()
 
 
 def test_DelayedArray_transpose():
@@ -682,6 +763,11 @@ def test_DelayedArray_transpose():
     assert t.shape == (10, 23, 30)
     assert (numpy.array(t) == numpy.transpose(y)).all()
 
+    # Works with dask arrays.
+    da = delayedarray.create_dask_array(t)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(t) == da.compute()).all()
+
 
 def test_DelayedArray_cast():
     y = numpy.random.rand(30, 23) * 10
@@ -692,6 +778,10 @@ def test_DelayedArray_cast():
     assert z.dtype == numpy.int32
     assert z.shape == (30, 23)
     assert (numpy.array(z) == y.astype(numpy.int32)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
 
 
 def test_DelayedArray_round():
@@ -708,3 +798,19 @@ def test_DelayedArray_round():
     # Number of places.
     z = numpy.round(x, decimals=1)
     assert (numpy.array(z) == numpy.round(y, decimals=1)).all()
+
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
+
+
+def test_DelayedArray_sparse():
+    y = scipy.sparse.csr_matrix([[1, 2, 0], [0, 0, 3], [4, 0, 5]])
+    x = delayedarray.DelayedArray(y)
+
+    out = delayedarray.extract_array(x)
+    assert isinstance(out, numpy.ndarray) is False
+
+    z = x + 1
+    out = delayedarray.extract_array(z)
+    assert isinstance(out, numpy.ndarray) is True 

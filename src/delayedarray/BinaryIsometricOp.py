@@ -112,10 +112,14 @@ class BinaryIsometricOp:
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         ls = extract_array(self._left, subset)
         rs = extract_array(self._right, subset)
+
         f = _choose_operator(self._op)
         try:
-            return f(ls, rs)
+            output = f(ls, rs)
+            if output.shape != expected_shape:
+                raise ValueError("operation on " + str(type(seed)) + " does not return the expected shape") 
         except:
             ls = _densify(ls)
             rs = _densify(rs)
-            return f(ls, rs)
+            output = f(ls, rs)
+        return output

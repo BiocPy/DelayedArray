@@ -99,8 +99,6 @@ class Transpose:
             permsub[j] = subset[i]
 
         target = extract_array(self._seed, (*permsub,))
-        try:
-            return transpose(target, axes=self._perm)
-        except:
-            target = _densify(target)
-            return transpose(target, axes=self._perm)
+        def f(s):
+            return transpose(s, axes=self._perm)
+        return _retry_single(target, f)
