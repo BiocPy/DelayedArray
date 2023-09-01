@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Tutorial" href="tutorial.html" /><link rel="prev" title="DelayedArrays, in Python" href="index.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>DelayedArrays, in Python - DelayedArray 0.1.5 documentation</title>
+        <title>DelayedArrays, in Python - DelayedArray 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -278,13 +278,18 @@ Each operation just returns a <code class="docutils literal notranslate"><span c
 <span class="c1">##         5.00294226, 5.01381951, 5.01344824, 5.020751  , 5.01294937]])</span>
 </pre></div>
 </div>
-<p>Users can then call <code class="docutils literal notranslate"><span class="pre">numpy.array()</span></code> to realize the delayed operations into a typical NumPy array for consumption.
-Alternatively, users can use the <code class="docutils literal notranslate"><span class="pre">.as_dask_array()</span></code> method to obtain a <strong>dask</strong> array.</p>
+<p>Uusers can call <code class="docutils literal notranslate"><span class="pre">numpy.array()</span></code>, to realize the delayed operations into a typical NumPy array for consumption;
+or <code class="docutils literal notranslate"><span class="pre">delayedarray.extract_array()</span></code>, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices);
+or <code class="docutils literal notranslate"><span class="pre">delayedarray.create_dask_array()</span></code>, to obtain a <strong>dask</strong> array that contains the delayed operations.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="nb">type</span><span class="p">(</span><span class="n">simple</span><span class="p">)</span>
 <span class="c1">## &lt;class &#39;numpy.ndarray&#39;&gt;</span>
 
-<span class="n">dasky</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span>
+<span class="n">preserved</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">extract_array</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">preserved</span><span class="p">)</span>
+<span class="c1">## &lt;class &#39;numpy.ndarray&#39;&gt;</span>
+
+<span class="n">dasky</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="nb">type</span><span class="p">(</span><span class="n">dasky</span><span class="p">)</span>
 <span class="c1">## &lt;class &#39;dask.array.core.Array&#39;&gt;</span>
 </pre></div>
@@ -405,7 +410,7 @@ information on PyScaffold see <a class="reference external" href="https://pyscaf
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=59fadc99"></script>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

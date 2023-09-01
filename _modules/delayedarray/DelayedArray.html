@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>delayedarray.DelayedArray - DelayedArray 0.1.5 documentation</title>
+        <title>delayedarray.DelayedArray - DelayedArray 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -222,7 +222,7 @@
 <span class="kn">from</span> <span class="nn">.Transpose</span> <span class="kn">import</span> <span class="n">Transpose</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpSimple</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpSimple</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpWithArgs</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpWithArgs</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_create_dask_array</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_densify</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -323,8 +323,8 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        seed: Any array-like object that satisfies the seed contract.</span>
 <span class="sd">            This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.</span>
-<span class="sd">            It should also have either an :py:attr`~as_dask_array` method or be usable in</span>
-<span class="sd">            :py:meth:`~dask.array.from_array`.</span>
+<span class="sd">            It should also NumPy slicing via :py:meth:`~numpy.ix_`; additional NumPy</span>
+<span class="sd">            interface support will be used where relevant.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
@@ -382,24 +382,23 @@
         <span class="n">preamble</span> <span class="o">=</span> <span class="s2">&quot;&lt;&quot;</span> <span class="o">+</span> <span class="s2">&quot; x &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;&gt;&quot;</span>
         <span class="n">preamble</span> <span class="o">+=</span> <span class="s2">&quot; DelayedArray object of type &#39;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span>
 
-        <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]:</span>
-            <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="n">ndims</span>
-            <span class="n">bits_and_pieces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
-            <span class="k">return</span> <span class="n">preamble</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="n">bits_and_pieces</span><span class="p">)</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">total</span> <span class="o">&gt;</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;threshold&quot;</span><span class="p">]:</span>
+            <span class="n">ndims</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">edge_size</span> <span class="o">=</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;edgeitems&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndims</span><span class="p">):</span>
+                <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">extent</span> <span class="o">&gt;</span> <span class="n">edge_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">edge_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                        <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">extent</span> <span class="o">-</span> <span class="n">edge_size</span><span class="p">,</span> <span class="n">extent</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">indices</span><span class="p">,)</span>
 
-        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">edge_size</span> <span class="o">=</span> <span class="n">get_printoptions</span><span class="p">()[</span><span class="s2">&quot;edgeitems&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndims</span><span class="p">):</span>
-            <span class="n">extent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">d</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">extent</span> <span class="o">&gt;</span> <span class="n">edge_size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">edge_size</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">extent</span> <span class="o">-</span> <span class="n">edge_size</span><span class="p">,</span> <span class="n">extent</span><span class="p">))</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-
-        <span class="n">bits_and_pieces</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">indices</span><span class="p">)</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
+        <span class="n">bits_and_pieces</span> <span class="o">=</span> <span class="n">_densify</span><span class="p">(</span><span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">indices</span><span class="p">))</span>
         <span class="n">converted</span> <span class="o">=</span> <span class="n">array2string</span><span class="p">(</span><span class="n">bits_and_pieces</span><span class="p">,</span> <span class="n">separator</span><span class="o">=</span><span class="s2">&quot;, &quot;</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">preamble</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">converted</span></div>
 
@@ -414,7 +413,7 @@
 <span class="sd">            ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.</span>
 <span class="sd">            This is guaranteed to be in C-contiguous order and to not be a view on other data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">_densify</span><span class="p">(</span><span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="DelayedArray.__array_ufunc__">
@@ -1104,46 +1103,65 @@
             <span class="k">return</span> <span class="n">DelayedArray</span><span class="p">(</span><span class="n">Subset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">sanitized</span><span class="p">,)))</span>
 
         <span class="c1"># WHATEVER. Fuck this shit. Just do whatever.</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)]</span>
+        <span class="n">test</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)[(</span><span class="o">...</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="n">ndim</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
                 <span class="s2">&quot;Oops. Looks like the DelayedArray doesn&#39;t correctly handle this combination of index types, but it &quot;</span>
                 <span class="s2">&quot;probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues.&quot;</span>
             <span class="p">)</span>
-        <span class="k">return</span> <span class="n">test</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+        <span class="k">return</span> <span class="n">test</span></div>
 
 
     <span class="c1"># For python-level compute.</span>
-<div class="viewcode-block" id="DelayedArray.as_dask_array">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.as_dask_array">[docs]</a>
-    <span class="k">def</span> <span class="nf">as_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the DelayedArray to a dask array for Python-based computation.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Array: A dask array containing the delayed operations.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">_create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="DelayedArray.sum">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.sum">[docs]</a>
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.sums` for details.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">_densify</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DelayedArray.var">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.var">[docs]</a>
     <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.vars` for details.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">_densify</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DelayedArray.mean">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.mean">[docs]</a>
     <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.means` for details.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span></div>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">_densify</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="c1"># Coercion methods.</span>
+<div class="viewcode-block" id="DelayedArray.__DelayedArray_dask__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__DelayedArray_dask__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__DelayedArray_extract__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__DelayedArray_extract__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.extract_array`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -1178,7 +1196,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=59fadc99"></script>
+</div><script src="../../_static/documentation_options.js?v=938c9ccc"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

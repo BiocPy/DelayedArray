@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer notes" href="developers.html" /><link rel="prev" title="DelayedArrays, in Python" href="readme.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>Tutorial - DelayedArray 0.1.5 documentation</title>
+        <title>Tutorial - DelayedArray 0.2.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.1.5 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.2.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.1.5 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -251,9 +251,24 @@ So, for example, we can stuff the <code class="docutils literal notranslate"><sp
 <span class="c1">## &lt;class &#39;numpy.ndarray&#39;&gt;</span>
 </pre></div>
 </div>
-<p>Or even better, we can convert them to <strong>dask</strong> arrays, which preserves the delayed nature of the operations to avoid unnecessary copies/evalution.
+<p>Alternatively, we can attempt to preserve the properties of the original array (e.g., sparsity) by using <code class="docutils literal notranslate"><span class="pre">extract_array()</span></code>.
+This assumes that the original array supports the various delayed operations, otherwise <code class="docutils literal notranslate"><span class="pre">extract_array()</span></code> will fall back to creating a NumPy array.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scipy.sparse</span>
+<span class="n">indptr</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span>
+<span class="n">seed</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csc_array</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">indptr</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="n">delayed</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">DelayedArray</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+<span class="n">delayed</span> <span class="o">=</span> <span class="n">delayed</span> <span class="o">*</span> <span class="mi">5</span>
+<span class="n">delayedarray</span><span class="o">.</span><span class="n">extract_array</span><span class="p">(</span><span class="n">delayed</span><span class="p">)</span>
+<span class="c1">## &lt;3x3 sparse array of type &#39;&lt;class &#39;numpy.int64&#39;&gt;&#39;</span>
+<span class="c1">## 	with 6 stored elements in Compressed Sparse Column format&gt;</span>
+</pre></div>
+</div>
+<p>Even better, we can convert a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> to a <strong>dask</strong> array, which preserves the delayed nature of the operations to avoid unnecessary copies/evalution.
 (You might wonder why we didn’t just do this in the first place - check out the <a class="reference internal" href="developers.html"><span class="std std-doc">developer notes</span></a> for commentary.)</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">daskified</span> <span class="o">=</span> <span class="n">transformed</span><span class="o">.</span><span class="n">as_dask_array</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">daskified</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">transformed</span><span class="p">)</span>
 <span class="nb">type</span><span class="p">(</span><span class="n">daskified</span><span class="p">)</span>
 <span class="c1">## &lt;class &#39;dask.array.core.Array&#39;&gt;</span>
 </pre></div>
@@ -309,7 +324,7 @@ So, for example, we can stuff the <code class="docutils literal notranslate"><sp
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=59fadc99"></script>
+</div><script src="_static/documentation_options.js?v=938c9ccc"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
