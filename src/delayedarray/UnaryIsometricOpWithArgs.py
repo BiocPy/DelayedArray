@@ -31,8 +31,37 @@ OP = Literal[
 ]
 
 
-def _choose_operator(operation):
-    return getattr(numpy, operation)
+def _execute(left, right, operation):
+    # Can't use match/case yet, as that's only in Python 3.10, and we can't
+    # just dispatch to 'getattr(numpy, operation)', because some classes don't
+    # implement __array_func__. Thanks a lot, scipy.sparse, and fuck you.
+    if operation == "add":
+        return left + right
+    elif operation == "subtract":
+        return left - right
+    elif operation == "multiply":
+        return left * right
+    elif operation == "divide":
+        return left / right
+    elif operation == "remainder":
+        return left % right
+    elif operation == "floor_divide":
+        return left // right
+    elif operation == "power":
+        return left ** right
+    elif operation == "equal":
+        return left == right
+    elif operation == "greater_equal":
+        return left >= right
+    elif operation == "greater":
+        return left > right
+    elif operation == "less_equal":
+        return left <= right
+    elif operation == "less":
+        return left < right
+    elif operation == "not_equal":
+        return left != right
+    return getattr(numpy, operation)(left, right)
 
 
 class UnaryIsometricOpWithArgs:
@@ -76,15 +105,13 @@ class UnaryIsometricOpWithArgs:
     def __init__(
         self, seed, value: Union[float, ndarray], operation: OP, right: bool = True
     ):
-        f = _choose_operator(operation)
-
         dummy = numpy.zeros(0, dtype=seed.dtype)
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
             if isinstance(value, ndarray):
-                dummy = f(dummy, value[:0])
+                dummy = _execute(dummy, value[:0], operation)
             else:
-                dummy = f(dummy, value)
+                dummy = _execute(dummy, value, operation)
         dtype = dummy.dtype
 
         along = None
@@ -193,11 +220,10 @@ class UnaryIsometricOpWithArgs:
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
         operand = self._value
-        f = _choose_operator(self._op)
         if self._right:
-            return f(target, operand)
+            return _execute(target, operand, self._op)
         else:
-            return f(operand, target)
+            return _execute(operand, target, self._op)
 
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
@@ -213,12 +239,10 @@ class UnaryIsometricOpWithArgs:
                 resub[subdim] = subset[subdim]
                 subvalue = subvalue[(*resub,)]
 
-        OP = _choose_operator(self._op)
-
         def f(s):
             if self._right:
-                return OP(s, subvalue)
+                return _execute(s, subvalue, self._op)
             else:
-                return OP(subvalue, s)
+                return _execute(subvalue, s, self._op)
 
         return _retry_single(target, f, self.shape)

@@ -4,7 +4,7 @@ from typing import Tuple, Sequence
 import numpy
 from dask.array.core import Array
 
-from .UnaryIsometricOpWithArgs import OP, _choose_operator
+from .UnaryIsometricOpWithArgs import OP, _execute
 from .utils import create_dask_array, extract_array, _densify
 
 __author__ = "ltla"
@@ -40,12 +40,11 @@ class BinaryIsometricOp:
         if left.shape != right.shape:
             raise ValueError("'left' and 'right' shapes should be the same")
 
-        f = _choose_operator(operation)
         ldummy = numpy.zeros(0, dtype=left.dtype)
         rdummy = numpy.zeros(0, dtype=right.dtype)
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
-            dummy = f(ldummy, rdummy)
+            dummy = _execute(ldummy, rdummy, operation)
         dtype = dummy.dtype
 
         self._left = left
@@ -103,19 +102,17 @@ class BinaryIsometricOp:
 
     def __DelayedArray_dask__(self) -> Array:
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        f = _choose_operator(self._op)
         ls = create_dask_array(self._left)
         rs = create_dask_array(self._right)
-        return f(ls, rs)
+        return _execute(ls, rs, self._op)
 
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         ls = extract_array(self._left, subset)
         rs = extract_array(self._right, subset)
 
-        f = _choose_operator(self._op)
         try:
-            output = f(ls, rs)
+            output = _execute(ls, rs, self._op)
             if output.shape != self.shape:
                 raise ValueError(
                     "operation on "
@@ -125,5 +122,6 @@ class BinaryIsometricOp:
         except Exception:
             ls = _densify(ls)
             rs = _densify(rs)
-            output = f(ls, rs)
+            output = _execute(ls, rs, self._op)
+
         return output
