@@ -127,9 +127,9 @@ class Combine:
             output = concatenate((*extracted,), axis=self.along)
             if output.shape != self.shape:
                 raise ValueError(
-                    "'numpy.concatenate' on " +
-                    str(type(extracted[0])) +
-                    " objects does not return the correct shape"
+                    "'numpy.concatenate' on "
+                    + str(type(extracted[0]))
+                    + " objects does not return the correct shape"
                 )
         except:
             for i, x in enumerate(extracted):

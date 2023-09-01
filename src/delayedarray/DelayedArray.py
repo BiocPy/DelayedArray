@@ -186,7 +186,8 @@ class DelayedArray:
                 extent = self._seed.shape[d]
                 if extent > edge_size * 2:
                     indices.append(
-                        list(range(edge_size + 1)) + list(range(extent - edge_size, extent))
+                        list(range(edge_size + 1))
+                        + list(range(extent - edge_size, extent))
                     )
                 else:
                     indices.append(slice(None))

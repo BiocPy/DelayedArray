@@ -5,7 +5,7 @@ import numpy
 from dask.array.core import Array
 from numpy import ndarray
 
-from .utils import create_dask_array, extract_array, _densify, _retry_single
+from .utils import create_dask_array, extract_array, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -214,6 +214,7 @@ class UnaryIsometricOpWithArgs:
                 subvalue = subvalue[(*resub,)]
 
         OP = _choose_operator(self._op)
+
         def f(s):
             if self._right:
                 return OP(s, subvalue)

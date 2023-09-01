@@ -822,11 +822,10 @@ def test_DelayedArray_sparse():
     out = delayedarray.extract_array(z)
     assert (y.toarray() * v == numpy.array(out)).all()
 
-    z = x[1:3,[0,2]]
+    z = x[1:3, [0, 2]]
     out = delayedarray.extract_array(z)
-    assert (y.toarray()[1:3,[0,2]] == out.toarray()).all()
+    assert (y.toarray()[1:3, [0, 2]] == out.toarray()).all()
 
     z = numpy.log1p(x)
     out = delayedarray.extract_array(z)
     assert (numpy.log1p(y.toarray()) == out.toarray()).all()
-

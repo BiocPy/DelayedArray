@@ -4,7 +4,7 @@ import numpy
 from dask.array.core import Array
 from numpy import dtype, zeros
 
-from .utils import create_dask_array, extract_array, _densify, _retry_single
+from .utils import create_dask_array, extract_array, _retry_single
 
 __author__ = "ltla"
 __copyright__ = "ltla"
