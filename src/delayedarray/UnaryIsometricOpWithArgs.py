@@ -48,7 +48,7 @@ def _execute(left, right, operation):
     elif operation == "floor_divide":
         return left // right
     elif operation == "power":
-        return left ** right
+        return left**right
     elif operation == "equal":
         return left == right
     elif operation == "greater_equal":
