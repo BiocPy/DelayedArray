@@ -34,11 +34,10 @@ def _spawn_indices(shape):
 
 
 def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
-    """Extract the realized contents (or a subset thereof) into some NumPy-like array.
-    For delayed operations, this attempts to preserve the class of the seed, which may
-    improve performance when dealing with objects like sparse matrices; if the 
-    class does not support the operation, this function will fall back to creating
-    a NumPy array and applying the operation on that instead.
+    """Extract the realized contents (or a subset thereof) into some NumPy-like array. For delayed operations, this
+    attempts to preserve the class of the seed, which may improve performance when dealing with objects like sparse
+    matrices; if the class does not support the operation, this function will fall back to creating a NumPy array and
+    applying the operation on that instead.
 
     Args:
         seed: Any object that supports slicing by :py:meth:`~numpy.ix_`, or has a
@@ -60,7 +59,7 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
             subset = _spawn_indices(seed.shape)
         output = seed.__DelayedArray_extract__(subset)
     else:
-        noop = True 
+        noop = True
         if subset is not None:
             for i, s in enumerate(seed.shape):
                 cursub = subset[i]
