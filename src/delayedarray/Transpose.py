@@ -9,6 +9,7 @@ __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
+
 def _transpose(x, perm):
     if perm == (1, 0) and hasattr(x, "T"):
         return x.T
