@@ -694,6 +694,13 @@ def test_DelayedArray_subset():
     assert sub.shape == (30, 3, 20)
     assert (numpy.array(sub) == y[:, [1, 3, 5]]).all()
 
+    # Works with unsorted or duplicate indices.
+    sub = x[:, :, [1, 1, 2, 3]]
+    assert (numpy.array(sub) == y[:, :, [1, 1, 2, 3]]).all()
+
+    sub = x[:, [5, 4, 3, 2, 1, 0], :]
+    assert (numpy.array(sub) == y[:, [5, 4, 3, 2, 1, 0], :]).all()
+
     # Falls back to a concrete numpy.ndarray
     stuff = x[:, :, 2]
     assert (stuff == y[:, :, 2]).all()
