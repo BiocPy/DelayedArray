@@ -1,4 +1,5 @@
 from typing import Tuple, Sequence
+import warnings
 
 from dask.array.core import Array
 from numpy import concatenate, dtype, ndarray
@@ -131,7 +132,8 @@ class Combine:
                     + str(type(extracted[0]))
                     + " objects does not return the correct shape"
                 )
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             for i, x in enumerate(extracted):
                 extracted[i] = _densify(x)
             output = concatenate((*extracted,), axis=self.along)
