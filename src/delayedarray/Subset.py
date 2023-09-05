@@ -13,7 +13,7 @@ __license__ = "MIT"
 def _sanitize(subset):
     okay = True
     for i in range(1, len(subset)):
-        if subset[i] <= subset[i-1]:
+        if subset[i] <= subset[i - 1]:
             okay = False
             break
 
