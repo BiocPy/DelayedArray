@@ -798,8 +798,39 @@ class DelayedArray:
                     sanitized.append(dummy)
             return DelayedArray(Subset(self._seed, (*sanitized,)))
 
-        # WHATEVER. Fuck this shit. Just do whatever.
-        test = extract_array(self._seed)[(..., *args)]
+        # If we're discarding dimensions, we see if we can do some pre-emptive extraction.
+        extractions = []
+        new_args = []
+        failed = False
+
+        for d, idx in enumerate(args):
+            if isinstance(idx, slice):
+                extractions.append(range(*idx.indices(self.shape[d])))
+                new_args.append(slice(None))
+            elif isinstance(idx, ndarray):
+                if len(idx.shape) != 1:
+                    failed = True
+                    break
+                else:
+                    extractions.append(idx)
+                    new_args.append(slice(None))
+            elif not isinstance(idx, Sequence):
+                extractions.append([idx])
+                new_args.append(0)
+            else:
+                extractions.append(idx)
+                new_args.append(slice(None))
+
+        if not failed:
+            base_seed = extract_array(self._seed, (*extractions,))
+        else:
+            base_seed = extract_array(self._seed)
+            new_args = args
+
+        try:
+            test = base_seed[(..., *new_args)]
+        except Exception:
+            test = _densify(base_seed)[(..., *new_args)]
         if len(test.shape) == ndim:
             raise NotImplementedError(
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
