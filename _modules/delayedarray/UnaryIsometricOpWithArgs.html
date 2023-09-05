@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.2.0 documentation</title>
+        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.2.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.2.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -232,8 +232,37 @@
 <span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">_choose_operator</span><span class="p">(</span><span class="n">operation</span><span class="p">):</span>
-    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
+    <span class="c1"># Can&#39;t use match/case yet, as that&#39;s only in Python 3.10, and we can&#39;t</span>
+    <span class="c1"># just dispatch to &#39;getattr(numpy, operation)&#39;, because some classes don&#39;t</span>
+    <span class="c1"># implement __array_func__. Thanks a lot, scipy.sparse, and fuck you.</span>
+    <span class="k">if</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;subtract&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;multiply&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;divide&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">/</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;remainder&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">%</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;floor_divide&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;power&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span><span class="o">**</span><span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;equal&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">==</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;greater_equal&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;greater&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">&gt;</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;less_equal&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;less&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span>
+    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;not_equal&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">left</span> <span class="o">!=</span> <span class="n">right</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">operation</span><span class="p">)(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="UnaryIsometricOpWithArgs">
@@ -279,15 +308,13 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">OP</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">):</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
-
         <span class="n">dummy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>  <span class="c1"># silence warnings from divide by zero.</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-                <span class="n">dummy</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">[:</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">_execute</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">[:</span><span class="mi">0</span><span class="p">],</span> <span class="n">operation</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">dummy</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">_execute</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
         <span class="n">dtype</span> <span class="o">=</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span>
 
         <span class="n">along</span> <span class="o">=</span> <span class="kc">None</span>
@@ -398,11 +425,10 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
         <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
         <span class="n">operand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">operand</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="UnaryIsometricOpWithArgs.__DelayedArray_extract__">
@@ -421,13 +447,11 @@
                 <span class="n">resub</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span>
                 <span class="n">subvalue</span> <span class="o">=</span> <span class="n">subvalue</span><span class="p">[(</span><span class="o">*</span><span class="n">resub</span><span class="p">,)]</span>
 
-        <span class="n">OP</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
-
         <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">OP</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">subvalue</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">subvalue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">OP</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">_retry_single</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
 </div>
@@ -464,7 +488,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=938c9ccc"></script>
+</div><script src="../../_static/documentation_options.js?v=37f418d5"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
