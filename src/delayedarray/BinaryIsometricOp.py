@@ -119,7 +119,8 @@ class BinaryIsometricOp:
                     + str(type(seed))
                     + " does not return the expected shape"
                 )
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             ls = _densify(ls)
             rs = _densify(rs)
             output = _execute(ls, rs, self._op)

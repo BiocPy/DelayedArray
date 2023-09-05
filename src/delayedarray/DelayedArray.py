@@ -13,6 +13,7 @@ from numpy import (
     prod,
 )
 
+import warnings
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
 from .Combine import Combine
@@ -828,7 +829,8 @@ class DelayedArray:
 
         try:
             test = base_seed[(..., *new_args)]
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             test = _densify(base_seed)[(..., *new_args)]
         if len(test.shape) == ndim:
             raise NotImplementedError(
@@ -843,7 +845,8 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.sum(*args, **kwargs)
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             target = _densify(target)
             return target.sum(*args, **kwargs)
 
@@ -852,7 +855,8 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.var(*args, **kwargs)
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             target = _densify(target)
             return target.var(*args, **kwargs)
 
@@ -861,7 +865,8 @@ class DelayedArray:
         target = extract_array(self._seed)
         try:
             return target.mean(*args, **kwargs)
-        except Exception:
+        except Exception as e:
+            warnings.warn(e)
             target = _densify(target)
             return target.mean(*args, **kwargs)
 

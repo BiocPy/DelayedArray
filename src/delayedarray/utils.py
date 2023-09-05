@@ -2,6 +2,7 @@ from typing import Optional, Tuple, Sequence
 from dask.array import from_array, Array
 from numpy import array, ndarray, ix_
 from scipy.sparse import coo_matrix
+import warnings
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -132,6 +133,7 @@ def _retry_single(seed, f, expected_shape):
                 + str(type(seed))
                 + " does not return the expected shape"
             )
-    except Exception:
+    except Exception as e:
+        warnings.warn(e)
         output = f(_densify(seed))
     return output
