@@ -824,7 +824,7 @@ def test_DelayedArray_sparse():
 
     z = x / v
     out = delayedarray.extract_array(z)
-    assert (y.toarray() / v == numpy.array(out)).all()
+    assert numpy.allclose(y.toarray() / v, out.toarray())
 
     z = x[1:3, [0, 2]]
     out = delayedarray.extract_array(z)
