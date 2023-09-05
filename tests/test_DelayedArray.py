@@ -840,6 +840,9 @@ def test_DelayedArray_sparse():
     assert isinstance(out, numpy.ndarray) is False
     assert (y.toarray()[1:3, [0, 2]] == out.toarray()).all()
 
+    assert (y.toarray()[1, :] == x[1,:]).all()
+    assert (y.toarray()[:, 0] == x[:,0]).all()
+
     z = numpy.log1p(x)
     out = delayedarray.extract_array(z)
     assert isinstance(out, numpy.ndarray) is False

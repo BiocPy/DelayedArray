@@ -803,6 +803,7 @@ class DelayedArray:
         failed = False
         as_vector = []
         new_args = []
+        dim_loss = 0
 
         for d, idx in enumerate(args):
             if isinstance(idx, ndarray):
@@ -814,6 +815,7 @@ class DelayedArray:
             elif not isinstance(idx, Sequence):
                 as_vector.append([idx])
                 new_args.append(0)
+                dim_loss += 1
                 continue
 
             as_vector.append(idx)
@@ -829,14 +831,18 @@ class DelayedArray:
 
         try:
             test = base_seed[(..., *new_args)]
+            if len(test.shape) != ndim - dim_loss:
+                raise ValueError("slicing for " + str(type(base_seed)) + " does not discard dimensions with scalar indices")
         except Exception as e:
             warnings.warn(e)
             test = _densify(base_seed)[(..., *new_args)]
+
         if len(test.shape) == ndim:
             raise NotImplementedError(
                 "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
                 "probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
             )
+
         return test
 
     # For python-level compute.
