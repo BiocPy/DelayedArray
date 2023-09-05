@@ -95,7 +95,7 @@ def extract_array(seed, subset: Optional[Tuple[Sequence[int]]] = None):
     # Unfortunately, COO matrices don't support subscripting. Hence,
     # we need to always coerce it back to a CSC matrix, just in case
     # the caller needs to do some subscripting.
-    if isinstance(output, coo_matrix): 
+    if isinstance(output, coo_matrix):
         output = output.tocsc()
 
     return output
