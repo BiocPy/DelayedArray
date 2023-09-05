@@ -1,13 +1,40 @@
 from typing import Sequence, Tuple
 
 from dask.array.core import Array
-from numpy import dtype, ndarray
+from numpy import dtype, ndarray, ix_
 
 from .utils import create_dask_array, extract_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
+
+
+def _sanitize(subset):
+    okay = True
+    for i in range(1, len(subset)):
+        if subset[i] <= subset[i-1]:
+            okay = False
+            break
+
+    if okay:
+        return subset, None
+
+    sortvec = []
+    for i, d in enumerate(subset):
+        sortvec.append((d, i))
+    sortvec.sort()
+
+    san = []
+    remap = [None] * len(sortvec)
+    last = None
+    for d, i in sortvec:
+        if last != d:
+            san.append(d)
+            last = d
+        remap[i] = len(san) - 1
+
+    return san, remap
 
 
 class Subset:
@@ -38,7 +65,6 @@ class Subset:
             )
 
         self._subset = subset
-
         final_shape = []
         for idx in subset:
             final_shape.append(len(idx))
@@ -101,11 +127,25 @@ class Subset:
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         newsub = list(subset)
+        expanded = []
+        is_safe = 0
+
         for i, s in enumerate(newsub):
             cursub = self._subset[i]
             if isinstance(cursub, ndarray):
                 replacement = cursub[s]
             else:
                 replacement = [cursub[j] for j in s]
-            newsub[i] = replacement
-        return extract_array(self._seed, (*newsub,))
+
+            san_sub, san_remap = _sanitize(replacement)
+            newsub[i] = san_sub
+
+            if san_remap is None:
+                is_safe += 1
+                san_remap = range(len(san_sub))
+            expanded.append(san_remap)
+
+        raw = extract_array(self._seed, (*newsub,))
+        if is_safe != len(subset):
+            raw = raw[ix_(*expanded)]
+        return raw

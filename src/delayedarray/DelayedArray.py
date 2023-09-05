@@ -799,30 +799,29 @@ class DelayedArray:
             return DelayedArray(Subset(self._seed, (*sanitized,)))
 
         # If we're discarding dimensions, we see if we can do some pre-emptive extraction.
-        extractions = []
-        new_args = []
         failed = False
+        as_vector = []
+        new_args = []
 
         for d, idx in enumerate(args):
-            if isinstance(idx, slice):
-                extractions.append(range(*idx.indices(self.shape[d])))
-                new_args.append(slice(None))
-            elif isinstance(idx, ndarray):
+            if isinstance(idx, ndarray):
                 if len(idx.shape) != 1:
                     failed = True
                     break
-                else:
-                    extractions.append(idx)
-                    new_args.append(slice(None))
+            elif isinstance(idx, slice):
+                idx = range(*idx.indices(self.shape[d]))
             elif not isinstance(idx, Sequence):
-                extractions.append([idx])
+                as_vector.append([idx])
                 new_args.append(0)
-            else:
-                extractions.append(idx)
-                new_args.append(slice(None))
+                continue
+
+            as_vector.append(idx)
+            new_args.append(slice(None))
 
         if not failed:
-            base_seed = extract_array(self._seed, (*extractions,))
+            # Just using Subset here to avoid having to reproduce the
+            # uniquifying/sorting of subsets before extract_array().
+            base_seed = extract_array(Subset(self._seed, (*as_vector,)))
         else:
             base_seed = extract_array(self._seed)
             new_args = args
