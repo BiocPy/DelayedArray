@@ -832,7 +832,11 @@ class DelayedArray:
         try:
             test = base_seed[(..., *new_args)]
             if len(test.shape) != ndim - dim_loss:
-                raise ValueError("slicing for " + str(type(base_seed)) + " does not discard dimensions with scalar indices")
+                raise ValueError(
+                    "slicing for "
+                    + str(type(base_seed))
+                    + " does not discard dimensions with scalar indices"
+                )
         except Exception as e:
             warnings.warn(e)
             test = _densify(base_seed)[(..., *new_args)]
