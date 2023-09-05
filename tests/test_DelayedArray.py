@@ -697,6 +697,8 @@ def test_DelayedArray_subset():
     # Falls back to a concrete numpy.ndarray
     stuff = x[:, :, 2]
     assert (stuff == y[:, :, 2]).all()
+    stuff = x[0, :, 2]
+    assert (stuff == y[0, :, 2]).all()
 
     # Works with dask arrays.
     da = delayedarray.create_dask_array(x)
