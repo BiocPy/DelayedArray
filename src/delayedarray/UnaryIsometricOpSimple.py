@@ -116,4 +116,4 @@ class UnaryIsometricOpSimple:
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         target = extract_array(self._seed, subset)
         f = _choose_operator(self._op)
-        return _retry_single(target, f, self._seed.shape)
+        return _retry_single(target, f, target.shape)

@@ -245,4 +245,4 @@ class UnaryIsometricOpWithArgs:
             else:
                 return _execute(subvalue, s, self._op)
 
-        return _retry_single(target, f, self.shape)
+        return _retry_single(target, f, target.shape)

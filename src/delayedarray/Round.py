@@ -79,4 +79,4 @@ class Round:
         def f(s):
             return numpy.round(s, decimals=self._decimals)
 
-        return _retry_single(target, f, self.shape)
+        return _retry_single(target, f, target.shape)

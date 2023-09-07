@@ -134,6 +134,6 @@ def _retry_single(seed, f, expected_shape):
                 + " does not return the expected shape"
             )
     except Exception as e:
-        warnings.warn(e)
+        warnings.warn(str(e))
         output = f(_densify(seed))
     return output

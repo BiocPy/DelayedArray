@@ -124,16 +124,20 @@ class Combine:
                 flexargs[self._along] = fragmented[i]
                 extracted.append(extract_array(x, (*flexargs,)))
 
+        expected_shape = []
+        for i, s in enumerate(subset):
+            expected_shape.append(len(s))
+
         try:
             output = concatenate((*extracted,), axis=self.along)
-            if output.shape != self.shape:
+            if output.shape != (*expected_shape,):
                 raise ValueError(
                     "'numpy.concatenate' on "
                     + str(type(extracted[0]))
                     + " objects does not return the correct shape"
                 )
         except Exception as e:
-            warnings.warn(e)
+            warnings.warn(str(e))
             for i, x in enumerate(extracted):
                 extracted[i] = _densify(x)
             output = concatenate((*extracted,), axis=self.along)

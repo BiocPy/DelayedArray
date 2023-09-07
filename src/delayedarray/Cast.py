@@ -69,4 +69,4 @@ class Cast:
         def f(s):
             return s.astype(self._dtype)
 
-        return _retry_single(target, f, self.shape)
+        return _retry_single(target, f, target.shape)

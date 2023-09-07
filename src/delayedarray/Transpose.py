@@ -109,4 +109,5 @@ class Transpose:
         def f(s):
             return _transpose(s, perm=self._perm)
 
-        return _retry_single(target, f, self._shape)
+        expected_shape = [len(s) for s in subset]
+        return _retry_single(target, f, (*expected_shape,))
