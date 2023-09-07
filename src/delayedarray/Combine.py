@@ -133,7 +133,7 @@ class Combine:
                     + " objects does not return the correct shape"
                 )
         except Exception as e:
-            warnings.warn(e)
+            warnings.warn(str(e))
             for i, x in enumerate(extracted):
                 extracted[i] = _densify(x)
             output = concatenate((*extracted,), axis=self.along)

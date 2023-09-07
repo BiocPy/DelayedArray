@@ -838,7 +838,7 @@ class DelayedArray:
                     + " does not discard dimensions with scalar indices"
                 )
         except Exception as e:
-            warnings.warn(e)
+            warnings.warn(str(e))
             test = _densify(base_seed)[(..., *new_args)]
 
         if len(test.shape) == ndim:
@@ -856,7 +856,7 @@ class DelayedArray:
         try:
             return target.sum(*args, **kwargs)
         except Exception as e:
-            warnings.warn(e)
+            warnings.warn(str(e))
             target = _densify(target)
             return target.sum(*args, **kwargs)
 
