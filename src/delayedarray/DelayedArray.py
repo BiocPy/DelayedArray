@@ -121,8 +121,13 @@ class DelayedArray:
     Attributes:
         seed: Any array-like object that satisfies the seed contract.
             This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.
-            It should also NumPy slicing via :py:meth:`~numpy.ix_`; additional NumPy
-            interface support will be used where relevant.
+
+            In addition, it should either have an :py:meth:`~__DelayedArray_extract__` method, or
+            it should suppoort NumPy slicing via :py:meth:`~numpy.ix_`. Additional NumPy
+            interface support (e.g., dunder methods, ufuncs) will be used where relevant.
+
+            For dask support, the seed should provide a :py:meth:`~__DelayedArray_dask__` 
+            method if it is not already compatible with dask.
     """
 
     def __init__(self, seed):
