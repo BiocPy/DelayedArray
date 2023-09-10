@@ -126,7 +126,7 @@ class DelayedArray:
             it should suppoort NumPy slicing via :py:meth:`~numpy.ix_`. Additional NumPy
             interface support (e.g., dunder methods, ufuncs) will be used where relevant.
 
-            For dask support, the seed should provide a :py:meth:`~__DelayedArray_dask__` 
+            For dask support, the seed should provide a :py:meth:`~__DelayedArray_dask__`
             method if it is not already compatible with dask.
     """
 
