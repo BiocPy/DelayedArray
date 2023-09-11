@@ -24,11 +24,12 @@ def create_dask_array(seed) -> "dask.array.core.Array":
 
     if hasattr(seed, "__DelayedArray_dask__"):
         return seed.__DelayedArray_dask__()
-    elif isinstance(seed, Array):
+    
+    import dask.array
+
+    if isinstance(seed, Array):
         return seed
     else:
-        import dask.array
-
         return dask.array.from_array(seed)
 
 
