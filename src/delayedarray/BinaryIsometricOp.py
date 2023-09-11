@@ -2,6 +2,7 @@ import warnings
 from typing import Tuple, Sequence, TYPE_CHECKING
 
 import numpy
+
 if TYPE_CHECKING:
     import dask.array
 

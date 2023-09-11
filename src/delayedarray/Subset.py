@@ -1,6 +1,7 @@
 from typing import Sequence, Tuple, TYPE_CHECKING
 
 from numpy import dtype, ndarray, ix_
+
 if TYPE_CHECKING:
     import dask.array
 
