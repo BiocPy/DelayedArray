@@ -27,7 +27,7 @@ def create_dask_array(seed) -> "dask.array.core.Array":
 
     import dask.array
 
-    if isinstance(seed, Array):
+    if isinstance(seed, dask.array.core.Array):
         return seed
     else:
         return dask.array.from_array(seed)
