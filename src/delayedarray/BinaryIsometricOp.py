@@ -1,8 +1,9 @@
 import warnings
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, TYPE_CHECKING
 
 import numpy
-from dask.array.core import Array
+if TYPE_CHECKING:
+    import dask.array
 
 from .UnaryIsometricOpWithArgs import OP, _execute
 from .utils import create_dask_array, extract_array, _densify
@@ -100,7 +101,7 @@ class BinaryIsometricOp:
         """
         return self._op
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         ls = create_dask_array(self._left)
         rs = create_dask_array(self._right)

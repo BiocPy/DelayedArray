@@ -1,7 +1,6 @@
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union, TYPE_CHECKING
 
 import numpy
-from dask.array.core import Array
 from numpy import (
     array,
     array2string,
@@ -12,6 +11,8 @@ from numpy import (
     ndarray,
     prod,
 )
+if TYPE_CHECKING:
+    import dask.array
 
 import warnings
 from .BinaryIsometricOp import BinaryIsometricOp
@@ -886,7 +887,7 @@ class DelayedArray:
             return target.mean(*args, **kwargs)
 
     # Coercion methods.
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         return create_dask_array(self._seed)
 

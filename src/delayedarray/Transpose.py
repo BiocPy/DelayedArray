@@ -1,7 +1,8 @@
-from typing import Optional, Tuple, Sequence
+from typing import Optional, Tuple, Sequence, TYPE_CHECKING
 
-from dask.array.core import Array
 from numpy import dtype, transpose
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array, _retry_single
 
@@ -93,7 +94,7 @@ class Transpose:
         """
         return self._perm
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
         return _transpose(target, perm=self._perm)

@@ -1,8 +1,9 @@
-from typing import Literal, Tuple, Sequence
+from typing import Literal, Tuple, Sequence, TYPE_CHECKING
 
 import numpy
-from dask.array.core import Array
 from numpy import dtype, zeros
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array, _retry_single
 
@@ -106,7 +107,7 @@ class UnaryIsometricOpSimple:
         """
         return self._op
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
         f = _choose_operator(self._op)
