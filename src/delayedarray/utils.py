@@ -24,7 +24,7 @@ def create_dask_array(seed) -> "dask.array.core.Array":
 
     if hasattr(seed, "__DelayedArray_dask__"):
         return seed.__DelayedArray_dask__()
-    
+
     import dask.array
 
     if isinstance(seed, Array):
