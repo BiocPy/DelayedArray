@@ -1,15 +1,17 @@
-from typing import Optional, Tuple, Sequence
-from dask.array import from_array, Array
+from typing import Optional, Tuple, Sequence, TYPE_CHECKING
 from numpy import array, ndarray, ix_
 from scipy.sparse import coo_matrix
 import warnings
+
+if TYPE_CHECKING:
+    import dask.array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def create_dask_array(seed) -> Array:
+def create_dask_array(seed) -> "dask.array.core.Array":
     """Create a dask array containing the delayed operations.
 
     Args:
@@ -22,10 +24,13 @@ def create_dask_array(seed) -> Array:
 
     if hasattr(seed, "__DelayedArray_dask__"):
         return seed.__DelayedArray_dask__()
-    elif isinstance(seed, Array):
+
+    import dask.array
+
+    if isinstance(seed, dask.array.core.Array):
         return seed
     else:
-        return from_array(seed)
+        return dask.array.from_array(seed)
 
 
 def _spawn_indices(shape):

@@ -1,8 +1,10 @@
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, TYPE_CHECKING
 
 import numpy
-from dask.array.core import Array
 from numpy import dtype
+
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array, _retry_single
 
@@ -67,7 +69,7 @@ class Round:
         """
         return self._decimals
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
         return numpy.round(target, decimals=self._decimals)

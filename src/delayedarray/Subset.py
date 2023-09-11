@@ -1,7 +1,9 @@
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, TYPE_CHECKING
 
-from dask.array.core import Array
 from numpy import dtype, ndarray, ix_
+
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array
 
@@ -107,7 +109,7 @@ class Subset:
         """
         return self._subset
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
 

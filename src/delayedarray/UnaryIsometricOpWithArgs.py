@@ -1,9 +1,11 @@
 import warnings
-from typing import Literal, Tuple, Union, Sequence
+from typing import Literal, Tuple, Union, Sequence, TYPE_CHECKING
 
 import numpy
-from dask.array.core import Array
 from numpy import ndarray
+
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array, _retry_single
 
@@ -216,7 +218,7 @@ class UnaryIsometricOpWithArgs:
         """
         return self._along
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
         operand = self._value

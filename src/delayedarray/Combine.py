@@ -1,8 +1,10 @@
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, TYPE_CHECKING
 import warnings
 
-from dask.array.core import Array
 from numpy import concatenate, dtype, ndarray
+
+if TYPE_CHECKING:
+    import dask.array
 
 from .utils import create_dask_array, extract_array, _densify
 
@@ -94,7 +96,7 @@ class Combine:
         """
         return self._along
 
-    def __DelayedArray_dask__(self) -> Array:
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         extracted = []
         for x in self._seeds:
