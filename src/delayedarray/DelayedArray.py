@@ -891,6 +891,6 @@ class DelayedArray:
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         return create_dask_array(self._seed)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]) -> Array:
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         return extract_array(self._seed, subset)
