@@ -99,6 +99,7 @@ preserved = delayedarray.extract_array(n)
 type(preserved)
 ## <class 'numpy.ndarray'>
 
+# Note: requires installation as 'delayedarray[dask]'.
 dasky = delayedarray.create_dask_array(n)
 type(dasky)
 ## <class 'dask.array.core.Array'>
