@@ -3,6 +3,7 @@ from typing import Literal, Tuple, Union, Sequence, TYPE_CHECKING
 
 import numpy
 from numpy import ndarray
+
 if TYPE_CHECKING:
     import dask.array
 

@@ -11,6 +11,7 @@ from numpy import (
     ndarray,
     prod,
 )
+
 if TYPE_CHECKING:
     import dask.array
 
