@@ -4,14 +4,13 @@
 [![Built Status](https://api.cirrus-ci.com/github/<USER>/DelayedArray.svg?branch=main)](https://cirrus-ci.com/github/<USER>/DelayedArray)
 [![ReadTheDocs](https://readthedocs.org/projects/DelayedArray/badge/?version=latest)](https://DelayedArray.readthedocs.io/en/stable/)
 [![Coveralls](https://img.shields.io/coveralls/github/<USER>/DelayedArray/main.svg)](https://coveralls.io/r/<USER>/DelayedArray)
-[![PyPI-Server](https://img.shields.io/pypi/v/DelayedArray.svg)](https://pypi.org/project/DelayedArray/)
 [![Conda-Forge](https://img.shields.io/conda/vn/conda-forge/DelayedArray.svg)](https://anaconda.org/conda-forge/DelayedArray)
-[![Monthly Downloads](https://pepy.tech/badge/DelayedArray/month)](https://pepy.tech/project/DelayedArray)
 [![Twitter](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&label=Twitter)](https://twitter.com/DelayedArray)
 -->
 
 [![Project generated with PyScaffold](https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold)](https://pyscaffold.org/)
 [![PyPI-Server](https://img.shields.io/pypi/v/DelayedArray.svg)](https://pypi.org/project/DelayedArray/)
+[![Monthly Downloads](https://pepy.tech/badge/DelayedArray/month)](https://pepy.tech/project/DelayedArray)
 ![Unit tests](https://github.com/BiocPy/DelayedArray/actions/workflows/pypi-test.yml/badge.svg)
 
 # DelayedArrays, in Python
@@ -86,7 +85,11 @@ n = (numpy.log1p(d / s) + 5)[1:5,:]
 ##         5.00294226, 5.01381951, 5.01344824, 5.020751  , 5.01294937]])
 ```
 
-Uusers can call `numpy.array()`, to realize the delayed operations into a typical NumPy array for consumption;
+Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more information.
+
+## Extracting data
+
+Users can call `numpy.array()`, to realize the delayed operations into a typical NumPy array for consumption;
 or `delayedarray.extract_array()`, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices);
 or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations.
 
@@ -105,7 +108,17 @@ type(dasky)
 ## <class 'dask.array.core.Array'>
 ```
 
-Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more information.
+Alternatively, users can process a `DelayedArray` by iteratively extracting contiguous blocks on a dimension of interest.
+The use of blocks avoids realizing the entire set of delayed operations at once, while reducing overhead from repeated calls to `extract_array` .
+For example, to iterate over the rows with 100 MB blocks:
+
+```python
+block_size = delayedarray.guess_iteration_block_size(d, dimension=0, memory=1e8)
+for start in range(0, d.shape[0], block_size):
+    end = min(d.shape[0], start + block_size)
+    current = delayedarray.extract_array(d, (range(start, end), range(d.shape[1])))
+    # Do something with this block
+```
 
 ## For developers
 
@@ -147,10 +160,3 @@ n.seed.seed.seed.seed.seed
 ```
 
 All attributes required to reconstruct a delayed operation are public and considered part of the stable `DelayedArray` interface.
-
-<!-- pyscaffold-notes -->
-
-## Note
-
-This project has been set up using PyScaffold 4.5. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
