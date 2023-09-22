@@ -24,7 +24,7 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -895,3 +895,7 @@ class DelayedArray:
     def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         return extract_array(self._seed, subset)
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        return chunk_shape(self._seed)

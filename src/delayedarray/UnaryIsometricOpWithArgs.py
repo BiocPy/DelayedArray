@@ -7,7 +7,7 @@ from numpy import ndarray
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -227,7 +227,7 @@ class UnaryIsometricOpWithArgs:
         else:
             return _execute(operand, target, self._op)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         target = extract_array(self._seed, subset)
 
@@ -248,3 +248,7 @@ class UnaryIsometricOpWithArgs:
                 return _execute(subvalue, s, self._op)
 
         return _retry_single(target, f, target.shape)
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        return chunk_shape(self._seed)

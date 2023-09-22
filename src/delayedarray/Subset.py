@@ -5,7 +5,7 @@ from numpy import dtype, ndarray, ix_
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array
+from .utils import create_dask_array, extract_array, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -151,3 +151,22 @@ class Subset:
         if is_safe != len(subset):
             raw = raw[ix_(*expanded)]
         return raw
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        chunk = chunk_shape(self._seed)
+        full = self._shape
+
+        # We don't bother doing anything too fancy here because the subset
+        # might render the concept of rectangular chunks invalid (e.g., if the
+        # subset involves reordering or duplication). We'll just cap the chunk
+        # size to the matrix dimension and call it a day.  We also set lower
+        # bound of 1 to ensure that iteration is always positive.
+        output = []
+        for i in range(len(full)):
+            output.append(max(1, min(chunk[i], full[i])))
+
+        return (*output,)
+
+        
+

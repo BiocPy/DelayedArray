@@ -6,7 +6,7 @@ from numpy import concatenate, dtype, ndarray
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -145,3 +145,20 @@ class Combine:
             output = concatenate((*extracted,), axis=self.along)
 
         return output
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        chunks = [chunk_shape(x) for x in self._seeds]
+
+        # Not bothering with doing anything too fancy here.  We just use the
+        # maximum chunk size (which might also expand, e.g., if you're
+        # combining column-major and row-major matrices; oh well).  Just accept
+        # that we'll probably need to break chunks during iteration.
+        output = []
+        for i in range(len(self._shape)):
+            dim = []
+            for ch in chunks:
+                dim.append(ch[i])
+            output.append(max(*dim))
+
+        return (*output,) 

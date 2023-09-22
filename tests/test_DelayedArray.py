@@ -23,6 +23,8 @@ def test_DelayedArray_dense():
     assert isinstance(da, dask.array.core.Array)
     assert (dump == da.compute()).all()
 
+    assert delayedarray.chunk_shape(x) == (1, 30)
+
 
 def test_DelayedArray_isometric_add():
     test_shape = (55, 15)
@@ -38,6 +40,7 @@ def test_DelayedArray_isometric_add():
     assert z.seed.value == 2
     assert z.seed.along is None
     assert (numpy.array(z) == y + 2).all()
+    assert delayedarray.chunk_shape(z) == (1, 15)
 
     z = 5 + x
     assert isinstance(z, delayedarray.DelayedArray)
@@ -49,6 +52,7 @@ def test_DelayedArray_isometric_add():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == v + y).all()
+    assert delayedarray.chunk_shape(z) == (1, 15)
 
     v = numpy.random.rand(15)
     z = x + v
@@ -640,6 +644,7 @@ def test_DelayedArray_isometric_simple():
         assert isinstance(z, delayedarray.DelayedArray)
         assert z.shape == x.shape
         assert z.seed.operation == op
+        assert delayedarray.chunk_shape(z) == (1, 55)
 
         missing = numpy.isnan(obs)
         assert (missing == numpy.isnan(expected)).all()
@@ -663,6 +668,7 @@ def test_DelayedArray_subset():
     assert (
         numpy.array(sub) == y[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]
     ).all()
+    assert delayedarray.chunk_shape(sub) == (1, 1, 4)
 
     # Works with slices for all (or all but one) dimensions.
     sub = x[0:15, 30:50, 0:20:2]
@@ -754,6 +760,7 @@ def test_DelayedArray_transpose():
     assert isinstance(t.seed, delayedarray.Transpose)
     assert t.shape == (23, 30)
     assert (numpy.array(t) == y.T).all()
+    assert delayedarray.chunk_shape(t) == (23, 1)
 
     t = numpy.transpose(x)
     assert isinstance(t.seed, delayedarray.Transpose)
@@ -789,6 +796,7 @@ def test_DelayedArray_cast():
     assert z.dtype == numpy.int32
     assert z.shape == (30, 23)
     assert (numpy.array(z) == y.astype(numpy.int32)).all()
+    assert delayedarray.chunk_shape(z) == (1, 23)
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -805,6 +813,7 @@ def test_DelayedArray_round():
     assert z.dtype == numpy.float64
     assert z.shape == (30, 23)
     assert (numpy.array(z) == numpy.round(y)).all()
+    assert delayedarray.chunk_shape(z) == (1, 23)
 
     # Number of places.
     z = numpy.round(x, decimals=1)
@@ -821,6 +830,7 @@ def test_DelayedArray_sparse():
 
     out = delayedarray.extract_array(x)
     assert isinstance(out, numpy.ndarray) is False
+    assert delayedarray.chunk_shape(out) == (1, 3)
 
     z = x + 1
     out = delayedarray.extract_array(z)

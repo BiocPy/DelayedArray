@@ -6,7 +6,7 @@ from numpy import dtype
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -82,3 +82,7 @@ class Round:
             return numpy.round(s, decimals=self._decimals)
 
         return _retry_single(target, f, target.shape)
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        return chunk_shape(self._seed)

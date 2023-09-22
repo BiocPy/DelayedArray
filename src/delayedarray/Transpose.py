@@ -5,7 +5,7 @@ from numpy import dtype, transpose
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -113,3 +113,9 @@ class Transpose:
 
         expected_shape = [len(s) for s in subset]
         return _retry_single(target, f, (*expected_shape,))
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        chunks = chunk_shape(self._seed)
+        output = [chunks[i] for i in self._perm]
+        return (*output,)
