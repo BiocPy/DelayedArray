@@ -48,7 +48,7 @@ class Cast:
         Returns:
             dtype: NumPy type for the ``Cast`` contents.
         """
-        return self._dtype
+        return dtype(self._dtype)
 
     @property
     def seed(self):

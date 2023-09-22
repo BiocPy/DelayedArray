@@ -8,7 +8,7 @@ def test_Cast_simple():
     z = x.astype(numpy.int32)
 
     assert isinstance(z.seed, delayedarray.Cast)
-    assert z.dtype == numpy.int32
+    assert z.dtype == numpy.dtype("int32")
     assert z.shape == (30, 23)
     assert (numpy.array(z) == y.astype(numpy.int32)).all()
     assert delayedarray.chunk_shape(z) == (1, 23)
