@@ -1,5 +1,6 @@
 import delayedarray
 import numpy
+import scipy.sparse
 
 
 def test_Subset_ix():
@@ -15,6 +16,7 @@ def test_Subset_ix():
         numpy.array(sub) == y[numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])]
     ).all()
     assert delayedarray.chunk_shape(sub) == (1, 1, 4)
+    assert not delayedarray.is_sparse(sub)
 
 
 def test_Subset_slice():
@@ -92,12 +94,20 @@ def test_Subset_collapse():
 #    assert stuff.shape == (3,)
 
 
+def test_Subset_sparse():
+    y = scipy.sparse.rand(50, 20)
+    x = delayedarray.DelayedArray(y)
+    sub = x[5:45:5, 0:20:2]
+    assert delayedarray.is_sparse(sub)
+
+
 def test_Subset_dask():
     test_shape = (30, 55, 20)
     y = numpy.random.rand(*test_shape)
     x = delayedarray.DelayedArray(y)
+    sub = x[0:10:2,5:50:5,2:5]
 
     import dask
-    da = delayedarray.create_dask_array(x)
+    da = delayedarray.create_dask_array(sub)
     assert isinstance(da, dask.array.core.Array)
-    assert (numpy.array(x) == da.compute()).all()
+    assert (numpy.array(sub) == da.compute()).all()

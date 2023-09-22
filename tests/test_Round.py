@@ -1,5 +1,6 @@
 import numpy
 import delayedarray
+import scipy.sparse
 
 
 def test_Round_default():
@@ -12,6 +13,14 @@ def test_Round_default():
     assert z.shape == (30, 23)
     assert (numpy.array(z) == numpy.round(y)).all()
     assert delayedarray.chunk_shape(z) == (1, 23)
+    assert not delayedarray.is_sparse(z)
+
+
+def test_Round_sparse():
+    y = scipy.sparse.random(30, 10, 0.05)
+    x = delayedarray.DelayedArray(y)
+    z = numpy.round(x)
+    assert delayedarray.is_sparse(x)
 
 
 def test_Round_decimals():

@@ -1,6 +1,6 @@
 from typing import Optional, Tuple, Sequence, TYPE_CHECKING
 from numpy import array, ndarray, ix_
-from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
+from scipy.sparse import sparray, coo_matrix, csr_matrix, csc_matrix
 import warnings
 
 if TYPE_CHECKING:
@@ -215,3 +215,23 @@ def guess_iteration_block_size(seed, dimension: int, memory: int = 10000000) -> 
         return ideal
 
     return int(ideal / curdim) * curdim
+
+
+def is_sparse(seed) -> bool:
+    """Determine whether a seed object contains sparse data. This calls
+    :py:meth:`~delayedarray.DelayedArray.DelayedArray.__DelayedArray_sparse__`
+    if available, otherwise it falls back to some hard-coded rules.
+
+    Args:
+        seed: Any seed object.
+
+    Returns:
+        Whether the seed contains sparse data.
+    """
+    if hasattr(seed, "__DelayedArray_sparse__"):
+        return seed.__DelayedArray_sparse__()
+
+    if isinstance(seed, sparray) or isinstance(seed, csc_matrix) or isinstance(seed, csr_matrix) or isinstance(seed, coo_matrix):
+        return True
+
+    return False

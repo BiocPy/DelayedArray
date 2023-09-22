@@ -5,7 +5,7 @@ from numpy import dtype, transpose
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -119,3 +119,8 @@ class Transpose:
         chunks = chunk_shape(self._seed)
         output = [chunks[i] for i in self._perm]
         return (*output,)
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return is_sparse(self._seed)
+

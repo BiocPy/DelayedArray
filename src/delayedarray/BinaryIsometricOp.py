@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import dask.array
 
 from .UnaryIsometricOpWithArgs import OP, _execute
-from .utils import create_dask_array, extract_array, _densify, chunk_shape
+from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -144,3 +144,7 @@ class BinaryIsometricOp:
             output.append(max(lchunk[i], rchunk[i]))
 
         return (*output,) 
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return is_sparse(self._left) and is_sparse(self._right)

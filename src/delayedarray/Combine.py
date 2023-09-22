@@ -6,7 +6,7 @@ from numpy import concatenate, dtype, ndarray
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _densify, chunk_shape
+from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -162,3 +162,10 @@ class Combine:
             output.append(max(*dim))
 
         return (*output,) 
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        for x in self._seeds:
+            if not is_sparse(x):
+                return False
+        return len(self._seeds) > 0

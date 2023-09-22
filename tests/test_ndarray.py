@@ -8,6 +8,7 @@ def test_ndarray_default():
     x = delayedarray.DelayedArray(raw)
     assert x.shape == raw.shape
     assert x.dtype == raw.dtype
+    assert not delayedarray.is_sparse(out)
 
     out = str(x)
     assert out.find("<40 x 30> DelayedArray object of type 'int32'") != -1

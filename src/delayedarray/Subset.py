@@ -5,7 +5,7 @@ from numpy import dtype, ndarray, ix_
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, chunk_shape
+from .utils import create_dask_array, extract_array, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -168,5 +168,6 @@ class Subset:
 
         return (*output,)
 
-        
-
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return is_sparse(self._seed)
