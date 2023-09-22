@@ -192,6 +192,8 @@ class DelayedArray:
             total *= s
 
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
+        if is_sparse(self._seed):
+            preamble += " sparse"
         preamble += " DelayedArray object of type '" + self._seed.dtype.name + "'"
 
         indices = None

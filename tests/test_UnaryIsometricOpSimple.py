@@ -2,6 +2,7 @@ import warnings
 
 import delayedarray
 import numpy
+import scipy
 
 
 def test_UnaryIsometricOpSimple_basic():
@@ -49,6 +50,7 @@ def test_UnaryIsometricOpSimple_basic():
         assert z.shape == x.shape
         assert z.seed.operation == op
         assert delayedarray.chunk_shape(z) == (1, 55)
+        assert not delayedarray.is_sparse(z)
 
         missing = numpy.isnan(obs)
         assert (missing == numpy.isnan(expected)).all()
@@ -86,3 +88,13 @@ def test_UnaryIsometricOpSimple_abs():
 
     expanded = numpy.array(x)
     assert (numpy.array(z) == abs(expanded)).all()
+
+
+def test_UnaryIsometricOpSimple_sparse():
+    y = scipy.sparse.rand(20, 50, 0.5)
+    x = delayedarray.DelayedArray(y)
+    z = numpy.exp(x)
+    assert not delayedarray.is_sparse(z)
+
+    z = numpy.log1p(x)
+    assert delayedarray.is_sparse(z)

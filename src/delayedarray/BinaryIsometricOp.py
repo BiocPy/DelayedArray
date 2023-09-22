@@ -42,8 +42,8 @@ class BinaryIsometricOp:
         if left.shape != right.shape:
             raise ValueError("'left' and 'right' shapes should be the same")
 
-        ldummy = numpy.zeros(0, dtype=left.dtype)
-        rdummy = numpy.zeros(0, dtype=right.dtype)
+        ldummy = numpy.zeros(1, dtype=left.dtype)
+        rdummy = numpy.zeros(1, dtype=right.dtype)
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
             dummy = _execute(ldummy, rdummy, operation)
@@ -53,6 +53,7 @@ class BinaryIsometricOp:
         self._right = right
         self._op = operation
         self._dtype = dtype
+        self._sparse = is_sparse(self._left) and is_sparse(self._right) and dummy[0] == 0
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -147,4 +148,4 @@ class BinaryIsometricOp:
 
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return is_sparse(self._left) and is_sparse(self._right)
+        return self._sparse
