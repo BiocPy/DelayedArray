@@ -1,6 +1,7 @@
 import delayedarray
 import numpy
 import dask.array
+import scipy.sparse
 
 
 def test_UnaryIsometricOpWithArgs_isometric_add():
@@ -566,3 +567,13 @@ def test_UnaryIsometricOpWithArgs_isometric_logical_xor():
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
+
+
+def test_UnaryIsometricOpWithArgs_sparse():
+    y = scipy.sparse.random(100, 50, 0.1)
+    x = delayedarray.DelayedArray(y)
+    z = x + 1
+    assert not delayedarray.is_sparse(z)
+
+    z = numpy.random.rand(50) * x
+    assert delayedarray.is_sparse(z)

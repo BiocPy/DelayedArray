@@ -7,7 +7,7 @@ from numpy import ndarray
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -107,15 +107,6 @@ class UnaryIsometricOpWithArgs:
     def __init__(
         self, seed, value: Union[float, ndarray], operation: OP, right: bool = True
     ):
-        dummy = numpy.zeros(0, dtype=seed.dtype)
-        with warnings.catch_warnings():  # silence warnings from divide by zero.
-            warnings.simplefilter("ignore")
-            if isinstance(value, ndarray):
-                dummy = _execute(dummy, value[:0], operation)
-            else:
-                dummy = _execute(dummy, value, operation)
-        dtype = dummy.dtype
-
         along = None
         if isinstance(value, ndarray):
             ndim = len(seed.shape)
@@ -143,12 +134,22 @@ class UnaryIsometricOpWithArgs:
                 if along is None:
                     value = value[(*([0] * ndim), ...)]
 
+        with warnings.catch_warnings():  # silence warnings from divide by zero.
+            warnings.simplefilter("ignore")
+            if isinstance(value, ndarray):
+                dummy = numpy.zeros(value.shape, dtype=seed.dtype)
+                dummy = _execute(dummy, value, operation)
+            else:
+                dummy = numpy.zeros(1, dtype=seed.dtype)
+                dummy = _execute(dummy, value, operation)
+
         self._seed = seed
         self._value = value
         self._op = operation
         self._right = right
         self._along = along
-        self._dtype = dtype
+        self._dtype = dummy.dtype
+        self._sparse = is_sparse(self._seed) and (dummy == 0).all()
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -252,3 +253,7 @@ class UnaryIsometricOpWithArgs:
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return self._sparse

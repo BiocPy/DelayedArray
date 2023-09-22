@@ -1,5 +1,6 @@
 import numpy
 import delayedarray
+import scipy.sparse
 
 
 def test_Cast_simple():
@@ -12,6 +13,14 @@ def test_Cast_simple():
     assert z.shape == (30, 23)
     assert (numpy.array(z) == y.astype(numpy.int32)).all()
     assert delayedarray.chunk_shape(z) == (1, 23)
+    assert not delayedarray.is_sparse(z)
+
+
+def test_Cast_sparse():
+    y = scipy.sparse.random(10, 20, 0.05)
+    x = delayedarray.DelayedArray(y)
+    z = x.astype(numpy.int32)
+    assert delayedarray.is_sparse(z)
 
 
 def test_Cast_dask():

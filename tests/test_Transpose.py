@@ -1,5 +1,6 @@
 import delayedarray
 import numpy
+import scipy.sparse
 
 
 def test_Transpose_simple():
@@ -16,6 +17,7 @@ def test_Transpose_simple():
     assert isinstance(t.seed, delayedarray.Transpose)
     assert t.shape == (23, 30)
     assert (numpy.array(t) == numpy.transpose(y)).all()
+    assert not delayedarray.is_sparse(t)
 
 
 def test_Transpose_more_dimensions():
@@ -31,6 +33,13 @@ def test_Transpose_more_dimensions():
     assert isinstance(t.seed, delayedarray.Transpose)
     assert t.shape == (10, 23, 30)
     assert (numpy.array(t) == numpy.transpose(y)).all()
+
+
+def test_Transpose_sparse():
+    y = scipy.sparse.rand(30, 23)
+    x = delayedarray.DelayedArray(y)
+    t = numpy.transpose(x)
+    assert delayedarray.is_sparse(t)
 
 
 def test_Transpose_dask():

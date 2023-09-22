@@ -6,7 +6,7 @@ from numpy import dtype, zeros
 if TYPE_CHECKING:
     import dask.array
 
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape
+from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -68,6 +68,7 @@ class UnaryIsometricOpSimple:
         self._seed = seed
         self._op = operation
         self._dtype = dummy.dtype
+        self._sparse = is_sparse(self._seed) and dummy[0] == 0
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -123,3 +124,7 @@ class UnaryIsometricOpSimple:
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return self._sparse

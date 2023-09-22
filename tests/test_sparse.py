@@ -10,6 +10,7 @@ def test_sparse():
     out = delayedarray.extract_array(x)
     assert isinstance(out, numpy.ndarray) is False
     assert delayedarray.chunk_shape(out) == (1, 3)
+    assert delayedarray.is_sparse(out)
 
 
 def test_sparse_arithmetic():
