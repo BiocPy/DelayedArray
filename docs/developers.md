@@ -11,6 +11,7 @@ Indeed, from their own [documentation](https://docs.dask.org/en/latest/graphs.ht
 > Working directly with dask graphs is rare, though, unless you intend to develop new modules with Dask. Even then, dask.delayed is often a better choice. If you are a core developer, then you should start here.
 
 ... which does not give me confidence that third-party developers parsing the call graph will be a priority for the **dask** team when they're thinking about backwards compatibility.
+That's fair enough.
 
 Similarly, the deeper parts of the task specification are not well-documented.
 For example, each task is represented by a callable object, but these are **dask**-internal objects that do not have clear descriptions of their attributes.

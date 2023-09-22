@@ -111,25 +111,34 @@ translate_ufunc_to_op_simple = set(
 
 
 class DelayedArray:
-    """Array containing delayed operations.
+    """Array containing delayed operations. This is equivalent to the class of
+    the same name from the `R/Bioconductor package
+    <https://bioconductor.org/packages/DelayedArray>`_ of the same name.  It
+    allows users to efficiently operate on large matrices without actually
+    evaluating the operation or creating new copies; instead, the operations
+    will transparently return another ``DelayedArray`` instance containing the
+    delayed operations, which can be realized by calling
+    :py:meth:`~numpy.array` or related methods.
 
-    This is equivalent to the class of the same name from
-    the `R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_ of the same name.
-    It allows users to efficiently operate on large matrices without actually evaluating the
-    operation or creating new copies; instead, the operations will transparently return another ``DelayedArray``
-    instance containing the delayed operations, which can be realized by calling :py:meth:`~numpy.array` or related
-    methods.
+    Any object that satisfies the "seed contract" can be wrapped by a
+    ``DelayedArray``. Specifically, a seed should have:
+
+    - The :py:attr:`~shape` and :py:attr:`~dtype` properties, which are of the
+      same type as the corresponding properties of NumPy arrays.
+    - A :py:meth:`~__DelayedArray_extract__` method, or support NumPy slicing 
+      via slices, scalars, and :py:meth:`~numpy.ix_`.
+
+    Optionally, a seed class may have:
+
+    - A :py:meth:`~__DelayedArray_chunk__` method, to specify the structure of
+      data inside the array. This will control iterations across the array.
+    - A :py:meth:`~__DelayedArray_dask__` method for dask support, if the seed
+      is not already compatible with dask.
+    - Additional NumPy interface support (e.g., dunder methods, ufuncs), which
+      will be used by, e.g., :py:class:`~delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple`.
 
     Attributes:
         seed: Any array-like object that satisfies the seed contract.
-            This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.
-
-            In addition, it should either have an :py:meth:`~__DelayedArray_extract__` method, or
-            it should suppoort NumPy slicing via :py:meth:`~numpy.ix_`. Additional NumPy
-            interface support (e.g., dunder methods, ufuncs) will be used where relevant.
-
-            For dask support, the seed should provide a :py:meth:`~__DelayedArray_dask__`
-            method if it is not already compatible with dask.
     """
 
     def __init__(self, seed):

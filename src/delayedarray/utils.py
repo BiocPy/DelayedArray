@@ -12,11 +12,13 @@ __license__ = "MIT"
 
 
 def create_dask_array(seed) -> "dask.array.core.Array":
-    """Create a dask array containing the delayed operations.
+    """Create a dask array containing the delayed operations. This requires
+    the dask package to be installed and will load it into the current session. 
 
     Args:
         seed: Any object that can be converted into a dask array, or has a
-            ``__DelayedArray_dask__`` method that returns a dask array.
+            ``__DelayedArray_dask__`` method that returns a dask array, or
+            is already a dask array.
 
     Returns:
         Array: dask array, possibly containing delayed operations.

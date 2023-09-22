@@ -15,20 +15,20 @@
 
 # DelayedArrays, in Python
 
+## Introduction
+
 This package implements classes for delayed array operations, mirroring the [Bioconductor package](https://bioconductor.org/packages/DelayedArray) of the same name.
 It allows BiocPy-based packages to easily inteoperate with delayed arrays from the Bioconductor ecosystem,
 with focus on serialization to/from file with [**chihaya**](https://github.com/ArtifactDB/chihaya)/[**rds2py**](https://github.com/BiocPy/rds2py)
 and entry into [**tatami**](https://github.com/tatami-inc/tatami)-compatible C++ libraries via [**mattress**](https://github.com/BiocPy/mattress).
 
-## Installation
+## Quick start
 
 This package is published to [PyPI](https://pypi.org/project/delayedarray/) and can be installed via the usual methods:
 
 ```shell
 pip install delayedarray
 ```
-
-## Quick start
 
 We can create a `DelayedArray` from any object that respects the seed contract,
 i.e., has the `shape`/`dtype` properties and supports NumPy slicing.
@@ -45,70 +45,61 @@ We can wrap this in a `DelayedArray` class:
 import delayedarray
 d = delayedarray.DelayedArray(x)
 ## <100 x 20> DelayedArray object of type 'float64'
-## [[0.87165637, 0.37536154, 0.49505459, ..., 0.90147358, 0.13091768,
-##   0.7288351 ],
-##  [0.06014594, 0.04758512, 0.1932337 , ..., 0.83628993, 0.63886397,
-##   0.37175146],
-##  [0.86038138, 0.1844154 , 0.45318283, ..., 0.411131  , 0.61720257,
-##   0.44831668],
+## [[0.58969193, 0.36342181, 0.03111773, ..., 0.72036247, 0.40297173,
+##   0.48654955],
+##  [0.96346008, 0.57956493, 0.24247029, ..., 0.49717933, 0.589535  ,
+##   0.22806832],
+##  [0.61699438, 0.02493104, 0.87487081, ..., 0.44039656, 0.13967301,
+##   0.57966883],
 ##  ...,
-##  [0.2960631 , 0.85775072, 0.83518558, ..., 0.32533032, 0.59257349,
-##   0.36232564],
-##  [0.7026017 , 0.86221974, 0.42704164, ..., 0.7612019 , 0.58842594,
-##   0.51895466],
-##  [0.4321901 , 0.29703596, 0.34399029, ..., 0.04685882, 0.20102342,
-##   0.05495118]]
+##  [0.91583856, 0.94079754, 0.47546576, ..., 0.46866948, 0.87952439,
+##   0.81316896],
+##  [0.68721591, 0.22789395, 0.51079888, ..., 0.86483248, 0.43933065,
+##   0.84304794],
+##  [0.47763457, 0.54973367, 0.01159327, ..., 0.47338943, 0.86443755,
+##   0.2047926 ]]
 ```
 
 And then we can use it in a variety of operations.
-Each operation just returns a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
+For example, in genomics, a typical quality control task is to slice the matrix to remove uninteresting features (rows) or samples (columns):
 
 ```python
-s = d.sum(axis=0)
-n = (numpy.log1p(d / s) + 5)[1:5,:]
-## <4 x 20> DelayedArray object of type 'float64'
-## array([[5.01864954, 5.01248763, 5.00465425, 5.01366904, 5.01444268,
-##         5.01740277, 5.00211704, 5.00456718, 5.01170253, 5.00268081,
-##         5.00069047, 5.01792154, 5.01174818, 5.007219  , 5.01613611,
-##         5.01998141, 5.00359273, 5.00891747, 5.00167042, 5.00480139],
-##        [5.01319369, 5.01366843, 5.00259837, 5.01438949, 5.0168967 ,
-##         5.0118356 , 5.01468261, 5.00266368, 5.00820377, 5.01519285,
-##         5.00880128, 5.01867732, 5.00597971, 5.0132913 , 5.0169869 ,
-##         5.02033736, 5.0054349 , 5.01064519, 5.01484268, 5.00933761],
-##        [5.01056552, 5.00430873, 5.01554934, 5.01523742, 5.00447682,
-##         5.00896808, 5.01702989, 5.00417863, 5.0106902 , 5.01643898,
-##         5.00436048, 5.01041755, 5.01358732, 5.01173475, 5.00581787,
-##         5.01454487, 5.0097424 , 5.01313867, 5.01227209, 5.01212552],
-##        [5.00265869, 5.01460805, 5.00834077, 5.01877699, 5.00009671,
-##         5.01027705, 5.00650493, 5.01116854, 5.00582936, 5.00997989,
-##         5.00213256, 5.00145715, 5.00797343, 5.01588012, 5.01435549,
-##         5.00294226, 5.01381951, 5.01344824, 5.020751  , 5.01294937]])
+filtered = d[1:100:2,1:8]
+filtered.shape
+## (50, 7)
 ```
 
+We then divide by the total sum of each column to compute normalized values between samples.
+
+```python
+total = filtered.sum(axis=0)
+normalized = filtered / total
+normalized.dtype
+## dtype('float64')
+```
+
+And finally we compute a log-transformation to get some log-normalized values for visualization.
+
+```python
+transformed = numpy.log1p(normalized)
+transformed[1:5,:]
+## <4 x 7> DelayedArray object of type 'float64'
+## [[0.03202309, 0.03256592, 0.02281872, ..., 0.03193778, 0.01735653,
+##   0.02323571],
+##  [0.02668759, 0.0152978 , 0.03818753, ..., 0.00280113, 0.00737041,
+##   0.00852137],
+##  [0.02125275, 0.01473594, 0.01299548, ..., 0.03092256, 0.01225808,
+##   0.0030042 ],
+##  [0.02334768, 0.00499055, 0.01804982, ..., 0.00467121, 0.02921965,
+##   0.02118322]]
+```
+
+Each operation just returns a `DelayedArray` with an increasing stack of delayed operations, without evaluating anything or making any copies.
 Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more information.
 
 ## Extracting data
 
-Users can call `numpy.array()`, to realize the delayed operations into a typical NumPy array for consumption;
-or `delayedarray.extract_array()`, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices);
-or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations.
-
-```python
-simple = numpy.array(n)
-type(simple)
-## <class 'numpy.ndarray'>
-
-preserved = delayedarray.extract_array(n)
-type(preserved)
-## <class 'numpy.ndarray'>
-
-# Note: requires installation as 'delayedarray[dask]'.
-dasky = delayedarray.create_dask_array(n)
-type(dasky)
-## <class 'dask.array.core.Array'>
-```
-
-Alternatively, users can process a `DelayedArray` by iteratively extracting contiguous blocks on a dimension of interest.
+Users can process a `DelayedArray` by iteratively extracting contiguous blocks on a dimension of interest.
 The use of blocks avoids realizing the entire set of delayed operations at once, while reducing overhead from repeated calls to `extract_array` .
 For example, to iterate over the rows with 100 MB blocks:
 
@@ -120,12 +111,56 @@ for start in range(0, d.shape[0], block_size):
     # Do something with this block
 ```
 
-## For developers
+More simply, users can just call `numpy.array()` to realize the delayed operations into a standard NumPy array for consumption.
 
-Ideally, we would use **dask** directly and avoid creating a set of `DelayedArray` wrapper classes.
-We could parse the `HighLevelGraph` objects and retrieve the delayed operations for serialization/reconstruction in other frameworks like R and C++.
-Unfortunately, it was tricky to parse the call graph reliably (see the [developer notes](https://biocpy.github.io/DelayedArray/developers.html)).
-So, the _real_ purpose of the **DelayedArray** package is to make it easier for Bioconductor developers to inspect the delayed operations.
+```python
+simple = numpy.array(n)
+type(simple)
+## <class 'numpy.ndarray'>
+```
+
+Or `delayedarray.extract_array()`, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices):
+
+```python
+import scipy.sparse
+indptr = numpy.array([0, 2, 3, 6])
+indices = numpy.array([0, 2, 2, 0, 1, 2])
+data = numpy.array([1, 2, 3, 4, 5, 6])
+seed = scipy.sparse.csc_array((data, indices, indptr), shape=(3, 3))
+
+delayed = delayedarray.DelayedArray(seed)
+delayed = delayed * 5
+delayedarray.extract_array(delayed)
+## <3x3 sparse array of type '<class 'numpy.int64'>'
+## 	with 6 stored elements in Compressed Sparse Column format>
+```
+
+Or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations:
+
+```python
+# Note: requires installation as 'delayedarray[dask]'.
+dasky = delayedarray.create_dask_array(n)
+type(dasky)
+## <class 'dask.array.core.Array'>
+```
+
+## Interoperability with other packages 
+
+The general idea is that `DelayedArray`s should be a drop-in replacement for NumPy arrays, at least for [BiocPy](https://github.com/BiocPy) applications.
+So, for example, we can stuff the `DelayedArray` inside a `SummarizedExperiment`:
+
+```python
+import summarizedexperiment as SE
+se = SE.SummarizedExperiment({ "counts": filtered, "lognorm": transformed })
+print(se)
+## Class SummarizedExperiment with 50 features and 7 samples
+##   assays: ['counts', 'lognorm']
+##   features: []
+##   sample data: []
+```
+
+One of the main goals of the **DelayedArray** package is to make it easier for Bioconductor developers to inspect the delayed operations.
+(See the [developer notes](https://biocpy.github.io/DelayedArray/developers.html) for some comments on **dask**.)
 For example, we can pull out the "seed" object underlying our `DelayedArray` instance:
 
 ```python
