@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>delayedarray.DelayedArray - DelayedArray 0.2.2 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>delayedarray.DelayedArray - DelayedArray 0.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,10 +199,9 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.DelayedArray</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">array</span><span class="p">,</span>
     <span class="n">array2string</span><span class="p">,</span>
@@ -214,6 +213,9 @@
     <span class="n">prod</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dask.array</span>
+
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">.BinaryIsometricOp</span> <span class="kn">import</span> <span class="n">BinaryIsometricOp</span>
 <span class="kn">from</span> <span class="nn">.Cast</span> <span class="kn">import</span> <span class="n">Cast</span>
@@ -223,7 +225,7 @@
 <span class="kn">from</span> <span class="nn">.Transpose</span> <span class="kn">import</span> <span class="n">Transpose</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpSimple</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpSimple</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpWithArgs</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpWithArgs</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_densify</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_densify</span><span class="p">,</span> <span class="n">chunk_shape</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -324,8 +326,13 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        seed: Any array-like object that satisfies the seed contract.</span>
 <span class="sd">            This means that it has the :py:attr:`~shape` and :py:attr:`~dtype` properties.</span>
-<span class="sd">            It should also NumPy slicing via :py:meth:`~numpy.ix_`; additional NumPy</span>
-<span class="sd">            interface support will be used where relevant.</span>
+
+<span class="sd">            In addition, it should either have an :py:meth:`~__DelayedArray_extract__` method, or</span>
+<span class="sd">            it should suppoort NumPy slicing via :py:meth:`~numpy.ix_`. Additional NumPy</span>
+<span class="sd">            interface support (e.g., dunder methods, ufuncs) will be used where relevant.</span>
+
+<span class="sd">            For dask support, the seed should provide a :py:meth:`~__DelayedArray_dask__`</span>
+<span class="sd">            method if it is not already compatible with dask.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
@@ -1197,16 +1204,23 @@
     <span class="c1"># Coercion methods.</span>
 <div class="viewcode-block" id="DelayedArray.__DelayedArray_dask__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__DelayedArray_dask__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DelayedArray.__DelayedArray_extract__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__DelayedArray_extract__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.extract_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DelayedArray.__DelayedArray_chunk__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.__DelayedArray_chunk__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__DelayedArray_chunk__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.chunk_shape`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -1241,7 +1255,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=000c92bf"></script>
+</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

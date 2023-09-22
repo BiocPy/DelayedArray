@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>delayedarray.utils - DelayedArray 0.2.2 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>delayedarray.utils - DelayedArray 0.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,11 +199,13 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">dask.array</span> <span class="kn">import</span> <span class="n">from_array</span><span class="p">,</span> <span class="n">Array</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">ix_</span>
-<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">coo_matrix</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">coo_matrix</span><span class="p">,</span> <span class="n">csr_matrix</span><span class="p">,</span> <span class="n">csc_matrix</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dask.array</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -212,7 +214,7 @@
 
 <div class="viewcode-block" id="create_dask_array">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.utils.create_dask_array">[docs]</a>
-<span class="k">def</span> <span class="nf">create_dask_array</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">create_dask_array</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a dask array containing the delayed operations.</span>
 
 <span class="sd">    Args:</span>
@@ -225,10 +227,13 @@
 
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="s2">&quot;__DelayedArray_dask__&quot;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">seed</span><span class="o">.</span><span class="n">__DelayedArray_dask__</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">Array</span><span class="p">):</span>
+
+    <span class="kn">import</span> <span class="nn">dask.array</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">dask</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Array</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">seed</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_array</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">dask</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span></div>
 
 
 
@@ -344,6 +349,83 @@
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">_densify</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">output</span>
+
+
+<div class="viewcode-block" id="chunk_shape">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.utils.chunk_shape">[docs]</a>
+<span class="k">def</span> <span class="nf">chunk_shape</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the dimensions of the array chunks. These define the preferred</span>
+<span class="sd">    blocks with which to iterate over the array in each dimension.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seed: Any seed object.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Tuple of integers containing the shape of the chunk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="s2">&quot;__DelayedArray_chunk__&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">seed</span><span class="o">.</span><span class="n">__DelayedArray_chunk__</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+        <span class="n">sh</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">seed</span><span class="o">.</span><span class="n">flags</span><span class="o">.</span><span class="n">f_contiguous</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)):</span>
+                <span class="n">sh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Not sure how to deal with strided views here; not even sure how</span>
+            <span class="c1"># to figure that out from NumPy flags. Guess we should just assume</span>
+            <span class="c1"># that it&#39;s C-contiguous, given that most things are.</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sh</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">sh</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">sh</span><span class="p">,)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">csc_matrix</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># Guess we should return something.</span>
+    <span class="k">return</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span></div>
+
+
+
+<div class="viewcode-block" id="guess_iteration_block_size">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.utils.guess_iteration_block_size">[docs]</a>
+<span class="k">def</span> <span class="nf">guess_iteration_block_size</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Guess the best block size for iterating over the matrix on a certain</span>
+<span class="sd">    dimension.  This assumes that, in each iteration, an entire block of</span>
+<span class="sd">    observations is extracted involving the full extent of all dimensions other</span>
+<span class="sd">    than the one being iterated over. This block is used for processing before</span>
+<span class="sd">    extracting the next block of elements.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        seed: Any seed object.</span>
+
+<span class="sd">        dimension: Dimension to iterate over.</span>
+
+<span class="sd">        memory: Available memory in bytes, to hold a single block in memory.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Size of the block on the iteration dimension.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">num_elements</span> <span class="o">=</span> <span class="n">memory</span> <span class="o">/</span> <span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">prod_other</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">dimension</span><span class="p">:</span>
+            <span class="n">prod_other</span> <span class="o">*=</span> <span class="n">s</span> 
+
+    <span class="n">ideal</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_elements</span> <span class="o">/</span> <span class="n">prod_other</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ideal</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="n">curdim</span> <span class="o">=</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">seed</span><span class="p">)[</span><span class="n">dimension</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">ideal</span> <span class="o">&lt;=</span> <span class="n">curdim</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ideal</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">ideal</span> <span class="o">/</span> <span class="n">curdim</span><span class="p">)</span> <span class="o">*</span> <span class="n">curdim</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -376,7 +458,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=000c92bf"></script>
+</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

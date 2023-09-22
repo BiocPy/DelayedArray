@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
-        <title>delayedarray.Subset - DelayedArray 0.2.2 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>delayedarray.Subset - DelayedArray 0.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,12 +199,14 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.Subset</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
 
-<span class="kn">from</span> <span class="nn">dask.array.core</span> <span class="kn">import</span> <span class="n">Array</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">ix_</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">dask.array</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">chunk_shape</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -312,7 +314,7 @@
 
 <div class="viewcode-block" id="Subset.__DelayedArray_dask__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Subset.Subset.__DelayedArray_dask__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Array</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
         <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
 
@@ -357,7 +359,29 @@
         <span class="k">if</span> <span class="n">is_safe</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">):</span>
             <span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="n">ix_</span><span class="p">(</span><span class="o">*</span><span class="n">expanded</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">raw</span></div>
+
+
+<div class="viewcode-block" id="Subset.__DelayedArray_chunk__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Subset.Subset.__DelayedArray_chunk__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__DelayedArray_chunk__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.chunk_shape`.&quot;&quot;&quot;</span>
+        <span class="n">chunk</span> <span class="o">=</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+        <span class="n">full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
+
+        <span class="c1"># We don&#39;t bother doing anything too fancy here because the subset</span>
+        <span class="c1"># might render the concept of rectangular chunks invalid (e.g., if the</span>
+        <span class="c1"># subset involves reordering or duplication). We&#39;ll just cap the chunk</span>
+        <span class="c1"># size to the matrix dimension and call it a day.  We also set lower</span>
+        <span class="c1"># bound of 1 to ensure that iteration is always positive.</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">full</span><span class="p">)):</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">full</span><span class="p">[</span><span class="n">i</span><span class="p">])))</span>
+
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="p">,)</span></div>
 </div>
+
+
+        
 
 </pre></div>
         </article>
@@ -391,7 +415,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=000c92bf"></script>
+</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
