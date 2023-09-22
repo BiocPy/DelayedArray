@@ -18,6 +18,7 @@ finally:
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
 from .Combine import Combine
+from .DelayedOp import DelayedOp
 from .DelayedArray import DelayedArray
 from .Round import Round
 from .Subset import Subset
@@ -25,3 +26,4 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import extract_array, create_dask_array, chunk_shape, guess_iteration_block_size, is_sparse
+from .is_pristine import is_pristine

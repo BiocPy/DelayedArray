@@ -5,6 +5,7 @@ from numpy import dtype, ndarray, ix_
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -39,7 +40,7 @@ def _sanitize(subset):
     return san, remap
 
 
-class Subset:
+class Subset(DelayedOp):
     """Delayed subset operation, based on Bioconductor's ``DelayedArray::DelayedSubset`` class.
     This will slice the array along one or more dimensions, equivalent to the outer product of subset indices.
 

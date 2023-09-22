@@ -5,6 +5,7 @@ from numpy import dtype
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -12,7 +13,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-class Cast:
+class Cast(DelayedOp):
     """Delayed cast to a different NumPy type. This is most useful for promoting integer matrices to floating point to
     avoid problems with integer overflow in arithmetic operations.
 

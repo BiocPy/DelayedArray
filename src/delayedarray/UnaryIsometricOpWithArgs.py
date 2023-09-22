@@ -7,6 +7,7 @@ from numpy import ndarray
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -66,7 +67,7 @@ def _execute(left, right, operation):
     return getattr(numpy, operation)(left, right)
 
 
-class UnaryIsometricOpWithArgs:
+class UnaryIsometricOpWithArgs(DelayedOp):
     """Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector,
     based on Bioconductor's ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.
     Only one n-dimensional array is involved here, hence the "unary" in the name.

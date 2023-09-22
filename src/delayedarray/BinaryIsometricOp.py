@@ -6,6 +6,7 @@ import numpy
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .UnaryIsometricOpWithArgs import OP, _execute
 from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 
@@ -14,7 +15,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-class BinaryIsometricOp:
+class BinaryIsometricOp(DelayedOp):
     """Binary isometric operation involving two n-dimensional seed arrays with the same dimension extents.
     This is based on Bioconductor's ``DelayedArray::DelayedNaryIsoOp`` class.
 

@@ -6,6 +6,7 @@ from numpy import dtype, zeros
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -44,7 +45,7 @@ def _choose_operator(op: OP):
     return getattr(numpy, op)
 
 
-class UnaryIsometricOpSimple:
+class UnaryIsometricOpSimple(DelayedOp):
     """Delayed unary isometric operation involving an n-dimensional seed array with no additional arguments,
     similar to Bioconductor's ``DelayedArray::DelayedUnaryIsoOpStack`` class.
     This is used for simple mathematical operations like NumPy's :py:meth:`~numpy.log`.

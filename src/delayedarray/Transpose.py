@@ -5,6 +5,7 @@ from numpy import dtype, transpose
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -18,7 +19,7 @@ def _transpose(x, perm):
     return transpose(x, axes=perm)
 
 
-class Transpose:
+class Transpose(DelayedOp):
     """Delayed transposition, based on Bioconductor's ``DelayedArray::DelayedAperm`` class.
 
     This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the

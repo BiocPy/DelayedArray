@@ -6,6 +6,7 @@ from numpy import concatenate, dtype, ndarray
 if TYPE_CHECKING:
     import dask.array
 
+from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -13,7 +14,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-class Combine:
+class Combine(DelayedOp):
     """Delayed combine operation, based on Bioconductor's ``DelayedArray::DelayedAbind`` class.
 
     This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are
