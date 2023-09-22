@@ -123,16 +123,28 @@ Or `delayedarray.extract_array()`, to realize the delayed operations while attem
 
 ```python
 import scipy.sparse
-indptr = numpy.array([0, 2, 3, 6])
-indices = numpy.array([0, 2, 2, 0, 1, 2])
-data = numpy.array([1, 2, 3, 4, 5, 6])
-seed = scipy.sparse.csc_array((data, indices, indptr), shape=(3, 3))
+seed = scipy.sparse.random(100, 20, 0.2).tocsc()
 
 delayed = delayedarray.DelayedArray(seed)
 delayed = delayed * 5
+## <100 x 20> sparse DelayedArray object of type 'float64'
+## [[0.        , 4.63787368, 0.        , ..., 2.63202289, 0.        ,
+##   0.        ],
+##  [0.        , 0.        , 0.        , ..., 0.        , 0.23961665,
+##   0.        ],
+##  [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
+##   0.        ],
+##  ...,
+##  [0.        , 0.        , 0.        , ..., 0.        , 0.06889744,
+##   0.        ],
+##  [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
+##   0.        ],
+##  [0.        , 3.55717226, 0.        , ..., 0.        , 0.        ,
+##   0.        ]]
+
 delayedarray.extract_array(delayed)
-## <3x3 sparse array of type '<class 'numpy.int64'>'
-## 	with 6 stored elements in Compressed Sparse Column format>
+## <100x20 sparse matrix of type '<class 'numpy.float64'>'
+##        with 400 stored elements in Compressed Sparse Column format>
 ```
 
 Or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations:
