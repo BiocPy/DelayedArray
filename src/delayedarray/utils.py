@@ -1,6 +1,6 @@
 from typing import Optional, Tuple, Sequence, TYPE_CHECKING
 from numpy import array, ndarray, ix_
-from scipy.sparse import coo_matrix
+from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
 import warnings
 
 if TYPE_CHECKING:
@@ -142,3 +142,38 @@ def _retry_single(seed, f, expected_shape):
         warnings.warn(str(e))
         output = f(_densify(seed))
     return output
+
+
+def chunk_shape(seed) -> Tuple[int]:
+    """Get the dimensions of the array chunks. These define the preferred
+    blocks with which to iterate over the array in each dimension.
+
+    Args:
+        seed: Any seed object.
+    
+    Returns:
+        Tuple of integers containing the shape of the chunk.
+    """
+    if hasattr(seed, "__DelayedArray_chunk__"):
+        return seed.__DelayedArray_chunk__()
+
+    if isinstance(seed, ndarray):
+        sh = list(seed.shape)
+        if seed.flags.f_contiguous:
+            for i in range(1, len(sh)):
+                sh[i] = 1
+        else:
+            # Not sure how to deal with strided views here; not even sure how
+            # to figure that out from NumPy flags. Guess we should just assume
+            # that it's C-contiguous, given that most things are.
+            for i in range(len(sh) - 1):
+                sh[i] = 1
+        return (*sh,)
+
+    if isinstance(seed, csc_matrix):
+        return (seed.shape[0], 1)
+    elif isinstance(seed, csr_matrix):
+        return (1, seed.shape[1])
+
+    # Guess we should return something.
+    return seed.shape

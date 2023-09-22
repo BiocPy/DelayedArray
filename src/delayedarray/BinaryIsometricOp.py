@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import dask.array
 
 from .UnaryIsometricOpWithArgs import OP, _execute
-from .utils import create_dask_array, extract_array, _densify
+from .utils import create_dask_array, extract_array, _densify, chunk_shape
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -128,3 +128,19 @@ class BinaryIsometricOp:
             output = _execute(ls, rs, self._op)
 
         return output
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        lchunk = chunk_shape(self._left)
+        rchunk = chunk_shape(self._right)
+
+        # Not bothering with taking the lowest common denominator, as that
+        # might be too aggressive and expanding to the entire matrix size.
+        # We instead use the maximum chunk size (which might also expand, e.g.,
+        # if you're combining column-major and row-major matrices; oh well).
+        # Just accept that we'll probably need to break chunks during iteration.
+        output = []
+        for i in range(len(lchunk)):
+            output.append(max(lchunk[i], rchunk[i]))
+
+        return (*output,) 
