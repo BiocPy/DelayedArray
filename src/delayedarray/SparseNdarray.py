@@ -1,10 +1,8 @@
 import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
-
+from collections import namedtuple
 from numpy import array, ndarray, zeros, dtype
-
-from .utils import sanitize_indices
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -194,7 +192,7 @@ def _recursive_check(
 #########################################################
 
 
-_SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "consecutive", "search_first", "search_last", "first_index", "past_last_index")
+_SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "consecutive", "search_first", "search_last", "first_index", "past_last_index" ])
 
 
 def _characterize_indices(subset: Sequence):

@@ -27,3 +27,4 @@ from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import extract_array, create_dask_array, chunk_shape, guess_iteration_block_size, is_sparse
 from .is_pristine import is_pristine
+from .SparseNdarray import SparseNdarray
