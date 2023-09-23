@@ -222,10 +222,36 @@ def test_BinaryIsometricOp_sparse():
     z = numpy.logical_xor(x != 0, x2 != 0)
     assert not delayedarray.is_sparse(z)
 
-    z = x + x2 
+    z = x + x2
     assert not delayedarray.is_sparse(z)
 
     y3 = scipy.sparse.random(100, 50, 0.1)
     x3 = delayedarray.DelayedArray(y3)
     z = x + x3
     assert delayedarray.is_sparse(z)
+
+
+def test_BinaryIsometricOp_chunks():
+    y = numpy.random.rand(20, 30)
+    x = delayedarray.DelayedArray(y)
+    z = x + x
+    assert delayedarray.chunk_shape(z) == (1, 30)
+
+    y2 = numpy.random.rand(30, 20).T
+    x2 = delayedarray.DelayedArray(y2)
+    z = x + x2
+    assert delayedarray.chunk_shape(z) == (20, 30)
+
+
+def test_BinaryIsometricOp_dask():
+    y = numpy.random.rand(20, 30)
+    x = delayedarray.DelayedArray(y)
+
+    y2 = numpy.random.rand(30, 20).T
+    x2 = delayedarray.DelayedArray(y2)
+    z = x + x2
+
+    import dask
+    da = delayedarray.create_dask_array(z)
+    assert isinstance(da, dask.array.core.Array)
+    assert (numpy.array(z) == da.compute()).all()
