@@ -46,15 +46,6 @@ def test_UnaryIsometricOpWithArgs_isometric_add():
     assert (numpy.array(z) == y + v).all()
     assert z.seed.along == 0
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x + x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert z.seed.left.shape == test_shape
-    assert z.seed.right.shape == test_shape
-    assert (numpy.array(z) == y + y2).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -85,13 +76,6 @@ def test_UnaryIsometricOpWithArgs_isometric_subtract():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y - v).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x - x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y - y2).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -124,13 +108,6 @@ def test_UnaryIsometricOpWithArgs_isometric_multiply():
     assert z.shape == x.shape
     assert (numpy.array(z) == y * v).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x - x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y - y2).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -161,13 +138,6 @@ def test_UnaryIsometricOpWithArgs_isometric_divide():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y / v).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x / x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y / y2).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -200,13 +170,6 @@ def test_UnaryIsometricOpWithArgs_isometric_modulo():
     assert z.shape == x.shape
     assert (numpy.array(z) == y % v).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x % x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y % y2).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -237,13 +200,6 @@ def test_UnaryIsometricOpWithArgs_isometric_floordivide():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == y // v).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x // x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y // y2).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -278,13 +234,6 @@ def test_UnaryIsometricOpWithArgs_isometric_power():
     assert z.shape == x.shape
     assert (numpy.array(z) == y**v).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x**x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == y**y2).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -308,13 +257,6 @@ def test_UnaryIsometricOpWithArgs_isometric_equal():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (v == y)).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x == x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y == y2)).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -340,13 +282,6 @@ def test_UnaryIsometricOpWithArgs_isometric_not_equal():
     assert z.shape == x.shape
     assert (numpy.array(z) == (v != y)).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x != x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y != y2)).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -370,13 +305,6 @@ def test_UnaryIsometricOpWithArgs_isometric_greater():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (v > y)).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x > x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y > y2)).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -402,13 +330,6 @@ def test_UnaryIsometricOpWithArgs_isometric_greater_equal():
     assert z.shape == x.shape
     assert (numpy.array(z) == (v >= y)).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x >= x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y >= y2)).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -432,13 +353,6 @@ def test_UnaryIsometricOpWithArgs_isometric_less():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == (v < y)).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x < x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y < y2)).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -464,13 +378,6 @@ def test_UnaryIsometricOpWithArgs_isometric_less_than():
     assert z.shape == x.shape
     assert (numpy.array(z) == (v <= y)).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = x <= x2
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == (y <= y2)).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -494,13 +401,6 @@ def test_UnaryIsometricOpWithArgs_isometric_logical_and():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_and(v, y)).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = numpy.logical_and(x, x2)
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == numpy.logical_and(y, y2)).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
@@ -526,13 +426,6 @@ def test_UnaryIsometricOpWithArgs_isometric_logical_or():
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_or(v, y)).all()
 
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = numpy.logical_or(x, x2)
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == numpy.logical_or(y, y2)).all()
-
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
     assert (numpy.array(z) == da.compute()).all()
@@ -556,13 +449,6 @@ def test_UnaryIsometricOpWithArgs_isometric_logical_xor():
     assert isinstance(z, delayedarray.DelayedArray)
     assert z.shape == x.shape
     assert (numpy.array(z) == numpy.logical_xor(v, y)).all()
-
-    y2 = numpy.random.rand(*test_shape)
-    x2 = delayedarray.DelayedArray(y2)
-    z = numpy.logical_xor(x, x2)
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert (numpy.array(z) == numpy.logical_xor(y, y2)).all()
 
     da = delayedarray.create_dask_array(z)
     assert isinstance(da, dask.array.core.Array)
