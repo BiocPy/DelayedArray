@@ -26,6 +26,7 @@ from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
+from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -59,56 +60,6 @@ def _extract_seed(x):
         return x._seed
     else:
         return x
-
-
-translate_ufunc_to_op_with_args = set(
-    [
-        "add",
-        "subtract",
-        "multiply",
-        "divide",
-        "remainder",
-        "floor_divide",
-        "power",
-        "equal",
-        "greater_equal",
-        "greater",
-        "less_equal",
-        "less",
-        "not_equal",
-        "logical_and",
-        "logical_or",
-        "logical_xor",
-    ]
-)
-
-translate_ufunc_to_op_simple = set(
-    [
-        "log",
-        "log1p",
-        "log2",
-        "log10",
-        "exp",
-        "expm1",
-        "sqrt",
-        "sin",
-        "cos",
-        "tan",
-        "sinh",
-        "cosh",
-        "tanh",
-        "arcsin",
-        "arccos",
-        "arctan",
-        "arcsinh",
-        "arccosh",
-        "arctanh",
-        "ceil",
-        "floor",
-        "trunc",
-        "sign",
-    ]
-)
 
 
 class DelayedArray:

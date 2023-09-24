@@ -2,9 +2,11 @@ import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
+import numpy
 from numpy import array, ndarray, zeros, dtype
 
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
+from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -604,7 +606,7 @@ class SparseNdarray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed negation.
         """
-        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, -v))
+        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, -v), self._dtype)
 
     def __abs__(self):
         """Take the absolute value of the contents of a ``DelayedArray``.
@@ -612,7 +614,7 @@ class SparseNdarray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
         """
-        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)))
+        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
 
     # Subsetting.
     def __getitem__(
@@ -662,6 +664,45 @@ class SparseNdarray:
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return True
+
+
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
+        """Interface with NumPy array methods.
+
+        This is used to implement mathematical operations like NumPy's :py:meth:`~numpy.log`,
+        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the
+        left hand side. Check out the NumPy's ``__array_ufunc__``
+        `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_ for
+        more details.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
+        """
+        if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
+            # This is required to support situations where the NumPy array is on
+            # the LHS, such that the ndarray method gets called first.
+
+            op = ufunc.__name__
+            if ufunc.__name__ == "true_divide":
+                op = "divide"
+
+            first_is_da = isinstance(inputs[0], SparseNdarray)
+            da = inputs[1 - int(first_is_da)]
+            v = inputs[int(first_is_da)]
+            return _transform_SparseNdarray_with_args(self, v, op, right=False)
+
+        elif ufunc.__name__ in translate_ufunc_to_op_simple:
+            dummy = ufunc(zeros(1, dtype=self._dtype))
+            if dummy[0] == 0:
+                return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, ufunc(v)), dummy.dtype)
+            else:
+                return ufunc(self.__array__())
+
+        elif ufunc.__name__ == "absolute":
+            return self.__abs__()
+
+        raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
+
 
 
 
@@ -927,13 +968,57 @@ def _recursive_transform_sparse_array(contents, shape, location, f, dim):
     return None
 
 
-def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable) -> SparseNdarray:
+def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, output_dtype) -> SparseNdarray:
     new_contents = None
     if x._contents is not None:
         if len(x._shape) > 1:
             new_contents = _recursive_transform_sparse_array(x._contents, x._shape, [], f, 0)
         else:
             new_contents = f((), x._contents[0], x._contents[1])
+    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=output_dtype, check=False)
 
-    dummy = f([0] * (len(x._shape) - 1), [0], zeros(1, dtype=x.dtype))
-    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=dummy[1].dtype, check=False)
+
+def _transform_SparseNdarray_with_args(x: SparseNdarray, other, operation: ISOMETRIC_OP_WITH_ARGS, right: bool) -> SparseNdarray:
+    along = _infer_along_with_args(x._shape, other)
+    num_other = 1
+
+    op = _choose_operator(operation)
+    dummy = zeros(num_other, dtype=x._dtype)
+    if right:
+        dummy = op(dummy, other)
+    else:
+        dummy = op(other, dummy)
+
+    if num_other and not (dummy == 0).all(): # densifying.
+        if right:
+            return op(numpy.array(x), other)
+        else:
+            return op(other, numpy.array(x))
+
+    if isinstance(other, ndarray):
+        num_other = numpy.prod(other.shape)
+        other = other.reshape((num_other,)) # flattening
+
+    if along is None:
+        if right:
+            def f2(location, indices, values):
+                return indices, op(values, other)
+        else:
+            def f2(location, indices, values):
+                return indices, op(other, values)
+    elif along < len(x._shape) - 1:
+        if right:
+            def f2(location, indices, values):
+                return indices, op(values, other[location[along]])
+        else:
+            def f2(location, indices, values):
+                return indices, op(other[location[along]], values)
+    else:
+        if right:
+            def f2(location, indices, values):
+                return indices, op(values, other[indices])
+        else:
+            def f2(location, indices, values):
+                return indices, op(other[indices], values)
+
+    return _transform_sparse_array_from_SparseNdarray(x, f2, dummy.dtype) 

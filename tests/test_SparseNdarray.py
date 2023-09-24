@@ -398,6 +398,17 @@ def test_SparseNdarray_abs():
     out = abs(y)
     assert (numpy.array(out) == abs(numpy.array(y))).all()
 
+    # Checking that the transformer does something sensible here.
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64)
+    out = abs(y)
+    assert (numpy.array(out) == numpy.zeros(test_shape)).all()
+
+    test_shape = (99,)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    out = abs(y)
+    assert (numpy.array(out) == abs(numpy.array(y))).all()
+
 
 def test_SparseNdarray_neg():
     test_shape = (30, 40)
@@ -405,3 +416,55 @@ def test_SparseNdarray_neg():
     y = delayedarray.SparseNdarray(test_shape, contents)
     out = -y
     assert (numpy.array(out) == -numpy.array(y)).all()
+
+
+def test_SparseNdarray_ufunc_simple():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=1, upper=10, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    out = numpy.log1p(y)
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert out.dtype == numpy.float32
+    assert (numpy.array(out) == numpy.log1p(numpy.array(y))).all()
+
+    out = numpy.exp(y)
+    assert isinstance(out, numpy.ndarray)
+    assert out.dtype == numpy.float32
+    assert (out == numpy.exp(numpy.array(y))).all()
+
+
+#######################################################
+#######################################################
+
+
+def test_SparseNdarray_add():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    other = numpy.random.rand(40)
+    out = other + y
+    assert isinstance(out, numpy.ndarray)
+    assert (out == other + numpy.array(y)).all()
+
+    other = numpy.random.rand(30, 1)
+    out = other + y
+    assert isinstance(out, numpy.ndarray)
+    assert (out == other + numpy.array(y)).all()
+
+
+def test_SparseNdarray_multiply():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+
+    other = numpy.random.rand(40)
+    out = other * y
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == other * numpy.array(y)).all()
+
+    other = numpy.random.rand(30, 1)
+    out = other * y
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == other * numpy.array(y)).all()

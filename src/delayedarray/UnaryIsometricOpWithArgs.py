@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
+from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -55,32 +55,9 @@ class UnaryIsometricOpWithArgs(DelayedOp):
     """
 
     def __init__(self, seed, value: Union[float, ndarray], operation: ISOMETRIC_OP_WITH_ARGS, right: bool = True):
-        along = None
-        if isinstance(value, ndarray):
-            ndim = len(seed.shape)
-
-            if len(value.shape) == 1:
-                along = ndim - 1
-            else:
-                if len(value.shape) != ndim:
-                    raise ValueError(
-                        "length of 'value.shape' and 'seed.shape' should be equal"
-                    )
-
-                for i in range(ndim):
-                    if value.shape[i] != 1:
-                        if along is not None:
-                            raise ValueError(
-                                "no more than one entry of 'value.shape' should be greater than 1"
-                            )
-                        if seed.shape[i] != value.shape[i]:
-                            raise ValueError(
-                                "any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'"  # noqa: E501
-                            )
-                        along = i
-
-                if along is None:
-                    value = value[(*([0] * ndim), ...)]
+        along = _infer_along_with_args(seed.shape, value)
+        if along is None and isinstance(value, ndarray):
+            value = value[(*([0] * ndim),)]
 
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
