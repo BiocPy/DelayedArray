@@ -195,7 +195,7 @@ def _recursive_check(
 _SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "consecutive", "search_first", "search_last", "first_index", "past_last_index" ])
 
 
-def _characterize_indices(subset: Sequence):
+def _characterize_indices(subset: Sequence, dim: int):
     if len(subset) == 0:
         return _SubsetSummary(
             subset=subset, 
@@ -217,8 +217,8 @@ def _characterize_indices(subset: Sequence):
     return _SubsetSummary(
         subset=subset, 
         consecutive=consecutive, 
-        search_first=(first==0), 
-        search_last=(last==dim), 
+        search_first=(first > 0), 
+        search_last=(last < dim), 
         first_index=first,
         past_last_index=last,
     )
@@ -242,6 +242,7 @@ def _extract_sparse_vector_internal(
         end_pos = len(indices)
         if subset_summary.search_last:
             end_pos = bisect_left(indices, subset_summary.past_last_index, lo=start_pos, hi=end_pos)
+        first = subset_summary.first_index
         for x in range(start_pos, end_pos):
             f(indices[x] - first, indices[x], values[x])
     else:
@@ -282,12 +283,10 @@ def _recursive_extract_dense_array(contents, ndim, subset, dim, output):
             pos += 1
 
 
-def _extract_dense_array_from_SparseNdarray(
-    x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]
-) -> ndarray:
+def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]) -> ndarray:
     subset2 = list(subset)
     idims = [len(y) for y in subset2]
-    subset2[-1] = _characterize_indices(subset2[-1])
+    subset2[-1] = _characterize_indices(subset2[-1], x._shape[-1])
 
     output = zeros((*idims,), dtype=x._dtype)
     if x._contents is not None:
@@ -350,12 +349,10 @@ def _recursive_extract_sparse_array(contents, shape, subset, dim):
     return None
 
 
-def _extract_sparse_array_from_SparseNdarray(
-    x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]
-) -> SparseNdarray:
+def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]) -> SparseNdarray:
     subset2 = list(subset)
     idims = [len(y) for y in subset2]
-    subset2[-1] = _characterize_indices(subset2[-1])
+    subset2[-1] = _characterize_indices(subset2[-1], x._shape[-1])
 
     new_contents = None
     if x._contents is not None:
