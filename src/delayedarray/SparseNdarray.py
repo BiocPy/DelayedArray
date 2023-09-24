@@ -4,6 +4,8 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 from numpy import array, ndarray, zeros, dtype
 
+from ._getitem import _sanitize_getitem, _extract_dense_subarray
+
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
@@ -130,6 +132,537 @@ class SparseNdarray:
             Alternatively None, if the array contains no non-zero elements.
         """
         return self._contents
+
+
+    def __repr__(self) -> str:
+        """Pretty-print this ``SparseNdarray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
+        options.
+
+        Returns:
+            str: String containing a prettified display of the array contents.
+        """
+        total = 1
+        for s in self._seed.shape:
+            total *= s
+
+        preamble = "<" + " x ".join([str(x) for x in self._shape]) + ">"
+        preamble += " " + type(self).__name__ + " object of type '" + self._dtype.name + "'"
+
+        if total > get_printoptions()["threshold"]:
+            ndims = len(self._seed.shape)
+            indices = []
+            edge_size = get_printoptions()["edgeitems"]
+            for d in range(ndims):
+                extent = self._seed.shape[d]
+                if extent > edge_size * 2:
+                    indices.append(
+                        list(range(edge_size + 1))
+                        + list(range(extent - edge_size, extent))
+                    )
+                else:
+                    indices.append(slice(None))
+            indices = (*indices,)
+        else:
+            indices = [range(d) for d in self._shape]
+
+        bits_and_pieces = _extract_dense_array_from_SparseNdarray(self, indices)
+        converted = array2string(bits_and_pieces, separator=", ", threshold=0)
+        return preamble + "\n" + converted
+
+
+    # For NumPy:
+    def __array__(self) -> ndarray:
+        """Convert a ``SparseNdarray`` to a NumPy array.
+
+        Returns:
+            ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
+            This is guaranteed to be in C-contiguous order and to not be a view on other data.
+        """
+        indices = [range(d) for d in self._shape]
+        return _extract_dense_array_from_SparseNdarray(self, indices)
+
+
+    def astype(self, dtype, **kwargs):
+        """See :py:meth:`~numpy.ndarray.astype` for details.
+
+        All keyword arguments are currently ignored.
+        """
+        return _transform_sparse_array_from_SparseNdarray(self)
+
+
+    # Assorted dunder methods.
+    def __add__(self, other) -> "DelayedArray":
+        """Add something to the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="add", right=True)
+
+    def __radd__(self, other) -> "DelayedArray":
+        """Add something to the left-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="add", right=False)
+
+    def __sub__(self, other) -> "DelayedArray":
+        """Subtract something from the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="subtract", right=True)
+
+    def __rsub__(self, other):
+        """Subtract a ``DelayedArray`` from something else.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="subtract", right=False)
+
+    def __mul__(self, other):
+        """Multiply a ``DelayedArray`` with something on the right hand side.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="multiply", right=True)
+
+    def __rmul__(self, other):
+        """Multiply a ``DelayedArray`` with something on the left hand side.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="multiply", right=False)
+
+    def __truediv__(self, other):
+        """Divide a ``DelayedArray`` by something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="divide", right=True)
+
+    def __rtruediv__(self, other):
+        """Divide something by a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="divide", right=False)
+
+    def __mod__(self, other):
+        """Take the remainder after dividing a ``DelayedArray`` by something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="remainder", right=True)
+
+    def __rmod__(self, other):
+        """Take the remainder after dividing something by a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="remainder", right=False
+        )
+
+    def __floordiv__(self, other):
+        """Divide a ``DelayedArray`` by something and take the floor.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=True
+        )
+
+    def __rfloordiv__(self, other):
+        """Divide something by a ``DelayedArray`` and take the floor.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="floor_divide", right=False
+        )
+
+    def __pow__(self, other):
+        """Raise a ``DelayedArray`` to the power of something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="power", right=True)
+
+    def __rpow__(self, other):
+        """Raise something to the power of the contents of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="power", right=False)
+
+    def __eq__(self, other) -> "DelayedArray":
+        """Check for equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="equal", right=True)
+
+    def __req__(self, other) -> "DelayedArray":
+        """Check for equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="equal", right=False)
+
+    def __ne__(self, other) -> "DelayedArray":
+        """Check for non-equality between a ``DelayedArray`` and something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="not_equal", right=True)
+
+    def __rne__(self, other) -> "DelayedArray":
+        """Check for non-equality between something and a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="not_equal", right=False
+        )
+
+    def __ge__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=True
+        )
+
+    def __rge__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="greater_equal", right=False
+        )
+
+    def __le__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than or equal to something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="less_equal", right=True
+        )
+
+    def __rle__(self, other) -> "DelayedArray":
+        """Check whether something is greater than or equal to a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(
+            self, other, operation="less_equal", right=False
+        )
+
+    def __gt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is greater than something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="greater", right=True)
+
+    def __rgt__(self, other) -> "DelayedArray":
+        """Check whether something is greater than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="greater", right=False)
+
+    def __lt__(self, other) -> "DelayedArray":
+        """Check whether a ``DelayedArray`` is less than something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="less", right=True)
+
+    def __rlt__(self, other) -> "DelayedArray":
+        """Check whether something is less than a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or any seed object of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed check.
+        """
+        return _wrap_isometric_with_args(self, other, operation="less", right=False)
+
+    # Simple methods.
+    def __neg__(self):
+        """Negate the contents of a ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed negation.
+        """
+        return _wrap_isometric_with_args(self, 0, operation="subtract", right=False)
+
+    def __abs__(self):
+        """Take the absolute value of the contents of a ``DelayedArray``.
+
+        Returns:
+            DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
+        """
+        return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
+
+    # Subsetting.
+    def __getitem__(
+        self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
+    ) -> Union["DelayedArray", ndarray]:
+        """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
+        :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
+        seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
+
+        Args:
+            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
+                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
+                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
+                delayed subset operation.
+
+        Raises:
+            ValueError: If ``args`` contain more dimensions than the shape of the array.
+
+        Returns:
+            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
+            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
+        """
+        sanitized = _sanitize_getitem(self._shape, args)
+        if sanitized is not None:
+            return _extract_sparse_array_from_SparseNdarray(self, sanitized)
+        return _extract_dense_subarray(self, self._shape, args)
+
+
+    # Coercion methods.
+    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
+        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
+        return self.__array__()
+
+
+    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_array`."""
+        return _extract_sparse_array_from_SparseNdarray(self, subset)
+
+
+    def __DelayedArray_chunk__(self) -> Tuple[int]:
+        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
+        total = [1] * len(self._shape)
+        total[-1] = self._shape[-1]
+        return (*total,)
+
+
+    def __DelayedArray_sparse__(self) -> bool:
+        """See :py:meth:`~delayedarray.utils.is_sparse`."""
+        return True
+
 
 
 #########################################################

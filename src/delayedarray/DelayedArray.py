@@ -25,6 +25,7 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
+from ._getitem import _sanitize_getitem, _extract_dense_subarray
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -759,113 +760,10 @@ class DelayedArray:
             If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
-
-        ndim = len(self.shape)
-        if not isinstance(args, tuple):
-            args = [args] + [slice(None)] * (ndim - 1)
-        if len(args) < ndim:
-            args = list(args) + [slice(None)] * (ndim - len(args))
-        elif len(args) > ndim:
-            raise ValueError(
-                "more indices in 'args' than there are dimensions in 'seed'"
-            )
-
-        # Checking if we're preserving the shape via a cross index.
-        cross_index = True
-        for d, idx in enumerate(args):
-            if (
-                not isinstance(idx, ndarray)
-                or not issubdtype(idx.dtype, integer)
-                or len(idx.shape) != ndim
-            ):
-                cross_index = False
-                break
-
-            for d2 in range(ndim):
-                if d != d2 and idx.shape[d2] != 1:
-                    cross_index = False
-                    break
-
-        if cross_index:
-            sanitized = []
-            for d, idx in enumerate(args):
-                sanitized.append(idx.reshape((prod(idx.shape),)))
-            return DelayedArray(Subset(self._seed, (*sanitized,)))
-
-        # Checking if we're preserving the shape via a slice.
-        slices = 0
-        failed = False
-        for d, idx in enumerate(args):
-            if isinstance(idx, slice):
-                slices += 1
-                continue
-            elif isinstance(idx, ndarray):
-                if len(idx.shape) != 1:
-                    failed = True
-                    break
-            elif not isinstance(idx, Sequence):
-                failed = True
-                break
-
-        if not failed and slices >= ndim - 1:
-            sanitized = []
-            for d, idx in enumerate(args):
-                if isinstance(idx, slice):
-                    sanitized.append(range(*idx.indices(self.shape[d])))
-                else:
-                    dummy = array(range(self.shape[d]))[idx]
-                    sanitized.append(dummy)
-            return DelayedArray(Subset(self._seed, (*sanitized,)))
-
-        # If we're discarding dimensions, we see if we can do some pre-emptive extraction.
-        failed = False
-        as_vector = []
-        new_args = []
-        dim_loss = 0
-
-        for d, idx in enumerate(args):
-            if isinstance(idx, ndarray):
-                if len(idx.shape) != 1:
-                    failed = True
-                    break
-            elif isinstance(idx, slice):
-                idx = range(*idx.indices(self.shape[d]))
-            elif not isinstance(idx, Sequence):
-                as_vector.append([idx])
-                new_args.append(0)
-                dim_loss += 1
-                continue
-
-            as_vector.append(idx)
-            new_args.append(slice(None))
-
-        if not failed:
-            # Just using Subset here to avoid having to reproduce the
-            # uniquifying/sorting of subsets before extract_array().
-            base_seed = extract_array(Subset(self._seed, (*as_vector,)))
-        else:
-            base_seed = extract_array(self._seed)
-            new_args = args
-
-        try:
-            test = base_seed[(..., *new_args)]
-            if len(test.shape) != ndim - dim_loss:
-                raise ValueError(
-                    "slicing for "
-                    + str(type(base_seed))
-                    + " does not discard dimensions with scalar indices"
-                )
-        except Exception as e:
-            warnings.warn(str(e))
-            test = _densify(base_seed)[(..., *new_args)]
-
-        if len(test.shape) == ndim:
-            raise NotImplementedError(
-                "Oops. Looks like the DelayedArray doesn't correctly handle this combination of index types, but it "
-                "probably should. Consider filing an issue in at https://github.com/BiocPy/DelayedArray/issues."
-            )
-
-        return test
+        sanitized = _sanitize_getitem(self.shape, args)
+        if sanitized is not None:
+            return DelayedArray(Subset(self._seed, sanitized))
+        return _extract_dense_subarray(self._seed, self.shape, args)
 
     # For python-level compute.
     def sum(self, *args, **kwargs):
