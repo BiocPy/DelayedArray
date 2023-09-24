@@ -604,7 +604,7 @@ class SparseNdarray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed negation.
         """
-        return _wrap_isometric_with_args(self, 0, operation="subtract", right=False)
+        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, -v))
 
     def __abs__(self):
         """Take the absolute value of the contents of a ``DelayedArray``.
@@ -612,7 +612,7 @@ class SparseNdarray:
         Returns:
             DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
         """
-        return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
+        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)))
 
     # Subsetting.
     def __getitem__(
@@ -856,7 +856,6 @@ def _recursive_extract_sparse_array(contents, shape, subset, dim):
     new_contents = []
 
     if dim == ndim - 2:
-        pos = 0
         last_subset = subset[ndim - 1]
         for i in curdex:
             x = contents[i]
@@ -865,16 +864,13 @@ def _recursive_extract_sparse_array(contents, shape, subset, dim):
                 new_contents.append(y)
             else:
                 new_contents.append(None)
-            pos += 1
     else:
-        pos = 0
         for i in curdex:
             if contents[i] is not None:
                 y = _recursive_extract_sparse_array(contents[i], shape, subset, dim + 1)
                 new_contents.append(y)
             else:
                 new_contents.append(None)
-            pos += 1
 
     for x in new_contents:
         if x is not None:
@@ -895,3 +891,49 @@ def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Uni
             new_contents = _extract_sparse_vector_to_sparse(x._contents[0], x._contents[1], subset2[0])
 
     return SparseNdarray(shape=(*idims,), contents=new_contents, dtype=x.dtype, check=False)
+
+
+#########################################################
+#########################################################
+
+
+def _recursive_transform_sparse_array(contents, shape, location, f, dim):
+    ndim = len(shape)
+    new_contents = []
+    location.append(0)
+
+    if dim == ndim - 2:
+        for i in range(shape[dim]):
+            location[-1] = i
+            x = contents[i]
+            if x is not None:
+                y = f(location, x[0], x[1])
+                new_contents.append(y)
+            else:
+                new_contents.append(None)
+    else:
+        for i in range(shape[dim]):
+            if contents[i] is not None:
+                location[-1] = i
+                y = _recursive_transform_sparse_array(contents[i], shape, location, f, dim + 1)
+                new_contents.append(y)
+            else:
+                new_contents.append(None)
+
+    location.pop()
+    for x in new_contents:
+        if x is not None:
+            return new_contents
+    return None
+
+
+def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable) -> SparseNdarray:
+    new_contents = None
+    if x._contents is not None:
+        if len(x._shape) > 1:
+            new_contents = _recursive_transform_sparse_array(x._contents, x._shape, [], f, 0)
+        else:
+            new_contents = f((), x._contents[0], x._contents[1])
+
+    dummy = f([0] * (len(x._shape) - 1), [0], zeros(1, dtype=x.dtype))
+    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=dummy[1].dtype, check=False)

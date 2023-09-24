@@ -8,63 +8,12 @@ if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
+from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
-
-OP = Literal[
-    "add",
-    "subtract",
-    "multiply",
-    "divide",
-    "remainder",
-    "floor_divide",
-    "power",
-    "equal",
-    "greater_equal",
-    "greater",
-    "less_equal",
-    "less",
-    "not_equal",
-    "logical_and",
-    "logical_or",
-    "logical_xor",
-]
-
-
-def _execute(left, right, operation):
-    # Can't use match/case yet, as that's only in Python 3.10, and we can't
-    # just dispatch to 'getattr(numpy, operation)', because some classes don't
-    # implement __array_func__. Thanks a lot, scipy.sparse, and fuck you.
-    if operation == "add":
-        return left + right
-    elif operation == "subtract":
-        return left - right
-    elif operation == "multiply":
-        return left * right
-    elif operation == "divide":
-        return left / right
-    elif operation == "remainder":
-        return left % right
-    elif operation == "floor_divide":
-        return left // right
-    elif operation == "power":
-        return left**right
-    elif operation == "equal":
-        return left == right
-    elif operation == "greater_equal":
-        return left >= right
-    elif operation == "greater":
-        return left > right
-    elif operation == "less_equal":
-        return left <= right
-    elif operation == "less":
-        return left < right
-    elif operation == "not_equal":
-        return left != right
-    return getattr(numpy, operation)(left, right)
 
 
 class UnaryIsometricOpWithArgs(DelayedOp):
@@ -105,9 +54,7 @@ class UnaryIsometricOpWithArgs(DelayedOp):
             Ignored for commutative operations in ``op``.
     """
 
-    def __init__(
-        self, seed, value: Union[float, ndarray], operation: OP, right: bool = True
-    ):
+    def __init__(self, seed, value: Union[float, ndarray], operation: ISOMETRIC_OP_WITH_ARGS, right: bool = True):
         along = None
         if isinstance(value, ndarray):
             ndim = len(seed.shape)

@@ -385,3 +385,23 @@ def test_SparseNdarray_0d():
 
     with pytest.raises(ValueError, match="0-dimensional"):
         y = delayedarray.SparseNdarray((), {}, dtype=numpy.uint32)
+
+
+#######################################################
+#######################################################
+
+
+def test_SparseNdarray_abs():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    out = abs(y)
+    assert (numpy.array(out) == abs(numpy.array(y))).all()
+
+
+def test_SparseNdarray_neg():
+    test_shape = (30, 40)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    out = -y
+    assert (numpy.array(out) == -numpy.array(y)).all()
