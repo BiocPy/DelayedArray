@@ -25,13 +25,13 @@ def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upp
             return None
     else:
         new_content = []
-        for i in range(shape[0]):
+        for i in range(shape[-1]):
             if random.uniform(0, 1) < density1:
                 new_content.append(None)
             else:
                 new_content.append(
                     mock_SparseNdarray_contents(
-                        shape[1:],
+                        shape[:-1],
                         density1=density1,
                         density2=density2,
                         lower=lower,
@@ -42,17 +42,20 @@ def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upp
         return new_content
 
 
-def _recursive_compute_reference(contents, at, max_depth, triplets):
-    if len(at) == max_depth - 2:
+def _recursive_compute_reference(contents, ndim, triplets, at = []):
+    if len(at) == ndim - 2:
         for i in range(len(contents)):
             if contents[i] is not None:
                 idx, val = contents[i]
-                for j in range(len(idx)):
-                    triplets.append(((*at, i, idx[j]), val[j]))
+                for j, ix in enumerate(idx):
+                    triplets.append(((ix, i, *reversed(at)), val[j]))
     else:
-        for i in range(len(contents)):
-            if contents[i] is not None:
-                _recursive_compute_reference(contents[i], (*at, i), max_depth, triplets)
+        at.append(0)
+        for i, con in enumerate(contents):
+            if con is not None:
+                at[-1] = i
+                _recursive_compute_reference(con, ndim, triplets, at=at)
+        at.pop()
 
 
 def convert_SparseNdarray_to_numpy(x):
@@ -60,16 +63,17 @@ def convert_SparseNdarray_to_numpy(x):
     shape = x.shape
     triplets = []
 
-    if len(shape) == 1:
+    ndim = len(shape)
+    if ndim == 1:
         idx, val = contents
         for j in range(len(idx)):
             triplets.append(((idx[j],), val[j]))
     elif contents is not None:
-        _recursive_compute_reference(contents, (), len(shape), triplets)
+        _recursive_compute_reference(contents, ndim, triplets)
 
     output = numpy.zeros(shape)
     for pos, val in triplets:
-        output[(..., *pos)] = val
+        output[pos] = val
     return output
 
 
@@ -85,36 +89,34 @@ def _compare_sparse_vectors(left, right):
     return True
 
 
-def _recursive_compare_contents(left, right, at, max_depth):
+def _recursive_compare_contents(left, right, dim):
     if len(left) != len(right):
         return False
-    if len(at) == max_depth - 2:
-        for i in range(len(left)):
-            if left[i] is not None:
+    if dim == 1:
+        for i, lcon in enumerate(left):
+            if lcon is not None:
                 if right[i] is None:
                     return False
-                if not _compare_sparse_vectors(left[i], right[i]):
+                if not _compare_sparse_vectors(lcon, right[i]):
                     return False
     else:
-        for i in range(len(left)):
-            if left[i] is not None:
-                if not _recursive_compare_contents(
-                    left[i], right[i], (*at, i), max_depth
-                ):
+        for i, lcon in enumerate(left):
+            if lcon is not None:
+                if not _recursive_compare_contents(lcon, right[i], dim - 1):
                     return False
     return True
 
 
 def are_SparseNdarrays_equal(x, y):
-    if x.shape != y.shape:
+    if x._shape != y._shape:
         return False
-    maxdim = len(x.shape)
     contents1 = x._contents
     contents2 = y._contents
 
     if isinstance(contents1, list):
         if isinstance(contents2, list):
-            return _recursive_compare_contents(contents1, contents2, (), maxdim)
+            ndim = len(x._shape)
+            return _recursive_compare_contents(contents1, contents2, dim=ndim - 1)
         else:
             return False
     elif contents1 is None:
@@ -144,10 +146,10 @@ def test_SparseNdarray_check():
     assert y.dtype == numpy.float64
 
     with pytest.raises(ValueError, match="match the extent"):
-        y = delayedarray.SparseNdarray((5, 15, 20), contents)
+        y = delayedarray.SparseNdarray((10, 15, 1), contents)
 
     with pytest.raises(ValueError, match="out of range"):
-        y = delayedarray.SparseNdarray((10, 15, 1), contents)
+        y = delayedarray.SparseNdarray((5, 15, 20), contents)
 
     def scramble(con, depth):
         if depth == len(test_shape) - 2:
