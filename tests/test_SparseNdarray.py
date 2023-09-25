@@ -11,9 +11,7 @@ import numpy
 import random
 from delayedarray.SparseNdarray import _extract_dense_array_from_SparseNdarray, _extract_sparse_array_from_SparseNdarray
 
-def mock_SparseNdarray_contents(
-    shape, density1=0.5, density2=0.5, lower=-1, upper=1, dtype=numpy.float64
-):
+def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upper=1, dtype=numpy.float64):
     if len(shape) == 1:
         new_indices = []
         new_values = []
@@ -985,3 +983,49 @@ def test_SparseNdarray_round():
     assert isinstance(z, delayedarray.SparseNdarray)
     assert z.dtype == numpy.float64
     assert (numpy.array(z) == numpy.round(ref, decimals=1)).all()
+
+
+#######################################################
+#######################################################
+
+
+def test_SparseNdarray_transpose():
+    test_shape = (5, 3, 2)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = numpy.array(y)
+
+    out = numpy.transpose(y, axes=[1, 2, 0])
+    assert isinstance(out, delayedarray.SparseNdarray)
+    print(numpy.array(out))
+    print(numpy.transpose(ref, axes=[1, 2, 0]))
+    assert (numpy.array(out) == numpy.transpose(ref, axes=[1, 2, 0])).all()
+
+    out = numpy.transpose(y, axes=[0, 2, 1])
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == numpy.transpose(ref, axes=[0, 2, 1])).all()
+
+    out = numpy.transpose(y, axes=[1, 0, 2])
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == numpy.transpose(ref, axes=[1, 0, 2])).all()
+
+    out = y.T
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == ref.T).all()
+
+    # No-op for 1-dimensional arrays.
+    test_shape = (50,)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = numpy.array(y)
+    out = numpy.transpose(y)
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == ref).all()
+
+    # Works for Nones.
+    test_shape = (20, 30)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64)
+    ref = numpy.zeros(test_shape)
+    out = numpy.transpose(y)
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == numpy.transpose(ref)).all()

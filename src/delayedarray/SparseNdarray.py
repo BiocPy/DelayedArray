@@ -748,12 +748,11 @@ class SparseNdarray:
             return DelayedArray(Combine(seeds, along=axis))
 
         if func == numpy.transpose:
-            seed = _extract_seed(args[0])
             if "axes" in kwargs:
                 axes = kwargs["axes"]
             else:
-                axes = None
-            return DelayedArray(Transpose(seed, perm=axes))
+                axes = list(range(len(self._shape) - 1, -1, -1))
+            return _transpose_SparseNdarray(self, axes)
 
         if func == numpy.round:
             return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, func(v, **kwargs)), self._dtype)
@@ -767,6 +766,13 @@ class SparseNdarray:
         All keyword arguments are currently ignored.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, v.astype(dtype)), dtype)
+
+
+    @property
+    def T(self) -> "SparseNdarray":
+        """See :py:meth:`~numpy.ndarray.T` for details."""
+        axes = list(range(len(self._shape) - 1, -1, -1))
+        return _transpose_SparseNdarray(self, axes)
 
 
 #########################################################
@@ -1210,4 +1216,81 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
     return _transform_sparse_array_from_SparseNdarray(x, f2, dummy.dtype) 
 
 
+#########################################################
+#########################################################
 
+
+def _transpose_SparseNdarray_contents_internal(location, indices, values, perm, new_shape, new_contents):
+    ndim = len(new_shape)
+
+    destination = []
+    final = None
+    for i, p in enumerate(perm):
+        if p == ndim - 1:
+            final = i
+            destination.append(None)
+        else:
+            destination.append(location[p])
+
+    for i, ix in enumerate(indices):
+        destination[final] = ix
+
+        target = new_contents
+        for j in range(ndim - 2):
+            d = destination[j]
+            if target[d] is None:
+                replacement = [None] * new_shape[j + 1]
+                target[d] = replacement 
+            target = target[d]
+
+        d = destination[ndim - 2] 
+        if target[d] is None:
+            target[d] = ([], [])
+        outi, outv = target[d]
+        outi.append(destination[ndim - 1])
+        outv.append(values[i])
+
+
+def _recursive_transpose_SparseNdarray_fill(contents, perm, new_shape, new_contents, location = [], dim = 0):
+    location.append(0)
+
+    if dim == len(new_shape) - 2:
+        for i, con in enumerate(contents):
+            if con is not None:
+                location[-1] = i
+                _transpose_SparseNdarray_contents_internal(location, con[0], con[1], perm, new_shape, new_contents)
+    else:
+        for i, con in enumerate(contents):
+            if con is not None:
+                location[-1] = i
+                _recursive_transpose_SparseNdarray_fill(con, perm, new_shape, new_contents, location, dim + 1)
+
+    location.pop()
+
+
+def _recursive_transpose_SparseNdarray_reallocate(contents, ndim, output_type, dim = 0):
+    if dim == ndim - 2:
+        for i, con in enumerate(contents):
+            if con is not None:
+                contents[i] = (array(con[0]), array(con[1], dtype=output_type))
+    else:
+        for i, con in enumerate(contents):
+            if con is not None:
+                _recursive_transpose_SparseNdarray_reallocate(con, ndim, output_type, dim + 1)
+
+
+def _transpose_SparseNdarray(x: SparseNdarray, perm):
+    if len(x._shape) == 1:
+        return x
+
+    new_shape = []
+    for p in perm:
+        new_shape.append(x._shape[p])
+
+    new_contents = None
+    if x._contents is not None:
+        new_contents = [None] * new_shape[0]
+        _recursive_transpose_SparseNdarray_fill(x._contents, perm, new_shape, new_contents)
+        _recursive_transpose_SparseNdarray_reallocate(new_contents, len(new_shape), x._dtype)
+
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=x._dtype, check=False)
