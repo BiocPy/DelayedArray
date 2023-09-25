@@ -3,7 +3,7 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 import numpy
-from numpy import array, ndarray, zeros, dtype
+from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string
 
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
@@ -122,7 +122,7 @@ class SparseNdarray:
     def contents(self):
         """Contents of the array. This is intended to be read-only; in general, ``contents`` should only be modified by
         developers of :py:meth:`~delayedarray.interface.extract_sparse_array` methods or creators of new
-        :py:class:`~delayedarray.DelayedArray.DelayedArray` instances.
+        :py:class:`~delayedarray.DelayedOp.DelayedOp` instances.
 
         Returns:
             A nested list, for a n-dimensional array where n > 1.
@@ -144,18 +144,18 @@ class SparseNdarray:
             str: String containing a prettified display of the array contents.
         """
         total = 1
-        for s in self._seed.shape:
+        for s in self._shape:
             total *= s
 
         preamble = "<" + " x ".join([str(x) for x in self._shape]) + ">"
         preamble += " " + type(self).__name__ + " object of type '" + self._dtype.name + "'"
 
         if total > get_printoptions()["threshold"]:
-            ndims = len(self._seed.shape)
+            ndims = len(self._shape)
             indices = []
             edge_size = get_printoptions()["edgeitems"]
             for d in range(ndims):
-                extent = self._seed.shape[d]
+                extent = self._shape[d]
                 if extent > edge_size * 2:
                     indices.append(
                         list(range(edge_size + 1))
@@ -193,8 +193,8 @@ class SparseNdarray:
 
 
     # Assorted dunder methods.
-    def __add__(self, other) -> "DelayedArray":
-        """Add something to the right-hand-side of a ``DelayedArray``.
+    def __add__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Add something to the right-hand-side of a ``SparseNdarray``.
 
         Args:
             other:
@@ -204,12 +204,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+            Array containing the result of the addition.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="add", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="add", right=True)
 
-    def __radd__(self, other) -> "DelayedArray":
-        """Add something to the left-hand-side of a ``DelayedArray``.
+    def __radd__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Add something to the left-hand-side of a ``SparseNdarray``.
 
         Args:
             other:
@@ -219,12 +220,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+            Array containing the result of the addition.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="add", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="add", right=False)
 
-    def __sub__(self, other) -> "DelayedArray":
-        """Subtract something from the right-hand-side of a ``DelayedArray``.
+    def __sub__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Subtract something from the right-hand-side of a ``SparseNdarray``.
 
         Args:
             other:
@@ -234,12 +236,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+            Array containing the result of the subtraction.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="subtract", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="subtract", right=True)
 
     def __rsub__(self, other):
-        """Subtract a ``DelayedArray`` from something else.
+        """Subtract a ``SparseNdarray`` from something else.
 
         Args:
             other:
@@ -249,12 +252,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+            Array containing the result of the subtraction.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="subtract", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="subtract", right=False)
 
     def __mul__(self, other):
-        """Multiply a ``DelayedArray`` with something on the right hand side.
+        """Multiply a ``SparseNdarray`` with something on the right hand side.
 
         Args:
             other:
@@ -264,12 +268,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+            Array containing the result of the multiplication.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="multiply", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="multiply", right=True)
 
     def __rmul__(self, other):
-        """Multiply a ``DelayedArray`` with something on the left hand side.
+        """Multiply a ``SparseNdarray`` with something on the left hand side.
 
         Args:
             other:
@@ -279,12 +284,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+            Array containing the result of the multiplication.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="multiply", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="multiply", right=False)
 
     def __truediv__(self, other):
-        """Divide a ``DelayedArray`` by something.
+        """Divide a ``SparseNdarray`` by something.
 
         Args:
             other:
@@ -294,12 +300,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+            Array containing the result of the division.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="divide", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="divide", right=True)
 
     def __rtruediv__(self, other):
-        """Divide something by a ``DelayedArray``.
+        """Divide something by a ``SparseNdarray``.
 
         Args:
             other:
@@ -309,12 +316,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+            Array containing the result of the division.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="divide", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="divide", right=False)
 
     def __mod__(self, other):
-        """Take the remainder after dividing a ``DelayedArray`` by something.
+        """Take the remainder after dividing a ``SparseNdarray`` by something.
 
         Args:
             other:
@@ -324,12 +332,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+            Array containing the result of the modulo.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="remainder", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="remainder", right=True)
 
     def __rmod__(self, other):
-        """Take the remainder after dividing something by a ``DelayedArray``.
+        """Take the remainder after dividing something by a ``SparseNdarray``.
 
         Args:
             other:
@@ -339,14 +348,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+            Array containing the result of the modulo.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="remainder", right=False
         )
 
     def __floordiv__(self, other):
-        """Divide a ``DelayedArray`` by something and take the floor.
+        """Divide a ``SparseNdarray`` by something and take the floor.
 
         Args:
             other:
@@ -356,14 +366,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+            Array containing the result of the floor division.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="floor_divide", right=True
         )
 
     def __rfloordiv__(self, other):
-        """Divide something by a ``DelayedArray`` and take the floor.
+        """Divide something by a ``SparseNdarray`` and take the floor.
 
         Args:
             other:
@@ -373,14 +384,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+            Array containing the result of the floor division.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="floor_divide", right=False
         )
 
     def __pow__(self, other):
-        """Raise a ``DelayedArray`` to the power of something.
+        """Raise a ``SparseNdarray`` to the power of something.
 
         Args:
             other:
@@ -390,12 +402,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+            Array containing the result of the power operation.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="power", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="power", right=True)
 
     def __rpow__(self, other):
-        """Raise something to the power of the contents of a ``DelayedArray``.
+        """Raise something to the power of the contents of a ``SparseNdarray``.
 
         Args:
             other:
@@ -405,12 +418,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+            Array containing the result of the power operation.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="power", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="power", right=False)
 
-    def __eq__(self, other) -> "DelayedArray":
-        """Check for equality between a ``DelayedArray`` and something.
+    def __eq__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check for equality between a ``SparseNdarray`` and something.
 
         Args:
             other:
@@ -420,12 +434,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="equal", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="equal", right=True)
 
-    def __req__(self, other) -> "DelayedArray":
-        """Check for equality between something and a ``DelayedArray``.
+    def __req__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check for equality between something and a ``SparseNdarray``.
 
         Args:
             other:
@@ -435,12 +450,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="equal", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="equal", right=False)
 
-    def __ne__(self, other) -> "DelayedArray":
-        """Check for non-equality between a ``DelayedArray`` and something.
+    def __ne__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check for non-equality between a ``SparseNdarray`` and something.
 
         Args:
             other:
@@ -450,12 +466,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="not_equal", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="not_equal", right=True)
 
-    def __rne__(self, other) -> "DelayedArray":
-        """Check for non-equality between something and a ``DelayedArray``.
+    def __rne__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check for non-equality between something and a ``SparseNdarray``.
 
         Args:
             other:
@@ -465,14 +482,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
-            self, other, operation="not_equal", right=False
-        )
+        return _operate_with_args_on_SparseNdarray(self, other, operation="not_equal", right=False)
 
-    def __ge__(self, other) -> "DelayedArray":
-        """Check whether a ``DelayedArray`` is greater than or equal to something.
+    def __ge__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether a ``SparseNdarray`` is greater than or equal to something.
 
         Args:
             other:
@@ -482,14 +498,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
-            self, other, operation="greater_equal", right=True
-        )
+        return _operate_with_args_on_SparseNdarray(self, other, operation="greater_equal", right=True)
 
-    def __rge__(self, other) -> "DelayedArray":
-        """Check whether something is greater than or equal to a ``DelayedArray``.
+    def __rge__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether something is greater than or equal to a ``SparseNdarray``.
 
         Args:
             other:
@@ -499,14 +514,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="greater_equal", right=False
         )
 
-    def __le__(self, other) -> "DelayedArray":
-        """Check whether a ``DelayedArray`` is less than or equal to something.
+    def __le__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether a ``SparseNdarray`` is less than or equal to something.
 
         Args:
             other:
@@ -516,14 +532,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="less_equal", right=True
         )
 
-    def __rle__(self, other) -> "DelayedArray":
-        """Check whether something is greater than or equal to a ``DelayedArray``.
+    def __rle__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether something is greater than or equal to a ``SparseNdarray``.
 
         Args:
             other:
@@ -533,14 +550,15 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(
+        return _operate_with_args_on_SparseNdarray(
             self, other, operation="less_equal", right=False
         )
 
-    def __gt__(self, other) -> "DelayedArray":
-        """Check whether a ``DelayedArray`` is greater than something.
+    def __gt__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether a ``SparseNdarray`` is greater than something.
 
         Args:
             other:
@@ -550,12 +568,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="greater", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="greater", right=True)
 
-    def __rgt__(self, other) -> "DelayedArray":
-        """Check whether something is greater than a ``DelayedArray``.
+    def __rgt__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether something is greater than a ``SparseNdarray``.
 
         Args:
             other:
@@ -565,12 +584,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="greater", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="greater", right=False)
 
-    def __lt__(self, other) -> "DelayedArray":
-        """Check whether a ``DelayedArray`` is less than something.
+    def __lt__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether a ``SparseNdarray`` is less than something.
 
         Args:
             other:
@@ -580,12 +600,13 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="less", right=True)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="less", right=True)
 
-    def __rlt__(self, other) -> "DelayedArray":
-        """Check whether something is less than a ``DelayedArray``.
+    def __rlt__(self, other) -> Union["SparseNdarray", ndarray]:
+        """Check whether something is less than a ``SparseNdarray``.
 
         Args:
             other:
@@ -595,38 +616,39 @@ class SparseNdarray:
                 or any seed object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
         """
-        return _wrap_isometric_with_args(self, other, operation="less", right=False)
+        return _operate_with_args_on_SparseNdarray(self, other, operation="less", right=False)
 
     # Simple methods.
     def __neg__(self):
-        """Negate the contents of a ``DelayedArray``.
+        """Negate the contents of a ``SparseNdarray``.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed negation.
+            SparseNdarray: A ``SparseNdarray`` containing the delayed negation.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, -v), self._dtype)
 
     def __abs__(self):
-        """Take the absolute value of the contents of a ``DelayedArray``.
+        """Take the absolute value of the contents of a ``SparseNdarray``.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
+            SparseNdarray: A ``SparseNdarray`` containing the delayed absolute value operation.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
 
     # Subsetting.
     def __getitem__(
         self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
-    ) -> Union["DelayedArray", ndarray]:
-        """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
+    ) -> Union[Union["SparseNdarray", ndarray], ndarray]:
+        """Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
             args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
-                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
+                A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``.
                 Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
                 delayed subset operation.
 
@@ -634,7 +656,7 @@ class SparseNdarray:
             ValueError: If ``args`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
+            If the dimensionality is preserved by ``args``, a ``SparseNdarray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
         sanitized = _sanitize_getitem(self._shape, args)
@@ -644,39 +666,39 @@ class SparseNdarray:
 
 
     # Coercion methods.
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
+    def __SparseNdarray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         return self.__array__()
 
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
+    def __SparseNdarray_extract__(self, subset: Tuple[Sequence[int]]):
         """See :py:meth:`~delayedarray.utils.extract_array`."""
         return _extract_sparse_array_from_SparseNdarray(self, subset)
 
 
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
+    def __SparseNdarray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         total = [1] * len(self._shape)
         total[-1] = self._shape[-1]
         return (*total,)
 
 
-    def __DelayedArray_sparse__(self) -> bool:
+    def __SparseNdarray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return True
 
 
-    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> Union[Union["SparseNdarray", ndarray], ndarray]:
         """Interface with NumPy array methods.
 
         This is used to implement mathematical operations like NumPy's :py:meth:`~numpy.log`,
-        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the
+        or to override operations between NumPy class instances and ``SparseNdarray`` objects where the former is on the
         left hand side. Check out the NumPy's ``__array_ufunc__``
         `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_ for
         more details.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
+            SparseNdarray: A ``SparseNdarray`` instance containing the requested delayed operation.
         """
         if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
             # This is required to support situations where the NumPy array is on
@@ -689,7 +711,7 @@ class SparseNdarray:
             first_is_da = isinstance(inputs[0], SparseNdarray)
             da = inputs[1 - int(first_is_da)]
             v = inputs[int(first_is_da)]
-            return _transform_SparseNdarray_with_args(self, v, op, right=False)
+            return _operate_with_args_on_SparseNdarray(self, v, op, right=False)
 
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
             dummy = ufunc(zeros(1, dtype=self._dtype))
@@ -703,6 +725,13 @@ class SparseNdarray:
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
+
+    def astype(self, dtype: dtype, **kwargs) -> "SparseNdarray":
+        """See :py:meth:`~numpy.ndarray.astype` for details.
+
+        All keyword arguments are currently ignored.
+        """
+        return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, v.astype(dtype)), dtype)
 
 
 
@@ -978,7 +1007,7 @@ def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, ou
     return SparseNdarray(shape=x._shape, contents=new_contents, dtype=output_dtype, check=False)
 
 
-def _transform_SparseNdarray_with_args(x: SparseNdarray, other, operation: ISOMETRIC_OP_WITH_ARGS, right: bool) -> SparseNdarray:
+def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOMETRIC_OP_WITH_ARGS, right: bool) -> SparseNdarray:
     along = _infer_along_with_args(x._shape, other)
     num_other = 1
 
