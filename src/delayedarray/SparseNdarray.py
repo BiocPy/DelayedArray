@@ -737,15 +737,11 @@ class SparseNdarray:
             A ``SparseNdarray`` instance containing the requested operation.
         """
         if func == numpy.concatenate:
-            seeds = []
-            for x in args[0]:
-                seeds.append(_extract_seed(x))
-
             if "axis" in kwargs:
                 axis = kwargs["axis"]
             else:
                 axis = 0
-            return DelayedArray(Combine(seeds, along=axis))
+            return _concatenate_SparseNdarray(args[0], along=axis)
 
         if func == numpy.transpose:
             if "axes" in kwargs:
@@ -1294,3 +1290,105 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
         _recursive_transpose_SparseNdarray_reallocate(new_contents, len(new_shape), x._dtype)
 
     return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=x._dtype, check=False)
+
+
+#########################################################
+#########################################################
+
+
+def _recursive_concatenate_SparseNdarray(contents, shapes, along, offset=None, dim=0):
+    if along == dim:
+        all_none = True
+        for x in contents:
+            if x is not None:
+                all_none = False
+
+        new_contents = None
+        if not all_none:
+            new_contents = []
+            for i, x in enumerate(contents):
+                if x is not None:
+                    new_contents += x
+                else:
+                    new_contents += [None] * shapes[i][along]
+        return new_contents
+
+    elif dim == len(shapes[0]) - 2:
+        new_contents = []
+        for i in range(shapes[0][dim]):
+            outidx = []
+            outval = [] 
+            for j, c in enumerate(contents):
+                if c is not None and c[i] is not None:
+                    outidx.append(c[i][0] + offset[j])
+                    outval.append(c[i][1])
+            if len(outval):
+                new_contents.append((numpy.concatenate(outidx), numpy.concatenate(outval)))
+            else:
+                new_contents.append(None)
+        return new_contents
+
+    else:
+        new_contents = []
+        collected = [None] * len(contents)
+        for i in range(shapes[0][dim]):
+            for j, c in enumerate(contents):
+                if c is not None:
+                    collected[j] = c[i]
+            new_contents.append(_recursive_concatenate_SparseNdarray(collected, shapes, along, offset=offset, dim=dim+1))
+        return new_contents
+
+
+def _concatenate_SparseNdarray(xs, along):
+    all_contents = []
+    all_shapes = []
+    for x in xs:
+        all_contents.append(x._contents)
+        all_shapes.append(x._shape)
+
+    combined = 0
+    ref_shape = all_shapes[0]
+    for shape in all_shapes:
+        if len(shape) != len(ref_shape):
+            raise ValueError("inconsistent dimensionalities for combining SparseNdarrays")
+        for d, s in enumerate(shape):
+            if d == along:
+                combined += s
+            elif s != ref_shape[d]:
+                raise ValueError("inconsistent shapes for combining SparseNdarrays along axis " + str(along))
+
+    new_shape = list(ref_shape)
+    new_shape[along] = combined
+
+    dummy_collected = []
+    for x in xs:
+        dummy_collected.append(zeros(1, dtype=x._dtype))
+    dummy = numpy.concatenate(dummy_collected)
+
+    all_none = True
+    for con in all_contents:
+        if con is not None:
+            all_none = False
+
+    new_contents = None
+    if not all_none:
+        offset = None
+        if along == len(new_shape) - 1:
+            last = 0
+            offset = []
+            for i, shape in enumerate(all_shapes):
+                offset.append(last)
+                last += shape[along]
+
+        if len(new_shape) > 1:
+            new_contents = _recursive_concatenate_SparseNdarray(all_contents, all_shapes, along=along, offset=offset)
+        else:
+            outidx = []
+            outval = [] 
+            for j, c in enumerate(all_contents):
+                if c is not None:
+                    outidx.append(c[0] + offset[j])
+                    outval.append(c[1])
+            new_contents = (numpy.concatenate(outidx), numpy.concatenate(outval))
+
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=dummy.dtype, check=False)
