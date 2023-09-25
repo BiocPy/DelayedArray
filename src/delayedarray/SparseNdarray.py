@@ -1041,7 +1041,124 @@ def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, ou
     return SparseNdarray(shape=x._shape, contents=new_contents, dtype=output_dtype, check=False)
 
 
+#########################################################
+#########################################################
+
+
+def _binary_operate_sparse_vector(vector1, vector2, f, output_type):
+    if vector1 is None and vector2 is None:
+        return None
+
+    elif vector1 is not None and vector2 is None:
+        indices1, values1 = vector1
+        outval = []
+        outidx = []
+        for i1, ix1 in enumerate(indices1):
+            outval.append(f(values1[i1], 0))
+            outidx.append(ix1)
+        return array(outidx, dtype=indices1.dtype), array(outval, dtype=output_type)
+
+    elif vector1 is None and vector2 is not None:
+        indices2, values2 = vector2
+        outval = []
+        outidx = []
+        for i2, ix2 in enumerate(indices2):
+            outval.append(f(0, values2[i2]))
+            outidx.append(ix2)
+        return array(outidx, dtype=indices2.dtype), array(outval, dtype=output_type)
+
+    else:
+        indices1, values1 = vector1
+        indices2, values2 = vector2
+        i2 = 0
+        len2 = len(indices2)
+        outval = []
+        outidx = []
+
+        for i1, ix1 in enumerate(indices1):
+            while i2 < len2 and ix1 > indices2[i2]:
+                outval.append(f(0, values2[i2]))
+                outidx.append(indices2[i2])
+                i2 += 1
+
+            val2 = 0
+            if i2 < len2 and ix1 == indices2[i2]:
+                val2 = values2[i2]
+                i2 += 1
+            outval.append(f(values1[i1], val2))
+            outidx.append(ix1)
+
+        while i2 < len2:
+            outval.append(f(0, values2[i2]))
+            outidx.append(indices2[i2])
+            i2 += 1
+
+        return array(outidx, dtype=indices1.dtype), array(outval, dtype=output_type)
+
+
+def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, output_type, dim = 0):
+    if contents1 is None and contents2 is None:
+        return None
+
+    new_contents = []
+    if contents1 is not None and contents2 is None:
+        if dim == ndim - 2:
+            for con1 in contents1:
+                new_contents.append(_binary_operate_sparse_vector(con1, None, f, output_type))
+        else:
+            for con1 in contents1:
+                print(con1)
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, None, ndim, f, output_type, dim + 1))
+
+    elif contents1 is None and contents2 is not None:
+        if dim == ndim - 2:
+            for con2 in contents2:
+                new_contents.append(_binary_operate_sparse_vector(None, con2, f, output_type))
+        else:
+            for con2 in contents2:
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(None, con2, ndim, f, output_type, dim + 1))
+
+    else:
+        if dim == ndim - 2:
+            for i, con1 in enumerate(contents1):
+                new_contents.append(_binary_operate_sparse_vector(con1, contents2[i], f, output_type))
+        else:
+            for i, con1 in enumerate(contents1):
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, contents2[i], ndim, f, output_type, dim + 1))
+
+    for x in new_contents:
+        if x is not None:
+            return new_contents
+    return None
+
+
+def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, operation: ISOMETRIC_OP_WITH_ARGS):
+    op = _choose_operator(operation)
+
+    dummy1 = zeros(1, dtype=x._dtype)
+    dummy2 = zeros(1, dtype=x._dtype)
+    dummy = op(dummy1, dummy2)
+    if dummy[0] != 0:
+        return op(numpy.array(x), numpy.array(y))
+
+    if x._contents is None and y._contents is None:
+        new_contents = None
+    elif len(x._shape) == 1:
+        new_contents = _binary_operate_sparse_vector(x._contents, y._contents, op, dummy.dtype)
+    else:
+        new_contents = _recursive_binary_operation_on_SparseNdarray(x._contents, y._contents, ndim=len(x._shape), f=op, output_type=dummy.dtype)
+
+    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=dummy.dtype, check=False)
+
+
+#########################################################
+#########################################################
+
+
 def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOMETRIC_OP_WITH_ARGS, right: bool) -> SparseNdarray:
+    if isinstance(other, SparseNdarray):
+        return _binary_operation_on_SparseNdarray(x, other, operation)
+
     along = _infer_along_with_args(x._shape, other)
     num_other = 1
 
@@ -1085,3 +1202,6 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
                 return indices, op(other[indices], values)
 
     return _transform_sparse_array_from_SparseNdarray(x, f2, dummy.dtype) 
+
+
+

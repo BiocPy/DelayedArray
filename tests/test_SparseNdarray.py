@@ -471,6 +471,13 @@ def test_SparseNdarray_add():
     assert isinstance(out, numpy.ndarray)
     assert (out == ref + other).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y + y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref + ref2)).all()
+
 
 def test_SparseNdarray_sub():
     test_shape = (30, 40)
