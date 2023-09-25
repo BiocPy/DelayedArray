@@ -1,22 +1,17 @@
-from typing import Optional, Tuple, Sequence, TYPE_CHECKING
-
+from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
 from numpy import dtype, transpose
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from ._subset import _spawn_indices
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
-
-
-def _transpose(x, perm):
-    if perm == (1, 0) and hasattr(x, "T"):
-        return x.T
-    return transpose(x, axes=perm)
 
 
 class Transpose(DelayedOp):
@@ -101,20 +96,6 @@ class Transpose(DelayedOp):
         target = create_dask_array(self._seed)
         return _transpose(target, perm=self._perm)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        permsub = [None] * len(subset)
-        for i, j in enumerate(self._perm):
-            permsub[j] = subset[i]
-
-        target = extract_array(self._seed, (*permsub,))
-
-        def f(s):
-            return _transpose(s, perm=self._perm)
-
-        expected_shape = [len(s) for s in subset]
-        return _retry_single(target, f, (*expected_shape,))
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         chunks = chunk_shape(self._seed)
@@ -125,3 +106,27 @@ class Transpose(DelayedOp):
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return is_sparse(self._seed)
 
+
+def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    if subset is None:
+        subset = _spawn_indices(x.shape)
+
+    permsub = [None] * len(subset)
+    for i, j in enumerate(self._perm):
+        permsub[j] = subset[i]
+
+    target = extract_array(self._seed, (*permsub,))
+    return transpose(target, axes=self._perm)
+
+
+@extract_dense_array.register
+def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(self._seed, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(self._seed, subset, extract_sparse_array)

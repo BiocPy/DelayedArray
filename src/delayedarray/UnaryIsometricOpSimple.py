@@ -1,8 +1,6 @@
-from typing import Literal, Tuple, Sequence, TYPE_CHECKING
-
+from typing import Optional, Callable, Literal, Tuple, Sequence, TYPE_CHECKING
 import numpy
 from numpy import dtype, zeros
-
 if TYPE_CHECKING:
     import dask.array
 
@@ -116,12 +114,6 @@ class UnaryIsometricOpSimple(DelayedOp):
         f = _choose_operator(self._op)
         return f(target)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self._seed, subset)
-        f = _choose_operator(self._op)
-        return _retry_single(target, f, target.shape)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
@@ -129,3 +121,22 @@ class UnaryIsometricOpSimple(DelayedOp):
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return self._sparse
+
+
+def _extract_array(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    target = f(self._seed, subset)
+    g = _choose_operator(self._op)
+    return g(target)
+
+
+@extract_dense_array.register
+def extract_dense_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

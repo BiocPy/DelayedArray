@@ -1,5 +1,4 @@
-from typing import Sequence, Tuple, Union, TYPE_CHECKING
-
+from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
 import numpy
 from numpy import (
     array,
@@ -11,7 +10,6 @@ from numpy import (
     ndarray,
     prod,
 )
-
 if TYPE_CHECKING:
     import dask.array
 
@@ -24,9 +22,12 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
+
+from .utils import create_dask_array, _densify, chunk_shape, is_sparse
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
+from .extract_dense_array import extract_dense_array
+from .extract_dense_array import extract_dense_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -163,7 +164,7 @@ class DelayedArray:
                     indices.append(slice(None))
             indices = (*indices,)
 
-        bits_and_pieces = _densify(extract_array(self._seed, indices))
+        bits_and_pieces = extract_dense_array(self._seed, indices)
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
@@ -175,7 +176,7 @@ class DelayedArray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        return _densify(extract_array(self._seed))
+        return extract_dense_array(self._seed)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
@@ -751,10 +752,6 @@ class DelayedArray:
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         return create_dask_array(self._seed)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        return extract_array(self._seed, subset)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
@@ -764,3 +761,13 @@ class DelayedArray:
         return is_sparse(self._seed)
 
 
+@extract_dense_array.register
+def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    return extract_dense_array(self._seed, subset)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return extract_sparse_array(self._seed, subset)

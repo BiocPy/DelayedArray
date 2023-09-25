@@ -1,14 +1,14 @@
 import warnings
-from typing import Tuple, Sequence, TYPE_CHECKING
-
+from typing import Collable, Optional, Tuple, Sequence, TYPE_CHECKING
 import numpy
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
-from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
+from .utils import create_dask_array, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -110,18 +110,6 @@ class BinaryIsometricOp(DelayedOp):
         rs = create_dask_array(self._right)
         return _execute(ls, rs, self._op)
 
-    def __DelayedArray_extract_dense__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-        ls = extract_dense_array(self._left, subset)
-        rs = extract_dense_array(self._right, subset)
-        return _execute(ls, rs, self._op)
-
-    def __DelayedArray_extract_sparse__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-        ls = extract_sparse_array(self._left, subset)
-        rs = extract_sparse_array(self._right, subset)
-        return _execute(ls, rs, self._op)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         lchunk = chunk_shape(self._left)
@@ -140,4 +128,23 @@ class BinaryIsometricOp(DelayedOp):
 
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return self._sparse
+        ssreturn self._sparse
+
+ 
+def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    ls = f(x._left, subset)
+    rs = f(x._right, subset)
+    return _execute(ls, rs, self._op)
+
+
+@extract_dense_array.register
+def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

@@ -9,13 +9,6 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def _spawn_indices(shape):
-    raw = []
-    for s in shape:
-        raw.append(range(s))
-    return (*raw,)
-
-
 @singledispatch
 def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -> ndarray:
     """Extract the realized contents (or a subset thereof) into a dense NumPy
@@ -61,6 +54,13 @@ def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[S
     if subset is None:
         subset = _spawn_indices(x.shape)
     return _extract_dense_array_from_SparseNdarray(x, subset)
+
+
+def _sanitize_to_fortran(x):
+    if x.flags.f_contiguous:
+        return x
+    else: 
+        return x.asfortranarray()
 
 
 # If scipy is installed, we add all the methods for the various scipy.sparse matrices.

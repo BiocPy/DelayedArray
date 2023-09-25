@@ -9,13 +9,6 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def _spawn_indices(shape):
-    raw = []
-    for s in shape:
-        raw.append(range(s))
-    return (*raw,)
-
-
 @singledispatch
 def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -> SparseNdarray:
     """Extract the contents of ``x`` (or a subset thereof) into a

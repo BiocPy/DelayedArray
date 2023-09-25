@@ -1,5 +1,5 @@
 import warnings
-from typing import Literal, Tuple, Union, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Union, Sequence, TYPE_CHECKING
 
 import numpy
 from numpy import ndarray
@@ -10,6 +10,9 @@ if TYPE_CHECKING:
 from .DelayedOp import DelayedOp
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from ._subset import _spawn_indices
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -153,28 +156,6 @@ class UnaryIsometricOpWithArgs(DelayedOp):
         else:
             return _execute(operand, target, self._op)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self._seed, subset)
-
-        subvalue = self._value
-        if isinstance(subvalue, ndarray):
-            if len(subvalue.shape) == 1:
-                subvalue = subvalue[subset[-1]]
-            else:
-                resub = [slice(None)] * len(subset)
-                subdim = self.along
-                resub[subdim] = subset[subdim]
-                subvalue = subvalue[(*resub,)]
-
-        def f(s):
-            if self._right:
-                return _execute(s, subvalue, self._op)
-            else:
-                return _execute(subvalue, s, self._op)
-
-        return _retry_single(target, f, target.shape)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
@@ -182,3 +163,37 @@ class UnaryIsometricOpWithArgs(DelayedOp):
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return self._sparse
+
+
+def _extract_array(x: UnaryIsometricWithArgs, subset: Optional[Tuple[Sequence[int]]], f: Callable): 
+    target = extract_array(x._seed, subset)
+
+    subvalue = x._value
+    if isinstance(subvalue, ndarray):
+        if subset is None:
+            subset = _spawn_indices(x.shape)
+        if len(subvalue.shape) == 1:
+            subvalue = subvalue[subset[-1]]
+        else:
+            resub = [slice(None)] * len(subset)
+            subdim = self.along
+            resub[subdim] = subset[subdim]
+            subvalue = subvalue[(*resub,)]
+
+    if self._right:
+        return _execute(s, subvalue, self._op)
+    else:
+        return _execute(subvalue, s, self._op)
+
+
+@extract_dense_array.register
+def extract_dense_array_UnaryIsometricWithArgs(x: UnaryIsometricWithArgs, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_UnaryIsometricWithArgs(x: UnaryIsometricWithArgs, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

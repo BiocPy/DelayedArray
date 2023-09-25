@@ -1,12 +1,13 @@
-from typing import Sequence, Tuple, TYPE_CHECKING
-
+from typing import Optional, Callable, Sequence, Tuple, TYPE_CHECKING
 from numpy import dtype, ndarray, ix_
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, extract_array, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from ._subset import _spawn_indices
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -127,32 +128,6 @@ class Subset(DelayedOp):
 
         return target
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        newsub = list(subset)
-        expanded = []
-        is_safe = 0
-
-        for i, s in enumerate(newsub):
-            cursub = self._subset[i]
-            if isinstance(cursub, ndarray):
-                replacement = cursub[s]
-            else:
-                replacement = [cursub[j] for j in s]
-
-            san_sub, san_remap = _sanitize(replacement)
-            newsub[i] = san_sub
-
-            if san_remap is None:
-                is_safe += 1
-                san_remap = range(len(san_sub))
-            expanded.append(san_remap)
-
-        raw = extract_array(self._seed, (*newsub,))
-        if is_safe != len(subset):
-            raw = raw[ix_(*expanded)]
-        return raw
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         chunk = chunk_shape(self._seed)
@@ -172,3 +147,45 @@ class Subset(DelayedOp):
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return is_sparse(self._seed)
+
+
+def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    if subset is None:
+        subset = _spawn_indices(x.shape)
+
+    newsub = list(subset)
+    expanded = []
+    is_safe = 0
+
+    for i, s in enumerate(newsub):
+        cursub = self._subset[i]
+        if isinstance(cursub, ndarray):
+            replacement = cursub[s]
+        else:
+            replacement = [cursub[j] for j in s]
+
+        san_sub, san_remap = _sanitize(replacement)
+        newsub[i] = san_sub
+
+        if san_remap is None:
+            is_safe += 1
+            san_remap = range(len(san_sub))
+        expanded.append(san_remap)
+
+    raw = extract_dense_array(self._seed, (*newsub,))
+    if is_safe != len(subset):
+        raw = raw[ix_(*expanded)]
+    return raw
+
+
+@extract_dense_array.register
+def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(self._seed, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(self._seed, subset, extract_sparse_array)

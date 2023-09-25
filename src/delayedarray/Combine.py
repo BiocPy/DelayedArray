@@ -1,13 +1,12 @@
-from typing import Tuple, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
 import warnings
-
 from numpy import concatenate, dtype, ndarray
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, _densify, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 
@@ -131,7 +130,10 @@ class Combine(DelayedOp):
         return len(self._seeds) > 0
 
 
-def _extract_array(x: "Combine", subset: Tuple[Sequence[int]], fun: Callable)
+def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable)
+    if subset is None:
+        subset = _spawn_indices(x.shape)
+
     # Figuring out which slices belong to who.
     chosen = subset[x._along]
     limit = 0
@@ -152,18 +154,19 @@ def _extract_array(x: "Combine", subset: Tuple[Sequence[int]], fun: Callable)
     for i, x in enumerate(x._seeds):
         if len(fragmented[i]):
             flexargs[x._along] = fragmented[i]
-            extracted.append(fun(x, (*flexargs,)))
+            extracted.append(f(x, (*flexargs,)))
 
     return concatenate((*extracted,), axis=self.along)
 
 
 @extract_dense_array.register
-def extract_dense_array_Combine(self, subset: Tuple[Sequence[int]]):
+def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    return _extract_array(self, subset, extract_dense_array)
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Combine(self, subset: Tuple[Sequence[int]]):
+def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return _extract_array(self, subset, extract_sparse_array)
+    return _extract_array(x, subset, extract_sparse_array)
