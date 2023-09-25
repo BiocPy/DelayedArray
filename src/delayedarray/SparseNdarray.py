@@ -1,9 +1,8 @@
-import numbers
 from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 import numpy
-from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string
+from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string, int32, int64, uint32, uint64
 
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
@@ -43,13 +42,11 @@ class SparseNdarray:
     containing the sparse contents. This may also be None if there are no non-zero
     values in the array.
 
-    For 0-dimensional arrays, the contents should be a single numeric scalar, or None.
-
     Attributes:
-        shape (Tuple[int, ...]):
+        shape: 
             Tuple specifying the dimensions of the array.
 
-        contents (Union[Tuple[Sequence, Sequence], List], optional):
+        contents:
             For ``n``-dimensional arrays where ``n`` > 1, a nested list representing a
             tree where each leaf node is a tuple containing a sparse vector (or None).
 
@@ -57,48 +54,59 @@ class SparseNdarray:
 
             Alternatively None, if the array is empty.
 
-        dtype (dtype, optional):
-            NumPy type of the SparseNdarray.
+        dtype:
+            NumPy type of the array values.
             If None, this is inferred from ``contents``.
+
+        index_dtype:
+            NumPy type of the array indices.
+            If None, this is inferred from ``contents``.
+
+        check:
+            Whether to check the consistency of the ``contents`` during construction.
     """
 
     def __init__(
         self,
         shape: Tuple[int, ...],
-        contents: Optional[
-            Union[
-                Tuple[Sequence, Sequence],
-                List,
-            ]
-        ],
+        contents: Optional[Union[Tuple[Sequence, Sequence], List]],
         dtype: Optional[dtype] = None,
-        check=True,
+        index_dtype: Optional[dtype] = None,
+        check: bool = True,
     ):
         self._shape = shape
         self._contents = contents
 
-        if dtype is None:
+        if dtype is None or index_dtype is None:
             if contents is not None:
                 if len(shape) > 1:
-                    dtype = _peek_for_type(contents, 0, self._shape)
-                elif len(shape) == 1:
-                    dtype = contents[1].dtype
+                    info = _peek_for_type(contents, self._shape)
+                    if info is not None:
+                        index_dtype0 = info[0]
+                        dtype0 = info[1]
+                else:
+                    index_dtype0 = contents[0].dtype
+                    dtype0 = contents[1].dtype
+
+                if dtype is None:
+                    dtype = dtype0
+                if index_dtype is None:
+                    index_dtype = index_dtype0
+
             if dtype is None:
                 raise ValueError("cannot infer 'dtype' from 'contents'")
+            if index_dtype is None:
+                raise ValueError("cannot infer 'index_dtype' from 'contents'")
+
         self._dtype = dtype
+        self._index_dtype = index_dtype
 
         if check is True and contents is not None:
+            payload = _CheckPayload(dtype=self._dtype, index_dtype=self._index_dtype, max_index=self._shape[-1])
             if len(shape) > 1:
-                _recursive_check(self._contents, 0, self._shape, self._dtype)
-            elif len(shape) == 1:
-                _check_sparse_tuple(
-                    self._contents[0], self._contents[1], self._shape[0], self._dtype
-                )
+                _recursive_check(self._contents, self._shape, payload=payload)
             else:
-                if not isinstance(contents, numbers.Number):
-                    raise ValueError(
-                        "expected a numeric scalar 'contents' for a 0-dimensional SparseNdarray"
-                    )
+                _check_sparse_tuple(self._contents[0], self._contents[1], payload=payload)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -117,6 +125,17 @@ class SparseNdarray:
             dtype: NumPy type of the values.
         """
         return self._dtype
+
+
+    @property
+    def index_dtype(self) -> dtype:
+        """Type of the indices. 
+
+        Returns:
+            NumPy type of the indices.
+        """
+        return self._index_dtype
+
 
     @property
     def contents(self):
@@ -775,56 +794,56 @@ class SparseNdarray:
 #########################################################
 
 
-def _peek_for_type(contents: Sequence, dim: int, shape: Tuple[int, ...]):
+def _peek_for_type(contents: Sequence, shape: Tuple[int, ...], dim = 0):
     ndim = len(shape)
     if dim == ndim - 2:
         for x in contents:
             if x is not None:
-                return x[1].dtype
+                return x[0].dtype, x[1].dtype
     else:
         for x in contents:
             if x is not None:
-                out = _peek_for_type(x, dim + 1, shape)
+                out = _peek_for_type(x, shape, dim=dim + 1)
                 if out is not None:
                     return out
     return None
 
 
-def _check_sparse_tuple(
-    indices: Sequence, values: ndarray, max_index: int, dtype: dtype
-):
+_CheckPayload = namedtuple("_CheckPayload", [ "max_index", "dtype", "index_dtype" ])
+
+
+def _check_sparse_tuple(indices: ndarray, values: ndarray, payload: _CheckPayload):
     if len(indices) != len(values):
-        raise ValueError("Length of index and value vectors should be the same.")
+        raise ValueError("length of index and value vectors should be the same")
 
-    if values.dtype != dtype:
-        raise ValueError("Inconsistent data types for different value vectors.")
+    if values.dtype != payload.dtype:
+        raise ValueError("inconsistent data types for different value vectors")
 
-    for i in range(len(indices)):
-        if indices[i] < 0 or indices[i] >= max_index:
-            raise ValueError("Index vectors out of range for the last dimension.")
+    if indices.dtype != payload.index_dtype:
+        raise ValueError("inconsistent data types for different index vectors")
+
+    for i, ix in enumerate(indices):
+        if ix < 0 or ix >= payload.max_index:
+            raise ValueError("index vectors out of range for the last dimension")
 
     for i in range(1, len(indices)):
         if indices[i] <= indices[i - 1]:
-            raise ValueError("Index vectors should be sorted.")
+            raise ValueError("index vectors should be sorted in strictly increasing order")
 
 
-def _recursive_check(
-    contents: Sequence, dim: int, shape: Tuple[int, ...], dtype: dtype
-):
+def _recursive_check(contents: Sequence, shape: Tuple[int, ...], payload: _CheckPayload, dim = 0):
     if len(contents) != shape[dim]:
-        raise ValueError(
-            "Length of 'contents' or its components should match the extent of the corresponding dimension."
-        )
+        raise ValueError("length of 'contents' or its components should match the extent of the corresponding dimension")
 
     ndim = len(shape)
     if dim == ndim - 2:
         for x in contents:
             if x is not None:
-                _check_sparse_tuple(x[0], x[1], shape[ndim - 1], dtype)
+                _check_sparse_tuple(x[0], x[1], payload)
     else:
         for x in contents:
             if x is not None:
-                _recursive_check(x, dim + 1, shape, dtype)
+                _recursive_check(x, shape, payload, dim=dim+1)
 
 
 #########################################################
@@ -904,44 +923,53 @@ def _extract_sparse_vector_to_dense(indices, values, subset_summary, output):
     _extract_sparse_vector_internal(indices, values, subset_summary, f)
 
 
-def _recursive_extract_dense_array(contents, ndim, subset, dim, output):
+def _recursive_extract_dense_array(contents, ndim, subset, subset_summary, output, dim = 0):
     curdex = subset[dim]
     if dim == ndim - 2:
         pos = 0
         for i in curdex:
             x = contents[i]
             if x is not None:
-                _extract_sparse_vector_to_dense(x[0], x[1], subset[ndim - 1], output[pos])
+                _extract_sparse_vector_to_dense(x[0], x[1], subset_summary=subset_summary, output=output[pos])
             pos += 1
     else:
         pos = 0
         for i in curdex:
             x = contents[i]
             if x is not None:
-                _recursive_extract_dense_array(x, ndim, subset, dim + 1, output[pos])
+                _recursive_extract_dense_array(
+                    contents=x, 
+                    ndim=ndim, 
+                    subset=subset, 
+                    subset_summary=subset_summary,
+                    output=output[pos],
+                    dim=dim + 1, 
+                )
             pos += 1
 
 
 def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]) -> ndarray:
-    subset2 = list(subset)
-    idims = [len(y) for y in subset2]
-    subset2[-1] = _characterize_indices(subset2[-1], x._shape[-1])
+    idims = [len(y) for y in subset]
+    subset_summary = _characterize_indices(subset[-1], x._shape[-1])
 
     output = zeros((*idims,), dtype=x._dtype)
     if x._contents is not None:
         ndims = len(x.shape)
         if ndims > 1:
-            _recursive_extract_dense_array(x._contents, ndims, subset2, 0, output)
+            _recursive_extract_dense_array(x._contents, ndims, subset, subset_summary=subset_summary, output=output)
         else:
-            _extract_sparse_vector_to_dense(x._contents[0], x._contents[1], subset2[0], output)
+            _extract_sparse_vector_to_dense(x._contents[0], x._contents[1], subset_summary=subset_summary, output=output)
 
     return output
 
 
 def _extract_sparse_vector_to_sparse(indices, values, subset_summary):
+    if not subset_summary.search_first and not subset_summary.search_last:
+        # No-op; no slicing was done on this dimension.
+        return indices, values
+
     new_indices = []
     new_values = []
-
     def f(p, i, v):
         new_indices.append(p)
         new_values.append(v)
@@ -949,31 +977,32 @@ def _extract_sparse_vector_to_sparse(indices, values, subset_summary):
 
     if len(new_indices) == 0:
         return None
-    if isinstance(indices, ndarray):
-        new_indices = array(new_indices, dtype=indices.dtype)
-    if isinstance(values, ndarray):
-        new_values = array(new_values, dtype=values.dtype)
-    return new_indices, new_values
+    return array(new_indices, dtype=indices.dtype), array(new_values, dtype=values.dtype)
 
 
-def _recursive_extract_sparse_array(contents, shape, subset, dim):
+def _recursive_extract_sparse_array(contents, shape, subset, subset_summary, dim = 0):
     ndim = len(shape)
     curdex = subset[dim]
     new_contents = []
 
     if dim == ndim - 2:
-        last_subset = subset[ndim - 1]
         for i in curdex:
             x = contents[i]
             if x is not None:
-                y = _extract_sparse_vector_to_sparse(x[0], x[1], last_subset)
+                y = _extract_sparse_vector_to_sparse(x[0], x[1], subset_summary)
                 new_contents.append(y)
             else:
                 new_contents.append(None)
     else:
         for i in curdex:
             if contents[i] is not None:
-                y = _recursive_extract_sparse_array(contents[i], shape, subset, dim + 1)
+                y = _recursive_extract_sparse_array(
+                    contents[i], 
+                    shape, 
+                    subset=subset, 
+                    dim=dim + 1, 
+                    subset_summary=subset_summary
+                )
                 new_contents.append(y)
             else:
                 new_contents.append(None)
@@ -985,25 +1014,32 @@ def _recursive_extract_sparse_array(contents, shape, subset, dim):
 
 
 def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Union[slice, Sequence], ...]) -> SparseNdarray:
-    subset2 = list(subset)
-    idims = [len(y) for y in subset2]
-    subset2[-1] = _characterize_indices(subset2[-1], x._shape[-1])
+    idims = [len(y) for y in subset]
+    subset_summary = _characterize_indices(subset[-1], x._shape[-1])
 
     new_contents = None
     if x._contents is not None:
         if len(x.shape) > 1:
-            new_contents = _recursive_extract_sparse_array(x._contents, x._shape, subset2, 0)
+            new_contents = _recursive_extract_sparse_array(x._contents, x._shape, subset, subset_summary)
         else:
-            new_contents = _extract_sparse_vector_to_sparse(x._contents[0], x._contents[1], subset2[0])
+            new_contents = _extract_sparse_vector_to_sparse(x._contents[0], x._contents[1], subset_summary)
 
-    return SparseNdarray(shape=(*idims,), contents=new_contents, dtype=x.dtype, check=False)
+    return SparseNdarray(shape=(*idims,), contents=new_contents, index_dtype=x.index_dtype, dtype=x.dtype, check=False)
 
 
 #########################################################
 #########################################################
 
 
-def _recursive_transform_sparse_array(contents, shape, location, f, dim):
+_TransformPayload = namedtuple("_TransformPayload", [ "fun", "output_dtype" ])
+
+
+def _transform_sparse_vector(location, indices, values, payload):
+    idx, val = payload.fun(location, indices, values)
+    return (idx.astype(indices.dtype, copy=False), val.astype(payload.output_dtype, copy=False)) # a bit of safety with respect to types.
+
+
+def _recursive_transform_sparse_array(contents, shape, payload, location = [], dim = 0):
     ndim = len(shape)
     new_contents = []
     location.append(0)
@@ -1013,57 +1049,69 @@ def _recursive_transform_sparse_array(contents, shape, location, f, dim):
             location[-1] = i
             x = contents[i]
             if x is not None:
-                y = f(location, x[0], x[1])
-                new_contents.append(y)
+                new_contents.append(_transform_sparse_vector(location, x[0], x[1], payload))
             else:
                 new_contents.append(None)
     else:
         for i in range(shape[dim]):
             if contents[i] is not None:
                 location[-1] = i
-                y = _recursive_transform_sparse_array(contents[i], shape, location, f, dim + 1)
+                y = _recursive_transform_sparse_array(
+                    contents=contents[i], 
+                    shape=shape, 
+                    payload=payload,
+                    location=location, 
+                    dim=dim + 1,
+                )
                 new_contents.append(y)
             else:
                 new_contents.append(None)
 
     location.pop()
+
     for x in new_contents:
         if x is not None:
             return new_contents
     return None
 
 
-def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, output_dtype) -> SparseNdarray:
+def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, output_dtype: dtype) -> SparseNdarray:
     new_contents = None
     if x._contents is not None:
+        payload = _TransformPayload(fun=f, output_dtype=output_dtype)
         if len(x._shape) > 1:
-            new_contents = _recursive_transform_sparse_array(x._contents, x._shape, [], f, 0)
+            new_contents = _recursive_transform_sparse_array(contents=x._contents, shape=x._shape, payload=payload)
         else:
-            new_contents = f((), x._contents[0], x._contents[1])
-    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=output_dtype, check=False)
+            new_contents = _transform_sparse_vector((), indices=x._contents[0], values=x._contents[1], payload=payload)
+
+    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=output_dtype, check=False)
 
 
 #########################################################
 #########################################################
 
 
-def _binary_operate_sparse_vector(vector1, vector2, f, type1, type2, output_type):
+_BinaryOpPayload = namedtuple("_BinaryOpPayload", [ "fun", "dtype1", "dtype2", "output_dtype", "output_index_dtype" ])
+
+
+def _binary_operate_sparse_vector(vector1, vector2, payload):
     if vector1 is None and vector2 is None:
         return None
 
     elif vector1 is not None and vector2 is None:
         indices1, values1 = vector1
-        mock = zeros((1,), dtype=type2) # get vector of length 1 for correct type coercion.
-        return indices1, f(values1, mock)
+        mock = zeros((1,), dtype=payload.dtype2) # get vector of length 1 for correct type coercion.
+        return indices1.astype(payload.output_index_dtype, copy=False), payload.fun(values1, mock).astype(payload.output_dtype, copy=False)
 
     elif vector1 is None and vector2 is not None:
         indices2, values2 = vector2
-        mock = zeros((1,), dtype=type1)
-        return indices2, f(mock, values2)
+        mock = zeros((1,), dtype=payload.dtype1)
+        return indices2.astype(payload.output_index_dtype, copy=False), payload.fun(mock, values2).astype(payload.output_dtype, copy=False)
 
     else:
         indices1, values1 = vector1
         indices2, values2 = vector2
+        f = payload.fun
 
         i1 = 0
         len1 = len(indices1)
@@ -1100,10 +1148,10 @@ def _binary_operate_sparse_vector(vector1, vector2, f, type1, type2, output_type
             outidx.append(indices1[i1])
             i1 += 1
 
-        return array(outidx, dtype=indices1.dtype), array(outval, dtype=output_type)
+        return array(outidx, dtype=payload.output_index_dtype), array(outval, dtype=payload.output_dtype)
 
 
-def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, type1, type2, output_type, dim = 0):
+def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, payload, dim = 0):
     if contents1 is None and contents2 is None:
         return None
 
@@ -1111,26 +1159,26 @@ def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, 
     if contents1 is not None and contents2 is None:
         if dim == ndim - 2:
             for con1 in contents1:
-                new_contents.append(_binary_operate_sparse_vector(con1, None, f, type1=type1, type2=type2, output_type=output_type))
+                new_contents.append(_binary_operate_sparse_vector(con1, None, payload))
         else:
             for con1 in contents1:
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, None, ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, None, ndim, payload, dim=dim + 1))
 
     elif contents1 is None and contents2 is not None:
         if dim == ndim - 2:
             for con2 in contents2:
-                new_contents.append(_binary_operate_sparse_vector(None, con2, f, type1=type1, type2=type2, output_type=output_type))
+                new_contents.append(_binary_operate_sparse_vector(None, con2, payload))
         else:
             for con2 in contents2:
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(None, con2, ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(None, con2, ndim, payload, dim=dim + 1))
 
     else:
         if dim == ndim - 2:
             for i, con1 in enumerate(contents1):
-                new_contents.append(_binary_operate_sparse_vector(con1, contents2[i], f, type1=type1, type2=type2, output_type=output_type))
+                new_contents.append(_binary_operate_sparse_vector(con1, contents2[i], payload))
         else:
             for i, con1 in enumerate(contents1):
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, contents2[i], ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, contents2[i], ndim, payload, dim=dim + 1))
 
     for x in new_contents:
         if x is not None:
@@ -1149,12 +1197,14 @@ def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, opera
 
     if x._contents is None and y._contents is None:
         new_contents = None
-    elif len(x._shape) == 1:
-        new_contents = _binary_operate_sparse_vector(x._contents, y._contents, op, type1=x._dtype, type2=y._dtype, output_type=dummy.dtype)
     else:
-        new_contents = _recursive_binary_operation_on_SparseNdarray(x._contents, y._contents, ndim=len(x._shape), f=op, type1=x._dtype, type2=y._dtype, output_type=dummy.dtype)
+        payload = _BinaryOpPayload(fun=op, dtype1=x._dtype, dtype2=y._dtype, output_index_dtype=x.index_dtype, output_dtype=dummy.dtype)
+        if len(x._shape) == 1:
+            new_contents = _binary_operate_sparse_vector(x._contents, y._contents, payload=payload)
+        else:
+            new_contents = _recursive_binary_operation_on_SparseNdarray(x._contents, y._contents, ndim=len(x._shape), payload=payload)
 
-    return SparseNdarray(shape=x._shape, contents=new_contents, dtype=dummy.dtype, check=False)
+    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=dummy.dtype, check=False)
 
 
 #########################################################
@@ -1216,12 +1266,15 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
 #########################################################
 
 
-def _transpose_SparseNdarray_contents_internal(location, indices, values, perm, new_shape, new_contents):
-    ndim = len(new_shape)
+_TransposeFillPayload = namedtuple("_TransposeFillPayload", [ "perm", "new_shape", "new_contents" ])
+
+
+def _transpose_SparseNdarray_contents_internal(location, indices, values, payload):
+    ndim = len(payload.new_shape)
 
     destination = []
     final = None
-    for i, p in enumerate(perm):
+    for i, p in enumerate(payload.perm):
         if p == ndim - 1:
             final = i
             destination.append(None)
@@ -1231,11 +1284,11 @@ def _transpose_SparseNdarray_contents_internal(location, indices, values, perm, 
     for i, ix in enumerate(indices):
         destination[final] = ix
 
-        target = new_contents
+        target = payload.new_contents
         for j in range(ndim - 2):
             d = destination[j]
             if target[d] is None:
-                replacement = [None] * new_shape[j + 1]
+                replacement = [None] * payload.new_shape[j + 1]
                 target[d] = replacement 
             target = target[d]
 
@@ -1247,32 +1300,35 @@ def _transpose_SparseNdarray_contents_internal(location, indices, values, perm, 
         outv.append(values[i])
 
 
-def _recursive_transpose_SparseNdarray_fill(contents, perm, new_shape, new_contents, location = [], dim = 0):
+def _recursive_transpose_SparseNdarray_fill(contents, ndim, payload, location = [], dim = 0):
     location.append(0)
 
-    if dim == len(new_shape) - 2:
+    if dim == ndim - 2:
         for i, con in enumerate(contents):
             if con is not None:
                 location[-1] = i
-                _transpose_SparseNdarray_contents_internal(location, con[0], con[1], perm, new_shape, new_contents)
+                _transpose_SparseNdarray_contents_internal(location, con[0], con[1], payload)
     else:
         for i, con in enumerate(contents):
             if con is not None:
                 location[-1] = i
-                _recursive_transpose_SparseNdarray_fill(con, perm, new_shape, new_contents, location, dim + 1)
+                _recursive_transpose_SparseNdarray_fill(con, ndim, payload, location=location, dim=dim + 1)
 
     location.pop()
 
 
-def _recursive_transpose_SparseNdarray_reallocate(contents, ndim, output_type, dim = 0):
+_TransposeReallocPayload = namedtuple("_TransposeReallocatePayload", [ "output_dtype", "output_index_dtype" ])
+
+
+def _recursive_transpose_SparseNdarray_reallocate(contents, ndim, payload, dim = 0):
     if dim == ndim - 2:
         for i, con in enumerate(contents):
             if con is not None:
-                contents[i] = (array(con[0]), array(con[1], dtype=output_type))
+                contents[i] = (array(con[0], dtype=payload.output_index_dtype), array(con[1], dtype=payload.output_dtype))
     else:
         for i, con in enumerate(contents):
             if con is not None:
-                _recursive_transpose_SparseNdarray_reallocate(con, ndim, output_type, dim + 1)
+                _recursive_transpose_SparseNdarray_reallocate(con, ndim, payload, dim + 1)
 
 
 def _transpose_SparseNdarray(x: SparseNdarray, perm):
@@ -1286,17 +1342,39 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
     new_contents = None
     if x._contents is not None:
         new_contents = [None] * new_shape[0]
-        _recursive_transpose_SparseNdarray_fill(x._contents, perm, new_shape, new_contents)
-        _recursive_transpose_SparseNdarray_reallocate(new_contents, len(new_shape), x._dtype)
+        _recursive_transpose_SparseNdarray_fill(x._contents, len(new_shape), _TransposeFillPayload(perm=perm, new_shape=new_shape, new_contents=new_contents))
+        _recursive_transpose_SparseNdarray_reallocate(new_contents, len(new_shape), _TransposeReallocPayload(output_dtype=x._dtype, output_index_dtype=x._index_dtype))
 
-    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=x._dtype, check=False)
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, index_dtype=x._index_dtype, dtype=x._dtype, check=False)
 
 
 #########################################################
 #########################################################
 
 
-def _recursive_concatenate_SparseNdarray(contents, shapes, along, offset=None, dim=0):
+_ConcatenatePayload = namedtuple("_ConcatenatePayload", [ "shapes", "offset", "output_dtype", "output_index_dtype"])
+
+
+def _concatenate_sparse_vectors(idx, val, payload):
+    newidx = numpy.concatenate(idx).astype(payload.output_index_dtype, copy=False)
+    newval = numpy.concatenate(val).astype(payload.output_dtype, copy=False)
+    return (newidx, newval)
+
+
+def _coerce_concatenated_SparseNdarray_types(contents, ndim, payload, dim):
+    if dim == ndim - 2:
+        for i, con in enumerate(contents):
+            if con is not None:
+                idx2 = con[0].astype(payload.output_index_dtype, copy=False)
+                val2 = con[1].astype(payload.output_dtype, copy=False)
+                contents[i] = (idx2, val2)
+    else:
+        for i, con in enumerate(contents):
+            if con is not None:
+                _coerce_concatenated_SparseNdarray_types(con, ndim, payload, dim=dim+1)
+
+
+def _recursive_concatenate_SparseNdarray(contents, final_shape, along, payload, dim=0):
     if along == dim:
         all_none = True
         for x in contents:
@@ -1310,20 +1388,21 @@ def _recursive_concatenate_SparseNdarray(contents, shapes, along, offset=None, d
                 if x is not None:
                     new_contents += x
                 else:
-                    new_contents += [None] * shapes[i][along]
+                    new_contents += [None] * payload.shapes[i][along]
+            _coerce_concatenated_SparseNdarray_types(new_contents, ndim=len(final_shape), payload=payload, dim=dim)
         return new_contents
 
-    elif dim == len(shapes[0]) - 2:
+    elif dim == len(final_shape) - 2:
         new_contents = []
-        for i in range(shapes[0][dim]):
+        for i in range(final_shape[dim]):
             outidx = []
             outval = [] 
             for j, c in enumerate(contents):
                 if c is not None and c[i] is not None:
-                    outidx.append(c[i][0] + offset[j])
+                    outidx.append(c[i][0] + payload.offset[j])
                     outval.append(c[i][1])
             if len(outval):
-                new_contents.append((numpy.concatenate(outidx), numpy.concatenate(outval)))
+                new_contents.append(_concatenate_sparse_vectors(outidx, outval, payload))
             else:
                 new_contents.append(None)
         return new_contents
@@ -1331,11 +1410,11 @@ def _recursive_concatenate_SparseNdarray(contents, shapes, along, offset=None, d
     else:
         new_contents = []
         collected = [None] * len(contents)
-        for i in range(shapes[0][dim]):
+        for i in range(final_shape[dim]):
             for j, c in enumerate(contents):
                 if c is not None:
                     collected[j] = c[i]
-            new_contents.append(_recursive_concatenate_SparseNdarray(collected, shapes, along, offset=offset, dim=dim+1))
+            new_contents.append(_recursive_concatenate_SparseNdarray(collected, final_shape, along, payload, dim=dim+1))
         return new_contents
 
 
@@ -1361,9 +1440,12 @@ def _concatenate_SparseNdarray(xs, along):
     new_shape[along] = combined
 
     dummy_collected = []
+    dummy_collected_index = []
     for x in xs:
         dummy_collected.append(zeros(1, dtype=x._dtype))
+        dummy_collected_index.append(zeros(1, dtype=x._index_dtype))
     dummy = numpy.concatenate(dummy_collected)
+    dummy_index = numpy.concatenate(dummy_collected_index)
 
     all_none = True
     for con in all_contents:
@@ -1373,6 +1455,7 @@ def _concatenate_SparseNdarray(xs, along):
     new_contents = None
     if not all_none:
         offset = None
+        index_dtype = dummy_index.dtype
         if along == len(new_shape) - 1:
             last = 0
             offset = []
@@ -1380,8 +1463,15 @@ def _concatenate_SparseNdarray(xs, along):
                 offset.append(last)
                 last += shape[along]
 
+            for candidate in [index_dtype, int32, uint32, int64, uint64]:
+                if last == array([last], dtype=candidate)[0]:
+                    index_dtype = candidate
+                    break
+
+        payload = _ConcatenatePayload(shapes=all_shapes, offset=offset, output_dtype=dummy.dtype, output_index_dtype=index_dtype)
+
         if len(new_shape) > 1:
-            new_contents = _recursive_concatenate_SparseNdarray(all_contents, all_shapes, along=along, offset=offset)
+            new_contents = _recursive_concatenate_SparseNdarray(all_contents, new_shape, along=along, payload=payload)
         else:
             outidx = []
             outval = [] 
@@ -1389,6 +1479,6 @@ def _concatenate_SparseNdarray(xs, along):
                 if c is not None:
                     outidx.append(c[0] + offset[j])
                     outval.append(c[1])
-            new_contents = (numpy.concatenate(outidx), numpy.concatenate(outval))
+            new_contents = _concatenate_sparse_vectors(outidx, outval, payload)
 
-    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=dummy.dtype, check=False)
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=dummy.dtype, index_dtype=dummy_index.dtype, check=False)

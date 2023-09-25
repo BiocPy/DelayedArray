@@ -180,13 +180,13 @@ def test_SparseNdarray_check():
     with pytest.raises(ValueError, match="should be the same"):
         y = delayedarray.SparseNdarray(test_shape, contents2)
 
-    with pytest.raises(ValueError, match="Inconsistent data type"):
+    with pytest.raises(ValueError, match="inconsistent data type"):
         y = delayedarray.SparseNdarray(test_shape, contents, dtype=numpy.int32)
 
     with pytest.raises(ValueError, match="cannot infer 'dtype'"):
         y = delayedarray.SparseNdarray(test_shape, None)
 
-    empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.int32)
+    empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.int32, index_dtype=numpy.int32)
     assert empty.shape == test_shape
     assert empty.dtype == numpy.int32
 
@@ -304,7 +304,7 @@ def test_SparseNdarray_extract_sparse_array_2d():
     ref = convert_SparseNdarray_to_numpy(y)
 
     # Sliced extraction.
-    slices = (slice(5, 48, 5), slice(0, 90, 3))
+    slices = (slice(5, 48, 5), slice(0, 30, 3))
     sliced = y[slices]
     assert (convert_SparseNdarray_to_numpy(sliced) == ref[(..., *slices)]).all()
 
@@ -312,7 +312,7 @@ def test_SparseNdarray_extract_sparse_array_2d():
     sliced = y[slices]
     assert (convert_SparseNdarray_to_numpy(sliced) == ref[(..., *slices)]).all()
 
-    slices = (slice(None), slice(10, 80))
+    slices = (slice(None), slice(10, 25))
     sliced = y[slices]
     assert (convert_SparseNdarray_to_numpy(sliced) == ref[(..., *slices)]).all()
 
@@ -355,7 +355,7 @@ def test_SparseNdarray_int_type():
 
 def test_SparseNdarray_empty():
     test_shape = (20, 21, 22)
-    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.uint32)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.uint32, index_dtype=numpy.int32)
     assert y.shape == test_shape
     assert y.dtype == numpy.uint32
 
@@ -373,18 +373,6 @@ def test_SparseNdarray_empty():
     assert spout.shape == (3, 4, 5)
 
 
-def test_SparseNdarray_0d():
-    y = delayedarray.SparseNdarray((), None, dtype=numpy.uint32)
-    assert y.shape == ()
-    assert y.dtype == numpy.uint32
-
-    y = delayedarray.SparseNdarray((), 5, dtype=numpy.uint32)
-    assert y.shape == ()
-    assert y.dtype == numpy.uint32
-
-    with pytest.raises(ValueError, match="0-dimensional"):
-        y = delayedarray.SparseNdarray((), {}, dtype=numpy.uint32)
-
 
 #######################################################
 #######################################################
@@ -398,7 +386,7 @@ def test_SparseNdarray_abs():
     assert (numpy.array(out) == abs(numpy.array(y))).all()
 
     # Checking that the transformer does something sensible here.
-    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64, index_dtype=numpy.int32)
     out = abs(y)
     assert (numpy.array(out) == numpy.zeros(test_shape)).all()
 
@@ -1022,7 +1010,7 @@ def test_SparseNdarray_transpose():
 
     # Works for Nones.
     test_shape = (20, 30)
-    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64, index_dtype=numpy.int32)
     ref = numpy.zeros(test_shape)
     out = numpy.transpose(y)
     assert isinstance(out, delayedarray.SparseNdarray)
@@ -1087,7 +1075,7 @@ def test_SparseNdarray_concatenate_1d():
 
     # One dimension plus None's.
     test_shape2 = (5,)
-    y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.float64)
+    y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.float64, index_dtype=numpy.int32)
     ref2 = numpy.array(y2)
 
     combined = numpy.concatenate((y, y2))
@@ -1097,11 +1085,11 @@ def test_SparseNdarray_concatenate_1d():
 
 def test_SparseNdarray_concatenate_nones():
     test_shape = (10, 20)
-    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64)
+    y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float64, index_dtype=numpy.int32)
     ref = numpy.array(y)
 
     test_shape2 = (10, 25)
-    y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.float64)
+    y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.float64, index_dtype=numpy.int32)
     ref2 = numpy.array(y2)
 
     combined = numpy.concatenate((y, y2), axis=1)
