@@ -1045,58 +1045,63 @@ def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, ou
 #########################################################
 
 
-def _binary_operate_sparse_vector(vector1, vector2, f, output_type):
+def _binary_operate_sparse_vector(vector1, vector2, f, type1, type2, output_type):
     if vector1 is None and vector2 is None:
         return None
 
     elif vector1 is not None and vector2 is None:
         indices1, values1 = vector1
-        outval = []
-        outidx = []
-        for i1, ix1 in enumerate(indices1):
-            outval.append(f(values1[i1], 0))
-            outidx.append(ix1)
-        return array(outidx, dtype=indices1.dtype), array(outval, dtype=output_type)
+        mock = zeros((1,), dtype=type2) # get vector of length 1 for correct type coercion.
+        return indices1, f(values1, mock)
 
     elif vector1 is None and vector2 is not None:
         indices2, values2 = vector2
-        outval = []
-        outidx = []
-        for i2, ix2 in enumerate(indices2):
-            outval.append(f(0, values2[i2]))
-            outidx.append(ix2)
-        return array(outidx, dtype=indices2.dtype), array(outval, dtype=output_type)
+        mock = zeros((1,), dtype=type1)
+        return indices2, f(mock, values2)
 
     else:
         indices1, values1 = vector1
         indices2, values2 = vector2
+
+        i1 = 0
+        len1 = len(indices1)
         i2 = 0
         len2 = len(indices2)
         outval = []
         outidx = []
 
-        for i1, ix1 in enumerate(indices1):
-            while i2 < len2 and ix1 > indices2[i2]:
+        while i1 < len1 and i2 < len2:
+            ix1 = indices1[i1]
+            ix2 = indices2[i2]
+            if ix1 > ix2:
                 outval.append(f(0, values2[i2]))
-                outidx.append(indices2[i2])
+                outidx.append(ix2)
+                i2 += 1
+            elif ix1 < ix2:
+                outval.append(f(values1[i1], 0))
+                outidx.append(ix1)
+                i1 += 1
+            else:
+                outval.append(f(values1[i1], values2[i2]))
+                outidx.append(ix1)
+                i1 += 1
                 i2 += 1
 
-            val2 = 0
-            if i2 < len2 and ix1 == indices2[i2]:
-                val2 = values2[i2]
-                i2 += 1
-            outval.append(f(values1[i1], val2))
-            outidx.append(ix1)
-
+        # Only one of the following should be called.
         while i2 < len2:
             outval.append(f(0, values2[i2]))
             outidx.append(indices2[i2])
             i2 += 1
 
+        while i1 < len1:
+            outval.append(f(values1[i1], 0))
+            outidx.append(indices1[i1])
+            i1 += 1
+
         return array(outidx, dtype=indices1.dtype), array(outval, dtype=output_type)
 
 
-def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, output_type, dim = 0):
+def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, type1, type2, output_type, dim = 0):
     if contents1 is None and contents2 is None:
         return None
 
@@ -1104,27 +1109,26 @@ def _recursive_binary_operation_on_SparseNdarray(contents1, contents2, ndim, f, 
     if contents1 is not None and contents2 is None:
         if dim == ndim - 2:
             for con1 in contents1:
-                new_contents.append(_binary_operate_sparse_vector(con1, None, f, output_type))
+                new_contents.append(_binary_operate_sparse_vector(con1, None, f, type1=type1, type2=type2, output_type=output_type))
         else:
             for con1 in contents1:
-                print(con1)
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, None, ndim, f, output_type, dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, None, ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
 
     elif contents1 is None and contents2 is not None:
         if dim == ndim - 2:
             for con2 in contents2:
-                new_contents.append(_binary_operate_sparse_vector(None, con2, f, output_type))
+                new_contents.append(_binary_operate_sparse_vector(None, con2, f, type1=type1, type2=type2, output_type=output_type))
         else:
             for con2 in contents2:
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(None, con2, ndim, f, output_type, dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(None, con2, ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
 
     else:
         if dim == ndim - 2:
             for i, con1 in enumerate(contents1):
-                new_contents.append(_binary_operate_sparse_vector(con1, contents2[i], f, output_type))
+                new_contents.append(_binary_operate_sparse_vector(con1, contents2[i], f, type1=type1, type2=type2, output_type=output_type))
         else:
             for i, con1 in enumerate(contents1):
-                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, contents2[i], ndim, f, output_type, dim + 1))
+                new_contents.append(_recursive_binary_operation_on_SparseNdarray(con1, contents2[i], ndim, f, type1=type1, type2=type2, output_type=output_type, dim=dim + 1))
 
     for x in new_contents:
         if x is not None:
@@ -1136,7 +1140,7 @@ def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, opera
     op = _choose_operator(operation)
 
     dummy1 = zeros(1, dtype=x._dtype)
-    dummy2 = zeros(1, dtype=x._dtype)
+    dummy2 = zeros(1, dtype=y._dtype)
     dummy = op(dummy1, dummy2)
     if dummy[0] != 0:
         return op(numpy.array(x), numpy.array(y))
@@ -1144,9 +1148,9 @@ def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, opera
     if x._contents is None and y._contents is None:
         new_contents = None
     elif len(x._shape) == 1:
-        new_contents = _binary_operate_sparse_vector(x._contents, y._contents, op, dummy.dtype)
+        new_contents = _binary_operate_sparse_vector(x._contents, y._contents, op, type1=x._dtype, type2=y._dtype, output_type=dummy.dtype)
     else:
-        new_contents = _recursive_binary_operation_on_SparseNdarray(x._contents, y._contents, ndim=len(x._shape), f=op, output_type=dummy.dtype)
+        new_contents = _recursive_binary_operation_on_SparseNdarray(x._contents, y._contents, ndim=len(x._shape), f=op, type1=x._dtype, type2=y._dtype, output_type=dummy.dtype)
 
     return SparseNdarray(shape=x._shape, contents=new_contents, dtype=dummy.dtype, check=False)
 
@@ -1189,10 +1193,12 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
     elif along < len(x._shape) - 1:
         if right:
             def f2(location, indices, values):
-                return indices, op(values, other[location[along]])
+                p = location[along]
+                return indices, op(values, other[p:p+1]) # get vector of length 1 for correct type coercion.
         else:
             def f2(location, indices, values):
-                return indices, op(other[location[along]], values)
+                p = location[along]
+                return indices, op(other[p:p+1], values)
     else:
         if right:
             def f2(location, indices, values):

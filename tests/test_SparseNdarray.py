@@ -508,6 +508,13 @@ def test_SparseNdarray_sub():
     assert isinstance(out, numpy.ndarray)
     assert (out == ref - other).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y - y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref - ref2)).all()
+
 
 def test_SparseNdarray_multiply():
     test_shape = (30, 40)
@@ -537,6 +544,21 @@ def test_SparseNdarray_multiply():
     out = y * other
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref * other).all()
+
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y * y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref * ref2)).all()
+
+
+def _equal_with_nan(left, right):
+    missing = numpy.isnan(left)
+    assert (missing == numpy.isnan(right)).all()
+    left[missing] = 0
+    right[missing] = 0
+    assert (left == right).all()
 
 
 def test_SparseNdarray_divide():
@@ -574,6 +596,15 @@ def test_SparseNdarray_divide():
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref / other).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        out = y / y2 
+        assert isinstance(out, numpy.ndarray)
+        _equal_with_nan(out, ref / ref2)
+
 
 def test_SparseNdarray_floor_divide():
     test_shape = (30, 40)
@@ -610,6 +641,15 @@ def test_SparseNdarray_floor_divide():
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref // other).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.float64)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        out = y // y2 
+        assert isinstance(out, numpy.ndarray)
+        _equal_with_nan(out, ref // ref2)
+
 
 def test_SparseNdarray_modulo():
     test_shape = (30, 40)
@@ -617,18 +657,11 @@ def test_SparseNdarray_modulo():
     y = delayedarray.SparseNdarray(test_shape, contents)
     ref = numpy.array(y)
 
-    def equal_with_nan(left, right):
-        missing = numpy.isnan(left)
-        assert (missing == numpy.isnan(right)).all()
-        left[missing] = 0
-        right[missing] = 0
-        assert (left == right).all()
-
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         out = 1.5 % y
         assert isinstance(out, numpy.ndarray)
-        equal_with_nan(out, 1.5 % ref)
+        _equal_with_nan(out, 1.5 % ref)
     out = y % 2
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref % 2).all()
@@ -638,7 +671,7 @@ def test_SparseNdarray_modulo():
         other = numpy.random.rand(40)
         out = other % y
         assert isinstance(out, numpy.ndarray)
-        equal_with_nan(out, other % ref)
+        _equal_with_nan(out, other % ref)
     out = y % other
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref % other).all()
@@ -648,10 +681,19 @@ def test_SparseNdarray_modulo():
         other = numpy.random.rand(30, 1)
         out = other % y
         assert isinstance(out, numpy.ndarray)
-        equal_with_nan(out, other % ref)
+        _equal_with_nan(out, other % ref)
     out = y % other
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref % other).all()
+
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.float64)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        out = y % y2 
+        assert isinstance(out, numpy.ndarray)
+        _equal_with_nan(out, ref % ref2)
 
 
 def test_SparseNdarray_power():
@@ -683,6 +725,13 @@ def test_SparseNdarray_power():
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == ref ** other).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=1, upper=5, dtype=numpy.float64)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y ** y2 
+    assert isinstance(out, numpy.ndarray)
+    assert (out == (ref ** ref2)).all()
+
 
 def test_SparseNdarray_equal():
     test_shape = (30, 40)
@@ -712,6 +761,13 @@ def test_SparseNdarray_equal():
     out = y == other
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == (ref == other)).all()
+
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y == y2 
+    assert isinstance(out, numpy.ndarray)
+    assert (out == (ref == ref2)).all()
 
 
 def test_SparseNdarray_not_equal():
@@ -743,6 +799,13 @@ def test_SparseNdarray_not_equal():
     assert isinstance(out, numpy.ndarray)
     assert (out == (ref != other)).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y != y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref != ref2)).all()
+
 
 def test_SparseNdarray_greater_than_or_equal():
     test_shape = (30, 40)
@@ -772,6 +835,13 @@ def test_SparseNdarray_greater_than_or_equal():
     out = y >= other
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == (ref >= other)).all()
+
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y >= y2 
+    assert isinstance(out, numpy.ndarray)
+    assert (out == (ref >= ref2)).all()
 
 
 def test_SparseNdarray_greater():
@@ -803,6 +873,13 @@ def test_SparseNdarray_greater():
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == (ref > other)).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y > y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref > ref2)).all()
+
 
 def test_SparseNdarray_less_than_or_equal():
     test_shape = (30, 40)
@@ -833,6 +910,13 @@ def test_SparseNdarray_less_than_or_equal():
     assert isinstance(out, numpy.ndarray)
     assert (out == (ref <= other)).all()
 
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y <= y2 
+    assert isinstance(out, numpy.ndarray)
+    assert (out == (ref <= ref2)).all()
+
 
 def test_SparseNdarray_less_than_or_equal():
     test_shape = (30, 40)
@@ -862,6 +946,13 @@ def test_SparseNdarray_less_than_or_equal():
     out = y < other
     assert isinstance(out, numpy.ndarray)
     assert (out == (ref < other)).all()
+
+    contents2 = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape, contents2)
+    ref2 = numpy.array(y2)
+    out = y < y2 
+    assert isinstance(out, delayedarray.SparseNdarray)
+    assert (numpy.array(out) == (ref < ref2)).all()
 
 
 #######################################################
