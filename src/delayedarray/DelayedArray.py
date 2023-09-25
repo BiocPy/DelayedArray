@@ -77,8 +77,7 @@ class DelayedArray:
 
     - The :py:attr:`~shape` and :py:attr:`~dtype` properties, which are of the
       same type as the corresponding properties of NumPy arrays.
-    - A :py:meth:`~__DelayedArray_extract__` method, or support NumPy slicing 
-      via slices, scalars, and :py:meth:`~numpy.ix_`.
+    - A :py:meth:`~__DelayedArray_extract_dense__` method.
 
     Optionally, a seed class may have:
 

@@ -110,26 +110,17 @@ class BinaryIsometricOp(DelayedOp):
         rs = create_dask_array(self._right)
         return _execute(ls, rs, self._op)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        ls = extract_array(self._left, subset)
-        rs = extract_array(self._right, subset)
+    def __DelayedArray_extract_dense__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+        ls = extract_dense_array(self._left, subset)
+        rs = extract_dense_array(self._right, subset)
+        return _execute(ls, rs, self._op)
 
-        try:
-            output = _execute(ls, rs, self._op)
-            if output.shape != self.shape:
-                raise ValueError(
-                    "operation on "
-                    + str(type(seed))
-                    + " does not return the expected shape"
-                )
-        except Exception as e:
-            warnings.warn(str(e))
-            ls = _densify(ls)
-            rs = _densify(rs)
-            output = _execute(ls, rs, self._op)
-
-        return output
+    def __DelayedArray_extract_sparse__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+        ls = extract_sparse_array(self._left, subset)
+        rs = extract_sparse_array(self._right, subset)
+        return _execute(ls, rs, self._op)
 
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""

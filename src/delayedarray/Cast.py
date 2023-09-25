@@ -65,14 +65,13 @@ class Cast(DelayedOp):
         target = create_dask_array(self._seed)
         return target.astype(self._dtype)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self.seed, subset)
+    def __DelayedArray_extract_dense__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+        return extract_dense_array(self.seed, subset).astype(self._dtype, copy=False)
 
-        def f(s):
-            return s.astype(self._dtype)
-
-        return _retry_single(target, f, target.shape)
+    def __DelayedArray_extract_sparse__(self, subset: Tuple[Sequence[int]]):
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+        return extract_sparse_array(self.seed, subset).astype(self._dtype, copy=False)
 
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""

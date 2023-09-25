@@ -6,6 +6,7 @@ from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string, 
 
 from ._getitem import _sanitize_getitem, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
+from ._subset import _spawn_indices
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -203,7 +204,7 @@ class SparseNdarray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        indices = [range(d) for d in self._shape]
+        indices = _spawn_indices(self._shape)
         return _extract_dense_array_from_SparseNdarray(self, indices)
 
 
