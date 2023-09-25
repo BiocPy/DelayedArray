@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .UnaryIsometricOpWithArgs import OP, _execute
+from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
 from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
 
 __author__ = "ltla"
@@ -39,7 +39,7 @@ class BinaryIsometricOp(DelayedOp):
             String specifying the operation.
     """
 
-    def __init__(self, left, right, operation: OP):
+    def __init__(self, left, right, operation: ISOMETRIC_OP_WITH_ARGS):
         if left.shape != right.shape:
             raise ValueError("'left' and 'right' shapes should be the same")
 

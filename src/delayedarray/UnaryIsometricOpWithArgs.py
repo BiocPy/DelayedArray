@@ -8,63 +8,12 @@ if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
+from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
 from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
-
-OP = Literal[
-    "add",
-    "subtract",
-    "multiply",
-    "divide",
-    "remainder",
-    "floor_divide",
-    "power",
-    "equal",
-    "greater_equal",
-    "greater",
-    "less_equal",
-    "less",
-    "not_equal",
-    "logical_and",
-    "logical_or",
-    "logical_xor",
-]
-
-
-def _execute(left, right, operation):
-    # Can't use match/case yet, as that's only in Python 3.10, and we can't
-    # just dispatch to 'getattr(numpy, operation)', because some classes don't
-    # implement __array_func__. Thanks a lot, scipy.sparse, and fuck you.
-    if operation == "add":
-        return left + right
-    elif operation == "subtract":
-        return left - right
-    elif operation == "multiply":
-        return left * right
-    elif operation == "divide":
-        return left / right
-    elif operation == "remainder":
-        return left % right
-    elif operation == "floor_divide":
-        return left // right
-    elif operation == "power":
-        return left**right
-    elif operation == "equal":
-        return left == right
-    elif operation == "greater_equal":
-        return left >= right
-    elif operation == "greater":
-        return left > right
-    elif operation == "less_equal":
-        return left <= right
-    elif operation == "less":
-        return left < right
-    elif operation == "not_equal":
-        return left != right
-    return getattr(numpy, operation)(left, right)
 
 
 class UnaryIsometricOpWithArgs(DelayedOp):
@@ -105,35 +54,10 @@ class UnaryIsometricOpWithArgs(DelayedOp):
             Ignored for commutative operations in ``op``.
     """
 
-    def __init__(
-        self, seed, value: Union[float, ndarray], operation: OP, right: bool = True
-    ):
-        along = None
-        if isinstance(value, ndarray):
-            ndim = len(seed.shape)
-
-            if len(value.shape) == 1:
-                along = ndim - 1
-            else:
-                if len(value.shape) != ndim:
-                    raise ValueError(
-                        "length of 'value.shape' and 'seed.shape' should be equal"
-                    )
-
-                for i in range(ndim):
-                    if value.shape[i] != 1:
-                        if along is not None:
-                            raise ValueError(
-                                "no more than one entry of 'value.shape' should be greater than 1"
-                            )
-                        if seed.shape[i] != value.shape[i]:
-                            raise ValueError(
-                                "any entry of 'value.shape' that is not 1 should be equal to the corresponding entry of 'seed.shape'"  # noqa: E501
-                            )
-                        along = i
-
-                if along is None:
-                    value = value[(*([0] * ndim), ...)]
+    def __init__(self, seed, value: Union[float, ndarray], operation: ISOMETRIC_OP_WITH_ARGS, right: bool = True):
+        along = _infer_along_with_args(seed.shape, value)
+        if along is None and isinstance(value, ndarray):
+            value = value[(*([0] * ndim),)]
 
         with warnings.catch_warnings():  # silence warnings from divide by zero.
             warnings.simplefilter("ignore")
