@@ -865,6 +865,25 @@ def test_SparseNdarray_astype():
     test_shape = (50, 30, 20)
     contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
     y = delayedarray.SparseNdarray(test_shape, contents)
+
     z = y.astype(numpy.float64)
+    assert isinstance(z, delayedarray.SparseNdarray)
     assert z.dtype == numpy.float64
     assert (numpy.array(z) == numpy.array(y)).all()
+
+
+def test_SparseNdarray_round():
+    test_shape = (50, 30, 20)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.float64)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = numpy.array(y)
+
+    z = numpy.round(y)
+    assert isinstance(z, delayedarray.SparseNdarray)
+    assert z.dtype == numpy.float64
+    assert (numpy.array(z) == numpy.round(ref)).all()
+
+    z = numpy.round(y, decimals=1)
+    assert isinstance(z, delayedarray.SparseNdarray)
+    assert z.dtype == numpy.float64
+    assert (numpy.array(z) == numpy.round(ref, decimals=1)).all()

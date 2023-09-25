@@ -726,13 +726,47 @@ class SparseNdarray:
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
 
+    def __array_function__(self, func, types, args, kwargs):
+        """Interface to NumPy's high-level array functions.
+        This is used to implement array operations like NumPy's :py:meth:`~numpy.concatenate`,
+        Check out the NumPy's ``__array_function__``
+        `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__>`_
+        for more details.
+
+        Returns:
+            A ``SparseNdarray`` instance containing the requested operation.
+        """
+        if func == numpy.concatenate:
+            seeds = []
+            for x in args[0]:
+                seeds.append(_extract_seed(x))
+
+            if "axis" in kwargs:
+                axis = kwargs["axis"]
+            else:
+                axis = 0
+            return DelayedArray(Combine(seeds, along=axis))
+
+        if func == numpy.transpose:
+            seed = _extract_seed(args[0])
+            if "axes" in kwargs:
+                axes = kwargs["axes"]
+            else:
+                axes = None
+            return DelayedArray(Transpose(seed, perm=axes))
+
+        if func == numpy.round:
+            return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, func(v, **kwargs)), self._dtype)
+
+        raise NotImplementedError(f"'{func.__name__}' is not implemented!")
+
+
     def astype(self, dtype: dtype, **kwargs) -> "SparseNdarray":
         """See :py:meth:`~numpy.ndarray.astype` for details.
 
         All keyword arguments are currently ignored.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, v.astype(dtype)), dtype)
-
 
 
 #########################################################
