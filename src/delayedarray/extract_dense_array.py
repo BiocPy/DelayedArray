@@ -78,7 +78,7 @@ if has_sparse:
             tmp = x
         else:
             tmp = x[ix_(*subset)]
-        return tmp.toarray()
+        return tmp.toarray(order="F")
 
     @extract_dense_array.register
     def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):

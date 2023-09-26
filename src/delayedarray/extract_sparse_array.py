@@ -59,4 +59,30 @@ except:
 
 
 if has_sparse:
-    pass
+    @extract_dense_array.register
+    def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        if subset is None:
+            subset = _spawn_indices(x.shape)
+
+        final_shape = [len(s) for s in subset]
+        new_contents = None
+        if final_shape[0] != 0 or final_shape[1] != 0:
+            first = subset[0][0]
+            new_contents = []
+
+            for ci in subset[1]:
+                start_pos = x.indptr[ci]
+                end_pos = x.indptr[ci + 1]
+                if first != 0:
+                    start_pos = bisect_left(indices, first, lo=start_pos, hi=end_pos)
+
+                new_val = []
+                new_idx = []
+                for ri in range(start_pos, end_pos):
+
+                new_contents.append((new_val, new_idx)) 
+
+        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype)
+
+
+
