@@ -866,7 +866,13 @@ def _characterize_indices(subset: Sequence, dim_extent: int):
         if subset[i] <= subset[i-1]:
             random_map = {}
             for i, x in enumerate(subset):
-                random_map[x] = i
+                if x in random_map:
+                    if isinstance(random_map[x], list):
+                        random_map[x].append(i)
+                    else:
+                        random_map[x] = [random_map[x], i]
+                else:
+                    random_map[x] = i
             first = min(subset)
             return _SubsetSummary(
                 subset = subset, 
@@ -898,24 +904,16 @@ def _characterize_indices(subset: Sequence, dim_extent: int):
         random_map = None,
     )
 
+
 def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, f: Callable):
     subset = subset_summary.subset
-    if len(subset) == 0:
-        return
 
     start_pos = 0
     if subset_summary.search_first:
         start_pos = bisect_left(indices, subset_summary.first_index)
     end_pos = len(indices)
 
-    if subset_summary.consecutive:
-        if subset_summary.search_last:
-            end_pos = bisect_left(indices, subset_summary.past_last_index, lo=start_pos, hi=end_pos)
-        first = subset_summary.first_index
-        for x in range(start_pos, end_pos):
-            f(indices[x] - first, indices[x], values[x])
-
-    elif subset_summary.increasing:
+    if subset_summary.increasing:
         pos = 0
         x = start_pos
         for i in subset:
@@ -926,18 +924,37 @@ def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_su
             if i == indices[x]:
                 f(pos, i, values[x])
             pos += 1
-
     else: 
         for x in range(start_pos, end_pos):
             ix = indices[x]
             if ix in subset_summary.random_map:
-                f(subset_summary.random_map[ix], ix, values[x])
+                targets = subset_summary.random_map[ix]
+                if isinstance(targets, int):
+                    f(targets, ix, values[x])
+                else:
+                    for t in targets:
+                        f(t, ix, values[x])
 
 
 def _extract_sparse_vector_to_dense(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, output: ndarray):
-    def f(p, i, v):
-        output[p] = v
-    _extract_sparse_vector_internal(indices, values, subset_summary, f)
+    if len(subset_summary.subset) == 0:
+        pass
+    elif subset_summary.consecutive:
+        start_pos = 0
+        first = subset_summary.first_index
+        if subset_summary.search_first:
+            start_pos = bisect_left(indices, first)
+
+        end_pos = len(indices)
+        if subset_summary.search_last:
+            end_pos = bisect_left(indices, subset_summary.past_last_index, lo=start_pos, hi=end_pos)
+
+        for x in range(start_pos, end_pos):
+            output[indices[x] - first] = values[x]
+    else:
+        def f(p, i, v):
+            output[p] = v
+        _extract_sparse_vector_internal(indices, values, subset_summary, f)
 
 
 def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence], subset_summary: _SubsetSummary, output: ndarray, dim: int):
@@ -980,20 +997,56 @@ def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequ
 
 
 def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary):
-    if not subset_summary.search_first and not subset_summary.search_last:
-        # No-op; no slicing was done on this dimension.
-        return indices, values
+    if len(subset_summary.subset) == 0:
+        pass
 
-    new_indices = []
-    new_values = []
-    def f(p, i, v):
-        new_indices.append(p)
-        new_values.append(v)
-    _extract_sparse_vector_internal(indices, values, subset_summary, f)
+    elif subset_summary.consecutive:
+        start_pos = 0
+        first = subset_summary.first_index
+        if subset_summary.search_first:
+            start_pos = bisect_left(indices, first)
 
-    if len(new_indices) == 0:
-        return None
-    return array(new_indices, dtype=indices.dtype), array(new_values, dtype=values.dtype)
+        end_pos = len(indices)
+        if subset_summary.search_last:
+            end_pos = bisect_left(indices, subset_summary.past_last_index, lo=start_pos, hi=end_pos)
+
+        if start_pos == 0 and end_pos == len(indices):
+            new_indices = indices
+            new_values = values
+        else:
+            new_indices = indices[start_pos:end_pos]
+            new_values = values[start_pos:end_pos]
+
+        if first:
+            new_indices = new_indices - first
+        return new_indices, new_values
+
+    elif subset_summary.increasing:
+        new_indices = []
+        new_values = []
+        def f(p, i, v):
+            new_indices.append(p)
+            new_values.append(v)
+        _extract_sparse_vector_internal(indices, values, subset_summary, f)
+
+        if len(new_indices) == 0:
+            return None
+        return array(new_indices, dtype=indices.dtype), array(new_values, dtype=values.dtype)
+
+    else:
+        new_pairs = []
+        def f(p, i, v):
+            new_pairs.append((p, v))
+        _extract_sparse_vector_internal(indices, values, subset_summary, f)
+        new_pairs.sort()
+
+        new_indices = ndarray(len(new_pairs), dtype=indices.dtype)
+        new_values = ndarray(len(new_pairs), dtype=values.dtype)
+        for i, pair in enumerate(new_pairs):
+            new_indices[i] = pair[0]
+            new_values[i] = pair[1]
+
+        return new_indices, new_values
 
 
 def _recursive_extract_sparse_array(contents: list, shape: Tuple[int], subset: Tuple[Sequence], subset_summary: _SubsetSummary, dim: int):
