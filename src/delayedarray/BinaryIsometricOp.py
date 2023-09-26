@@ -1,5 +1,5 @@
 import warnings
-from typing import Collable, Optional, Tuple, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
 import numpy
 if TYPE_CHECKING:
     import dask.array
@@ -128,7 +128,7 @@ class BinaryIsometricOp(DelayedOp):
 
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        ssreturn self._sparse
+        return self._sparse
 
  
 def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]], f: Callable):

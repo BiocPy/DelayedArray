@@ -130,7 +130,7 @@ class Combine(DelayedOp):
         return len(self._seeds) > 0
 
 
-def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable)
+def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 

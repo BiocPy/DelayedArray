@@ -6,39 +6,13 @@ if TYPE_CHECKING:
 from .DelayedOp import DelayedOp
 from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices
+from ._getitem import _sanitize_subset
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
-
-
-def _sanitize(subset):
-    okay = True
-    for i in range(1, len(subset)):
-        if subset[i] <= subset[i - 1]:
-            okay = False
-            break
-
-    if okay:
-        return subset, None
-
-    sortvec = []
-    for i, d in enumerate(subset):
-        sortvec.append((d, i))
-    sortvec.sort()
-
-    san = []
-    remap = [None] * len(sortvec)
-    last = None
-    for d, i in sortvec:
-        if last != d:
-            san.append(d)
-            last = d
-        remap[i] = len(san) - 1
-
-    return san, remap
 
 
 class Subset(DelayedOp):

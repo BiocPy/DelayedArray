@@ -74,7 +74,7 @@ class Cast(DelayedOp):
         return is_sparse(self._seed)
 
 
-def _extract_array(x: Cast, subset: Optional[Tuple[Sequence[int]]], f: Callable)
+def _extract_array(x: Cast, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     return f(x._seed, subset).astype(x._dtype, copy=False)
 
 

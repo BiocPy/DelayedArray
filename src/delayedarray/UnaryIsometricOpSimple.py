@@ -5,7 +5,9 @@ if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from .extract_dense_array import extract_dense_array
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"

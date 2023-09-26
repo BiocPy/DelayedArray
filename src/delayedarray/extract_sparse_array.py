@@ -1,7 +1,8 @@
 from functools import singledispatch
 from numpy import array, ndarray, ix_
+from bisect import bisect_left
 
-from ._subset import _spawn_indices, _is_subset_noop
+from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
 from .SparseNdarray import SparseNdarray, _extract_sparse_array_from_SparseNdarray
 
 __author__ = "ltla"
@@ -66,23 +67,51 @@ if has_sparse:
 
         final_shape = [len(s) for s in subset]
         new_contents = None
+        rowsub = subset[0]
+        colsub = subset[1]
+        row_consecutive = _is_subset_consecutive(rowsub)
+
         if final_shape[0] != 0 or final_shape[1] != 0:
-            first = subset[0][0]
+            first = rowsub[0]
+            last = rowsub[-1] + 1
             new_contents = []
 
             for ci in subset[1]:
                 start_pos = x.indptr[ci]
                 end_pos = x.indptr[ci + 1]
                 if first != 0:
-                    start_pos = bisect_left(indices, first, lo=start_pos, hi=end_pos)
+                    start_pos = bisect_left(x.indices, first, lo=start_pos, hi=end_pos)
 
-                new_val = []
-                new_idx = []
-                for ri in range(start_pos, end_pos):
+                if row_consecutive:
+                    if last != x.shape[0]:
+                        end_pos = bisect_left(x.indices, last, lo=start_pos, hi=end_pos)
 
-                new_contents.append((new_val, new_idx)) 
+                    if end_pos > start_pos:
+                        tmp = x.indices[start_pos:end_pos]
+                        if start_pos:
+                            tmp = tmp - start_pos # don't use -=, this might modify the view by reference.
+                        new_contents.append((x.indices[start_pos:end_pos], x.data[start_pos:end_pos]))
+                    else:
+                        new_contents.append(None)
+
+                else:
+                    new_val = []
+                    new_idx = []
+                    pos = 0
+                    for ri in range(start_pos, end_pos):
+                        current = x.indices[ri]
+                        while pos < len(rowsub) and current > rowsub[pos]:
+                            pos += 1
+                        if pos == len(rowsub):
+                            break
+                        if current == rowsub[pos]:
+                            new_idx.append(pos)
+                            new_val.append(x.data[ri])
+                            pos += 1
+
+                    if len(new_val):
+                        new_contents.append((array(new_idx, dtype=x.indices.dtype), array(new_val, dtype=x.dtype))) 
+                    else:
+                        new_contents.append(None)
 
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype)
-
-
-

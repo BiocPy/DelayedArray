@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 from .DelayedOp import DelayedOp
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array

@@ -24,10 +24,10 @@ from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
 from .utils import create_dask_array, _densify, chunk_shape, is_sparse
-from ._getitem import _sanitize_getitem, _extract_dense_subarray
+from ._subset import _sanitize_getitem_subset, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array
-from .extract_dense_array import extract_dense_array
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -691,30 +691,28 @@ class DelayedArray:
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
     # Subsetting.
-    def __getitem__(
-        self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
-    ) -> Union["DelayedArray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence[int], Sequence[bool]]], ...]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
-            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
+            subset:
                 A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
                 Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
                 delayed subset operation.
 
         Raises:
-            ValueError: If ``args`` contain more dimensions than the shape of the array.
+            ValueError: If ``subset`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
+            If the dimensionality is preserved by ``subset``, a ``DelayedArray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
-        sanitized = _sanitize_getitem(self.shape, args)
+        sanitized = _sanitize_getitem_subset(self.shape, subset)
         if sanitized is not None:
             return DelayedArray(Subset(self._seed, sanitized))
-        return _extract_dense_subarray(self._seed, self.shape, args)
+        return _extract_dense_subarray(self._seed, self.shape, subset)
 
     # For python-level compute.
     def sum(self, *args, **kwargs):
