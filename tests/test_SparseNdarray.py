@@ -374,6 +374,64 @@ def test_SparseNdarray_empty():
     assert spout.shape == (3, 4, 5)
 
 
+#######################################################
+#######################################################
+
+
+def test_SparseNdarray_subset_simple():
+    test_shape = (20, 21, 22)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = convert_SparseNdarray_to_numpy(y)
+
+    # No-op subset.
+    subset = (slice(None), slice(None))
+    sub = y[subset]
+    assert (numpy.array(sub) == ref[subset]).all()
+
+    # Consecutive subset.
+    subset = (slice(2, 18), slice(3, 20), slice(5, 22))
+    sub = y[subset]
+    assert (numpy.array(sub) == ref[subset]).all()
+
+    # Increasing non-consecutive subset.
+    subset = (slice(2, 18, 2), slice(3, 20, 2), slice(1, 22, 2))
+    sub = y[subset]
+    assert (numpy.array(sub) == ref[subset]).all()
+
+    # Unsorted subset.
+    subset = [list(range(s)) for s in test_shape]
+    for s in subset:
+        numpy.random.shuffle(s)
+    sub = y[numpy.ix_(*subset)]
+    assert (numpy.array(sub) == ref[numpy.ix_(*subset)]).all()
+
+    # Duplicated subset.
+    subset = []
+    for s in test_shape:
+        cursub = []
+        for i in range(s):
+            cursub += [i] * numpy.random.randint(4)
+        subset.append(cursub)
+
+    sub = y[numpy.ix_(*subset)]
+    assert (numpy.array(sub) == ref[numpy.ix_(*subset)]).all()
+
+
+def test_SparseNdarray_subset_collapse():
+    test_shape = (20, 50)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = convert_SparseNdarray_to_numpy(y)
+
+    first = y[0,:]
+    assert isinstance(first, numpy.ndarray)
+    assert (first == ref[0,:]).all()
+
+    first = y[:,1]
+    assert isinstance(first, numpy.ndarray)
+    assert (first == ref[:,1]).all()
+
 
 #######################################################
 #######################################################
