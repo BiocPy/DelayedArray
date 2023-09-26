@@ -143,6 +143,7 @@ def test_SparseNdarray_check():
     y = delayedarray.SparseNdarray(test_shape, contents)
     assert y.shape == test_shape
     assert y.dtype == numpy.float64
+    assert repr(y).find("SparseNdarray") > 0
 
     with pytest.raises(ValueError, match="match the extent"):
         y = delayedarray.SparseNdarray((10, 15, 1), contents)

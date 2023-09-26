@@ -1,15 +1,6 @@
 from typing import Optional, Sequence, Tuple, Union
 import numpy
-from numpy import (
-    array,
-    array2string,
-    dtype,
-    get_printoptions,
-    integer,
-    issubdtype,
-    ndarray,
-    prod,
-)
+from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
 
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
@@ -20,7 +11,7 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
-from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
+from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
@@ -145,31 +136,12 @@ class DelayedArray:
         Returns:
             str: String containing a prettified display of the array contents.
         """
-        total = 1
-        for s in self._seed.shape:
-            total *= s
-
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
         if is_sparse(self._seed):
             preamble += " sparse"
         preamble += " " + type(self).__name__ + " object of type '" + self._seed.dtype.name + "'"
 
-        indices = None
-        if total > get_printoptions()["threshold"]:
-            ndims = len(self._seed.shape)
-            indices = []
-            edge_size = get_printoptions()["edgeitems"]
-            for d in range(ndims):
-                extent = self._seed.shape[d]
-                if extent > edge_size * 2:
-                    indices.append(
-                        list(range(edge_size + 1))
-                        + list(range(extent - edge_size, extent))
-                    )
-                else:
-                    indices.append(slice(None))
-            indices = (*indices,)
-
+        indices = _repr_subset(self._seed.shape)
         bits_and_pieces = extract_dense_array(self._seed, indices)
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted

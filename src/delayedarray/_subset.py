@@ -1,5 +1,5 @@
 from typing import Sequence, Tuple, Union, Callable, Any
-from numpy import prod, ndarray, integer, issubdtype, array, ix_
+from numpy import prod, ndarray, integer, issubdtype, array, ix_, get_printoptions
 
 
 def _spawn_indices(shape: Tuple[int]):
@@ -141,3 +141,24 @@ def _getitem_subset_discards_dimensions(x: Any, args: Tuple[Union[slice, Sequenc
     if no_remap < len(shape):
         out = out[ix_(*remapping,)]
     return out[(*discards,)]
+
+
+def _repr_subset(shape: Tuple[int]):
+    total = 1
+    for s in shape:
+        total *= s
+
+    if total > get_printoptions()["threshold"]:
+        ndims = len(shape)
+        indices = []
+        edge_size = get_printoptions()["edgeitems"]
+        for d in range(ndims):
+            extent = shape[d]
+            if extent > edge_size * 2:
+                indices.append(list(range(edge_size + 1)) + list(range(extent - edge_size, extent)))
+            else:
+                indices.append(range(extent))
+    else:
+        indices = [range(d) for d in shape]
+
+    return (*indices,)

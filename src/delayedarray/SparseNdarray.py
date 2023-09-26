@@ -2,10 +2,10 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 import numpy
-from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string, int32, int64, uint32, uint64
+from numpy import array, ndarray, zeros, dtype, array2string, int32, int64, uint32, uint64
 
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
-from ._subset import _spawn_indices, _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
+from ._subset import _spawn_indices, _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -166,30 +166,9 @@ class SparseNdarray:
         Returns:
             str: String containing a prettified display of the array contents.
         """
-        total = 1
-        for s in self._shape:
-            total *= s
-
         preamble = "<" + " x ".join([str(x) for x in self._shape]) + ">"
         preamble += " " + type(self).__name__ + " object of type '" + self._dtype.name + "'"
-
-        if total > get_printoptions()["threshold"]:
-            ndims = len(self._shape)
-            indices = []
-            edge_size = get_printoptions()["edgeitems"]
-            for d in range(ndims):
-                extent = self._shape[d]
-                if extent > edge_size * 2:
-                    indices.append(
-                        list(range(edge_size + 1))
-                        + list(range(extent - edge_size, extent))
-                    )
-                else:
-                    indices.append(slice(None))
-            indices = (*indices,)
-        else:
-            indices = [range(d) for d in self._shape]
-
+        indices = _repr_subset(self._shape)
         bits_and_pieces = _extract_dense_array_from_SparseNdarray(self, indices)
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
