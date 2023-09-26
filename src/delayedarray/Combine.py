@@ -1,13 +1,14 @@
-from typing import Tuple, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
 import warnings
-
 from numpy import concatenate, dtype, ndarray
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from ._subset import _spawn_indices
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -104,49 +105,6 @@ class Combine(DelayedOp):
             extracted.append(create_dask_array(x))
         return concatenate((*extracted,), axis=self._along)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        # Figuring out which slices belong to who.
-        chosen = subset[self._along]
-        limit = 0
-        fragmented = []
-        position = 0
-        for x in self._seeds:
-            start = limit
-            limit += x.shape[self._along]
-            current = []
-            while position < len(chosen) and chosen[position] < limit:
-                current.append(chosen[position] - start)
-                position += 1
-            fragmented.append(current)
-
-        extracted = []
-        flexargs = list(subset)
-        for i, x in enumerate(self._seeds):
-            if len(fragmented[i]):
-                flexargs[self._along] = fragmented[i]
-                extracted.append(extract_array(x, (*flexargs,)))
-
-        expected_shape = []
-        for i, s in enumerate(subset):
-            expected_shape.append(len(s))
-
-        try:
-            output = concatenate((*extracted,), axis=self.along)
-            if output.shape != (*expected_shape,):
-                raise ValueError(
-                    "'numpy.concatenate' on "
-                    + str(type(extracted[0]))
-                    + " objects does not return the correct shape"
-                )
-        except Exception as e:
-            warnings.warn(str(e))
-            for i, x in enumerate(extracted):
-                extracted[i] = _densify(x)
-            output = concatenate((*extracted,), axis=self.along)
-
-        return output
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         chunks = [chunk_shape(x) for x in self._seeds]
@@ -170,3 +128,45 @@ class Combine(DelayedOp):
             if not is_sparse(x):
                 return False
         return len(self._seeds) > 0
+
+
+def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    if subset is None:
+        subset = _spawn_indices(x.shape)
+
+    # Figuring out which slices belong to who.
+    chosen = subset[x._along]
+    limit = 0
+    fragmented = []
+    position = 0
+    for s in x._seeds:
+        start = limit
+        limit += s.shape[x._along]
+        current = []
+        while position < len(chosen) and chosen[position] < limit:
+            current.append(chosen[position] - start)
+            position += 1
+        fragmented.append(current)
+
+    # Extracting the desired slice from each seed.
+    extracted = []
+    flexargs = list(subset)
+    for i, s in enumerate(x._seeds):
+        if len(fragmented[i]):
+            flexargs[x._along] = fragmented[i]
+            extracted.append(f(s, (*flexargs,)))
+
+    return concatenate((*extracted,), axis=x._along)
+
+
+@extract_dense_array.register
+def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

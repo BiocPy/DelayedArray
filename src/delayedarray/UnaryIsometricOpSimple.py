@@ -1,13 +1,13 @@
-from typing import Literal, Tuple, Sequence, TYPE_CHECKING
-
+from typing import Optional, Callable, Literal, Tuple, Sequence, TYPE_CHECKING
 import numpy
 from numpy import dtype, zeros
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -116,12 +116,6 @@ class UnaryIsometricOpSimple(DelayedOp):
         f = _choose_operator(self._op)
         return f(target)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self._seed, subset)
-        f = _choose_operator(self._op)
-        return _retry_single(target, f, target.shape)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
@@ -129,3 +123,22 @@ class UnaryIsometricOpSimple(DelayedOp):
     def __DelayedArray_sparse__(self) -> bool:
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return self._sparse
+
+
+def _extract_array(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    target = f(x._seed, subset)
+    g = _choose_operator(x._op)
+    return g(target)
+
+
+@extract_dense_array.register
+def extract_dense_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

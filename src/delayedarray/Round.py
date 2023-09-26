@@ -1,13 +1,13 @@
-from typing import Tuple, Sequence, TYPE_CHECKING
-
+from typing import Optional, Callable, Tuple, Sequence, TYPE_CHECKING
 import numpy
 from numpy import dtype
-
 if TYPE_CHECKING:
     import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, extract_array, _retry_single, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -75,15 +75,6 @@ class Round(DelayedOp):
         target = create_dask_array(self._seed)
         return numpy.round(target, decimals=self._decimals)
 
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        target = extract_array(self._seed, subset)
-
-        def f(s):
-            return numpy.round(s, decimals=self._decimals)
-
-        return _retry_single(target, f, target.shape)
-
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
         return chunk_shape(self._seed)
@@ -92,3 +83,20 @@ class Round(DelayedOp):
         """See :py:meth:`~delayedarray.utils.is_sparse`."""
         return is_sparse(self._seed)
 
+
+def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+    target = f(x._seed, subset)
+    return numpy.round(target, decimals=x._decimals)
+
+
+@extract_dense_array.register
+def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+    out = _extract_array(x, subset, extract_dense_array)
+    return _sanitize_to_fortran(out)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return _extract_array(x, subset, extract_sparse_array)

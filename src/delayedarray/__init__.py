@@ -25,6 +25,8 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import extract_array, create_dask_array, chunk_shape, guess_iteration_block_size, is_sparse
+from .utils import create_dask_array, chunk_shape, guess_iteration_block_size, is_sparse
+from .extract_dense_array import extract_dense_array
+from .extract_sparse_array import extract_sparse_array
 from .is_pristine import is_pristine
 from .SparseNdarray import SparseNdarray

@@ -1,5 +1,4 @@
-from typing import Sequence, Tuple, Union, TYPE_CHECKING
-
+from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
 import numpy
 from numpy import (
     array,
@@ -11,7 +10,6 @@ from numpy import (
     ndarray,
     prod,
 )
-
 if TYPE_CHECKING:
     import dask.array
 
@@ -24,9 +22,12 @@ from .Subset import Subset
 from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
-from .utils import create_dask_array, extract_array, _densify, chunk_shape, is_sparse
-from ._getitem import _sanitize_getitem, _extract_dense_subarray
+
+from .utils import create_dask_array, _densify, chunk_shape, is_sparse
+from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
+from .extract_dense_array import extract_dense_array
+from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -77,8 +78,7 @@ class DelayedArray:
 
     - The :py:attr:`~shape` and :py:attr:`~dtype` properties, which are of the
       same type as the corresponding properties of NumPy arrays.
-    - A :py:meth:`~__DelayedArray_extract__` method, or support NumPy slicing 
-      via slices, scalars, and :py:meth:`~numpy.ix_`.
+    - A :py:meth:`~__DelayedArray_extract_dense__` method.
 
     Optionally, a seed class may have:
 
@@ -164,7 +164,7 @@ class DelayedArray:
                     indices.append(slice(None))
             indices = (*indices,)
 
-        bits_and_pieces = _densify(extract_array(self._seed, indices))
+        bits_and_pieces = extract_dense_array(self._seed, indices)
         converted = array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
@@ -176,7 +176,7 @@ class DelayedArray:
             ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
             This is guaranteed to be in C-contiguous order and to not be a view on other data.
         """
-        return _densify(extract_array(self._seed))
+        return extract_dense_array(self._seed)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods.
@@ -691,70 +691,50 @@ class DelayedArray:
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
     # Subsetting.
-    def __getitem__(
-        self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
-    ) -> Union["DelayedArray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence]]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
-            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
+            subset:
                 A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
                 Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
                 delayed subset operation.
 
         Raises:
-            ValueError: If ``args`` contain more dimensions than the shape of the array.
+            ValueError: If ``subset`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``DelayedArray`` containing a delayed subset operation is
+            If the dimensionality is preserved by ``subset``, a ``DelayedArray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
-        sanitized = _sanitize_getitem(self.shape, args)
-        if sanitized is not None:
-            return DelayedArray(Subset(self._seed, sanitized))
-        return _extract_dense_subarray(self._seed, self.shape, args)
+        cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
+        if cleaned is not None:
+            return DelayedArray(Subset(self._seed, cleaned))
+        return _getitem_subset_discards_dimensions(self._seed, subset, extract_dense_array)
+
 
     # For python-level compute.
     def sum(self, *args, **kwargs):
         """See :py:meth:`~numpy.sums` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.sum(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(str(e))
-            target = _densify(target)
-            return target.sum(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.sum(*args, **kwargs)
 
     def var(self, *args, **kwargs):
         """See :py:meth:`~numpy.vars` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.var(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(e)
-            target = _densify(target)
-            return target.var(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.var(*args, **kwargs)
 
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.mean(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(e)
-            target = _densify(target)
-            return target.mean(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.mean(*args, **kwargs)
 
     # Coercion methods.
     def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         return create_dask_array(self._seed)
-
-    def __DelayedArray_extract__(self, subset: Tuple[Sequence[int]]):
-        """See :py:meth:`~delayedarray.utils.extract_array`."""
-        return extract_array(self._seed, subset)
 
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
@@ -765,3 +745,13 @@ class DelayedArray:
         return is_sparse(self._seed)
 
 
+@extract_dense_array.register
+def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
+    return extract_dense_array(x._seed, subset)
+
+
+@extract_sparse_array.register
+def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
+    return extract_sparse_array(x._seed, subset)
