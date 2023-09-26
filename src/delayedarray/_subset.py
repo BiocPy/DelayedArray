@@ -1,5 +1,5 @@
 from typing import Sequence, Tuple
-from numpy import prod, ndarray, integer, issubdtype, array
+from numpy import prod, ndarray, integer, issubdtype, array, ix_
 
 
 def _spawn_indices(shape):
@@ -52,7 +52,7 @@ def _sanitize_subset(subset):
     return san, remap
 
 
-def _sanitize_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequence]]):
+def _flatten_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequence]]):
     ndim = len(shape)
     if not isinstance(args, tuple):
         args = [args] + [slice(None)] * (ndim - 1)
@@ -74,10 +74,10 @@ def _sanitize_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequenc
                 break
 
     if cross_index:
-        sanitized = []
+        flattened = []
         for d, idx in enumerate(args):
-            sanitized.append(idx.reshape((prod(idx.shape),)))
-        return (*sanitized,)
+            flattened.append(idx.reshape((prod(idx.shape),)))
+        return (*flattened,)
 
     # Checking if we're preserving the shape via a slice.
     slices = 0
@@ -95,14 +95,14 @@ def _sanitize_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequenc
             break
 
     if not failed and slices >= ndim - 1:
-        sanitized = []
+        flattened = []
         for d, idx in enumerate(args):
             if isinstance(idx, slice):
-                sanitized.append(range(*idx.indices(shape[d])))
+                flattened.append(range(*idx.indices(shape[d])))
             else:
                 dummy = array(range(shape[d]))[idx]
-                sanitized.append(dummy)
-        return (*sanitized,)
+                flattened.append(dummy)
+        return (*flattened,)
 
     return None
 
@@ -116,8 +116,8 @@ def _create_subsets_with_lost_dimension(shape, args):
     for d, idx in enumerate(args):
         if isinstance(idx, ndarray):
             if len(idx.shape) != 1:
-                failed = True
-                break
+                return False, None, ix_(*args)
+
         elif isinstance(idx, slice):
             idx = range(*idx.indices(shape[d]))
         elif not isinstance(idx, Sequence):
@@ -125,10 +125,8 @@ def _create_subsets_with_lost_dimension(shape, args):
             new_args.append(0)
             continue
 
-        as_vector.append(idx)
-        new_args.append(slice(None))
+        san, mapping = _sanitize_subset(idx)
+        as_vector.append(san)
+        new_args.append(mapping)
 
-    if not failed:
-        return True, args
-    else:
-        return False, args
+    return True, as_vector, ix_(*new_args)

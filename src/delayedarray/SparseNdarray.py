@@ -4,9 +4,8 @@ from collections import namedtuple
 import numpy
 from numpy import array, ndarray, zeros, dtype, get_printoptions, array2string, int32, int64, uint32, uint64
 
-from ._getitem import _sanitize_getitem, _extract_dense_subarray
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
-from ._subset import _spawn_indices
+from ._subset import _spawn_indices, _flatten_getitem_subset, _create_subsets_with_lost_dimension
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -663,9 +662,7 @@ class SparseNdarray:
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
 
     # Subsetting.
-    def __getitem__(
-        self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]
-    ) -> Union[Union["SparseNdarray", ndarray], ndarray]:
+    def __getitem__(self, args: Tuple[Union[slice, Sequence[Union[int, bool]]], ...]) -> Union["SparseNdarray", ndarray]:
         """Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
@@ -683,10 +680,16 @@ class SparseNdarray:
             If the dimensionality is preserved by ``args``, a ``SparseNdarray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
-        sanitized = _sanitize_getitem(self._shape, args)
-        if sanitized is not None:
-            return _extract_sparse_array_from_SparseNdarray(self, sanitized)
-        return _extract_dense_subarray(self, self._shape, args)
+        flattened = _flatten_getitem_subset(self.shape, subset)
+        if flattened is not None:
+            return _extract_sparse_array_from_SparseNdarray(self, (*sanitized,))
+
+        extractable, extract_sub, remap_sub = _create_subsets_with_lost_dimension(shape, args)
+        if not extractable:
+            out = array(self)
+        else:
+            out = _extract_dense_array_from_SparseNdarray(self, extract_sub)
+        return out[remap_sub]
 
 
     # Coercion methods.
@@ -853,36 +856,46 @@ def _recursive_check(contents: list, shape: Tuple[int, ...], payload: _CheckPayl
 #########################################################
 
 
-_SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "consecutive", "search_first", "search_last", "first_index", "past_last_index" ])
+_SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "increasing", "consecutive", "search_first", "search_last", "first_index", "past_last_index", "random_map" ])
 
 
 def _characterize_indices(subset: Sequence, dim_extent: int):
-    if len(subset) == 0:
-        return _SubsetSummary(
-            subset=subset, 
-            consecutive=False, 
-            search_first=False, 
-            search_last=False, 
-            first_index=None, 
-            past_last_index=None
-        )
+    output = _SubsetSummary(
+        subset=subset, 
+        increasing=False,
+        consecutive=False, 
+        search_first=False, 
+        search_last=False, 
+        first_index=None, 
+        past_last_index=None,
+        random_map=None,
+    )
 
-    first = subset[0]
-    last = subset[-1] + 1
-    consecutive = True
+    if len(subset) == 0:
+        return output
+
+    output.increasing = True
+    for i in range(1, len(subset)):
+        if subset[i] <= subset[i-1]:
+            output.increasing = False
+            output.random_map = {}
+            for i, x in enumerate(subset):
+                output.random_map[x] = i
+            output.first_index = min(subset)
+            output.search_first=(output.first_index > 0)
+            return output
+
+    output.consecutive = True
     for i in range(1, len(subset)):
         if subset[i] != subset[i - 1] + 1:
-            consecutive = False
-            break
+            output.consecutive = False
+            return output
 
-    return _SubsetSummary(
-        subset=subset, 
-        consecutive=consecutive, 
-        search_first=(first > 0), 
-        search_last=(last < dim_extent), 
-        first_index=first,
-        past_last_index=last,
-    )
+    output.first_index = subset[0]
+    output.past_last_index = subset[-1] + 1
+    output.search_first=(first > 0), 
+    output.search_last=(last < dim_extent), 
+    return output
 
 
 def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, f: Callable):
@@ -893,26 +906,32 @@ def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_su
     start_pos = 0
     if subset_summary.search_first:
         start_pos = bisect_left(indices, subset_summary.first_index)
+    end_pos = len(indices)
 
     if subset_summary.consecutive:
-        end_pos = len(indices)
         if subset_summary.search_last:
             end_pos = bisect_left(indices, subset_summary.past_last_index, lo=start_pos, hi=end_pos)
         first = subset_summary.first_index
         for x in range(start_pos, end_pos):
             f(indices[x] - first, indices[x], values[x])
-    else:
+
+    elif subset_summary.increasing:
         pos = 0
         x = start_pos
-        xlen = len(indices)
         for i in subset:
-            while x < xlen and i > indices[x]:
+            while x < end_pos and i > indices[x]:
                 x += 1
-            if x == xlen:
+            if x == end_pos:
                 break
             if i == indices[x]:
                 f(pos, i, values[x])
             pos += 1
+
+    else: 
+        for x in range(start_pos, end_pos):
+            ix = indices[x]
+            if ix in subset_summary.random_map:
+                f(subset_summary.random_map[ix], ix, values[x])
 
 
 def _extract_sparse_vector_to_dense(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, output: ndarray):
