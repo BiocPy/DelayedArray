@@ -712,13 +712,7 @@ class DelayedArray:
         flattened = _flatten_getitem_subset(self.shape, subset)
         if flattened is not None:
             return DelayedArray(Subset(self._seed, flattened))
-
-        extractable, extract_sub, remap_sub = _create_subsets_with_lost_dimension(shape, args)
-        if not extractable:
-            out = array(self._seed)
-        else:
-            out = extract_dense_array(self._seed, extract_sub)
-        return out[remap_sub]
+        return _create_subsets_with_lost_dimension(self._seed, args, extract_dense_array)
 
 
     # For python-level compute.

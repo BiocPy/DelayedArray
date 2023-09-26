@@ -682,14 +682,9 @@ class SparseNdarray:
         """
         flattened = _flatten_getitem_subset(self.shape, subset)
         if flattened is not None:
-            return _extract_sparse_array_from_SparseNdarray(self, (*sanitized,))
-
-        extractable, extract_sub, remap_sub = _create_subsets_with_lost_dimension(shape, args)
-        if not extractable:
-            out = array(self)
-        else:
-            out = _extract_dense_array_from_SparseNdarray(self, extract_sub)
-        return out[remap_sub]
+            # No need to sanitize here, as the extractors can take unsorted subsets.
+            return _extract_sparse_array_from_SparseNdarray(self, flattened)
+        return _create_subsets_with_lost_dimension(self, args, _extract_dense_array_from_SparseNdarray)
 
 
     # Coercion methods.

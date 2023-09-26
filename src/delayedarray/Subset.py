@@ -5,8 +5,7 @@ if TYPE_CHECKING:
 
 from .DelayedOp import DelayedOp
 from .utils import create_dask_array, chunk_shape, is_sparse
-from ._subset import _spawn_indices
-from ._getitem import _sanitize_subset
+from ._subset import _spawn_indices, _sanitize_subset
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
 
@@ -138,7 +137,7 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
         else:
             replacement = [cursub[j] for j in s]
 
-        san_sub, san_remap = _sanitize(replacement)
+        san_sub, san_remap = _sanitize_subset(replacement)
         newsub[i] = san_sub
 
         if san_remap is None:
@@ -146,7 +145,7 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
             san_remap = range(len(san_sub))
         expanded.append(san_remap)
 
-    raw = extract_dense_array(self._seed, (*newsub,))
+    raw = f(self._seed, (*newsub,))
     if is_safe != len(subset):
         raw = raw[ix_(*expanded)]
     return raw

@@ -107,26 +107,37 @@ def _flatten_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequence
     return None
 
 
-def _create_subsets_with_lost_dimension(shape, args):
-    # If we're discarding dimensions, we see if we can do some pre-emptive extraction.
+def _create_subsets_with_lost_dimension(x, args, injected_extract_dense_array):
     failed = False
-    as_vector = []
-    new_args = []
+    sanitized = []
+    remapping = []
+    no_remap = 0
+    discards = []
+    shape = x.shape
 
     for d, idx in enumerate(args):
         if isinstance(idx, ndarray):
-            if len(idx.shape) != 1:
-                return False, None, ix_(*args)
+            if len(idx.shape) != 1: 
+                raise NotImplementedError("high-dimensional index arrays are not supported yet")
 
         elif isinstance(idx, slice):
             idx = range(*idx.indices(shape[d]))
         elif not isinstance(idx, Sequence):
-            as_vector.append([idx])
-            new_args.append(0)
+            sanitized.append([idx])
+            remapping.append([0])
+            discards.append(0)
             continue
 
         san, mapping = _sanitize_subset(idx)
-        as_vector.append(san)
-        new_args.append(mapping)
+        sanitized.append(san)
+        if mapping is None:
+            remapping.append(range(shape[d]))
+            no_remap += 1
+        else:
+            remapping.append(mapping)
+        discards.append(slice(None))
 
-    return True, as_vector, ix_(*new_args)
+    out = injected_extract_dense_array(x, sanitized)
+    if no_remap < len(shape):
+        out = out[ix_(*remapping,)]
+    return out[(*discards,)]
