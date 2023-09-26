@@ -100,16 +100,30 @@ Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more i
 ## Extracting data
 
 Users can process a `DelayedArray` by iteratively extracting contiguous blocks on a dimension of interest.
-The use of blocks avoids realizing the entire set of delayed operations at once, while reducing overhead from repeated calls to `extract_array` .
+This "block processing" strategy saves memory by only realizing the delayed operations for a subset of the data,
+while reducing overhead from repeated calls to the `extract_*_array`  functions.
 For example, to iterate over the rows with 100 MB blocks:
 
 ```python
 block_size = delayedarray.guess_iteration_block_size(d, dimension=0, memory=1e8)
+block_coords = [ None, range(d.shape[1]) ]
+
 for start in range(0, d.shape[0], block_size):
     end = min(d.shape[0], start + block_size)
-    current = delayedarray.extract_array(d, (range(start, end), range(d.shape[1])))
-    # Do something with this block
+    block_coords[0] = range(start, end)
+    current = delayedarray.extract_dense_array(d, (*block_coords,))
 ```
+
+This yields `current`, a NumPy array in Fortran storage order with the specified rows and columns.
+For sparse arrays (where `is_sparse()` returns `True`), we can instead do:
+
+```python
+if delayedarray.is_sparse(d):
+    current = delayedarray.extract_sparse_array(d, (*block_coords,))
+```
+
+This returns a `SparseNdarray` consisting of a tree of sparse vectors for the specified block.
+(For the two-dimensional case, this is effectively a compressed sparse column matrix.)
 
 More simply, users can just call `numpy.array()` to realize the delayed operations into a standard NumPy array for consumption.
 
@@ -117,34 +131,6 @@ More simply, users can just call `numpy.array()` to realize the delayed operatio
 simple = numpy.array(n)
 type(simple)
 ## <class 'numpy.ndarray'>
-```
-
-Or `delayedarray.extract_array()`, to realize the delayed operations while attempting to preserve the original class (e.g., SciPy sparse matrices):
-
-```python
-import scipy.sparse
-seed = scipy.sparse.random(100, 20, 0.2).tocsc()
-
-delayed = delayedarray.DelayedArray(seed)
-delayed = delayed * 5
-## <100 x 20> sparse DelayedArray object of type 'float64'
-## [[0.        , 4.63787368, 0.        , ..., 2.63202289, 0.        ,
-##   0.        ],
-##  [0.        , 0.        , 0.        , ..., 0.        , 0.23961665,
-##   0.        ],
-##  [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
-##   0.        ],
-##  ...,
-##  [0.        , 0.        , 0.        , ..., 0.        , 0.06889744,
-##   0.        ],
-##  [0.        , 0.        , 0.        , ..., 0.        , 0.        ,
-##   0.        ],
-##  [0.        , 3.55717226, 0.        , ..., 0.        , 0.        ,
-##   0.        ]]
-
-delayedarray.extract_array(delayed)
-## <100x20 sparse matrix of type '<class 'numpy.float64'>'
-##        with 400 stored elements in Compressed Sparse Column format>
 ```
 
 Or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations:
