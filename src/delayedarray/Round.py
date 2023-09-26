@@ -92,11 +92,11 @@ def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int]]], f: Callable
 @extract_dense_array.register
 def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(x._seed, subset, extract_dense_array)
+    out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
 def extract_sparse_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return _extract_array(x._seed, subset, extract_sparse_array)
+    return _extract_array(x, subset, extract_sparse_array)

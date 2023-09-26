@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 from .DelayedOp import DelayedOp
 from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices
-from .extract_dense_array import extract_dense_array
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
@@ -139,9 +139,9 @@ def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callab
     limit = 0
     fragmented = []
     position = 0
-    for x in x._seeds:
+    for s in x._seeds:
         start = limit
-        limit += x.shape[x._along]
+        limit += s.shape[x._along]
         current = []
         while position < len(chosen) and chosen[position] < limit:
             current.append(chosen[position] - start)
@@ -151,12 +151,12 @@ def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callab
     # Extracting the desired slice from each seed.
     extracted = []
     flexargs = list(subset)
-    for i, x in enumerate(x._seeds):
+    for i, s in enumerate(x._seeds):
         if len(fragmented[i]):
             flexargs[x._along] = fragmented[i]
-            extracted.append(f(x, (*flexargs,)))
+            extracted.append(f(s, (*flexargs,)))
 
-    return concatenate((*extracted,), axis=self.along)
+    return concatenate((*extracted,), axis=x._along)
 
 
 @extract_dense_array.register

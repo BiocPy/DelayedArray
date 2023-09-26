@@ -131,7 +131,7 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
     is_safe = 0
 
     for i, s in enumerate(newsub):
-        cursub = self._subset[i]
+        cursub = x._subset[i]
         if isinstance(cursub, ndarray):
             replacement = cursub[s]
         else:
@@ -145,7 +145,7 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
             san_remap = range(len(san_sub))
         expanded.append(san_remap)
 
-    raw = f(self._seed, (*newsub,))
+    raw = f(x._seed, (*newsub,))
     if is_safe != len(subset):
         raw = raw[ix_(*expanded)]
     return raw
@@ -154,11 +154,11 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
 @extract_dense_array.register
 def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(self._seed, subset, extract_dense_array)
+    out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
 def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return _extract_array(self._seed, subset, extract_sparse_array)
+    return _extract_array(x, subset, extract_sparse_array)

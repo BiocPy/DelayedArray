@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 from .DelayedOp import DelayedOp
 from .utils import create_dask_array, chunk_shape, is_sparse
-from .extract_dense_array import extract_dense_array
+from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
 
 __author__ = "ltla"
@@ -126,8 +126,8 @@ class UnaryIsometricOpSimple(DelayedOp):
 
 
 def _extract_array(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]], f: Callable):
-    target = f(self._seed, subset)
-    g = _choose_operator(self._op)
+    target = f(x._seed, subset)
+    g = _choose_operator(x._op)
     return g(target)
 
 

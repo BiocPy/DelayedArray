@@ -1,6 +1,7 @@
 from functools import singledispatch
 from numpy import array, ndarray, ix_
 from bisect import bisect_left
+from typing import Any, Optional, Tuple, Sequence
 
 from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
 from .SparseNdarray import SparseNdarray, _extract_sparse_array_from_SparseNdarray
@@ -60,8 +61,8 @@ except:
 
 
 if has_sparse:
-    @extract_dense_array.register
-    def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    @extract_sparse_array.register
+    def extract_sparse_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
         if subset is None:
             subset = _spawn_indices(x.shape)
 
@@ -88,9 +89,9 @@ if has_sparse:
 
                     if end_pos > start_pos:
                         tmp = x.indices[start_pos:end_pos]
-                        if start_pos:
-                            tmp = tmp - start_pos # don't use -=, this might modify the view by reference.
-                        new_contents.append((x.indices[start_pos:end_pos], x.data[start_pos:end_pos]))
+                        if first:
+                            tmp = tmp - first # don't use -=, this might modify the view by reference.
+                        new_contents.append((tmp, x.data[start_pos:end_pos]))
                     else:
                         new_contents.append(None)
 
@@ -105,7 +106,7 @@ if has_sparse:
                         if pos == len(rowsub):
                             break
                         if current == rowsub[pos]:
-                            new_idx.append(pos)
+                            new_idx.append(current - first)
                             new_val.append(x.data[ri])
                             pos += 1
 

@@ -1,19 +1,19 @@
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Union, Callable, Any
 from numpy import prod, ndarray, integer, issubdtype, array, ix_
 
 
-def _spawn_indices(shape):
+def _spawn_indices(shape: Tuple[int]):
     return [range(s) for s in shape]
 
 
-def _is_subset_consecutive(subset):
+def _is_subset_consecutive(subset: Sequence):
     for s in range(1, len(subset)):
         if subset[s] != subset[s-1]+1:
             return False
     return True
 
 
-def _is_subset_noop(shape, subset):
+def _is_subset_noop(shape: Tuple[int], subset: Tuple[Sequence]):
     if subset is not None:
         for i, s in enumerate(shape):
             cursub = subset[i]
@@ -25,7 +25,7 @@ def _is_subset_noop(shape, subset):
     return True
 
 
-def _sanitize_subset(subset):
+def _sanitize_subset(subset: Sequence): 
     okay = True
     for i in range(1, len(subset)):
         if subset[i] <= subset[i - 1]:
@@ -52,7 +52,7 @@ def _sanitize_subset(subset):
     return san, remap
 
 
-def _flatten_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequence]]):
+def _getitem_subset_preserves_dimensions(shape: Tuple[int], args: Tuple[Union[slice, Sequence]]):
     ndim = len(shape)
     if not isinstance(args, tuple):
         args = [args] + [slice(None)] * (ndim - 1)
@@ -107,7 +107,7 @@ def _flatten_getitem_subset(shape: Tuple[int], args: Tuple[Union[slice, Sequence
     return None
 
 
-def _create_subsets_with_lost_dimension(x, args, injected_extract_dense_array):
+def _getitem_subset_discards_dimensions(x: Any, args: Tuple[Union[slice, Sequence]], injected_extract_dense_array: Callable):
     failed = False
     sanitized = []
     remapping = []

@@ -134,7 +134,7 @@ class BinaryIsometricOp(DelayedOp):
 def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     ls = f(x._left, subset)
     rs = f(x._right, subset)
-    return _execute(ls, rs, self._op)
+    return _execute(ls, rs, x._op)
 
 
 @extract_dense_array.register

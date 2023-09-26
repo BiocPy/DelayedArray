@@ -24,7 +24,7 @@ from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
 from .utils import create_dask_array, _densify, chunk_shape, is_sparse
-from ._subset import _sanitize_getitem_subset, _extract_dense_subarray
+from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
@@ -691,7 +691,7 @@ class DelayedArray:
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence[int], Sequence[bool]]], ...]) -> Union["DelayedArray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence]]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
@@ -709,42 +709,27 @@ class DelayedArray:
             If the dimensionality is preserved by ``subset``, a ``DelayedArray`` containing a delayed subset operation is
             returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
-        flattened = _flatten_getitem_subset(self.shape, subset)
-        if flattened is not None:
-            return DelayedArray(Subset(self._seed, flattened))
-        return _create_subsets_with_lost_dimension(self._seed, args, extract_dense_array)
+        cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
+        if cleaned is not None:
+            return DelayedArray(Subset(self._seed, cleaned))
+        return _getitem_subset_discards_dimensions(self._seed, subset, extract_dense_array)
 
 
     # For python-level compute.
     def sum(self, *args, **kwargs):
         """See :py:meth:`~numpy.sums` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.sum(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(str(e))
-            target = _densify(target)
-            return target.sum(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.sum(*args, **kwargs)
 
     def var(self, *args, **kwargs):
         """See :py:meth:`~numpy.vars` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.var(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(e)
-            target = _densify(target)
-            return target.var(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.var(*args, **kwargs)
 
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
-        target = extract_array(self._seed)
-        try:
-            return target.mean(*args, **kwargs)
-        except Exception as e:
-            warnings.warn(e)
-            target = _densify(target)
-            return target.mean(*args, **kwargs)
+        target = extract_dense_array(self._seed)
+        return target.mean(*args, **kwargs)
 
     # Coercion methods.
     def __DelayedArray_dask__(self) -> "dask.array.core.Array":
@@ -763,10 +748,10 @@ class DelayedArray:
 @extract_dense_array.register
 def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    return extract_dense_array(self._seed, subset)
+    return extract_dense_array(x._seed, subset)
 
 
 @extract_sparse_array.register
 def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return extract_sparse_array(self._seed, subset)
+    return extract_sparse_array(x._seed, subset)

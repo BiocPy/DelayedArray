@@ -94,7 +94,7 @@ class Transpose(DelayedOp):
     def __DelayedArray_dask__(self) -> "dask.array.core.Array":
         """See :py:meth:`~delayedarray.utils.create_dask_array`."""
         target = create_dask_array(self._seed)
-        return _transpose(target, perm=self._perm)
+        return transpose(target, axes=self._perm)
 
     def __DelayedArray_chunk__(self) -> Tuple[int]:
         """See :py:meth:`~delayedarray.utils.chunk_shape`."""
@@ -112,21 +112,21 @@ def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int]]], f: Call
         subset = _spawn_indices(x.shape)
 
     permsub = [None] * len(subset)
-    for i, j in enumerate(self._perm):
+    for i, j in enumerate(x._perm):
         permsub[j] = subset[i]
 
-    target = extract_array(self._seed, (*permsub,))
-    return transpose(target, axes=self._perm)
+    target = f(x._seed, (*permsub,))
+    return transpose(target, axes=x._perm)
 
 
 @extract_dense_array.register
-def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(self._seed, subset, extract_dense_array)
+    out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return _extract_array(self._seed, subset, extract_sparse_array)
+    return _extract_array(x, subset, extract_sparse_array)

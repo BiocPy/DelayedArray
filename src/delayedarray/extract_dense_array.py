@@ -1,5 +1,6 @@
 from functools import singledispatch
-from numpy import array, ndarray, ix_
+from numpy import array, ndarray, ix_, asfortranarray
+from typing import Any, Optional, Tuple, Sequence
 
 from ._subset import _spawn_indices, _is_subset_noop
 from .SparseNdarray import SparseNdarray, _extract_dense_array_from_SparseNdarray
@@ -46,7 +47,7 @@ def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int]
         tmp = x
     else:
         tmp = x[ix_(*subset)]
-    return numpy.array(tmp, dtype=tmp.dtype, order="F", copy=False)
+    return array(tmp, dtype=tmp.dtype, order="F", copy=False)
 
 
 @extract_dense_array.register
@@ -60,7 +61,7 @@ def _sanitize_to_fortran(x):
     if x.flags.f_contiguous:
         return x
     else: 
-        return x.asfortranarray()
+        return asfortranarray(x)
 
 
 # If scipy is installed, we add all the methods for the various scipy.sparse matrices.
