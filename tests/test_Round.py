@@ -16,6 +16,16 @@ def test_Round_default():
     assert not delayedarray.is_sparse(z)
 
 
+def test_Round_subset():
+    y = numpy.random.rand(30, 23) * 10
+    x = delayedarray.DelayedArray(y)
+    z = numpy.round(x)
+
+    ref = numpy.round(y)
+    subset = (range(5, 20), range(3, 19, 2))
+    assert (delayedarray.extract_dense_array(ref, subset) == ref[numpy.ix_(*subset)]).all()
+
+
 def test_Round_sparse():
     y = scipy.sparse.random(30, 10, 0.05)
     x = delayedarray.DelayedArray(y)

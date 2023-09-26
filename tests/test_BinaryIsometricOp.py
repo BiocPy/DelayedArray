@@ -213,6 +213,19 @@ def test_BinaryIsometricOp_logical_xor():
     assert (numpy.array(z) == numpy.logical_xor(y, y2)).all()
 
 
+def test_BinaryIsometricOp_subset():
+    test_shape = (44, 55)
+    y = numpy.random.rand(*test_shape)
+    x = delayedarray.DelayedArray(y)
+    y2 = numpy.random.rand(*test_shape)
+    x2 = delayedarray.DelayedArray(y2)
+
+    z = x + x2
+    ref = y + y2
+    subset = (range(0, 44, 2), range(10, 50, 3))
+    assert (delayedarray.extract_dense_array(z, subset) == ref[numpy.ix_(*subset)]).all()
+
+
 def test_BinaryIsometricOp_sparse():
     y = scipy.sparse.random(100, 50, 0.1)
     x = delayedarray.DelayedArray(y)

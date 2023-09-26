@@ -18,12 +18,8 @@ def test_Combine_simple():
 
 
 def test_Combine_otherdim():
-    y1 = delayedarray.DelayedArray(
-        (numpy.random.rand(19, 43) * 100).astype(numpy.int32)
-    )
-    y2 = delayedarray.DelayedArray(
-        (numpy.random.rand(19, 57) * 100).astype(numpy.int32)
-    )
+    y1 = delayedarray.DelayedArray((numpy.random.rand(19, 43) * 100).astype(numpy.int32))
+    y2 = delayedarray.DelayedArray((numpy.random.rand(19, 57) * 100).astype(numpy.int32))
 
     x = numpy.concatenate((y1, y2), axis=1)
     assert isinstance(x, delayedarray.DelayedArray)
@@ -32,6 +28,25 @@ def test_Combine_otherdim():
     assert x.seed.along == 1
     assert (numpy.array(x) == numpy.concatenate((y1.seed, y2.seed), axis=1)).all()
     assert delayedarray.chunk_shape(x) == (1, 57)
+
+
+def test_Combine_subset():
+    y1 = numpy.random.rand(30, 23)
+    x1 = delayedarray.DelayedArray(y1)
+    y2 = numpy.random.rand(50, 23)
+    x2 = delayedarray.DelayedArray(y2)
+
+    z = numpy.concatenate((x1, x2))
+    ref = numpy.concatenate((y1, y2))
+    subset = (range(5, 70, 2), range(3, 20))
+    assert (delayedarray.extract_dense_array(z, subset) == ref[numpy.ix_(*subset)]).all()
+
+    y2b = numpy.random.rand(30, 19)
+    x2b = delayedarray.DelayedArray(y2b)
+    z = numpy.concatenate((x1, x2b), axis=1)
+    ref = numpy.concatenate((y1, y2b), axis=1)
+    subset = (range(5, 28), range(10, 40))
+    assert (delayedarray.extract_dense_array(z, subset) == ref[numpy.ix_(*subset)]).all()
 
 
 def test_Combine_mixed_chunks():

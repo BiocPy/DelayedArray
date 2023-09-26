@@ -35,6 +35,15 @@ def test_Transpose_more_dimensions():
     assert (numpy.array(t) == numpy.transpose(y)).all()
 
 
+def test_Transpose_subset():
+    y = numpy.random.rand(30, 23, 10)
+    x = delayedarray.DelayedArray(y)
+    t = numpy.transpose(x)
+
+    subset = (range(2, 8), range(3, 16), range(4, 24))
+    assert (delayedarray.extract_dense_array(t, subset) == y.T[numpy.ix_(*subset)]).all()
+
+
 def test_Transpose_sparse():
     y = scipy.sparse.rand(30, 23)
     x = delayedarray.DelayedArray(y)

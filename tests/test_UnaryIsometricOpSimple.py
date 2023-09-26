@@ -90,6 +90,17 @@ def test_UnaryIsometricOpSimple_abs():
     assert (numpy.array(z) == abs(expanded)).all()
 
 
+def test_UnaryIsometricOpSimple_subset():
+    test_shape = (40, 65)
+    y = numpy.random.rand(*test_shape)
+    x = delayedarray.DelayedArray(y)
+    z = abs(x)
+
+    ref = abs(y)
+    sub = (range(0, 40, 2), range(0, 60, 3))
+    assert (delayedarray.extract_dense_array(z, sub) == ref[numpy.ix_(*sub)]).all()
+
+
 def test_UnaryIsometricOpSimple_sparse():
     y = scipy.sparse.rand(20, 50, 0.5)
     x = delayedarray.DelayedArray(y)

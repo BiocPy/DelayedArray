@@ -79,6 +79,22 @@ def test_Subset_unsorted_duplicates():
     assert (numpy.array(sub) == y[:, [5, 4, 3, 2, 1, 0], :]).all()
 
 
+def test_Subset_subset():
+    y = numpy.random.rand(99, 63)
+    x = delayedarray.DelayedArray(y)
+
+    sub1 = (slice(5, 70, 2), slice(3, 20))
+    z = x[sub1]
+    ref = y[sub1]
+
+    sub2 = (range(2, 20), range(2, 18, 2))
+    assert (delayedarray.extract_dense_array(z, sub2) == ref[numpy.ix_(*sub2)]).all()
+    sub2 = (range(ref.shape[0]), range(2, 18, 2))
+    assert (delayedarray.extract_dense_array(z, sub2) == ref[numpy.ix_(*sub2)]).all()
+    sub2 = (range(2, 20), range(ref.shape[1]))
+    assert (delayedarray.extract_dense_array(z, sub2) == ref[numpy.ix_(*sub2)]).all()
+
+
 def test_Subset_collapse():
     test_shape = (30, 55, 20)
     y = numpy.random.rand(*test_shape)

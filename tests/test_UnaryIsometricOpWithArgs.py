@@ -430,6 +430,32 @@ def test_UnaryIsometricOpWithArgs_with_array():
     assert z.seed.along == 2 
 
 
+def test_UnaryIsometricOpWithArgs_subset():
+    test_shape = (44, 55)
+    y = numpy.random.rand(*test_shape)
+    x = delayedarray.DelayedArray(y)
+    sub = (range(0, 40, 2), range(10, 50, 5))
+
+    z = x + 1
+    ref = y + 1
+    assert (delayedarray.extract_dense_array(z, sub) == ref[numpy.ix_(*sub)]).all()
+
+    v = numpy.random.rand(55)
+    z = x + v 
+    ref = y + v
+    assert (delayedarray.extract_dense_array(z, sub) == ref[numpy.ix_(*sub)]).all()
+
+    v = numpy.random.rand(1, 55)
+    z = x + v 
+    ref = y + v
+    assert (delayedarray.extract_dense_array(z, sub) == ref[numpy.ix_(*sub)]).all()
+
+    v = numpy.random.rand(44, 1)
+    z = x + v 
+    ref = y + v
+    assert (delayedarray.extract_dense_array(z, sub) == ref[numpy.ix_(*sub)]).all()
+
+
 def test_UnaryIsometricOpWithArgs_dask():
     y = numpy.random.rand(100, 50)
     x = delayedarray.DelayedArray(y)
