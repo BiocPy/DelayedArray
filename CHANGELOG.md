@@ -8,6 +8,7 @@
 - Added the `extract_sparse_array()` generic, which always returns a `SparseNdarray` object for sparse arrays.
 - Added the `is_sparse()` generic, which determines whether an object is sparse.
 - Minor fixes to the `repr()` method for `DelayedArray` objects.
+- **scipy** is no longer required for installation but will be used if available.
 
 ## Version 0.2.3
 
