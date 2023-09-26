@@ -170,12 +170,12 @@ if has_sparse:
                             idx, val = new_contents[cpos]
                             idx.append(rpos)
                             val.append(x.data[p])
-                            pos += 1
+                            cpos += 1
 
             for i in range(len(new_contents)):
                 idx, val = new_contents[i]
                 if len(idx):
-                    new_contents[i] = (array(idx, dtype=x.indices.dtype), array(val, dtype=x.dtype))) 
+                    new_contents[i] = (array(idx, dtype=x.indices.dtype), array(val, dtype=x.dtype))
                 else:
                     new_contents[i] = None
 
@@ -192,17 +192,15 @@ if has_sparse:
         new_contents = None
 
         if final_shape[0] != 0 and final_shape[1] != 0:
-            new_contents = []
-            for i in range(len(colsub)):
-                new_contents.append([])
-
             in_row = {}
-            for i, x in enumerate(subset[0]):
-                in_row[x] = i
+            for i, y in enumerate(subset[0]):
+                in_row[y] = i
 
             in_col = {}
-            for i, x in enumerate(subset[1]):
-                in_col[x] = i
+            new_contents = []
+            for i, y in enumerate(subset[1]):
+                in_col[y] = i
+                new_contents.append([])
 
             for i, v in enumerate(x.data):
                 r = x.row[i]
@@ -210,14 +208,14 @@ if has_sparse:
                 if r in in_row and c in in_col:
                     new_contents[in_col[c]].append((in_row[r], v))
 
-            for i, con in new_contents:
+            for i, con in enumerate(new_contents):
                 if len(con):
                     con.sort()
                     idx = ndarray(len(con), dtype=x.row.dtype)
                     val = ndarray(len(con), dtype=x.data.dtype)
-                    for j, x in enumerate(con):
-                        idx[j] = x[0]
-                        val[j] = x[1]
+                    for j, y in enumerate(con):
+                        idx[j] = y[0]
+                        val[j] = y[1]
                     new_contents[i] = (idx, val)
                 else:
                     new_contents[i] = None
