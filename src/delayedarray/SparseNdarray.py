@@ -14,7 +14,8 @@ __license__ = "MIT"
 
 class SparseNdarray:
     """The SparseNdarray, as its name suggests, is a sparse n-dimensional array.
-    It is inspired by the **SVTArray** from the `DelayedArray R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
+    It is inspired by the ``SVTArray`` class from the 
+    `DelayedArray R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
 
     Internally, the SparseNdarray is represented as a nested list where each
     nesting level corresponds to a dimension in reverse order, i.e., the
@@ -151,8 +152,6 @@ class SparseNdarray:
             A nested list, for a n-dimensional array where n > 1.
 
             A tuple containing a sparse vector (i.e., indices and values), for a 1-dimensional array.
-
-            A single scalar, for a 0-dimensional array.
 
             Alternatively None, if the array contains no non-zero elements.
         """

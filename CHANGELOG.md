@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.3.0
+
+- Replace the `__DelayedArray` methods with generics, for easier extensibility to classes outside of our control.
+- Restored the `SparseNdarray` class, to provide everyone with a consistent type during sparse operations.
+- Adapted `extract_array()` into the `extract_dense_array()` generic, which now always returns a (Fortran-order) NumPy array.
+- Added the `extract_sparse_array()` generic, which always returns a `SparseNdarray` object for sparse arrays.
+- Added the `is_sparse()` generic, which determines whether an object is sparse.
+- Minor fixes to the `repr()` method for `DelayedArray` objects.
+
 ## Version 0.2.3
 
 - Added a `chunk_shape()` generic to identify the "best" direction for iterating over the matrix.

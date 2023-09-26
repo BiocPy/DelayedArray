@@ -27,7 +27,7 @@ def chunk_shape(x: Any) -> Tuple[int]:
 
 
 @chunk_shape.register
-def chunk_shape_ndarray(x: ndarray) -> Tuple[int]:
+def chunk_shape_ndarray(x: ndarray):
     """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
     sh = list(x.shape)
     if x.flags.f_contiguous:
@@ -43,7 +43,7 @@ def chunk_shape_ndarray(x: ndarray) -> Tuple[int]:
 
 
 @chunk_shape.register
-def chunk_shape_SparseNdarray(x: SparseNdarray) -> Tuple[int]:
+def chunk_shape_SparseNdarray(x: SparseNdarray):
     """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
     chunks = [1] * len(x.shape)
     chunks[0] = x.shape[0]
@@ -61,18 +61,18 @@ except:
 
 if has_sparse:
     @chunk_shape.register
-    def chunk_shape_csc_matrix(x: scipy.sparse.csc_matrix) -> Tuple[int]:
+    def chunk_shape_csc_matrix(x: scipy.sparse.csc_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return (x.shape[0], 1)
 
 
     @chunk_shape.register
-    def chunk_shape_csr_matrix(x: scipy.sparse.csr_matrix) -> Tuple[int]:
+    def chunk_shape_csr_matrix(x: scipy.sparse.csr_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return (1, x.shape[1])
 
 
     @chunk_shape.register
-    def chunk_shape_coo_matrix(x: scipy.sparse.coo_matrix) -> Tuple[int]:
+    def chunk_shape_coo_matrix(x: scipy.sparse.coo_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return x.shape # ???? well, let's just do our best.

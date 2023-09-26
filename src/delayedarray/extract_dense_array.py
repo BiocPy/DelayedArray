@@ -34,6 +34,7 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -
 
 @extract_dense_array.register
 def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if _is_subset_noop(x.shape, subset):
         subset = None
     if subset is None:

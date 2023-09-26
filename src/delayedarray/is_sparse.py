@@ -23,7 +23,7 @@ def is_sparse(x: Any) -> bool:
 
 
 @is_sparse.register
-def is_sparse_SparseNdarray(x: SparseNdarray) -> bool:
+def is_sparse_SparseNdarray(x: SparseNdarray):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return True
 
@@ -39,16 +39,16 @@ except:
 
 if has_sparse:
     @is_sparse.register
-    def is_sparse_csc_matrix(x: scipy.sparse.csc_matrix) -> bool:
+    def is_sparse_csc_matrix(x: scipy.sparse.csc_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True
 
     @is_sparse.register
-    def is_sparse_csr_matrix(x: scipy.sparse.csr_matrix) -> bool:
+    def is_sparse_csr_matrix(x: scipy.sparse.csr_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True
 
     @is_sparse.register
-    def is_sparse_coo_matrix(x: scipy.sparse.coo_matrix) -> bool:
+    def is_sparse_coo_matrix(x: scipy.sparse.coo_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True
