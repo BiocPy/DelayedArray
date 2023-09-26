@@ -898,7 +898,6 @@ def _characterize_indices(subset: Sequence, dim_extent: int):
         random_map = None,
     )
 
-
 def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, f: Callable):
     subset = subset_summary.subset
     if len(subset) == 0:
