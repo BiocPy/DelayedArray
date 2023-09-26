@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.2.3 documentation</title>
+        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -155,8 +155,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Why not dask?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -200,76 +199,27 @@
         <article role="main">
           <h1>Source code for delayedarray.UnaryIsometricOpWithArgs</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">ndarray</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dask.array</span>
-
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_retry_single</span><span class="p">,</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
+<span class="kn">from</span> <span class="nn">._isometric</span> <span class="kn">import</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">_execute</span><span class="p">,</span> <span class="n">_infer_along_with_args</span>
+<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span>
+<span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span><span class="p">,</span> <span class="n">_sanitize_to_fortran</span>
+<span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
+<span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
+<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
 
-<span class="n">OP</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
-    <span class="s2">&quot;add&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;subtract&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;multiply&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;divide&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;remainder&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;floor_divide&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;power&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;equal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;greater_equal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;greater&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;less_equal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;less&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;not_equal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logical_and&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logical_or&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;logical_xor&quot;</span><span class="p">,</span>
-<span class="p">]</span>
-
-
-<span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">operation</span><span class="p">):</span>
-    <span class="c1"># Can&#39;t use match/case yet, as that&#39;s only in Python 3.10, and we can&#39;t</span>
-    <span class="c1"># just dispatch to &#39;getattr(numpy, operation)&#39;, because some classes don&#39;t</span>
-    <span class="c1"># implement __array_func__. Thanks a lot, scipy.sparse, and fuck you.</span>
-    <span class="k">if</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">+</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;subtract&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">-</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;multiply&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">*</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;divide&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">/</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;remainder&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">%</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;floor_divide&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">//</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;power&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span><span class="o">**</span><span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;equal&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">==</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;greater_equal&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;greater&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">&gt;</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;less_equal&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;less&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span>
-    <span class="k">elif</span> <span class="n">operation</span> <span class="o">==</span> <span class="s2">&quot;not_equal&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">left</span> <span class="o">!=</span> <span class="n">right</span>
-    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">numpy</span><span class="p">,</span> <span class="n">operation</span><span class="p">)(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">)</span>
-
 
 <div class="viewcode-block" id="UnaryIsometricOpWithArgs">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs">[docs]</a>
-<span class="k">class</span> <span class="nc">UnaryIsometricOpWithArgs</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">DelayedOp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Unary isometric operation involving an n-dimensional seed array with a scalar or 1-dimensional vector,</span>
 <span class="sd">    based on Bioconductor&#39;s ``DelayedArray::DelayedUnaryIsoOpWithArgs`` class.</span>
 <span class="sd">    Only one n-dimensional array is involved here, hence the &quot;unary&quot; in the name.</span>
@@ -307,51 +257,27 @@
 <span class="sd">            Ignored for commutative operations in ``op``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">OP</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="p">):</span>
-        <span class="n">dummy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="n">along</span> <span class="o">=</span> <span class="n">_infer_along_with_args</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[(</span><span class="o">*</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">),)]</span>
+
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>  <span class="c1"># silence warnings from divide by zero.</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-                <span class="n">dummy</span> <span class="o">=</span> <span class="n">_execute</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">[:</span><span class="mi">0</span><span class="p">],</span> <span class="n">operation</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
                 <span class="n">dummy</span> <span class="o">=</span> <span class="n">_execute</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
-        <span class="n">dtype</span> <span class="o">=</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span>
-
-        <span class="n">along</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-            <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">along</span> <span class="o">=</span> <span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="n">ndim</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;length of &#39;value.shape&#39; and &#39;seed.shape&#39; should be equal&quot;</span>
-                    <span class="p">)</span>
-
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ndim</span><span class="p">):</span>
-                    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                <span class="s2">&quot;no more than one entry of &#39;value.shape&#39; should be greater than 1&quot;</span>
-                            <span class="p">)</span>
-                        <span class="k">if</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
-                            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                                <span class="s2">&quot;any entry of &#39;value.shape&#39; that is not 1 should be equal to the corresponding entry of &#39;seed.shape&#39;&quot;</span>  <span class="c1"># noqa: E501</span>
-                            <span class="p">)</span>
-                        <span class="n">along</span> <span class="o">=</span> <span class="n">i</span>
-
-                <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[(</span><span class="o">*</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">),</span> <span class="o">...</span><span class="p">)]</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seed</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="n">dummy</span> <span class="o">=</span> <span class="n">_execute</span><span class="p">(</span><span class="n">dummy</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_op</span> <span class="o">=</span> <span class="n">operation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">right</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_along</span> <span class="o">=</span> <span class="n">along</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">is_sparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">dummy</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
@@ -419,51 +345,79 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span></div>
 
-<div class="viewcode-block" id="UnaryIsometricOpWithArgs.__DelayedArray_dask__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.__DelayedArray_dask__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
-        <span class="n">operand</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span> 
+    <span class="n">target</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
+
+    <span class="n">subvalue</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">_value</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">subset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="n">_spawn_indices</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subvalue</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">subvalue</span> <span class="o">=</span> <span class="n">subvalue</span><span class="p">[</span><span class="n">subset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span></div>
+            <span class="n">resub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+            <span class="n">subdim</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">along</span>
+            <span class="n">resub</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span>
+            <span class="n">subvalue</span> <span class="o">=</span> <span class="n">subvalue</span><span class="p">[(</span><span class="o">*</span><span class="n">resub</span><span class="p">,)]</span>
+
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">subvalue</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="UnaryIsometricOpWithArgs.__DelayedArray_extract__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.__DelayedArray_extract__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.extract_array`.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
-
-        <span class="n">subvalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subvalue</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">subvalue</span> <span class="o">=</span> <span class="n">subvalue</span><span class="p">[</span><span class="n">subset</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">resub</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
-                <span class="n">subdim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">along</span>
-                <span class="n">resub</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">subdim</span><span class="p">]</span>
-                <span class="n">subvalue</span> <span class="o">=</span> <span class="n">subvalue</span><span class="p">[(</span><span class="o">*</span><span class="n">resub</span><span class="p">,)]</span>
-
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">subvalue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">subvalue</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">_retry_single</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
+<div class="viewcode-block" id="extract_dense_array_UnaryIsometricOpWithArgs">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_dense_array_UnaryIsometricOpWithArgs">[docs]</a>
+<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="UnaryIsometricOpWithArgs.__DelayedArray_chunk__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.__DelayedArray_chunk__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_chunk__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.chunk_shape`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
-</div>
+
+<div class="viewcode-block" id="extract_sparse_array_UnaryIsometricOpWithArgs">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_sparse_array_UnaryIsometricOpWithArgs">[docs]</a>
+<span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_dask_array_UnaryIsometricOpWithArgs">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.create_dask_array_UnaryIsometricOpWithArgs">[docs]</a>
+<span class="nd">@create_dask_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">create_dask_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.create_dask_array.create_dask_array`.&quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+    <span class="n">operand</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">_value</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">operand</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_execute</span><span class="p">(</span><span class="n">operand</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">_op</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="chunk_shape_UnaryIsometricOpWithArgs">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.chunk_shape_UnaryIsometricOpWithArgs">[docs]</a>
+<span class="nd">@chunk_shape</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">chunk_shape_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_shape.chunk_shape`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_sparse_UnaryIsometricOpWithArgs">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.is_sparse_UnaryIsometricOpWithArgs">[docs]</a>
+<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">is_sparse_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_sparse.is_sparse`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">_sparse</span></div>
 
 </pre></div>
         </article>
@@ -497,7 +451,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

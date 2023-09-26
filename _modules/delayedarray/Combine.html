@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.Combine - DelayedArray 0.2.3 documentation</title>
+        <title>delayedarray.Combine - DelayedArray 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -155,8 +155,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Why not dask?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -199,15 +198,16 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.Combine</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">concatenate</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">ndarray</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dask.array</span>
-
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_densify</span><span class="p">,</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
+<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span>
+<span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span><span class="p">,</span> <span class="n">_sanitize_to_fortran</span>
+<span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
+<span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
+<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -216,7 +216,7 @@
 
 <div class="viewcode-block" id="Combine">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.Combine">[docs]</a>
-<span class="k">class</span> <span class="nc">Combine</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Combine</span><span class="p">(</span><span class="n">DelayedOp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delayed combine operation, based on Bioconductor&#39;s ``DelayedArray::DelayedAbind`` class.</span>
 
 <span class="sd">    This will combine multiple arrays along a specified dimension, provided the extents of all other dimensions are</span>
@@ -297,83 +297,101 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            int: Dimension to combine along.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span>
-
-<div class="viewcode-block" id="Combine.__DelayedArray_dask__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.Combine.__DelayedArray_dask__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
-        <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
-            <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span></div>
 
 
-<div class="viewcode-block" id="Combine.__DelayedArray_extract__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.Combine.__DelayedArray_extract__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.extract_array`.&quot;&quot;&quot;</span>
-        <span class="c1"># Figuring out which slices belong to who.</span>
-        <span class="n">chosen</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
-        <span class="n">limit</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">fragmented</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">limit</span>
-            <span class="n">limit</span> <span class="o">+=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
-            <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">while</span> <span class="n">position</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="ow">and</span> <span class="n">chosen</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
-                <span class="n">current</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
-                <span class="n">position</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">fragmented</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
 
-        <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">flexargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seeds</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fragmented</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
-                <span class="n">flexargs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span> <span class="o">=</span> <span class="n">fragmented</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-                <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">flexargs</span><span class="p">,)))</span>
+<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">subset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">_spawn_indices</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
-        <span class="n">expected_shape</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subset</span><span class="p">):</span>
-            <span class="n">expected_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+    <span class="c1"># Figuring out which slices belong to who.</span>
+    <span class="n">chosen</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">fragmented</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">limit</span>
+        <span class="n">limit</span> <span class="o">+=</span> <span class="n">s</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">position</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">chosen</span><span class="p">)</span> <span class="ow">and</span> <span class="n">chosen</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">current</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">chosen</span><span class="p">[</span><span class="n">position</span><span class="p">]</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+            <span class="n">position</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">fragmented</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">along</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">output</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="p">(</span><span class="o">*</span><span class="n">expected_shape</span><span class="p">,):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;&#39;numpy.concatenate&#39; on &quot;</span>
-                    <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">extracted</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-                    <span class="o">+</span> <span class="s2">&quot; objects does not return the correct shape&quot;</span>
-                <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extracted</span><span class="p">):</span>
-                <span class="n">extracted</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">_densify</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">along</span><span class="p">)</span>
+    <span class="c1"># Extracting the desired slice from each seed.</span>
+    <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">flexargs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fragmented</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+            <span class="n">flexargs</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span> <span class="o">=</span> <span class="n">fragmented</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">flexargs</span><span class="p">,)))</span>
 
-        <span class="k">return</span> <span class="n">output</span></div>
+    <span class="k">return</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Combine.__DelayedArray_chunk__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.Combine.__DelayedArray_chunk__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_chunk__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.chunk_shape`.&quot;&quot;&quot;</span>
-        <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seeds</span><span class="p">]</span>
+<div class="viewcode-block" id="extract_dense_array_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.extract_dense_array_Combine">[docs]</a>
+<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
 
-        <span class="c1"># Not bothering with doing anything too fancy here.  We just use the</span>
-        <span class="c1"># maximum chunk size (which might also expand, e.g., if you&#39;re</span>
-        <span class="c1"># combining column-major and row-major matrices; oh well).  Just accept</span>
-        <span class="c1"># that we&#39;ll probably need to break chunks during iteration.</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">)):</span>
-            <span class="n">dim</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
-                <span class="n">dim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="o">*</span><span class="n">dim</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="p">,)</span> </div>
-</div>
+
+<div class="viewcode-block" id="extract_sparse_array_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.extract_sparse_array_Combine">[docs]</a>
+<span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_dask_array_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.create_dask_array_Combine">[docs]</a>
+<span class="nd">@create_dask_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">create_dask_array_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.create_dask_array.create_dask_array`.&quot;&quot;&quot;</span>
+    <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
+        <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="chunk_shape_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.chunk_shape_Combine">[docs]</a>
+<span class="nd">@chunk_shape</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">chunk_shape_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_shape.chunk_shape`.&quot;&quot;&quot;</span>
+    <span class="n">chunks</span> <span class="o">=</span> <span class="p">[</span><span class="n">chunk_shape</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">]</span>
+
+    <span class="c1"># Not bothering with doing anything too fancy here.  We just use the</span>
+    <span class="c1"># maximum chunk size (which might also expand, e.g., if you&#39;re</span>
+    <span class="c1"># combining column-major and row-major matrices; oh well).  Just accept</span>
+    <span class="c1"># that we&#39;ll probably need to break chunks during iteration.</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_shape</span><span class="p">)):</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">chunks</span><span class="p">:</span>
+            <span class="n">dim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="o">*</span><span class="n">dim</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="p">,)</span> </div>
+
+
+
+<div class="viewcode-block" id="is_sparse_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.is_sparse_Combine">[docs]</a>
+<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">is_sparse_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_sparse.is_sparse`.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
 </pre></div>
         </article>
@@ -407,7 +425,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

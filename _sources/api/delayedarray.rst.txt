@@ -36,10 +36,26 @@ delayedarray.DelayedArray module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.DelayedOp module
+-----------------------------
+
+.. automodule:: delayedarray.DelayedOp
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.Round module
 -------------------------
 
 .. automodule:: delayedarray.Round
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.SparseNdarray module
+---------------------------------
+
+.. automodule:: delayedarray.SparseNdarray
    :members:
    :undoc-members:
    :show-inheritance:
@@ -76,10 +92,58 @@ delayedarray.UnaryIsometricOpWithArgs module
    :undoc-members:
    :show-inheritance:
 
-delayedarray.utils module
--------------------------
+delayedarray.chunk\_shape module
+--------------------------------
 
-.. automodule:: delayedarray.utils
+.. automodule:: delayedarray.chunk_shape
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.create\_dask\_array module
+---------------------------------------
+
+.. automodule:: delayedarray.create_dask_array
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.extract\_dense\_array module
+-----------------------------------------
+
+.. automodule:: delayedarray.extract_dense_array
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.extract\_sparse\_array module
+------------------------------------------
+
+.. automodule:: delayedarray.extract_sparse_array
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.guess\_iteration\_block\_size module
+-------------------------------------------------
+
+.. automodule:: delayedarray.guess_iteration_block_size
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.is\_pristine module
+--------------------------------
+
+.. automodule:: delayedarray.is_pristine
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.is\_sparse module
+------------------------------
+
+.. automodule:: delayedarray.is_sparse
    :members:
    :undoc-members:
    :show-inheritance:

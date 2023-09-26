@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.Cast - DelayedArray 0.2.3 documentation</title>
+        <title>delayedarray.Cast - DelayedArray 0.3.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.2.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.2.3 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -155,8 +155,7 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">Tutorial</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Developer Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../developers.html">Why not dask?</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributions &amp; Help</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../authors.html">Authors</a></li>
@@ -199,14 +198,15 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.Cast</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
-
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">dtype</span>
 
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">dask.array</span>
-
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">create_dask_array</span><span class="p">,</span> <span class="n">extract_array</span><span class="p">,</span> <span class="n">_retry_single</span><span class="p">,</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
+<span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span><span class="p">,</span> <span class="n">_sanitize_to_fortran</span>
+<span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
+<span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
+<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -215,7 +215,7 @@
 
 <div class="viewcode-block" id="Cast">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast">[docs]</a>
-<span class="k">class</span> <span class="nc">Cast</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">Cast</span><span class="p">(</span><span class="n">DelayedOp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delayed cast to a different NumPy type. This is most useful for promoting integer matrices to floating point to</span>
 <span class="sd">    avoid problems with integer overflow in arithmetic operations.</span>
 
@@ -260,34 +260,58 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            The seed object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
-
-<div class="viewcode-block" id="Cast.__DelayedArray_dask__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast.__DelayedArray_dask__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_dask__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;dask.array.core.Array&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.create_dask_array`.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span></div>
 
 
-<div class="viewcode-block" id="Cast.__DelayedArray_extract__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast.__DelayedArray_extract__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_extract__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.extract_array`.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
 
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">_retry_single</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">target</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span></div>
+<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Cast.__DelayedArray_chunk__">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast.__DelayedArray_chunk__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__DelayedArray_chunk__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.utils.chunk_shape`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span></div>
-</div>
+<div class="viewcode-block" id="extract_dense_array_Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.extract_dense_array_Cast">[docs]</a>
+<span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_sparse_array_Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.extract_sparse_array_Cast">[docs]</a>
+<span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_dask_array_Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.create_dask_array_Cast">[docs]</a>
+<span class="nd">@create_dask_array</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">create_dask_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.create_dask_array.create_dask_array`.&quot;&quot;&quot;</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="chunk_shape_Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.chunk_shape_Cast">[docs]</a>
+<span class="nd">@chunk_shape</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">chunk_shape_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_shape.chunk_shape`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="is_sparse_Cast">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.is_sparse_Cast">[docs]</a>
+<span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">is_sparse_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_sparse.is_sparse`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
 </pre></div>
         </article>
@@ -321,7 +345,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=a47416a6"></script>
+</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

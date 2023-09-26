@@ -6,8 +6,7 @@
 :maxdepth: 2
 
 Overview <readme>
-Tutorial <tutorial>
-Developer Notes <developers>
+Why not dask? <developers>
 Contributions & Help <contributing>
 License <license>
 Authors <authors>
