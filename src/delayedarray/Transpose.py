@@ -1,13 +1,13 @@
-from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Sequence
 from numpy import dtype, transpose
-if TYPE_CHECKING:
-    import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -91,21 +91,6 @@ class Transpose(DelayedOp):
         """
         return self._perm
 
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        target = create_dask_array(self._seed)
-        return transpose(target, axes=self._perm)
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        chunks = chunk_shape(self._seed)
-        output = [chunks[i] for i in self._perm]
-        return (*output,)
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return is_sparse(self._seed)
-
 
 def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     if subset is None:
@@ -130,3 +115,24 @@ def extract_dense_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[
 def extract_sparse_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
+
+
+@create_dask_array.register
+def create_dask_array_Transpose(x: Transpose):
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    target = create_dask_array(x._seed)
+    return transpose(target, axes=x._perm)
+
+
+@chunk_shape.register
+def chunk_shape_Transpose(x: Transpose):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    chunks = chunk_shape(x._seed)
+    output = [chunks[i] for i in x._perm]
+    return (*output,)
+
+
+@is_sparse.register
+def is_sparse_Transpose(x: Transpose):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    return is_sparse(x._seed)

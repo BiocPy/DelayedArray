@@ -15,13 +15,11 @@ __license__ = "MIT"
 def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -> SparseNdarray:
     """Extract the contents of ``x`` (or a subset thereof) into a
     :py:class:`~delayedarray.SparseNdarray.SparseNdarray`. This should only be
-    used for ``x`` where :py:meth:`~delayedarray.utils.is_sparse` returns True.
+    used for ``x`` where :py:meth:`~delayedarray.is_sparse.is_sparse` is True.
 
     Args:
         x: 
-            Any object with a ``__DelayedArray_extract_sparse__`` method that
-            accepts a non-None ``subset`` and returns a ``SparseNdarray``
-            corresponding to the outer product of the subsets.
+            Any array-like object containing sparse data.
 
         subset: 
             Tuple of length equal to the number of dimensions, each containing
@@ -33,16 +31,12 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) 
         SparseNdarray for the requested subset. This may be a view so callers
         should create a copy if they intend to modify it.
     """
-
-    if hasattr(x, "__DelayedArray_extract_sparse__"):
-        if subset is None:
-            subset = _spawn_indices(x.shape)
-        return x.__DelayedArray_extract__(subset)
     raise NotImplementedError("'extract_sparse_array(" + str(type(x)) + ")' has not yet been implemented") 
 
 
 @extract_sparse_array.register
 def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     if _is_subset_noop(x.shape, subset):
         subset = None
     if subset is None:
@@ -69,6 +63,7 @@ if has_sparse:
 
     @extract_sparse_array.register
     def extract_sparse_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)
 
@@ -126,6 +121,7 @@ if has_sparse:
 
     @extract_sparse_array.register
     def extract_sparse_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)
 
@@ -185,6 +181,7 @@ if has_sparse:
 
     @extract_sparse_array.register
     def extract_sparse_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)
 

@@ -687,24 +687,7 @@ class SparseNdarray:
         return _getitem_subset_discards_dimensions(self, subset, _extract_dense_array_from_SparseNdarray)
 
 
-    # Coercion methods.
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        return self.__array__()
-
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        total = [1] * len(self._shape)
-        total[0] = self._shape[0]
-        return (*total,)
-
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return True
-
-
+    # NumPy methods.
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> Union[Union["SparseNdarray", ndarray], ndarray]:
         """Interface with NumPy array methods.
 

@@ -1,13 +1,13 @@
-from typing import Optional, Callable, Tuple, Sequence, TYPE_CHECKING
+from typing import Optional, Callable, Tuple, Sequence
 import numpy
 from numpy import dtype
-if TYPE_CHECKING:
-    import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, chunk_shape, is_sparse
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -70,19 +70,6 @@ class Round(DelayedOp):
         """
         return self._decimals
 
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        target = create_dask_array(self._seed)
-        return numpy.round(target, decimals=self._decimals)
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        return chunk_shape(self._seed)
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return is_sparse(self._seed)
-
 
 def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     target = f(x._seed, subset)
@@ -91,7 +78,7 @@ def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int]]], f: Callable
 
 @extract_dense_array.register
 def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
-    """See :py:meth:`~delayedarray.utils.extract_dense_array.extract_dense_array`."""
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
@@ -100,3 +87,22 @@ def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] =
 def extract_sparse_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
+
+
+@create_dask_array.register
+def create_dask_array_Round(x: Round):
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    target = create_dask_array(x._seed)
+    return numpy.round(target, decimals=x._decimals)
+
+
+@chunk_shape.register
+def chunk_shape_Round(x: Round):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    return chunk_shape(x._seed)
+
+
+@is_sparse.register
+def is_sparse_Round(x: Round):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    return is_sparse(x._seed)

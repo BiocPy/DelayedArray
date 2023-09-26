@@ -15,8 +15,10 @@ class _ChunkyBoi:
     def shape(self):
         return self._shape
 
-    def __DelayedArray_chunk__(self):
-        return self._chunks
+
+@da.chunk_shape.register
+def chunk_shape_ChunkyBoi(x: _ChunkyBoi):
+    return x._chunks
 
 
 def test_guess_iteration_block_size():

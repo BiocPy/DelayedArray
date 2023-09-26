@@ -1,13 +1,13 @@
-from typing import Optional, Callable, Sequence, Tuple, TYPE_CHECKING
+from typing import Optional, Callable, Sequence, Tuple
 from numpy import dtype, ndarray, ix_
-if TYPE_CHECKING:
-    import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices, _sanitize_subset
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -84,43 +84,6 @@ class Subset(DelayedOp):
         """
         return self._subset
 
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        target = create_dask_array(self._seed)
-
-        # Oh god, this is horrible. But dask doesn't support ix_ yet.
-        ndim = len(target.shape)
-        for i in range(ndim):
-            replacement = self._subset[i]
-            if isinstance(replacement, range):
-                replacement = list(replacement)
-
-            current = [slice(None)] * ndim
-            current[i] = replacement
-            target = target[(..., *current)]
-
-        return target
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        chunk = chunk_shape(self._seed)
-        full = self._shape
-
-        # We don't bother doing anything too fancy here because the subset
-        # might render the concept of rectangular chunks invalid (e.g., if the
-        # subset involves reordering or duplication). We'll just cap the chunk
-        # size to the matrix dimension and call it a day.  We also set lower
-        # bound of 1 to ensure that iteration is always positive.
-        output = []
-        for i in range(len(full)):
-            output.append(max(1, min(chunk[i], full[i])))
-
-        return (*output,)
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return is_sparse(self._seed)
-
 
 def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     if subset is None:
@@ -162,3 +125,46 @@ def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]]
 def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
+
+
+@create_dask_array.register
+def create_dask_array_Subset(x: Subset):
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    target = create_dask_array(x._seed)
+
+    # Oh god, this is horrible. But dask doesn't support ix_ yet.
+    ndim = len(target.shape)
+    for i in range(ndim):
+        replacement = x._subset[i]
+        if isinstance(replacement, range):
+            replacement = list(replacement)
+
+        current = [slice(None)] * ndim
+        current[i] = replacement
+        target = target[(..., *current)]
+
+    return target
+
+
+@chunk_shape.register
+def chunk_shape_Subset(x: Subset):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    chunk = chunk_shape(x._seed)
+    full = x._shape
+
+    # We don't bother doing anything too fancy here because the subset
+    # might render the concept of rectangular chunks invalid (e.g., if the
+    # subset involves reordering or duplication). We'll just cap the chunk
+    # size to the matrix dimension and call it a day.  We also set lower
+    # bound of 1 to ensure that iteration is always positive.
+    output = []
+    for i in range(len(full)):
+        output.append(max(1, min(chunk[i], full[i])))
+
+    return (*output,)
+
+
+@is_sparse.register
+def is_sparse_Subset(x: Subset):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    return is_sparse(x._seed)

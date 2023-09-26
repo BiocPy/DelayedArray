@@ -1,14 +1,14 @@
 import warnings
-from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
+from typing import Callable, Optional, Tuple, Sequence
 import numpy
-if TYPE_CHECKING:
-    import dask.array
 
 from .DelayedOp import DelayedOp
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
-from .utils import create_dask_array, chunk_shape, is_sparse
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -104,32 +104,6 @@ class BinaryIsometricOp(DelayedOp):
         """
         return self._op
 
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        ls = create_dask_array(self._left)
-        rs = create_dask_array(self._right)
-        return _execute(ls, rs, self._op)
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        lchunk = chunk_shape(self._left)
-        rchunk = chunk_shape(self._right)
-
-        # Not bothering with taking the lowest common denominator, as that
-        # might be too aggressive and expanding to the entire matrix size.
-        # We instead use the maximum chunk size (which might also expand, e.g.,
-        # if you're combining column-major and row-major matrices; oh well).
-        # Just accept that we'll probably need to break chunks during iteration.
-        output = []
-        for i in range(len(lchunk)):
-            output.append(max(lchunk[i], rchunk[i]))
-
-        return (*output,) 
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return self._sparse
-
  
 def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     ls = f(x._left, subset)
@@ -148,3 +122,35 @@ def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional
 def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
+
+
+@create_dask_array.register
+def create_dask_array_BinaryIsometricOp(x: BinaryIsometricOp): 
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    ls = create_dask_array(x._left)
+    rs = create_dask_array(x._right)
+    return _execute(ls, rs, x._op)
+
+
+@chunk_shape.register
+def chunk_shape_BinaryIsometricOp(x: BinaryIsometricOp):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    lchunk = chunk_shape(x._left)
+    rchunk = chunk_shape(x._right)
+
+    # Not bothering with taking the lowest common denominator, as that
+    # might be too aggressive and expanding to the entire matrix size.
+    # We instead use the maximum chunk size (which might also expand, e.g.,
+    # if you're combining column-major and row-major matrices; oh well).
+    # Just accept that we'll probably need to break chunks during iteration.
+    output = []
+    for i in range(len(lchunk)):
+        output.append(max(lchunk[i], rchunk[i]))
+
+    return (*output,) 
+
+
+@is_sparse.register
+def is_sparse_BinaryIsometricOp(x: BinaryIsometricOp):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    return x._sparse

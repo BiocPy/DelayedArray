@@ -1,14 +1,13 @@
-from typing import Callable, Optional, Tuple, Sequence, TYPE_CHECKING
-import warnings
+from typing import Callable, Optional, Tuple, Sequence
 from numpy import concatenate, dtype, ndarray
-if TYPE_CHECKING:
-    import dask.array
 
 from .DelayedOp import DelayedOp
-from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -98,37 +97,6 @@ class Combine(DelayedOp):
         """
         return self._along
 
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        extracted = []
-        for x in self._seeds:
-            extracted.append(create_dask_array(x))
-        return concatenate((*extracted,), axis=self._along)
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        chunks = [chunk_shape(x) for x in self._seeds]
-
-        # Not bothering with doing anything too fancy here.  We just use the
-        # maximum chunk size (which might also expand, e.g., if you're
-        # combining column-major and row-major matrices; oh well).  Just accept
-        # that we'll probably need to break chunks during iteration.
-        output = []
-        for i in range(len(self._shape)):
-            dim = []
-            for ch in chunks:
-                dim.append(ch[i])
-            output.append(max(*dim))
-
-        return (*output,) 
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        for x in self._seeds:
-            if not is_sparse(x):
-                return False
-        return len(self._seeds) > 0
-
 
 def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable):
     if subset is None:
@@ -170,3 +138,40 @@ def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]
 def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
+
+
+@create_dask_array.register
+def create_dask_array_Combine(x: Combine):
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    extracted = []
+    for s in x._seeds:
+        extracted.append(create_dask_array(s))
+    return concatenate((*extracted,), axis=x._along)
+
+
+@chunk_shape.register
+def chunk_shape_Combine(x: Combine):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    chunks = [chunk_shape(s) for s in x._seeds]
+
+    # Not bothering with doing anything too fancy here.  We just use the
+    # maximum chunk size (which might also expand, e.g., if you're
+    # combining column-major and row-major matrices; oh well).  Just accept
+    # that we'll probably need to break chunks during iteration.
+    output = []
+    for i in range(len(x._shape)):
+        dim = []
+        for ch in chunks:
+            dim.append(ch[i])
+        output.append(max(*dim))
+
+    return (*output,) 
+
+
+@is_sparse.register
+def is_sparse_Combine(x: Combine):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    for s in x._seeds:
+        if not is_sparse(s):
+            return False
+    return len(x._seeds) > 0

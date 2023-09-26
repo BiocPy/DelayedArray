@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, Tuple, Union, TYPE_CHECKING
+from typing import Optional, Sequence, Tuple, Union
 import numpy
 from numpy import (
     array,
@@ -10,10 +10,7 @@ from numpy import (
     ndarray,
     prod,
 )
-if TYPE_CHECKING:
-    import dask.array
 
-import warnings
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
 from .Combine import Combine
@@ -23,11 +20,13 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
-from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
+from .create_dask_array import create_dask_array
+from .chunk_shape import chunk_shape
+from .is_sparse import is_sparse
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -78,16 +77,23 @@ class DelayedArray:
 
     - The :py:attr:`~shape` and :py:attr:`~dtype` properties, which are of the
       same type as the corresponding properties of NumPy arrays.
-    - A :py:meth:`~__DelayedArray_extract_dense__` method.
+    - A method for the
+      :py:meth:`~delayedarray.extract_dense_array.extract_dense_array` generic.
+
+    If the seed contains sparse data, it should also implement:
+
+    - A method for the :py:meth:`~delayedarray.is_sparse.is_sparse` generic.
+    - A method for the
+      :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`
+      generic.
 
     Optionally, a seed class may have:
 
-    - A :py:meth:`~__DelayedArray_chunk__` method, to specify the structure of
-      data inside the array. This will control iterations across the array.
-    - A :py:meth:`~__DelayedArray_dask__` method for dask support, if the seed
-      is not already compatible with dask.
-    - Additional NumPy interface support (e.g., dunder methods, ufuncs), which
-      will be used by, e.g., :py:class:`~delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple`.
+    - A method for the :py:meth:`~delayedarray.chunk_shape.chunk_shape` generic,
+      if there is some preferred dimension in which to take chunks of the array.
+    - A method for the
+      :py:meth:`~delayedarray.create_dask_array.create_dask_array` generic,
+      if the seed is not already compatible with the **dask** package.
 
     Attributes:
         seed: Any array-like object that satisfies the seed contract.
@@ -731,19 +737,6 @@ class DelayedArray:
         target = extract_dense_array(self._seed)
         return target.mean(*args, **kwargs)
 
-    # Coercion methods.
-    def __DelayedArray_dask__(self) -> "dask.array.core.Array":
-        """See :py:meth:`~delayedarray.utils.create_dask_array`."""
-        return create_dask_array(self._seed)
-
-    def __DelayedArray_chunk__(self) -> Tuple[int]:
-        """See :py:meth:`~delayedarray.utils.chunk_shape`."""
-        return chunk_shape(self._seed)
-
-    def __DelayedArray_sparse__(self) -> bool:
-        """See :py:meth:`~delayedarray.utils.is_sparse`."""
-        return is_sparse(self._seed)
-
 
 @extract_dense_array.register
 def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
@@ -755,3 +748,21 @@ def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Seq
 def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return extract_sparse_array(x._seed, subset)
+
+
+@create_dask_array.register
+def create_dask_array_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.create_dask_array.create_dask_array`."""
+    return create_dask_array(x._seed)
+
+
+@chunk_shape.register
+def chunk_shape_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+    return chunk_shape(x._seed)
+
+
+@is_sparse.register
+def is_sparse_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
+    return is_sparse(x._seed)

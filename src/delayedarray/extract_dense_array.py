@@ -17,9 +17,7 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -
 
     Args:
         x: 
-            Any object with a ``__DelayedArray_extract_dense__`` method that
-            accepts a non-None ``subset`` and returns a NumPy array containing
-            the outer product of the subsets.
+            Any array-like object.
 
         subset: 
             Tuple of length equal to the number of dimensions, each containing
@@ -31,11 +29,6 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -
         NumPy array with Fortran storage order. This may be a view so callers should
         create a copy if they intend to modify it.
     """
-
-    if hasattr(x, "__DelayedArray_extract_dense__"):
-        if subset is None:
-            subset = _spawn_indices(x.shape)
-        return x.__DelayedArray_extract__(subset)
     raise NotImplementedError("'extract_dense_array(" + str(type(x)) + ")' has not yet been implemented") 
 
 
@@ -52,6 +45,7 @@ def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int]
 
 @extract_dense_array.register
 def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int]]] = None):
+    """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if subset is None:
         subset = _spawn_indices(x.shape)
     return _extract_dense_array_from_SparseNdarray(x, subset)
@@ -83,16 +77,20 @@ if has_sparse:
 
     @extract_dense_array.register
     def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
     def extract_dense_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
     def extract_dense_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
     def extract_dense_array_sparse_array(x: scipy.sparse.sparray, subset: Optional[Tuple[Sequence[int]]] = None):
+        """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
