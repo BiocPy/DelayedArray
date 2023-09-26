@@ -23,7 +23,7 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
-from .utils import create_dask_array, _densify, chunk_shape, is_sparse
+from .utils import create_dask_array, chunk_shape, is_sparse
 from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array

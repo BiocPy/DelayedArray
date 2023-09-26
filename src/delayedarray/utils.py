@@ -35,43 +35,6 @@ def create_dask_array(seed) -> "dask.array.core.Array":
         return dask.array.from_array(seed)
 
 
-def _densify(seed):
-    if isinstance(seed, ndarray):
-        return seed
-
-    if hasattr(seed, "toarray"):
-        output = seed.toarray()
-    elif hasattr(seed, "__array__"):
-        output = array(seed)
-    else:
-        raise ValueError(
-            "don't know how to convert " + str(type(seed)) + " to a NumPy array"
-        )
-
-    if seed.shape != output.shape:
-        raise ValueError(
-            "conversion to NumPy array for "
-            + str(type(seed))
-            + " does not return the expected shape"
-        )
-    return output
-
-
-def _retry_single(seed, f, expected_shape):
-    try:
-        output = f(seed)
-        if output.shape != expected_shape:
-            raise ValueError(
-                "operation on "
-                + str(type(seed))
-                + " does not return the expected shape"
-            )
-    except Exception as e:
-        warnings.warn(str(e))
-        output = f(_densify(seed))
-    return output
-
-
 def chunk_shape(seed) -> Tuple[int]:
     """Get the dimensions of the array chunks. These define the preferred
     blocks with which to iterate over the array in each dimension.
