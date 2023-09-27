@@ -33,3 +33,12 @@ def test_ndarray_colmajor():
 
     out = str(x)
     assert out.find("<40 x 30> DelayedArray object of type 'float64'") != -1
+
+
+def test_ndarray_wrap():
+    raw = numpy.random.rand(30, 40)
+    x = delayedarray.wrap(raw)
+    assert isinstance(x, delayedarray.DelayedArray)
+    assert x.shape == raw.shape
+    x = delayedarray.wrap(x)
+    assert isinstance(x, delayedarray.DelayedArray)

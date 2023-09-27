@@ -170,7 +170,7 @@ todo_emit_warnings = True
 autodoc_default_options = {
     'special-members': True,
     'undoc-members': False,
-    'exclude-members': '__weakref__, __dict__, __str__, __module__, __init__'
+    'exclude-members': '__weakref__, __dict__, __str__, __module__'
 }
 
 autosummary_generate = True
