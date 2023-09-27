@@ -148,6 +148,14 @@ delayedarray.is\_sparse module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.wrap module
+------------------------
+
+.. automodule:: delayedarray.wrap
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

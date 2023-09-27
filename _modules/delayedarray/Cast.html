@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.Cast - DelayedArray 0.3.0 documentation</title>
+        <title>delayedarray.Cast - DelayedArray 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -221,42 +221,44 @@
 
 <span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`</span>
 <span class="sd">    instances. End users should not be interacting with ``Cast`` objects directly.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        seed:</span>
-<span class="sd">            Any object that satisfies the seed contract,</span>
-<span class="sd">            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
-
-<span class="sd">        dtype (dtype):</span>
-<span class="sd">            The desired type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="Cast.__init__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.Cast.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">dtype</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            seed:</span>
+<span class="sd">                Any object that satisfies the seed contract,</span>
+<span class="sd">                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
+
+<span class="sd">            dtype:</span>
+<span class="sd">                The desired type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``Cast`` object. This is the same as the ``seed`` object.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Cast`` object.</span>
+<span class="sd">            Tuple of integers specifying the extent of each dimension of this</span>
+<span class="sd">            object. This is the same as the ``seed`` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the ``Cast`` object.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            dtype: NumPy type for the ``Cast`` contents.</span>
+<span class="sd">            NumPy type for the contents after casting.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">dtype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            The seed object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -264,14 +266,14 @@
 
 
 
-<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="extract_dense_array_Cast">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.extract_dense_array_Cast">[docs]</a>
 <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_dense_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
@@ -281,7 +283,7 @@
 <div class="viewcode-block" id="extract_sparse_array_Cast">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Cast.extract_sparse_array_Cast">[docs]</a>
 <span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_sparse_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_Cast</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Cast</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
 
@@ -345,7 +347,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
+</div><script src="../../_static/documentation_options.js?v=4621528c"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

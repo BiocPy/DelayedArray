@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.3.0 documentation</title>
+        <title>delayedarray.UnaryIsometricOpWithArgs - DelayedArray 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -231,33 +231,37 @@
 
 <span class="sd">    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`</span>
 <span class="sd">    instances. In general, end-users should not be interacting with ``UnaryIsometricOpWithArgs`` objects directly.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        seed:</span>
-<span class="sd">            Any object satisfying the seed contract,</span>
-<span class="sd">            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
-
-<span class="sd">        value (Union[float, ndarray]):</span>
-<span class="sd">            A scalar or NumPy array with which to perform an operation on the ``seed``.</span>
-
-<span class="sd">            If scalar, the operation is applied element-wise to all entries of ``seed``.</span>
-
-<span class="sd">            If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.</span>
-
-<span class="sd">            If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.</span>
-<span class="sd">            All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the</span>
-<span class="sd">            corresponding dimension of ``seed``. The operation is then broadcast along that dimension.</span>
-
-<span class="sd">        operation (str):</span>
-<span class="sd">            String specifying the operation.</span>
-
-<span class="sd">        right (bool, optional):</span>
-<span class="sd">            Whether ``value`` is to the right of ``seed`` in the operation.</span>
-<span class="sd">            If False, ``value`` is put to the left of ``seed``.</span>
-<span class="sd">            Ignored for commutative operations in ``op``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="UnaryIsometricOpWithArgs.__init__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            seed:</span>
+<span class="sd">                Any object satisfying the seed contract, see</span>
+<span class="sd">                :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.</span>
+
+<span class="sd">            value:</span>
+<span class="sd">                A scalar or NumPy array with which to perform an operation on the ``seed``.</span>
+
+<span class="sd">                If scalar, the operation is applied element-wise to all entries of ``seed``.</span>
+
+<span class="sd">                If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of ``seed``.</span>
+
+<span class="sd">                If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of ``seed``.</span>
+<span class="sd">                All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the</span>
+<span class="sd">                corresponding dimension of ``seed``. The operation is then broadcast along that dimension.</span>
+
+<span class="sd">            operation:</span>
+<span class="sd">                String specifying the operation.</span>
+
+<span class="sd">            right:</span>
+<span class="sd">                Whether ``value`` is to the right of ``seed`` in the operation.</span>
+<span class="sd">                If False, ``value`` is put to the left of ``seed``. Ignored</span>
+<span class="sd">                for commutative operations in ``op``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">along</span> <span class="o">=</span> <span class="n">_infer_along_with_args</span><span class="p">(</span><span class="n">seed</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">):</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">[(</span><span class="o">*</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ndim</span><span class="p">),)]</span>
@@ -277,79 +281,73 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_right</span> <span class="o">=</span> <span class="n">right</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_along</span> <span class="o">=</span> <span class="n">along</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">is_sparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">dummy</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparse</span> <span class="o">=</span> <span class="n">is_sparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">dummy</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the ``UnaryIsometricOpWithArgs`` object. As the name of the class suggests, this is the same as the</span>
-<span class="sd">        ``seed`` array.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the</span>
-<span class="sd">            ``UnaryIsometricOpWithArgs`` object.</span>
+<span class="sd">            Tuple of integers specifying the extent of each dimension of this</span>
+<span class="sd">            object. This should be the same as ``seed``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">shape</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Type of the ``UnaryIsometricOpWithArgs`` object. This may or may not be the same as the ``seed`` array,</span>
-<span class="sd">        depending on how NumPy does the casting for the requested operation.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            dtype: NumPy type for the ``UnaryIsometricOpWithArgs`` contents.</span>
+<span class="sd">            NumPy type for the data after the operation was applied. This may</span>
+<span class="sd">            or may not be the same as the ``seed`` array, depending on how</span>
+<span class="sd">            NumPy does the casting for the requested operation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the underlying object satisfying the seed contract.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            The seed object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">operation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the name of the operation.</span>
-
+    <span class="k">def</span> <span class="nf">operation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            str: Name of the operation.</span>
+<span class="sd">            Name of the operation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_op</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the other operand used in the operation.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Union[float, ndarray]: The other operand.</span>
-<span class="sd">            This can be a numeric scalar or a NumPy array.</span>
+<span class="sd">            The other operand used in the operation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">right</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Is the :py:attr:`~value` applied to the right of the seed?</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            bool: Whether to apply the operation to the right of the seed.</span>
+<span class="sd">            Whether the operation was applied to the right of the seed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_right</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">along</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;If :py:attr:`~value` is an array, this specifies the dimension of :py:attr:``~seed`` along which the array</span>
-<span class="sd">        values are broadcast.</span>
-
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
-<span class="sd">            Union[int, None]: Broadcasting dimension, or None if ``value`` is a scalar.</span>
+<span class="sd">            The dimension of :py:attr:``~seed`` along which the array values</span>
+<span class="sd">            are broadcast, for an array :py:attr:`~value`. Otherwise None, if</span>
+<span class="sd">            ``value`` is a scalar.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_along</span></div>
 
 
 
-<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span> 
+<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span> 
     <span class="n">target</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
 
     <span class="n">subvalue</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">_value</span>
@@ -373,7 +371,7 @@
 <div class="viewcode-block" id="extract_dense_array_UnaryIsometricOpWithArgs">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_dense_array_UnaryIsometricOpWithArgs">[docs]</a>
 <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_dense_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
@@ -383,7 +381,7 @@
 <div class="viewcode-block" id="extract_sparse_array_UnaryIsometricOpWithArgs">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_sparse_array_UnaryIsometricOpWithArgs">[docs]</a>
 <span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_sparse_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_UnaryIsometricOpWithArgs</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">UnaryIsometricOpWithArgs</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
 
@@ -451,7 +449,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=e259d695"></script>
+</div><script src="../../_static/documentation_options.js?v=4621528c"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer notes" href="developers.html" /><link rel="prev" title="DelayedArrays, in Python" href="index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>DelayedArrays, in Python - DelayedArray 0.3.0 documentation</title>
+        <title>DelayedArrays, in Python - DelayedArray 0.3.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.3.0 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.3.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -236,7 +236,7 @@ For example, a typical NumPy array qualifies:</p>
 </div>
 <p>We can wrap this in a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">delayedarray</span>
-<span class="n">d</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 <span class="c1">## &lt;100 x 20&gt; DelayedArray object of type &#39;float64&#39;</span>
 <span class="c1">## [[0.58969193, 0.36342181, 0.03111773, ..., 0.72036247, 0.40297173,</span>
 <span class="c1">##   0.48654955],</span>
@@ -365,6 +365,26 @@ For example, we can pull out the “seed” object underlying our <code class="d
 </div>
 <p>All attributes required to reconstruct a delayed operation are public and considered part of the stable <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> interface.</p>
 </section>
+<section id="developing-seeds">
+<h2>Developing seeds<a class="headerlink" href="#developing-seeds" title="Link to this heading">#</a></h2>
+<p>Any array-like object can be used as a “seed” in a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> provided it has the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code> properties, like those in NumPy arrays.</p></li>
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">extract_dense_array()</span></code> generic.</p></li>
+</ul>
+<p>If the object may contain sparse data, it should also implement:</p>
+<ul class="simple">
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">is_sparse()</span></code> generic.</p></li>
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">extract_sparse_generic()</span></code> generic.</p></li>
+</ul>
+<p>It may also be desirable to implement:</p>
+<ul class="simple">
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">chunk_shape()</span></code> generic.</p></li>
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">create_dask_array()</span></code> generic.</p></li>
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">wrap()</span></code> generic.</p></li>
+</ul>
+<p>Developers are referred to the <a class="reference external" href="https://biocpy.github.io/DelayedArray/api/delayedarray.html">documentation for each generic</a> for more details.</p>
+</section>
 </section>
 
         </article>
@@ -427,6 +447,7 @@ For example, we can pull out the “seed” object underlying our <code class="d
 <li><a class="reference internal" href="#quick-start">Quick start</a></li>
 <li><a class="reference internal" href="#extracting-data">Extracting data</a></li>
 <li><a class="reference internal" href="#interoperability-with-other-packages">Interoperability with other packages</a></li>
+<li><a class="reference internal" href="#developing-seeds">Developing seeds</a></li>
 </ul>
 </li>
 </ul>
@@ -438,7 +459,7 @@ For example, we can pull out the “seed” object underlying our <code class="d
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=e259d695"></script>
+</div><script src="_static/documentation_options.js?v=4621528c"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
