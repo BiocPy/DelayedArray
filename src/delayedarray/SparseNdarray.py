@@ -13,12 +13,12 @@ __license__ = "MIT"
 
 
 class SparseNdarray:
-    """The SparseNdarray, as its name suggests, is a sparse n-dimensional array.
-    It is inspired by the ``SVTArray`` class from the 
-    `DelayedArray R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
+    """The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional
+    array. It is inspired by the ``SVTArray`` class from the `DelayedArray
+    R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
 
-    Internally, the SparseNdarray is represented as a nested list where each
-    nesting level corresponds to a dimension in reverse order, i.e., the
+    Internally, the ``SparseNdarray`` is represented as a nested list where
+    each nesting level corresponds to a dimension in reverse order, i.e., the
     outer-most list corresponds to elements of the last dimension in ``shape``.
     The list at each level has length equal to the extent of its dimension,
     where each entry contains another list representing the contents of the
@@ -28,13 +28,13 @@ class SparseNdarray:
     the non-leaf nodes are lists and the leaf nodes are tuples.
 
     Each ``(index, value)`` tuple represents a sparse vector for the
-    corresponding element of the first dimension of the SparseNdarray.
+    corresponding element of the first dimension of the ``SparseNdarray``.
     ``index`` should be a :py:class:`~numpy.ndarray` of integers where entries
     are strictly increasing and less than the extent of the first dimension.
-    All ``index`` objects in the same SparseNdarray should have the same
-    ``dtype`` (defined by the ``index_dtype`` property of the SparseNdarray).
-    ``value`` may be any :py:class:`~numpy.ndarray` but the ``dtype`` should be
-    consistent across all ``value`` objects in the SparseNdarray.
+    All ``index`` objects in the same ``SparseNdarray`` should have the same
+    ``dtype`` (defined by the ``index_dtype`` property). ``value`` may be any
+    numeric/boolean :py:class:`~numpy.ndarray` but the ``dtype`` should be
+    consistent across all ``value`` objects in the ``SparseNdarray``.
 
     Any entry of any (nested) list may also be None, indicating that the
     corresponding element of the dimension contains no non-zero values. In
@@ -44,40 +44,42 @@ class SparseNdarray:
     For 1-dimensional arrays, the contents should be a single ``(index,
     value)`` tuple containing the sparse contents. This may also be None if
     there are no non-zero values in the array.
-
-    Attributes:
-        shape: 
-            Tuple specifying the dimensions of the array.
-
-        contents:
-            For ``n``-dimensional arrays where ``n`` > 1, a nested list representing a
-            tree where each leaf node is a tuple containing a sparse vector (or None).
-
-            For 1-dimensional arrays, a tuple containing a sparse vector.
-
-            Alternatively None, if the array is empty.
-
-        dtype:
-            NumPy type of the array values.
-            If None, this is inferred from ``contents``.
-
-        index_dtype:
-            NumPy type of the array indices.
-            If None, this is inferred from ``contents``.
-
-        check:
-            Whether to check the consistency of the ``contents`` during construction.
-            This can be set to False for speed.
     """
 
     def __init__(
         self,
         shape: Tuple[int, ...],
-        contents: Optional[Union[Tuple[Sequence, Sequence], List]],
+        contents,
         dtype: Optional[dtype] = None,
         index_dtype: Optional[dtype] = None,
         check: bool = True,
     ):
+        """
+        Args:
+            shape: 
+                Tuple specifying the dimensions of the array.
+
+            contents:
+                For ``n``-dimensional arrays where ``n`` > 1, a nested list representing a
+                tree where each leaf node is a tuple containing a sparse vector (or None).
+
+                For 1-dimensional arrays, a tuple containing a sparse vector.
+
+                Alternatively None, if the array is empty.
+
+            dtype:
+                NumPy type of the array values.
+                If None, this is inferred from ``contents``.
+
+            index_dtype:
+                NumPy type of the array indices.
+                If None, this is inferred from ``contents``.
+
+            check:
+                Whether to check the consistency of the ``contents`` during construction.
+                This can be set to False for speed.
+        """
+
         self._shape = shape
         self._contents = contents
         ndim = len(shape)
@@ -115,27 +117,24 @@ class SparseNdarray:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the SparseNdarray.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the SparseNdarray.
+            Tuple of integers specifying the extent of each dimension.
         """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the elements in the SparseNdarray.
-
+        """
         Returns:
-            dtype: NumPy type of the values.
+            NumPy type of the values. 
         """
         return self._dtype
 
 
     @property
     def index_dtype(self) -> dtype:
-        """Type of the indices. 
-
+        """
         Returns:
             NumPy type of the indices.
         """
@@ -144,9 +143,8 @@ class SparseNdarray:
 
     @property
     def contents(self):
-        """Contents of the array. This is intended to be read-only; in general, ``contents`` should only be modified by
-        developers of :py:meth:`~delayedarray.interface.extract_sparse_array` methods or creators of new
-        :py:class:`~delayedarray.DelayedOp.DelayedOp` instances.
+        """Contents of the array. This is intended to be read-only and 
+        should only be modified if you really know what you're doing.
 
         Returns:
             A nested list, for a n-dimensional array where n > 1.
@@ -159,11 +157,11 @@ class SparseNdarray:
 
 
     def __repr__(self) -> str:
-        """Pretty-print this ``SparseNdarray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
-        options.
+        """Pretty-print this ``SparseNdarray``. This uses
+        :py:meth:`~numpy.array2string` and responds to all of its options.
 
         Returns:
-            str: String containing a prettified display of the array contents.
+            String containing a prettified display of the array contents.
         """
         preamble = "<" + " x ".join([str(x) for x in self._shape]) + ">"
         preamble += " " + type(self).__name__ + " object of type '" + self._dtype.name + "'"
@@ -178,8 +176,9 @@ class SparseNdarray:
         """Convert a ``SparseNdarray`` to a NumPy array.
 
         Returns:
-            ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
-            This is guaranteed to be in C-contiguous order and to not be a view on other data.
+            Array of the same type as :py:attr:`~dtype` and shape as
+            :py:attr:`~shape`. This is guaranteed to be in Fortran storage
+            order and to not be a view on other data.
         """
         indices = _spawn_indices(self._shape)
         return _extract_dense_array_from_SparseNdarray(self, indices)
@@ -627,7 +626,7 @@ class SparseNdarray:
         """Negate the contents of a ``SparseNdarray``.
 
         Returns:
-            SparseNdarray: A ``SparseNdarray`` containing the delayed negation.
+            A ``SparseNdarray`` containing the delayed negation.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, -v), self._dtype)
 
@@ -635,18 +634,18 @@ class SparseNdarray:
         """Take the absolute value of the contents of a ``SparseNdarray``.
 
         Returns:
-            SparseNdarray: A ``SparseNdarray`` containing the delayed absolute value operation.
+            A ``SparseNdarray`` containing the delayed absolute value operation.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence]]) -> Union["SparseNdarray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["SparseNdarray", ndarray]:
         """Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
-            args (Tuple[Union[slice, Sequence[Union[int, bool]]], ...]):
+            args:
                 A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``.
                 Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
                 delayed subset operation.
@@ -666,17 +665,18 @@ class SparseNdarray:
 
 
     # NumPy methods.
-    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> Union[Union["SparseNdarray", ndarray], ndarray]:
-        """Interface with NumPy array methods.
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "SparseNdarray":
+        """Interface with NumPy array methods.  This is used to implement
+        mathematical operations like NumPy's :py:meth:`~numpy.log`, or to
+        override operations between NumPy class instances and ``SparseNdarray``
+        objects where the former is on the left hand side. 
 
-        This is used to implement mathematical operations like NumPy's :py:meth:`~numpy.log`,
-        or to override operations between NumPy class instances and ``SparseNdarray`` objects where the former is on the
-        left hand side. Check out the NumPy's ``__array_ufunc__``
-        `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_ for
-        more details.
+        Check out NumPy's ``__array_ufunc__`` `documentation
+        <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_
+        for more details.
 
         Returns:
-            SparseNdarray: A ``SparseNdarray`` instance containing the requested delayed operation.
+            A ``SparseNdarray`` instance containing the requested delayed operation.
         """
         if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
             # This is required to support situations where the NumPy array is on
@@ -704,10 +704,11 @@ class SparseNdarray:
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
 
-    def __array_function__(self, func, types, args, kwargs):
+    def __array_function__(self, func, types, args, kwargs) -> "SparseNdarray":
         """Interface to NumPy's high-level array functions.
         This is used to implement array operations like NumPy's :py:meth:`~numpy.concatenate`,
-        Check out the NumPy's ``__array_function__``
+
+        Check out NumPy's ``__array_function__``
         `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__>`_
         for more details.
 
@@ -744,7 +745,10 @@ class SparseNdarray:
 
     @property
     def T(self) -> "SparseNdarray":
-        """See :py:meth:`~numpy.ndarray.T` for details."""
+        """
+        Returns:
+            A ``SparseNdarray`` containing the transposed contents.
+        """
         axes = list(range(len(self._shape) - 1, -1, -1))
         return _transpose_SparseNdarray(self, axes)
 
@@ -810,7 +814,7 @@ def _recursive_check(contents: list, shape: Tuple[int, ...], payload: _CheckPayl
 _SubsetSummary = namedtuple("_SubsetSummary", [ "subset", "increasing", "consecutive", "search_first", "search_last", "first_index", "past_last_index", "random_map" ])
 
 
-def _characterize_indices(subset: Sequence, dim_extent: int):
+def _characterize_indices(subset: Sequence[int], dim_extent: int):
     if len(subset) == 0:
         return _SubsetSummary(
             subset = subset,
@@ -918,7 +922,7 @@ def _extract_sparse_vector_to_dense(indices: ndarray, values: ndarray, subset_su
         _extract_sparse_vector_internal(indices, values, subset_summary, f)
 
 
-def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence], subset_summary: _SubsetSummary, output: ndarray, dim: int):
+def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence[int], ...], subset_summary: _SubsetSummary, output: ndarray, dim: int):
     curdex = subset[dim]
     if dim == 1:
         pos = 0
@@ -942,7 +946,7 @@ def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence], s
             pos += 1
 
 
-def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence]) -> ndarray:
+def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> ndarray:
     idims = [len(y) for y in subset]
     subset_summary = _characterize_indices(subset[0], x._shape[0])
 
@@ -1010,7 +1014,7 @@ def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_s
         return new_indices, new_values
 
 
-def _recursive_extract_sparse_array(contents: list, shape: Tuple[int], subset: Tuple[Sequence], subset_summary: _SubsetSummary, dim: int):
+def _recursive_extract_sparse_array(contents: list, shape: Tuple[int, ...], subset: Tuple[Sequence[int], ...], subset_summary: _SubsetSummary, dim: int):
     curdex = subset[dim]
     new_contents = []
 
@@ -1042,7 +1046,7 @@ def _recursive_extract_sparse_array(contents: list, shape: Tuple[int], subset: T
     return None
 
 
-def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence]) -> SparseNdarray:
+def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     idims = [len(y) for y in subset]
     subset_summary = _characterize_indices(subset[0], x._shape[0])
 
@@ -1069,7 +1073,7 @@ def _transform_sparse_vector(location: Sequence[int], indices: ndarray, values: 
     return (idx.astype(indices.dtype, copy=False), val.astype(payload.output_dtype, copy=False)) # a bit of safety with respect to types.
 
 
-def _recursive_transform_sparse_array(contents: list, shape: Tuple[int], payload: _TransformPayload, dim: int, location: Sequence[int] = []):
+def _recursive_transform_sparse_array(contents: list, shape: Tuple[int, ...], payload: _TransformPayload, dim: int, location: Sequence[int] = []):
     new_contents = []
     location.append(0)
 
@@ -1415,7 +1419,7 @@ def _coerce_concatenated_SparseNdarray_types(contents: list, payload: _Concatena
                 _coerce_concatenated_SparseNdarray_types(con, payload, dim=dim - 1)
 
 
-def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int], along: int, payload: _ConcatenatePayload, dim: int):
+def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int, ...], along: int, payload: _ConcatenatePayload, dim: int):
     if along == dim:
         all_none = True
         for x in contents:

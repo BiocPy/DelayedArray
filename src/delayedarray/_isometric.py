@@ -110,7 +110,7 @@ translate_ufunc_to_op_simple = set(
 )
 
 
-def _infer_along_with_args(shape: Tuple[int], value):
+def _infer_along_with_args(shape: Tuple[int, ...], value):
     along = None
     if not isinstance(value, numpy.ndarray):
         return along

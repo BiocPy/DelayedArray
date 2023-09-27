@@ -1,4 +1,3 @@
-from typing import Any
 from .chunk_shape import chunk_shape
 
 __author__ = "ltla"
@@ -6,7 +5,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def guess_iteration_block_size(x: Any, dimension: int, memory: int = 10000000) -> int:
+def guess_iteration_block_size(x, dimension: int, memory: int = 10000000) -> int:
     """Guess the best block size for iterating over an array on a certain
     dimension.  This assumes that, in each iteration, an entire block of
     observations is extracted involving the full extent of all dimensions other

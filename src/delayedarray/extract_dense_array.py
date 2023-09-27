@@ -11,7 +11,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -> ndarray:
+def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> ndarray:
     """Extract the realized contents (or a subset thereof) into a dense NumPy
     array with Fortran storage order, i.e., earlier dimensions change fastest. 
 
@@ -33,7 +33,7 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -
 
 
 @extract_dense_array.register
-def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if _is_subset_noop(x.shape, subset):
         subset = None
@@ -45,7 +45,7 @@ def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int]
 
 
 @extract_dense_array.register
-def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if subset is None:
         subset = _spawn_indices(x.shape)
@@ -69,7 +69,7 @@ except:
 
 
 if has_sparse:
-    def _extract_dense_array_sparse(x, subset: Optional[Tuple[Sequence[int]]] = None):
+    def _extract_dense_array_sparse(x, subset: Optional[Tuple[Sequence[int], ...]] = None):
         if _is_subset_noop(x.shape, subset):
             tmp = x
         else:
@@ -77,21 +77,21 @@ if has_sparse:
         return tmp.toarray(order="F")
 
     @extract_dense_array.register
-    def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_dense_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
-    def extract_dense_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_dense_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
-    def extract_dense_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_dense_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
     @extract_dense_array.register
-    def extract_dense_array_sparse_array(x: scipy.sparse.sparray, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_dense_array_sparse_array(x: scipy.sparse.sparray, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)

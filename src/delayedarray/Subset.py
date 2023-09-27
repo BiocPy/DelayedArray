@@ -20,21 +20,24 @@ class Subset(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. In general, end users should not be interacting with ``Subset`` objects directly.
-
-    Attributes:
-        seed:
-            Any object that satisfies the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        subset (Tuple[Sequence[int], ...]):
-            Tuple of length equal to the dimensionality of ``seed``, containing the subsetted
-            elements for each dimension.
-            Each entry should be a vector of integer indices specifying the elements of the
-            corresponding dimension to retain, where each integer is non-negative and less than the
-            extent of the dimension. Unsorted and/or duplicate indices are allowed.
     """
 
     def __init__(self, seed, subset: Tuple[Sequence[int], ...]):
+        """
+        Args:
+            seed:
+                Any object that satisfies the seed contract, see
+                :py:class:`~delayedarray.DelayedArray.DelayedArray` for
+                details.
+
+            subset:
+                Tuple of length equal to the dimensionality of ``seed``,
+                containing the subsetted elements for each dimension.  Each
+                entry should be a vector of integer indices specifying the
+                elements of the corresponding dimension to retain, where each
+                integer is non-negative and less than the extent of the
+                dimension. Unsorted and/or duplicate indices are allowed.
+        """
         self._seed = seed
         if len(subset) != len(seed.shape):
             raise ValueError(
@@ -49,27 +52,24 @@ class Subset(DelayedOp):
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Subset`` object. This should be the same length as the ``seed``.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Subset`` object,
-            (i.e., after subsetting was applied to the ``seed``).
+            Tuple of integers specifying the extent of each dimension of the
+            subsetted object.
         """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Subset`` object. This will be the same as the ``seed``.
-
+        """
         Returns:
-            dtype: NumPy type for the ``Subset`` contents.
+            NumPy type for the subsetted contents, same as ``seed``.
         """
         return self._seed.dtype
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
@@ -77,15 +77,14 @@ class Subset(DelayedOp):
 
     @property
     def subset(self) -> Tuple[Sequence[int], ...]:
-        """Get the subset of elements to extract from each dimension of the seed.
-
+        """
         Returns:
-            Tuple[Sequence[int], ...]: Subset vectors to be applied to each dimension of the seed.
+            Subset sequences to be applied to each dimension of the seed.
         """
         return self._subset
 
 
-def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 
@@ -115,14 +114,14 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int]]], f: Callabl
 
 
 @extract_dense_array.register
-def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

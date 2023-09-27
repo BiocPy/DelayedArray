@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, Tuple, Union, Any
+from typing import Optional, Sequence, Tuple, Union
 import numpy
 from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
 
@@ -87,9 +87,8 @@ class DelayedArray:
       if the seed is not already compatible with the **dask** package.
     """
 
-    def __init__(self, seed: Any):
-        """Construct a ``DelayedArray`` object from a seed. 
-        Most users are advised to use :py:meth:`~delayedarray.wrap.wrap`
+    def __init__(self, seed):
+        """Most users should use :py:meth:`~delayedarray.wrap.wrap`
         instead, as this can be specialized by developers to construct
         subclasses that are optimized for custom seed types.
 
@@ -100,26 +99,23 @@ class DelayedArray:
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``DelayedArray``.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``DelayedArray``.
+            Tuple of integers specifying the extent of each dimension of the ``DelayedArray``.
         """
         return self._seed.shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the elements in the ``DelayedArray``.
-
+        """
         Returns:
-            dtype: NumPy type of the values.
+            NumPy type of the elements in the ``DelayedArray``.
         """
         return self._seed.dtype
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
@@ -127,19 +123,18 @@ class DelayedArray:
 
     @property
     def T(self) -> "DelayedArray":
-        """Get the delayed transpose of this ``DelayedArray`` instance.
-
+        """
         Returns:
-            DelayedArray: A DelayedArray containing a delayed transposition.
+            A ``DelayedArray`` containing the delayed transpose.
         """
         return DelayedArray(Transpose(self._seed, perm=None))
 
     def __repr__(self) -> str:
-        """Pretty-print this ``DelayedArray``. This uses :py:meth:`~numpy.array2string` and responds to all of its
-        options.
+        """Pretty-print this ``DelayedArray``. This uses
+        :py:meth:`~numpy.array2string` and responds to all of its options.
 
         Returns:
-            str: String containing a prettified display of the array contents.
+            String containing a prettified display of the array contents.
         """
         preamble = "<" + " x ".join([str(x) for x in self._seed.shape]) + ">"
         if is_sparse(self._seed):
@@ -153,25 +148,28 @@ class DelayedArray:
 
     # For NumPy:
     def __array__(self) -> ndarray:
-        """Convert a ``DelayedArray`` to a NumPy array.
+        """Convert a ``DelayedArray`` to a NumPy array, to be used by
+        :py:meth:`~numpy.array`. 
 
         Returns:
-            ndarray: Array of the same type as :py:attr:`~dtype` and shape as :py:attr:`~shape`.
-            This is guaranteed to be in C-contiguous order and to not be a view on other data.
+            NumPy array of the same type as :py:attr:`~dtype` and shape as
+            :py:attr:`~shape`.  This is guaranteed to be in Fortran storage
+            order and to not be a view on other data.
         """
         return extract_dense_array(self._seed)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
-        """Interface with NumPy array methods.
+        """Interface with NumPy array methods. This is used to implement
+        mathematical operations like NumPy's :py:meth:`~numpy.log`, or to
+        override operations between NumPy class instances and ``DelayedArray``
+        objects where the former is on the left hand side. 
 
-        This is used to implement mathematical operations like NumPy's :py:meth:`~numpy.log`,
-        or to override operations between NumPy class instances and ``DelayedArray`` objects where the former is on the
-        left hand side. Check out the NumPy's ``__array_ufunc__``
-        `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_ for
-        more details.
+        Check out NumPy's ``__array_ufunc__`` `documentation
+        <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_ufunc__>`_
+        for more details.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
+            A ``DelayedArray`` instance containing the requested delayed operation.
         """
         if (
             ufunc.__name__ in translate_ufunc_to_op_with_args
@@ -203,15 +201,16 @@ class DelayedArray:
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 
-    def __array_function__(self, func, types, args, kwargs):
-        """Interface to NumPy's high-level array functions.
-        This is used to implement array operations like NumPy's :py:meth:`~numpy.concatenate`,
-        Check out the NumPy's ``__array_function__``
-        `documentation <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__>`_
+    def __array_function__(self, func, types, args, kwargs) -> "DelayedArray":
+        """Interface to NumPy's high-level array functions.  This is used to
+        implement array operations like NumPy's :py:meth:`~numpy.concatenate`,
+
+        Check out NumPy's ``__array_function__`` `documentation
+        <https://numpy.org/doc/stable/reference/arrays.classes.html#numpy.class.__array_function__>`_
         for more details.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` instance containing the requested delayed operation.
+            A ``DelayedArray`` instance containing the requested delayed operation.
         """
         if func == numpy.concatenate:
             seeds = []
@@ -258,10 +257,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+            A ``DelayedArray`` containing the delayed addition operation.
         """
         return _wrap_isometric_with_args(self, other, operation="add", right=True)
 
@@ -273,10 +272,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed addition operation.
+            A ``DelayedArray`` containing the delayed addition operation.
         """
         return _wrap_isometric_with_args(self, other, operation="add", right=False)
 
@@ -288,10 +287,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+            A ``DelayedArray`` containing the delayed subtraction operation.
         """
         return _wrap_isometric_with_args(self, other, operation="subtract", right=True)
 
@@ -303,10 +302,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed subtraction operation.
+            A ``DelayedArray`` containing the delayed subtraction operation.
         """
         return _wrap_isometric_with_args(self, other, operation="subtract", right=False)
 
@@ -318,10 +317,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+            A ``DelayedArray`` containing the delayed multiplication operation.
         """
         return _wrap_isometric_with_args(self, other, operation="multiply", right=True)
 
@@ -333,10 +332,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed multiplication operation.
+            A ``DelayedArray`` containing the delayed multiplication operation.
         """
         return _wrap_isometric_with_args(self, other, operation="multiply", right=False)
 
@@ -348,10 +347,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+            A ``DelayedArray`` containing the delayed division operation.
         """
         return _wrap_isometric_with_args(self, other, operation="divide", right=True)
 
@@ -363,10 +362,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed division operation.
+            A ``DelayedArray`` containing the delayed division operation.
         """
         return _wrap_isometric_with_args(self, other, operation="divide", right=False)
 
@@ -378,10 +377,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` object of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+            A ``DelayedArray`` containing the delayed modulo operation.
         """
         return _wrap_isometric_with_args(self, other, operation="remainder", right=True)
 
@@ -393,10 +392,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed modulo operation.
+            A ``DelayedArray`` containing the delayed modulo operation.
         """
         return _wrap_isometric_with_args(
             self, other, operation="remainder", right=False
@@ -410,10 +409,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+            A ``DelayedArray`` containing the delayed floor division operation.
         """
         return _wrap_isometric_with_args(
             self, other, operation="floor_divide", right=True
@@ -427,10 +426,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed floor division operation.
+            A ``DelayedArray`` containing the delayed floor division operation.
         """
         return _wrap_isometric_with_args(
             self, other, operation="floor_divide", right=False
@@ -444,10 +443,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+            A ``DelayedArray`` containing the delayed power operation.
         """
         return _wrap_isometric_with_args(self, other, operation="power", right=True)
 
@@ -459,10 +458,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed power operation.
+            A ``DelayedArray`` containing the delayed power operation.
         """
         return _wrap_isometric_with_args(self, other, operation="power", right=False)
 
@@ -474,10 +473,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="equal", right=True)
 
@@ -489,10 +488,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="equal", right=False)
 
@@ -504,10 +503,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="not_equal", right=True)
 
@@ -519,10 +518,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(
             self, other, operation="not_equal", right=False
@@ -536,10 +535,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(
             self, other, operation="greater_equal", right=True
@@ -553,10 +552,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(
             self, other, operation="greater_equal", right=False
@@ -570,10 +569,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(
             self, other, operation="less_equal", right=True
@@ -587,10 +586,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(
             self, other, operation="less_equal", right=False
@@ -604,10 +603,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="greater", right=True)
 
@@ -619,10 +618,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="greater", right=False)
 
@@ -634,10 +633,10 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="less", right=True)
 
@@ -649,48 +648,48 @@ class DelayedArray:
                 A numeric scalar;
                 or a NumPy array with dimensions as described in
                 :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
-                or any seed object of the same dimensions as :py:attr:`~shape`.
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed check.
+            A ``DelayedArray`` containing the delayed check.
         """
         return _wrap_isometric_with_args(self, other, operation="less", right=False)
 
     # Simple methods.
-    def __neg__(self):
+    def __neg__(self) -> "DelayedArray":
         """Negate the contents of a ``DelayedArray``.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed negation.
+            A ``DelayedArray`` containing the delayed negation.
         """
         return _wrap_isometric_with_args(self, 0, operation="subtract", right=False)
 
-    def __abs__(self):
+    def __abs__(self) -> "DelayedArray":
         """Take the absolute value of the contents of a ``DelayedArray``.
 
         Returns:
-            DelayedArray: A ``DelayedArray`` containing the delayed absolute value operation.
+            A ``DelayedArray`` containing the delayed absolute value operation.
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence]]) -> Union["DelayedArray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
             subset:
-                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``.
-                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
-                delayed subset operation.
-
-        Raises:
-            ValueError: If ``subset`` contain more dimensions than the shape of the array.
+                A :py:class:`tuple` of length equal to the dimensionality of
+                this ``DelayedArray``.  We attempt to support most types of
+                NumPy slicing; however, only subsets that preserve
+                dimensionality will generate a delayed subset operation.
 
         Returns:
-            If the dimensionality is preserved by ``subset``, a ``DelayedArray`` containing a delayed subset operation is
-            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
+            If the dimensionality is preserved by ``subset``, a
+            ``DelayedArray`` containing a delayed subset operation is returned.
+            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the
+            realized subset.
         """
         cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
         if cleaned is not None:
@@ -716,13 +715,13 @@ class DelayedArray:
 
 
 @extract_dense_array.register
-def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     return extract_dense_array(x._seed, subset)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return extract_sparse_array(x._seed, subset)
 

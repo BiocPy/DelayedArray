@@ -12,7 +12,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) -> SparseNdarray:
+def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> SparseNdarray:
     """Extract the contents of ``x`` (or a subset thereof) into a
     :py:class:`~delayedarray.SparseNdarray.SparseNdarray`. This should only be
     used for ``x`` where :py:meth:`~delayedarray.is_sparse.is_sparse` is True.
@@ -35,7 +35,7 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int]]] = None) 
 
 
 @extract_sparse_array.register
-def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     if _is_subset_noop(x.shape, subset):
         subset = None
@@ -62,7 +62,7 @@ if has_sparse:
         return contents
 
     @extract_sparse_array.register
-    def extract_sparse_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_sparse_array_csc_matrix(x: scipy.sparse.csc_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)
@@ -120,7 +120,7 @@ if has_sparse:
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, check=False)
 
     @extract_sparse_array.register
-    def extract_sparse_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_sparse_array_csr_matrix(x: scipy.sparse.csr_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)
@@ -180,7 +180,7 @@ if has_sparse:
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, check=False)
 
     @extract_sparse_array.register
-    def extract_sparse_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int]]] = None):
+    def extract_sparse_array_coo_matrix(x: scipy.sparse.coo_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         if subset is None:
             subset = _spawn_indices(x.shape)

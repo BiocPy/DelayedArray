@@ -22,17 +22,19 @@ class Combine(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. In general, end users should not be interacting with ``Combine`` objects directly.
-
-    Attributes:
-        seeds (list):
-            List of objects that satisfy the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        along (int):
-            Dimension along which the seeds are to be combined.
     """
 
     def __init__(self, seeds: list, along: int):
+        """
+        Args:
+            seeds:
+                List of objects that satisfy the seed contract,
+                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            along:
+                Dimension along which the seeds are to be combined.
+        """
+
         self._seeds = seeds
         if len(seeds) == 0:
             raise ValueError("expected at least one object in 'seeds'")
@@ -61,44 +63,40 @@ class Combine(DelayedOp):
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Combine`` object.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Combine`` object,
-            (i.e., after seeds were combined along the ``along`` dimension).
+            Tuple of integers specifying the extent of each dimension of the
+            object after seeds were combined along the specified dimension.
         """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Combine`` object. This may or may not be the same as those in ``seeds``, depending on casting
-        rules.
-
+        """
         Returns:
-            dtype: NumPy type for the ``Combine`` contents.
+            NumPy type for the combined data.  This may or may not be
+            the same as those in ``seeds``, depending on casting rules.
         """
         return self._dtype
 
     @property
     def seeds(self) -> list:
-        """Get the list of underlying seed objects.
-
+        """
         Returns:
-            list: List of seeds.
+            List of seed objects to be combined.
         """
         return self._seeds
 
     @property
     def along(self) -> int:
-        """Dimension along which the seeds are combined.
-
+        """
         Returns:
-            int: Dimension to combine along.
+            Dimension along which the seeds are combined.
         """
         return self._along
 
 
-def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 
@@ -128,14 +126,14 @@ def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int]]], f: Callab
 
 
 @extract_dense_array.register
-def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

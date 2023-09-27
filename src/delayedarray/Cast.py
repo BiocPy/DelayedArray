@@ -19,61 +19,60 @@ class Cast(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. End users should not be interacting with ``Cast`` objects directly.
-
-    Attributes:
-        seed:
-            Any object that satisfies the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        dtype (dtype):
-            The desired type.
     """
 
     def __init__(self, seed, dtype: dtype):
+        """
+        Args:
+            seed:
+                Any object that satisfies the seed contract,
+                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            dtype:
+                The desired type.
+        """
         self._seed = seed
         self._dtype = dtype
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Cast`` object. This is the same as the ``seed`` object.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Cast`` object.
+            Tuple of integers specifying the extent of each dimension of this
+            object. This is the same as the ``seed`` object.
         """
         return self._seed.shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Cast`` object.
-
+        """
         Returns:
-            dtype: NumPy type for the ``Cast`` contents.
+            NumPy type for the contents after casting.
         """
         return dtype(self._dtype)
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
         return self._seed
 
 
-def _extract_array(x: Cast, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: Cast, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     return f(x._seed, subset).astype(x._dtype, copy=False)
 
 
 @extract_dense_array.register
-def extract_dense_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

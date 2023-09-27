@@ -25,21 +25,23 @@ class BinaryIsometricOp(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. In general, end users should not be interacting with ``BinaryIsometricOp`` objects directly.
-
-    Attributes:
-        left:
-            Any object satisfying the seed contract,
-            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        right:
-            Any object of the same dimensions as ``left`` that satisfies the seed contract,
-            see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        operation (str):
-            String specifying the operation.
     """
 
     def __init__(self, left, right, operation: ISOMETRIC_OP_WITH_ARGS):
+        """ 
+        Args:
+            left:
+                Any object satisfying the seed contract,
+                see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            right:
+                Any object of the same dimensions as ``left`` that satisfies the seed contract,
+                see :py:meth:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            operation:
+                String specifying the operation.
+        """
+
         if left.shape != right.shape:
             raise ValueError("'left' and 'right' shapes should be the same")
 
@@ -58,29 +60,27 @@ class BinaryIsometricOp(DelayedOp):
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``BinaryIsometricOp`` object. As the name of the class suggests, this is the same as the
-        ``left`` and ``right`` objects.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``BinaryIsometricOp``
-            object.
+            Tuple of integers specifying the extent of each dimension of this
+            object.  As the name of the class suggests, this is the same as the
+            shapes of the ``left`` and ``right`` objects.
         """
         return self._left.shape
 
     @property
     def dtype(self) -> numpy.dtype:
-        """Type of the ``BinaryIsometricOp`` object. This may or may not be the same as the ``left`` or ``right``
-        objects, depending on how NumPy does the casting for the requested operation.
-
+        """
         Returns:
-            dtype: NumPy type for the ``BinaryIsometricOp`` contents.
+            NumPy type for the data after the operation. This may or may not be
+            the same as the ``left`` or ``right`` objects, depending on how
+            NumPy does the casting for the requested operation.
         """
         return self._dtype
 
     @property
     def left(self):
-        """Get the left operand satisfying the seed contract.
-
+        """
         Returns:
             The seed object on the left-hand-side of the operation.
         """
@@ -88,38 +88,36 @@ class BinaryIsometricOp(DelayedOp):
 
     @property
     def right(self):
-        """Get the right operand satisfying the seed contract.
-
+        """
         Returns:
             The seed object on the right-hand-side of the operation.
         """
         return self._right
 
     @property
-    def operation(self) -> str:
-        """Get the name of the operation.
-
+    def operation(self) -> ISOMETRIC_OP_WITH_ARGS:
+        """
         Returns:
-            str: Name of the operation.
+            Name of the operation.
         """
         return self._op
 
  
-def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     ls = f(x._left, subset)
     rs = f(x._right, subset)
     return _execute(ls, rs, x._op)
 
 
 @extract_dense_array.register
-def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

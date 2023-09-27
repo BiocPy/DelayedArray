@@ -10,7 +10,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def chunk_shape(x: Any) -> Tuple[int]:
+def chunk_shape(x: Any) -> Tuple[int, ...]:
     """Get the dimensions of the array chunks. These define the preferred
     blocks with which to iterate over the array in each dimension.
 

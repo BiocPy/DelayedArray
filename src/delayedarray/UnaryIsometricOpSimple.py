@@ -52,17 +52,18 @@ class UnaryIsometricOpSimple(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. End-users should not be interacting with ``UnaryIsometricOpSimple`` objects directly.
-
-    Attributes:
-        seed:
-            Any object that satisfies the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        operation (str):
-            String specifying the unary operation.
     """
 
     def __init__(self, seed, operation: OP):
+        """
+        Args:
+            seed:
+                Any object that satisfies the seed contract,
+                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            operation:
+                String specifying the unary operation.
+        """
         f = _choose_operator(operation)
         dummy = f(zeros(1, dtype=seed.dtype))
 
@@ -73,59 +74,55 @@ class UnaryIsometricOpSimple(DelayedOp):
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``UnaryIsometricOpSimple`` object. As the name of the class suggests, this is the same as the
-        ``seed`` array.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``UnaryIsometricOpSimple``
-            object.
+            Tuple of integers specifying the extent of each dimension of the
+            object after the operation. This should be the same as ``seed``.
         """
         return self._seed.shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``UnaryIsometricOpSimple`` object. This may or may not be the same as the ``seed`` array,
-        depending on how NumPy does the casting for the requested operation.
-
+        """
         Returns:
-            dtype: NumPy type for the ``UnaryIsometricOpSimple`` contents.
+            NumPy type for the contents of the object after the operation.
+            This may or may not be the same as the ``seed`` array, depending on
+            how NumPy does the casting for the requested operation.
         """
         return self._dtype
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
         return self._seed
 
     @property
-    def operation(self) -> str:
-        """Get the name of the operation.
-
+    def operation(self) -> OP:
+        """
         Returns:
-            str: Name of the operation.
+            Name of the operation.
         """
         return self._op
 
 
-def _extract_array(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     target = f(x._seed, subset)
     g = _choose_operator(x._op)
     return g(target)
 
 
 @extract_dense_array.register
-def extract_dense_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

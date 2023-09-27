@@ -22,18 +22,21 @@ class Transpose(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. In general, end users should not be interacting with ``Transpose`` objects directly.
-
-    Attributes:
-        seed:
-            Any object that satisfies the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        perm (Optional[Tuple[int, ...]]):
-            Tuple of length equal to the dimensionality of ``seed``, containing the permutation of dimensions.
-            If None, the dimension ordering is assumed to be reversed.
     """
 
     def __init__(self, seed, perm: Optional[Tuple[int, ...]]):
+        """
+        Args:
+            seed:
+                Any object that satisfies the seed contract,
+                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            perm:
+                Tuple of length equal to the dimensionality of ``seed``,
+                containing the permutation of dimensions.  If None, the
+                dimension ordering is assumed to be reversed.
+        """
+
         self._seed = seed
 
         curshape = seed.shape
@@ -56,27 +59,24 @@ class Transpose(DelayedOp):
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Transpose`` object.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Transpose`` object,
-            (i.e., after transposition of ``seed``).
+            Tuple of integers specifying the extent of each dimension of the
+            transposed object.
         """
         return self._shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Transpose`` object. This will be the same as the ``seed``.
-
+        """
         Returns:
-            dtype: NumPy type for the ``Transpose`` contents.
+            NumPy type for the transposed contents, same as ``seed``.
         """
         return self._seed.dtype
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
@@ -84,15 +84,14 @@ class Transpose(DelayedOp):
 
     @property
     def perm(self) -> Tuple[int, ...]:
-        """Get the permutation of dimensions used in the transposition.
-
+        """
         Returns:
-            Tuple[int, ...]: Permutation of dimensions.
+            Permutation of dimensions in the transposition.
         """
         return self._perm
 
 
-def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 
@@ -105,14 +104,14 @@ def _extract_array(x: Transpose, subset: Optional[Tuple[Sequence[int]]], f: Call
 
 
 @extract_dense_array.register
-def extract_dense_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Transpose(x: Transpose, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

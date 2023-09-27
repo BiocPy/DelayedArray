@@ -20,42 +20,42 @@ class Round(DelayedOp):
 
     This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
     instances. End users should not be interacting with ``Round`` objects directly.
-
-    Attributes:
-        seed:
-            Any object that satisfies the seed contract,
-            see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
-
-        decimals (int):
-            Number of decimal places, possibly negative.
     """
 
     def __init__(self, seed, decimals: int):
+        """
+        Args:
+            seed:
+                Any object that satisfies the seed contract,
+                see :py:class:`~delayedarray.DelayedArray.DelayedArray` for details.
+
+            decimals (int):
+                Number of decimal places, possibly negative.
+        """
         self._seed = seed
         self._decimals = decimals
 
     @property
     def shape(self) -> Tuple[int, ...]:
-        """Shape of the ``Round`` object. This is the same as the ``seed`` array.
-
+        """
         Returns:
-            Tuple[int, ...]: Tuple of integers specifying the extent of each dimension of the ``Round`` object.
+            Tuple of integers specifying the extent of each dimension of the
+            ``Round`` object. This is the same as the ``seed`` array.
         """
         return self._seed.shape
 
     @property
     def dtype(self) -> dtype:
-        """Type of the ``Round`` object, same as the ``seed`` array.
+        """
 
         Returns:
-            dtype: NumPy type for the ``Round`` contents.
+            NumPy type for the ``Round``, same as the ``seed`` array.
         """
         return self._seed.dtype
 
     @property
     def seed(self):
-        """Get the underlying object satisfying the seed contract.
-
+        """
         Returns:
             The seed object.
         """
@@ -63,28 +63,27 @@ class Round(DelayedOp):
 
     @property
     def decimals(self) -> int:
-        """Number of decimal places to round to.
-
+        """
         Returns:
-            int: Number of decimal places.
+            Number of decimal places to round to.
         """
         return self._decimals
 
 
-def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int]]], f: Callable):
+def _extract_array(x: Round, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     target = f(x._seed, subset)
     return numpy.round(target, decimals=x._decimals)
 
 
 @extract_dense_array.register
-def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_dense_array_Round(x: Round, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Round(x: Round, subset: Optional[Tuple[Sequence[int]]] = None):
+def extract_sparse_array_Round(x: Round, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 
