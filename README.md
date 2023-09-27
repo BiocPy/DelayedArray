@@ -193,3 +193,23 @@ n.seed.seed.seed.seed.seed
 ```
 
 All attributes required to reconstruct a delayed operation are public and considered part of the stable `DelayedArray` interface.
+
+## Developing seeds
+
+Any array-like object can be used as a "seed" in a `DelayedArray` provided it has the following:
+
+- `dtype` and `shape` properties, like those in NumPy arrays.
+- a method for the `extract_dense_array()` generic.
+
+If the object may contain sparse data, it should also implement:
+
+- a method for the `is_sparse()` generic.
+- a method for the `extract_sparse_generic()` generic.
+
+It may also be desirable to implement:
+
+- a method for the `chunk_shape()` generic.
+- a method for the `create_dask_array()` generic.
+- a method for the `wrap()` generic.
+
+Developers are referred to the [documentation for each generic](https://biocpy.github.io/DelayedArray/api/delayedarray.html) for more details.
