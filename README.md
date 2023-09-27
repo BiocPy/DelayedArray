@@ -43,7 +43,7 @@ We can wrap this in a `DelayedArray` class:
 
 ```python
 import delayedarray
-d = delayedarray.DelayedArray(x)
+d = delayedarray.wrap(x)
 ## <100 x 20> DelayedArray object of type 'float64'
 ## [[0.58969193, 0.36342181, 0.03111773, ..., 0.72036247, 0.40297173,
 ##   0.48654955],

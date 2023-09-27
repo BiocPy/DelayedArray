@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.3.1
+
+- Added a `wrap()` method that dispatches to different `DelayedArray` subclasses based on the seed.
+
 ## Version 0.3.0
 
 - Replace the `__DelayedArray` methods with generics, for easier extensibility to classes outside of our control.
