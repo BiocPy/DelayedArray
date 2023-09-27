@@ -399,9 +399,17 @@ def test_UnaryIsometricOpWithArgs_sparse():
     x = delayedarray.DelayedArray(y)
     z = x + 1
     assert not delayedarray.is_sparse(z)
+    assert (numpy.array(z) == y.toarray() + 1).all()
 
-    z = numpy.random.rand(50) * x
+    v = numpy.random.rand(50)
+    z = v * x
     assert delayedarray.is_sparse(z)
+    assert (numpy.array(z) == v * y.toarray()).all()
+
+    v = numpy.random.rand(50)
+    z = x / v
+    assert delayedarray.is_sparse(z)
+    assert (numpy.array(z) == y.toarray() / v).all()
 
 
 def test_UnaryIsometricOpWithArgs_with_array():

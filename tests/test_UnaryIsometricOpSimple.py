@@ -104,8 +104,11 @@ def test_UnaryIsometricOpSimple_subset():
 def test_UnaryIsometricOpSimple_sparse():
     y = scipy.sparse.rand(20, 50, 0.5)
     x = delayedarray.DelayedArray(y)
+
     z = numpy.exp(x)
     assert not delayedarray.is_sparse(z)
+    assert (numpy.exp(y.toarray()) == numpy.array(z)).all()
 
     z = numpy.log1p(x)
     assert delayedarray.is_sparse(z)
+    assert (numpy.log1p(y.toarray()) == numpy.array(z)).all()
