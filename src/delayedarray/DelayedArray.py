@@ -1,4 +1,4 @@
-from typing import Optional, Sequence, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union, Any
 import numpy
 from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
 
@@ -85,12 +85,17 @@ class DelayedArray:
     - A method for the
       :py:meth:`~delayedarray.create_dask_array.create_dask_array` generic,
       if the seed is not already compatible with the **dask** package.
-
-    Attributes:
-        seed: Any array-like object that satisfies the seed contract.
     """
 
-    def __init__(self, seed):
+    def __init__(self, seed: Any):
+        """Construct a ``DelayedArray`` object from a seed. 
+        Most users are advised to use :py:meth:`~delayedarray.wrap.wrap`
+        instead, as this can be specialized by developers to construct
+        subclasses that are optimized for custom seed types.
+
+        Args:
+            seed: Any array-like object that satisfies the seed contract.
+        """
         self._seed = seed
 
     @property

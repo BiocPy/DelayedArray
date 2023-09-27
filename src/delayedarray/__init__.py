@@ -34,3 +34,4 @@ from .is_sparse import is_sparse
 from .chunk_shape import chunk_shape
 from .is_pristine import is_pristine
 from .guess_iteration_block_size import guess_iteration_block_size
+from .wrap import wrap
