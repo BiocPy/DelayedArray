@@ -1437,7 +1437,7 @@ def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int,
             _coerce_concatenated_SparseNdarray_types(new_contents, payload=payload, dim=dim)
         return new_contents
 
-    elif dim == len(final_shape) - 2:
+    elif dim == 1:
         new_contents = []
         for i in range(final_shape[dim]):
             outidx = []

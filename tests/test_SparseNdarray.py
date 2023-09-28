@@ -1081,7 +1081,7 @@ def test_SparseNdarray_transpose():
 #######################################################
 
 
-def test_SparseNdarray_concatenate_simple():
+def test_SparseNdarray_concatenate_3d():
     test_shape = (10, 20, 30)
     contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
     y = delayedarray.SparseNdarray(test_shape, contents)
@@ -1116,6 +1116,33 @@ def test_SparseNdarray_concatenate_simple():
     combined = numpy.concatenate((y, y2), axis=2)
     assert isinstance(combined, delayedarray.SparseNdarray)
     assert (numpy.array(combined) == numpy.concatenate((ref, ref2), axis=2)).all()
+
+
+def test_SparseNdarray_concatenate_2d():
+    test_shape = (55, 20)
+    contents = mock_SparseNdarray_contents(test_shape, lower=-100, upper=100, dtype=numpy.int16)
+    y = delayedarray.SparseNdarray(test_shape, contents)
+    ref = numpy.array(y)
+
+    # Combining on the first dimension.
+    test_shape2 = (25, 20)
+    contents2 = mock_SparseNdarray_contents(test_shape2, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape2, contents2)
+    ref2 = numpy.array(y2)
+
+    combined = numpy.concatenate((y, y2))
+    assert isinstance(combined, delayedarray.SparseNdarray)
+    assert (numpy.array(combined) == numpy.concatenate((ref, ref2))).all()
+
+    # Combining on the last dimension.
+    test_shape2 = (55, 15)
+    contents2 = mock_SparseNdarray_contents(test_shape2, lower=-100, upper=100, dtype=numpy.int16)
+    y2 = delayedarray.SparseNdarray(test_shape2, contents2)
+    ref2 = numpy.array(y2)
+
+    combined = numpy.concatenate((y, y2), axis=1)
+    assert isinstance(combined, delayedarray.SparseNdarray)
+    assert (numpy.array(combined) == numpy.concatenate((ref, ref2), axis=1)).all()
 
 
 def test_SparseNdarray_concatenate_1d():

@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.3.2
+
+- Bugfix for row-wise combining of 2-dimensional `SparseNdarray`s.
+
 ## Version 0.3.1
 
 - Added a `wrap()` method that dispatches to different `DelayedArray` subclasses based on the seed.
