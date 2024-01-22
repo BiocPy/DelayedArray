@@ -55,6 +55,10 @@ def test_apply_over_dimension_dense():
     assert output[0][0] == [(0, 3), (0, 7)]
     assert output[-1][0] == [(99, 100), (196, 200)]
 
+    # Same results with the default.
+    output = da.apply_over_blocks(x, dense_sum)
+    assert x.sum() == sum(y[1] for y in output)
+
 
 def test_apply_over_dimension_sparse():
     x = scipy.sparse.random(100, 200, 0.2).tocsc()

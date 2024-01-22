@@ -86,7 +86,7 @@ def apply_over_blocks(x, fun: Callable, block_shape: Optional[Tuple] = None, all
         List containing the output of ``fun`` on each block.
     """
     if block_shape is None:
-        block_shape = choose_block_shape_for_iteration(x, dimension)
+        block_shape = choose_block_shape_for_iteration(x)
 
     num_tasks_total = 1
     num_tasks_by_dim = []
