@@ -18,27 +18,28 @@ def mock_SparseNdarray_contents(shape, density1=0.5, density2=0.5, lower=-1, upp
             if random.uniform(0, 1) < density2:
                 new_indices.append(i)
                 new_values.append(random.uniform(lower, upper))
-        if len(new_values):
-            return numpy.array(new_indices), numpy.array(new_values, dtype=dtype)
+        return numpy.array(new_indices, dtype=numpy.int32), numpy.array(new_values, dtype=dtype)
+
+    # We use a survivor system to force at least one element of each dimension to 
+    # proceed to the next recursion depth; this ensures that the type can be inferred.
+    new_content = []
+    survivor = random.randint(0, shape[-1])
+    for i in range(shape[-1]):
+        if i != survivor and random.uniform(0, 1) > density1:
+            new_content.append(None)
         else:
-            return None
-    else:
-        new_content = []
-        for i in range(shape[-1]):
-            if random.uniform(0, 1) < density1:
-                new_content.append(None)
-            else:
-                new_content.append(
-                    mock_SparseNdarray_contents(
-                        shape[:-1],
-                        density1=density1,
-                        density2=density2,
-                        lower=lower,
-                        upper=upper,
-                        dtype=dtype,
-                    )
+            new_content.append(
+                mock_SparseNdarray_contents(
+                    shape[:-1],
+                    density1=density1,
+                    density2=density2,
+                    lower=lower,
+                    upper=upper,
+                    dtype=dtype,
                 )
-        return new_content
+            )
+
+    return new_content
 
 
 def _recursive_compute_reference(contents, ndim, triplets, at = []):
