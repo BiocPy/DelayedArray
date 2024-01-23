@@ -75,6 +75,19 @@ def test_UnaryIsometricOpSimple_negate():
     assert (numpy.array(z) == -expanded).all()
 
 
+def test_UnaryIsometricOpSimple_logical_not():
+    test_shape = (30, 55)
+    y = numpy.random.rand(*test_shape) > 0.5
+    x = delayedarray.DelayedArray(y)
+    z = numpy.logical_not(x)
+
+    assert isinstance(z, delayedarray.DelayedArray)
+    assert z.shape == x.shape
+
+    expanded = numpy.array(x)
+    assert (numpy.array(z) == numpy.logical_not(expanded)).all()
+
+
 def test_UnaryIsometricOpSimple_abs():
     test_shape = (30, 55)
     y = numpy.random.rand(*test_shape)

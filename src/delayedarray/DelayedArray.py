@@ -198,6 +198,11 @@ class DelayedArray:
             return DelayedArray(
                 UnaryIsometricOpSimple(_extract_seed(inputs[0]), operation="abs")
             )
+        elif ufunc.__name__ == "logical_not":
+            return DelayedArray(
+                UnaryIsometricOpSimple(_extract_seed(inputs[0]), operation="logical_not")
+            )
+
 
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
 

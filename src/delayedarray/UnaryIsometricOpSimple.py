@@ -38,6 +38,7 @@ OP = Literal[
     "floor",
     "trunc",
     "sign",
+    "logical_not",
 ]
 
 
