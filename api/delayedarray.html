@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="delayedarray" href="modules.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray package - DelayedArray 0.3.2 documentation</title>
+        <title>delayedarray package - DelayedArray 0.3.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">DelayedArray 0.3.2 documentation</div></a>
+      <a href="../index.html"><div class="brand">DelayedArray 0.3.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -227,7 +227,7 @@ instances. In general, end users should not be interacting with <code class="doc
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DelayedArray()</span></code></a> for details.</p></li>
 <li><p><strong>right</strong> – Any object of the same dimensions as <code class="docutils literal notranslate"><span class="pre">left</span></code> that satisfies the seed contract,
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DelayedArray()</span></code></a> for details.</p></li>
-<li><p><strong>operation</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'subtract'</span></code>, <code class="docutils literal notranslate"><span class="pre">'multiply'</span></code>, <code class="docutils literal notranslate"><span class="pre">'divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remainder'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor_divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'power'</span></code>, <code class="docutils literal notranslate"><span class="pre">'equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less'</span></code>, <code class="docutils literal notranslate"><span class="pre">'not_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_and'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_or'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_xor'</span></code>]) – String specifying the operation.</p></li>
+<li><p><strong>operation</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'subtract'</span></code>, <code class="docutils literal notranslate"><span class="pre">'multiply'</span></code>, <code class="docutils literal notranslate"><span class="pre">'divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remainder'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor_divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'power'</span></code>, <code class="docutils literal notranslate"><span class="pre">'equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less'</span></code>, <code class="docutils literal notranslate"><span class="pre">'not_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_and'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_or'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_xor'</span></code>]</span>) – String specifying the operation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -323,7 +323,7 @@ instances. End users should not be interacting with <code class="docutils litera
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> – Any object that satisfies the seed contract,
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a>) – The desired type.</p></li>
+<li><p><strong>dtype</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a></span>) – The desired type.</p></li>
 </ul>
 </dd>
 </dl>
@@ -401,9 +401,9 @@ instances. In general, end users should not be interacting with <code class="doc
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>seeds</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>) – List of objects that satisfy the seed contract,
+<li><p><strong>seeds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span>) – List of objects that satisfy the seed contract,
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p></li>
-<li><p><strong>along</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Dimension along which the seeds are to be combined.</p></li>
+<li><p><strong>along</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Dimension along which the seeds are to be combined.</p></li>
 </ul>
 </dd>
 </dl>
@@ -521,7 +521,7 @@ A <code class="docutils literal notranslate"><span class="pre">DelayedArray</spa
 <dd><p>Take the absolute value of the contents of a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed absolute value operation.</p>
@@ -541,7 +541,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed addition operation.</p>
@@ -556,7 +556,7 @@ or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">array()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>NumPy array of the same type as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.dtype" title="delayedarray.DelayedArray.DelayedArray.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code></a> and shape as
@@ -575,7 +575,7 @@ implement array operations like NumPy’s <code class="xref py py-meth docutils 
 for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> instance containing the requested delayed operation.</p>
@@ -594,7 +594,7 @@ objects where the former is on the left hand side.</p>
 for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> instance containing the requested delayed operation.</p>
@@ -614,7 +614,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -651,7 +651,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -667,13 +667,13 @@ or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</
 seed, i.e., <code class="docutils literal notranslate"><span class="pre">args</span></code> is defined using the <code class="xref py py-meth docutils literal notranslate"><span class="pre">ix_()</span></code> function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>subset</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#slice" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">slice</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]) – A <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of length equal to the dimensionality of
+<dd class="field-odd"><p><strong>subset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#slice" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">slice</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span>) – A <a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a> of length equal to the dimensionality of
 this <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>.  We attempt to support most types of
 NumPy slicing; however, only subsets that preserve
 dimensionality will generate a delayed subset operation.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>If the dimensionality is preserved by <code class="docutils literal notranslate"><span class="pre">subset</span></code>, a
@@ -696,7 +696,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -734,7 +734,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -754,7 +754,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -808,7 +808,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -822,7 +822,7 @@ or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</
 <dd><p>Negate the contents of a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed negation.</p>
@@ -859,7 +859,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed addition operation.</p>
@@ -874,7 +874,7 @@ or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">array2string()</span></code> and responds to all of its options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>String containing a prettified display of the array contents.</p>
@@ -894,7 +894,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -931,7 +931,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -951,7 +951,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -971,7 +971,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -991,7 +991,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -1045,7 +1045,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed check.</p>
@@ -1116,7 +1116,7 @@ or a NumPy array with dimensions as described in
 or a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> of the same dimensions as <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray.shape" title="delayedarray.DelayedArray.DelayedArray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> containing the delayed subtraction operation.</p>
@@ -1386,7 +1386,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the addition.
@@ -1401,7 +1401,7 @@ This may or may not be sparse depending on <code class="docutils literal notrans
 <dd><p>Convert a <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> to a NumPy array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Array of the same type as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.dtype" title="delayedarray.SparseNdarray.SparseNdarray.dtype"><code class="xref py py-attr docutils literal notranslate"><span class="pre">dtype</span></code></a> and shape as
@@ -1421,7 +1421,7 @@ This is used to implement array operations like NumPy’s <code class="xref py p
 for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> instance containing the requested operation.</p>
@@ -1440,7 +1440,7 @@ objects where the former is on the left hand side.</p>
 for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> instance containing the requested delayed operation.</p>
@@ -1460,7 +1460,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1499,7 +1499,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1524,7 +1524,7 @@ delayed subset operation.</p>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/exceptions.html#ValueError" title="(in Python v3.9)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">args</span></code> contain more dimensions than the shape of the array.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>If the dimensionality is preserved by <code class="docutils literal notranslate"><span class="pre">args</span></code>, a <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> containing a delayed subset operation is
@@ -1545,7 +1545,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1565,17 +1565,17 @@ This may or may not be sparse depending on <code class="docutils literal notrans
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>shape</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]) – Tuple specifying the dimensions of the array.</p></li>
+<li><p><strong>shape</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span>) – Tuple specifying the dimensions of the array.</p></li>
 <li><p><strong>contents</strong> – <p>For <code class="docutils literal notranslate"><span class="pre">n</span></code>-dimensional arrays where <code class="docutils literal notranslate"><span class="pre">n</span></code> &gt; 1, a nested list representing a
 tree where each leaf node is a tuple containing a sparse vector (or None).</p>
 <p>For 1-dimensional arrays, a tuple containing a sparse vector.</p>
 <p>Alternatively None, if the array is empty.</p>
 </p></li>
-<li><p><strong>dtype</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a>]) – NumPy type of the array values.
+<li><p><strong>dtype</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a>]</span>) – NumPy type of the array values.
 If None, this is inferred from <code class="docutils literal notranslate"><span class="pre">contents</span></code>.</p></li>
-<li><p><strong>index_dtype</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a>]) – NumPy type of the array indices.
+<li><p><strong>index_dtype</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code></a>]</span>) – NumPy type of the array indices.
 If None, this is inferred from <code class="docutils literal notranslate"><span class="pre">contents</span></code>.</p></li>
-<li><p><strong>check</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Whether to check the consistency of the <code class="docutils literal notranslate"><span class="pre">contents</span></code> during construction.
+<li><p><strong>check</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to check the consistency of the <code class="docutils literal notranslate"><span class="pre">contents</span></code> during construction.
 This can be set to False for speed.</p></li>
 </ul>
 </dd>
@@ -1594,7 +1594,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1615,7 +1615,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1672,7 +1672,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1722,7 +1722,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the addition.
@@ -1738,7 +1738,7 @@ This may or may not be sparse depending on <code class="docutils literal notrans
 <code class="xref py py-meth docutils literal notranslate"><span class="pre">array2string()</span></code> and responds to all of its options.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#str" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>String containing a prettified display of the array contents.</p>
@@ -1758,7 +1758,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1797,7 +1797,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1818,7 +1818,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1839,7 +1839,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1860,7 +1860,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1917,7 +1917,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the check.
@@ -1992,7 +1992,7 @@ or a NumPy array with dimensions as described in
 or any seed object of the same dimensions as <a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray.shape" title="delayedarray.SparseNdarray.SparseNdarray.shape"><code class="xref py py-attr docutils literal notranslate"><span class="pre">shape</span></code></a>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Array containing the result of the subtraction.
@@ -2026,7 +2026,7 @@ This may or may not be sparse depending on <code class="docutils literal notrans
 <p>All keyword arguments are currently ignored.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -2055,7 +2055,7 @@ NumPy type of the values.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="delayedarray.SparseNdarray.SparseNdarray.index_dtype">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">&lt;property</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f0aeb2c8040&gt;</span></em><a class="headerlink" href="#delayedarray.SparseNdarray.SparseNdarray.index_dtype" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">index_dtype</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">&lt;property</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fc9a0de0220&gt;</span></em><a class="headerlink" href="#delayedarray.SparseNdarray.SparseNdarray.index_dtype" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 NumPy type of the indices.</p>
 </dd></dl>
@@ -2089,7 +2089,7 @@ instances. In general, end users should not be interacting with <code class="doc
 <li><p><strong>seed</strong> – Any object that satisfies the seed contract, see
 <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for
 details.</p></li>
-<li><p><strong>subset</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]) – Tuple of length equal to the dimensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>,
+<li><p><strong>subset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span>) – Tuple of length equal to the dimensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>,
 containing the subsetted elements for each dimension.  Each
 entry should be a vector of integer indices specifying the
 elements of the corresponding dimension to retain, where each
@@ -2181,7 +2181,7 @@ instances. In general, end users should not be interacting with <code class="doc
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> – Any object that satisfies the seed contract,
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p></li>
-<li><p><strong>perm</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]) – Tuple of length equal to the dimensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>,
+<li><p><strong>perm</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]</span>) – Tuple of length equal to the dimensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>,
 containing the permutation of dimensions.  If None, the
 dimension ordering is assumed to be reversed.</p></li>
 </ul>
@@ -2270,7 +2270,7 @@ instances. End-users should not be interacting with <code class="docutils litera
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> – Any object that satisfies the seed contract,
 see <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p></li>
-<li><p><strong>operation</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'log'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log1p'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log10'</span></code>, <code class="docutils literal notranslate"><span class="pre">'exp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'expm1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sqrt'</span></code>, <code class="docutils literal notranslate"><span class="pre">'abs'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cos'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tan'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sinh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cosh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tanh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arcsin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arccos'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arctan'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arcsinh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arccosh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arctanh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ceil'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor'</span></code>, <code class="docutils literal notranslate"><span class="pre">'trunc'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sign'</span></code>]) – String specifying the unary operation.</p></li>
+<li><p><strong>operation</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'log'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log1p'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'log10'</span></code>, <code class="docutils literal notranslate"><span class="pre">'exp'</span></code>, <code class="docutils literal notranslate"><span class="pre">'expm1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sqrt'</span></code>, <code class="docutils literal notranslate"><span class="pre">'abs'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cos'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tan'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sinh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cosh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'tanh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arcsin'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arccos'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arctan'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arcsinh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arccosh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'arctanh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'ceil'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor'</span></code>, <code class="docutils literal notranslate"><span class="pre">'trunc'</span></code>, <code class="docutils literal notranslate"><span class="pre">'sign'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_not'</span></code>]</span>) – String specifying the unary operation.</p></li>
 </ul>
 </dd>
 </dl>
@@ -2287,7 +2287,7 @@ how NumPy does the casting for the requested operation.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.operation">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log1p'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log2'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log10'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'exp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'expm1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sqrt'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'abs'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tan'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sinh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cosh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tanh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arcsin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arccos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arctan'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arcsinh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arccosh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arctanh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ceil'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'floor'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'trunc'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sign'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.operation" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">operation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'log'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log1p'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log2'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'log10'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'exp'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'expm1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sqrt'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'abs'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tan'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sinh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'cosh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'tanh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arcsin'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arccos'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arctan'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arcsinh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arccosh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'arctanh'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'ceil'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'floor'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'trunc'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'sign'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'logical_not'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple.operation" title="Link to this definition">#</a></dt>
 <dd><p>Returns:
 Name of the operation.</p>
 </dd></dl>
@@ -2363,15 +2363,15 @@ instances. In general, end-users should not be interacting with <code class="doc
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> – Any object satisfying the seed contract, see
 <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DelayedArray()</span></code></a> for details.</p></li>
-<li><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]) – <p>A scalar or NumPy array with which to perform an operation on the <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
+<li><p><strong>value</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Union" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#float" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>, <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]</span>) – <p>A scalar or NumPy array with which to perform an operation on the <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
 <p>If scalar, the operation is applied element-wise to all entries of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
 <p>If a 1-dimensional NumPy array, the operation is broadcast along the last dimension of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.</p>
 <p>If an n-dimensional NumPy array, the number of dimensions should be equal to the dmensionality of <code class="docutils literal notranslate"><span class="pre">seed</span></code>.
 All dimensions should be of extent 1, except for exactly one dimension that should have extent equal to the
 corresponding dimension of <code class="docutils literal notranslate"><span class="pre">seed</span></code>. The operation is then broadcast along that dimension.</p>
 </p></li>
-<li><p><strong>operation</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'subtract'</span></code>, <code class="docutils literal notranslate"><span class="pre">'multiply'</span></code>, <code class="docutils literal notranslate"><span class="pre">'divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remainder'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor_divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'power'</span></code>, <code class="docutils literal notranslate"><span class="pre">'equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less'</span></code>, <code class="docutils literal notranslate"><span class="pre">'not_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_and'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_or'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_xor'</span></code>]) – String specifying the operation.</p></li>
-<li><p><strong>right</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Whether <code class="docutils literal notranslate"><span class="pre">value</span></code> is to the right of <code class="docutils literal notranslate"><span class="pre">seed</span></code> in the operation.
+<li><p><strong>operation</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Literal" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'add'</span></code>, <code class="docutils literal notranslate"><span class="pre">'subtract'</span></code>, <code class="docutils literal notranslate"><span class="pre">'multiply'</span></code>, <code class="docutils literal notranslate"><span class="pre">'divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'remainder'</span></code>, <code class="docutils literal notranslate"><span class="pre">'floor_divide'</span></code>, <code class="docutils literal notranslate"><span class="pre">'power'</span></code>, <code class="docutils literal notranslate"><span class="pre">'equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'greater'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'less'</span></code>, <code class="docutils literal notranslate"><span class="pre">'not_equal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_and'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_or'</span></code>, <code class="docutils literal notranslate"><span class="pre">'logical_xor'</span></code>]</span>) – String specifying the operation.</p></li>
+<li><p><strong>right</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether <code class="docutils literal notranslate"><span class="pre">value</span></code> is to the right of <code class="docutils literal notranslate"><span class="pre">seed</span></code> in the operation.
 If False, <code class="docutils literal notranslate"><span class="pre">value</span></code> is put to the left of <code class="docutils literal notranslate"><span class="pre">seed</span></code>. Ignored
 for commutative operations in <code class="docutils literal notranslate"><span class="pre">op</span></code>.</p></li>
 </ul>
@@ -2466,6 +2466,128 @@ The other operand used in the operation.</p>
 </dd></dl>
 
 </section>
+<section id="module-delayedarray.apply_over_blocks">
+<span id="delayedarray-apply-over-blocks-module"></span><h2>delayedarray.apply_over_blocks module<a class="headerlink" href="#module-delayedarray.apply_over_blocks" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="delayedarray.apply_over_blocks.apply_over_blocks">
+<span class="sig-prename descclassname"><span class="pre">delayedarray.apply_over_blocks.</span></span><span class="sig-name descname"><span class="pre">apply_over_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/apply_over_blocks.html#apply_over_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.apply_over_blocks.apply_over_blocks" title="Link to this definition">#</a></dt>
+<dd><p>Iterate over an array by blocks. We apply a user-provided function and
+collect the results before proceeding to the next block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – An array-like object.</p></li>
+<li><p><strong>fun</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a></span>) – Function to apply to each block. This should accept two arguments;
+the first is a list containing the start/end of the current block
+on each dimension, and the second is the block contents. Each
+block is typically provided as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>.</p></li>
+<li><p><strong>block_shape</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>]</span>) – Dimensionsof the block on the iteration dimension. If None, this is
+chosen by <a class="reference internal" href="#delayedarray.apply_over_blocks.choose_block_shape_for_iteration" title="delayedarray.apply_over_blocks.choose_block_shape_for_iteration"><code class="xref py py-func docutils literal notranslate"><span class="pre">choose_block_shape_for_iteration()</span></code></a>.</p></li>
+<li><p><strong>allow_sparse</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to allow extraction of sparse subarrays. If true and
+<code class="docutils literal notranslate"><span class="pre">x</span></code> contains a sparse array, the block contents are instead
+represented by a <code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List containing the output of <code class="docutils literal notranslate"><span class="pre">fun</span></code> on each block.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="delayedarray.apply_over_blocks.choose_block_shape_for_iteration">
+<span class="sig-prename descclassname"><span class="pre">delayedarray.apply_over_blocks.</span></span><span class="sig-name descname"><span class="pre">choose_block_shape_for_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/apply_over_blocks.html#choose_block_shape_for_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.apply_over_blocks.choose_block_shape_for_iteration" title="Link to this definition">#</a></dt>
+<dd><p>Choose the block dimensions for blockwise iteration through an array, see
+<cite>~apply_over_blocks</cite> for details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – An array-like object.</p></li>
+<li><p><strong>dimension</strong> – Dimension to iterate over.</p></li>
+<li><p><strong>memory</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Available memory in bytes, to hold a single block in memory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dimensions of the blocks.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-delayedarray.apply_over_dimension">
+<span id="delayedarray-apply-over-dimension-module"></span><h2>delayedarray.apply_over_dimension module<a class="headerlink" href="#module-delayedarray.apply_over_dimension" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="delayedarray.apply_over_dimension.apply_over_dimension">
+<span class="sig-prename descclassname"><span class="pre">delayedarray.apply_over_dimension.</span></span><span class="sig-name descname"><span class="pre">apply_over_dimension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fun</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/apply_over_dimension.html#apply_over_dimension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.apply_over_dimension.apply_over_dimension" title="Link to this definition">#</a></dt>
+<dd><p>Iterate over an array on a certain dimension. At each iteration, the block
+of observations consists of the full extent of all dimensions other than
+the one being iterated over. We apply a user-provided function and collect
+the results before proceeding to the next block.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – An array-like object.</p></li>
+<li><p><strong>dimension</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Dimension to iterate over.</p></li>
+<li><p><strong>fun</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Callable" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a></span>) – Function to apply to each block. This should accept two arguments;
+the first is a tuple containing the start/end of the current block
+on the chosen <code class="docutils literal notranslate"><span class="pre">dimension</span></code>, and the second is the block contents.
+Each block is typically provided as a <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>.</p></li>
+<li><p><strong>block_size</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>]</span>) – Size of the block on the iteration dimension. If None, this is
+chosen by <a class="reference internal" href="#delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration" title="delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration"><code class="xref py py-func docutils literal notranslate"><span class="pre">choose_block_size_for_1d_iteration()</span></code></a>.</p></li>
+<li><p><strong>allow_sparse</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to allow extraction of sparse subarrays. If true and
+<code class="docutils literal notranslate"><span class="pre">x</span></code> contains a sparse array, the block contents are instead
+represented by a <code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/stdtypes.html#list" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List containing the output of <code class="docutils literal notranslate"><span class="pre">fun</span></code> on each block.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration">
+<span class="sig-prename descclassname"><span class="pre">delayedarray.apply_over_dimension.</span></span><span class="sig-name descname"><span class="pre">choose_block_size_for_1d_iteration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/apply_over_dimension.html#choose_block_size_for_1d_iteration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration" title="Link to this definition">#</a></dt>
+<dd><p>Choose a block size for iterating over an array on a certain dimension,
+see <cite>~apply_over_dimension</cite> for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – An array-like object.</p></li>
+<li><p><strong>dimension</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Dimension to iterate over.</p></li>
+<li><p><strong>memory</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Available memory in bytes, to hold a single block in memory.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Size of the block on the iteration dimension.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="delayedarray.apply_over_dimension.guess_iteration_block_size">
+<span class="sig-prename descclassname"><span class="pre">delayedarray.apply_over_dimension.</span></span><span class="sig-name descname"><span class="pre">guess_iteration_block_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/apply_over_dimension.html#guess_iteration_block_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.apply_over_dimension.guess_iteration_block_size" title="Link to this definition">#</a></dt>
+<dd><p>Soft-deprecated alias for <a class="reference internal" href="#delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration" title="delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration"><code class="xref py py-func docutils literal notranslate"><span class="pre">choose_block_size_for_1d_iteration()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-delayedarray.chunk_shape">
 <span id="delayedarray-chunk-shape-module"></span><h2>delayedarray.chunk_shape module<a class="headerlink" href="#module-delayedarray.chunk_shape" title="Link to this heading">#</a></h2>
 <dl class="py function">
@@ -2475,10 +2597,10 @@ The other operand used in the operation.</p>
 blocks with which to iterate over the array in each dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – An array-like object.</p>
+<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – An array-like object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Tuple of integers containing the shape of the chunk. If no method
@@ -2528,10 +2650,10 @@ that any element of any dimension can be accessed efficiently.</p>
 the <strong>dask</strong> package is installed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – Any array-like object.</p>
+<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any array-like object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Array</span></code></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dask array, possibly containing delayed operations.</p>
@@ -2550,15 +2672,15 @@ array with Fortran storage order, i.e., earlier dimensions change fastest.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – Any array-like object.</p></li>
-<li><p><strong>subset</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]) – Tuple of length equal to the number of dimensions, each containing
+<li><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any array-like object.</p></li>
+<li><p><strong>subset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]</span>) – Tuple of length equal to the number of dimensions, each containing
 a sorted and unique sequence of integers specifying the elements of
 each dimension to extract. If None, all elements are extracted from
 all dimensions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>NumPy array with Fortran storage order. This may be a view so callers should
@@ -2615,15 +2737,15 @@ used for <code class="docutils literal notranslate"><span class="pre">x</span></
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – Any array-like object containing sparse data.</p></li>
-<li><p><strong>subset</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]) – Tuple of length equal to the number of dimensions, each containing
+<li><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any array-like object containing sparse data.</p></li>
+<li><p><strong>subset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Optional" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Tuple" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Sequence" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>], <a class="reference external" href="https://docs.python.org/3.9/library/constants.html#Ellipsis" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>]]</span>) – Tuple of length equal to the number of dimensions, each containing
 a sorted and unique sequence of integers specifying the elements of
 each dimension to extract. If None, all elements are extracted from
 all dimensions.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.SparseNdarray.SparseNdarray" title="delayedarray.SparseNdarray.SparseNdarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparseNdarray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>SparseNdarray for the requested subset. This may be a view so callers
@@ -2657,34 +2779,6 @@ should create a copy if they intend to modify it.</p>
 </dd></dl>
 
 </section>
-<section id="module-delayedarray.guess_iteration_block_size">
-<span id="delayedarray-guess-iteration-block-size-module"></span><h2>delayedarray.guess_iteration_block_size module<a class="headerlink" href="#module-delayedarray.guess_iteration_block_size" title="Link to this heading">#</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="delayedarray.guess_iteration_block_size.guess_iteration_block_size">
-<span class="sig-prename descclassname"><span class="pre">delayedarray.guess_iteration_block_size.</span></span><span class="sig-name descname"><span class="pre">guess_iteration_block_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dimension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/delayedarray/guess_iteration_block_size.html#guess_iteration_block_size"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#delayedarray.guess_iteration_block_size.guess_iteration_block_size" title="Link to this definition">#</a></dt>
-<dd><p>Guess the best block size for iterating over an array on a certain
-dimension.  This assumes that, in each iteration, an entire block of
-observations is extracted involving the full extent of all dimensions other
-than the one being iterated over. This block is used for processing before
-extracting the next block of elements.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> – An array-like object.</p></li>
-<li><p><strong>dimension</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Dimension to iterate over.</p></li>
-<li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Available memory in bytes, to hold a single block in memory.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#int" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Size of the block on the iteration dimension.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</section>
 <section id="module-delayedarray.is_pristine">
 <span id="delayedarray-is-pristine-module"></span><h2>delayedarray.is_pristine module<a class="headerlink" href="#module-delayedarray.is_pristine" title="Link to this heading">#</a></h2>
 <dl class="py function">
@@ -2696,7 +2790,7 @@ extracting the next block of elements.</p>
 <dd class="field-odd"><p><strong>x</strong> – Some array-like object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether <code class="docutils literal notranslate"><span class="pre">x</span></code> is a <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a>
@@ -2714,10 +2808,10 @@ containing delayed operations.</p>
 <dd><p>Determine whether an array-like object contains sparse data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – Any array-like object.</p>
+<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any array-like object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/functions.html#bool" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether <code class="docutils literal notranslate"><span class="pre">x</span></code> contains sparse data. If no method is defined
@@ -2761,11 +2855,11 @@ object satisfying the seed contract.  Developers can implement methods for
 this generic to create <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> subclasses based on the seed type.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>x</strong> (<a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>) – Any object satisfiying the seed contract, see documentation for
+<dd class="field-odd"><p><strong>x</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3.9/library/typing.html#typing.Any" title="(in Python v3.9)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any object satisfiying the seed contract, see documentation for
 <a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a> for details.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#delayedarray.DelayedArray.DelayedArray" title="delayedarray.DelayedArray.DelayedArray"><code class="xref py py-class docutils literal notranslate"><span class="pre">DelayedArray</span></code></a></span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> or one of its subclasses.</p>
@@ -3073,6 +3167,17 @@ this generic to create <code class="docutils literal notranslate"><span class="p
 <li><a class="reference internal" href="#delayedarray.UnaryIsometricOpWithArgs.is_sparse_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">is_sparse_UnaryIsometricOpWithArgs()</span></code></a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-delayedarray.apply_over_blocks">delayedarray.apply_over_blocks module</a><ul>
+<li><a class="reference internal" href="#delayedarray.apply_over_blocks.apply_over_blocks"><code class="docutils literal notranslate"><span class="pre">apply_over_blocks()</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.apply_over_blocks.choose_block_shape_for_iteration"><code class="docutils literal notranslate"><span class="pre">choose_block_shape_for_iteration()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-delayedarray.apply_over_dimension">delayedarray.apply_over_dimension module</a><ul>
+<li><a class="reference internal" href="#delayedarray.apply_over_dimension.apply_over_dimension"><code class="docutils literal notranslate"><span class="pre">apply_over_dimension()</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.apply_over_dimension.choose_block_size_for_1d_iteration"><code class="docutils literal notranslate"><span class="pre">choose_block_size_for_1d_iteration()</span></code></a></li>
+<li><a class="reference internal" href="#delayedarray.apply_over_dimension.guess_iteration_block_size"><code class="docutils literal notranslate"><span class="pre">guess_iteration_block_size()</span></code></a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#module-delayedarray.chunk_shape">delayedarray.chunk_shape module</a><ul>
 <li><a class="reference internal" href="#delayedarray.chunk_shape.chunk_shape"><code class="docutils literal notranslate"><span class="pre">chunk_shape()</span></code></a></li>
 <li><a class="reference internal" href="#delayedarray.chunk_shape.chunk_shape_SparseNdarray"><code class="docutils literal notranslate"><span class="pre">chunk_shape_SparseNdarray()</span></code></a></li>
@@ -3104,10 +3209,6 @@ this generic to create <code class="docutils literal notranslate"><span class="p
 <li><a class="reference internal" href="#delayedarray.extract_sparse_array.extract_sparse_array_csr_matrix"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_csr_matrix()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-delayedarray.guess_iteration_block_size">delayedarray.guess_iteration_block_size module</a><ul>
-<li><a class="reference internal" href="#delayedarray.guess_iteration_block_size.guess_iteration_block_size"><code class="docutils literal notranslate"><span class="pre">guess_iteration_block_size()</span></code></a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#module-delayedarray.is_pristine">delayedarray.is_pristine module</a><ul>
 <li><a class="reference internal" href="#delayedarray.is_pristine.is_pristine"><code class="docutils literal notranslate"><span class="pre">is_pristine()</span></code></a></li>
 </ul>
@@ -3137,7 +3238,7 @@ this generic to create <code class="docutils literal notranslate"><span class="p
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=71d9d8e6"></script>
+</div><script src="../_static/documentation_options.js?v=d5a15cff"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

@@ -92,6 +92,22 @@ delayedarray.UnaryIsometricOpWithArgs module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.apply\_over\_blocks module
+---------------------------------------
+
+.. automodule:: delayedarray.apply_over_blocks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.apply\_over\_dimension module
+------------------------------------------
+
+.. automodule:: delayedarray.apply_over_dimension
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.chunk\_shape module
 --------------------------------
 
@@ -120,14 +136,6 @@ delayedarray.extract\_sparse\_array module
 ------------------------------------------
 
 .. automodule:: delayedarray.extract_sparse_array
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delayedarray.guess\_iteration\_block\_size module
--------------------------------------------------
-
-.. automodule:: delayedarray.guess_iteration_block_size
    :members:
    :undoc-members:
    :show-inheritance:
