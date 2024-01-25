@@ -61,7 +61,7 @@ def _sanitize_to_fortran(x):
 
 if is_package_installed("scipy"):
     import scipy.sparse as sp
-    
+
     def _extract_dense_array_sparse(x, subset: Optional[Tuple[Sequence[int], ...]] = None):
         if _is_subset_noop(x.shape, subset):
             tmp = x
@@ -84,7 +84,12 @@ if is_package_installed("scipy"):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
-    @extract_dense_array.register
-    def extract_dense_array_sparse_array(x: sp.sparray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def extract_dense_array_sparse_array(x, subset: Optional[Tuple[Sequence[int], ...]] = None):
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
+    
+    try:
+        extract_dense_array.register(sp.sparray, extract_dense_array_sparse_array)
+    except Exception:
+        pass
+
