@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.extract_dense_array - DelayedArray 0.3.3 documentation</title>
+        <title>delayedarray.extract_dense_array - DelayedArray 0.3.4 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.3.3 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.4 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.3 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.4 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,6 +201,7 @@
 <span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">singledispatch</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">ix_</span><span class="p">,</span> <span class="n">asfortranarray</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span> <span class="nn">biocutils.package_utils</span> <span class="kn">import</span> <span class="n">is_package_installed</span>
 
 <span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span><span class="p">,</span> <span class="n">_is_subset_noop</span>
 <span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">_extract_dense_array_from_SparseNdarray</span>
@@ -267,17 +268,9 @@
     <span class="k">else</span><span class="p">:</span> 
         <span class="k">return</span> <span class="n">asfortranarray</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
+<span class="k">if</span> <span class="n">is_package_installed</span><span class="p">(</span><span class="s2">&quot;scipy&quot;</span><span class="p">):</span>
+    <span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
 
-<span class="c1"># If scipy is installed, we add all the methods for the various scipy.sparse matrices.</span>
-<span class="n">has_sparse</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">scipy.sparse</span>
-    <span class="n">has_sparse</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span><span class="p">:</span>
-    <span class="k">pass</span>
-
-
-<span class="k">if</span> <span class="n">has_sparse</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">_extract_dense_array_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">_is_subset_noop</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">subset</span><span class="p">):</span>
             <span class="n">tmp</span> <span class="o">=</span> <span class="n">x</span>
@@ -288,7 +281,7 @@
 <div class="viewcode-block" id="extract_dense_array_csc_matrix">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.extract_dense_array.extract_dense_array_csc_matrix">[docs]</a>
     <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">extract_dense_array_csc_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extract_dense_array_csc_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_extract_dense_array_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 
@@ -296,7 +289,7 @@
 <div class="viewcode-block" id="extract_dense_array_csr_matrix">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.extract_dense_array.extract_dense_array_csr_matrix">[docs]</a>
     <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">extract_dense_array_csr_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extract_dense_array_csr_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_extract_dense_array_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 
@@ -304,17 +297,22 @@
 <div class="viewcode-block" id="extract_dense_array_coo_matrix">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.extract_dense_array.extract_dense_array_coo_matrix">[docs]</a>
     <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">extract_dense_array_coo_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extract_dense_array_coo_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_extract_dense_array_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="extract_dense_array_sparse_array">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.extract_dense_array.extract_dense_array_sparse_array">[docs]</a>
-    <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">extract_dense_array_sparse_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">sparray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">extract_dense_array_sparse_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">_extract_dense_array_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
+
+    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">extract_dense_array</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">sparray</span><span class="p">,</span> <span class="n">extract_dense_array_sparse_array</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
 
 </pre></div>
         </article>
@@ -348,7 +346,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=d5a15cff"></script>
+</div><script src="../../_static/documentation_options.js?v=1e28cc32"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
