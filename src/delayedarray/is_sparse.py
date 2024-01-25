@@ -1,5 +1,6 @@
 from functools import singledispatch
 from typing import Any
+from biocutils.package_utils import is_package_installed
 
 from .SparseNdarray import SparseNdarray
 
@@ -29,26 +30,21 @@ def is_sparse_SparseNdarray(x: SparseNdarray):
 
 
 # If scipy is installed, we add all the methods for the various scipy.sparse matrices.
-has_sparse = False
-try:
-    import scipy.sparse
-    has_sparse = True
-except:
-    pass
 
+if is_package_installed("scipy"):
+    import scipy.sparse as sp
 
-if has_sparse:
     @is_sparse.register
-    def is_sparse_csc_matrix(x: scipy.sparse.csc_matrix):
+    def is_sparse_csc_matrix(x: sp.csc_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True
 
     @is_sparse.register
-    def is_sparse_csr_matrix(x: scipy.sparse.csr_matrix):
+    def is_sparse_csr_matrix(x: sp.csr_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True
 
     @is_sparse.register
-    def is_sparse_coo_matrix(x: scipy.sparse.coo_matrix):
+    def is_sparse_coo_matrix(x: sp.coo_matrix):
         """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
         return True

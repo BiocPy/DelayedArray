@@ -1,6 +1,7 @@
 from functools import singledispatch
 from typing import Any, Tuple
 from numpy import ndarray
+from biocutils.package_utils import is_package_installed
 
 from .SparseNdarray import SparseNdarray
 
@@ -51,28 +52,23 @@ def chunk_shape_SparseNdarray(x: SparseNdarray):
 
 
 # If scipy is installed, we add all the methods for the various scipy.sparse matrices.
-has_sparse = False
-try:
-    import scipy.sparse
-    has_sparse = True
-except:
-    pass
 
+if is_package_installed("scipy"):
+    import scipy.sparse as sp
 
-if has_sparse:
     @chunk_shape.register
-    def chunk_shape_csc_matrix(x: scipy.sparse.csc_matrix):
+    def chunk_shape_csc_matrix(x: sp.csc_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return (x.shape[0], 1)
 
 
     @chunk_shape.register
-    def chunk_shape_csr_matrix(x: scipy.sparse.csr_matrix):
+    def chunk_shape_csr_matrix(x: sp.csr_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return (1, x.shape[1])
 
 
     @chunk_shape.register
-    def chunk_shape_coo_matrix(x: scipy.sparse.coo_matrix):
+    def chunk_shape_coo_matrix(x: sp.coo_matrix):
         """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
         return x.shape # ???? well, let's just do our best.

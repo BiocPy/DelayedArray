@@ -1463,7 +1463,7 @@ def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int,
         return new_contents
 
 
-def _concatenate_SparseNdarray(xs: list[SparseNdarray], along: int):
+def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
     all_contents = []
     all_shapes = []
     for x in xs:
