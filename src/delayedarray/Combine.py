@@ -1,9 +1,11 @@
 from typing import Callable, Optional, Tuple, Sequence
-from numpy import concatenate, dtype, ndarray
+import numpy
 
 from .DelayedOp import DelayedOp
 from ._subset import _spawn_indices
+from ._mask import _concatenate_unmasked_ndarrays, _concatenate_maybe_masked_ndarrays
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .SparseNdarray import _concatenate_SparseNdarrays
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
@@ -58,8 +60,8 @@ class Combine(DelayedOp):
         # Guessing the dtype.
         to_combine = []
         for i in range(len(seeds)):
-            to_combine.append(ndarray((0,), dtype=seeds[i].dtype))
-        self._dtype = concatenate((*to_combine,)).dtype
+            to_combine.append(numpy.ndarray((0,), dtype=seeds[i].dtype))
+        self._dtype = _concatenate_unmasked_ndarrays(to_combine, axis=0).dtype
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -71,7 +73,7 @@ class Combine(DelayedOp):
         return self._shape
 
     @property
-    def dtype(self) -> dtype:
+    def dtype(self) -> numpy.dtype:
         """
         Returns:
             NumPy type for the combined data.  This may or may not be
@@ -96,7 +98,7 @@ class Combine(DelayedOp):
         return self._along
 
 
-def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
+def _extract_subarrays(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 
@@ -122,28 +124,22 @@ def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: C
             flexargs[x._along] = fragmented[i]
             extracted.append(f(s, (*flexargs,)))
 
-    is_masked = False
-    for f in fragmented:
-        if numpy.ma.is_masked(f):
-            is_masked = True
-
-    if is_masked:
-        return numpy.ma.concatenate((*extracted,), axis=x._along)
-    else:
-        return concatenate((*extracted,), axis=x._along)
+    return extracted
 
 
 @extract_dense_array.register
 def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(x, subset, extract_dense_array)
-    return _sanitize_to_fortran(out)
+    fragments = _extract_subarrays(x, subset, extract_dense_array)
+    combined = _concatenate_maybe_masked_ndarrays(fragments, axis=x._along)
+    return _sanitize_to_fortran(combined)
 
 
 @extract_sparse_array.register
 def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-    return _extract_array(x, subset, extract_sparse_array)
+    fragments = _extract_subarrays(x, subset, extract_sparse_array)
+    return _concatenate_SparseNdarrays(fragments, along=x._along)
 
 
 @create_dask_array.register
@@ -152,7 +148,7 @@ def create_dask_array_Combine(x: Combine):
     extracted = []
     for s in x._seeds:
         extracted.append(create_dask_array(s))
-    return concatenate((*extracted,), axis=x._along)
+    return numpy.concatenate((*extracted,), axis=x._along)
 
 
 @chunk_shape.register

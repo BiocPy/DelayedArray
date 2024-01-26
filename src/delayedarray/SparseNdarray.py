@@ -2,10 +2,18 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 import numpy
-from numpy import array, ndarray, zeros, dtype, array2string, int32, int64, uint32, uint64
 
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
 from ._subset import _spawn_indices, _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
+from ._mask import (
+    _allocate_unmasked_ndarray, 
+    _allocate_maybe_masked_ndarray, 
+    _convert_to_unmasked_1darray, 
+    _convert_to_maybe_masked_1darray,
+    _concatenate_unmasked_ndarrays,
+    _concatenate_maybe_masked_ndarrays,
+    _convert_to_1darray_with_inferred_mask,
+)
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -50,8 +58,8 @@ class SparseNdarray:
         self,
         shape: Tuple[int, ...],
         contents,
-        dtype: Optional[dtype] = None,
-        index_dtype: Optional[dtype] = None,
+        dtype: Optional[numpy.dtype] = None,
+        index_dtype: Optional[numpy.dtype] = None,
         check: bool = True,
     ):
         """
@@ -124,7 +132,7 @@ class SparseNdarray:
         return self._shape
 
     @property
-    def dtype(self) -> dtype:
+    def dtype(self) -> numpy.dtype:
         """
         Returns:
             NumPy type of the values. 
@@ -133,7 +141,7 @@ class SparseNdarray:
 
 
     @property
-    def index_dtype(self) -> dtype:
+    def index_dtype(self) -> numpy.dtype:
         """
         Returns:
             NumPy type of the indices.
@@ -167,12 +175,12 @@ class SparseNdarray:
         preamble += " " + type(self).__name__ + " object of type '" + self._dtype.name + "'"
         indices = _repr_subset(self._shape)
         bits_and_pieces = _extract_dense_array_from_SparseNdarray(self, indices)
-        converted = array2string(bits_and_pieces, separator=", ", threshold=0)
+        converted = numpy.array2string(bits_and_pieces, separator=", ", threshold=0)
         return preamble + "\n" + converted
 
 
     # For NumPy:
-    def __array__(self) -> ndarray:
+    def __array__(self) -> numpy.ndarray:
         """Convert a ``SparseNdarray`` to a NumPy array.
 
         Returns:
@@ -183,17 +191,8 @@ class SparseNdarray:
         indices = _spawn_indices(self._shape)
         return _extract_dense_array_from_SparseNdarray(self, indices)
 
-
-    def astype(self, dtype, **kwargs):
-        """See :py:meth:`~numpy.ndarray.astype` for details.
-
-        All keyword arguments are currently ignored.
-        """
-        return _transform_sparse_array_from_SparseNdarray(self)
-
-
     # Assorted dunder methods.
-    def __add__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __add__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Add something to the right-hand-side of a ``SparseNdarray``.
 
         Args:
@@ -209,7 +208,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="add", right=True)
 
-    def __radd__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __radd__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Add something to the left-hand-side of a ``SparseNdarray``.
 
         Args:
@@ -225,7 +224,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="add", right=False)
 
-    def __sub__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __sub__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Subtract something from the right-hand-side of a ``SparseNdarray``.
 
         Args:
@@ -423,7 +422,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="power", right=False)
 
-    def __eq__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __eq__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check for equality between a ``SparseNdarray`` and something.
 
         Args:
@@ -439,7 +438,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="equal", right=True)
 
-    def __req__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __req__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check for equality between something and a ``SparseNdarray``.
 
         Args:
@@ -455,7 +454,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="equal", right=False)
 
-    def __ne__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __ne__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check for non-equality between a ``SparseNdarray`` and something.
 
         Args:
@@ -471,7 +470,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="not_equal", right=True)
 
-    def __rne__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __rne__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check for non-equality between something and a ``SparseNdarray``.
 
         Args:
@@ -487,7 +486,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="not_equal", right=False)
 
-    def __ge__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __ge__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether a ``SparseNdarray`` is greater than or equal to something.
 
         Args:
@@ -503,7 +502,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="greater_equal", right=True)
 
-    def __rge__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __rge__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether something is greater than or equal to a ``SparseNdarray``.
 
         Args:
@@ -521,7 +520,7 @@ class SparseNdarray:
             self, other, operation="greater_equal", right=False
         )
 
-    def __le__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __le__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether a ``SparseNdarray`` is less than or equal to something.
 
         Args:
@@ -539,7 +538,7 @@ class SparseNdarray:
             self, other, operation="less_equal", right=True
         )
 
-    def __rle__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __rle__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether something is greater than or equal to a ``SparseNdarray``.
 
         Args:
@@ -557,7 +556,7 @@ class SparseNdarray:
             self, other, operation="less_equal", right=False
         )
 
-    def __gt__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __gt__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether a ``SparseNdarray`` is greater than something.
 
         Args:
@@ -573,7 +572,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="greater", right=True)
 
-    def __rgt__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __rgt__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether something is greater than a ``SparseNdarray``.
 
         Args:
@@ -589,7 +588,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="greater", right=False)
 
-    def __lt__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __lt__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether a ``SparseNdarray`` is less than something.
 
         Args:
@@ -605,7 +604,7 @@ class SparseNdarray:
         """
         return _operate_with_args_on_SparseNdarray(self, other, operation="less", right=True)
 
-    def __rlt__(self, other) -> Union["SparseNdarray", ndarray]:
+    def __rlt__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
         """Check whether something is less than a ``SparseNdarray``.
 
         Args:
@@ -639,7 +638,7 @@ class SparseNdarray:
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["SparseNdarray", ndarray]:
+    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["SparseNdarray", numpy.ndarray]:
         """Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
@@ -680,7 +679,7 @@ class SparseNdarray:
         """
         if ufunc.__name__ in translate_ufunc_to_op_with_args or ufunc.__name__ == "true_divide":
             # This is required to support situations where the NumPy array is on
-            # the LHS, such that the ndarray method gets called first.
+            # the LHS, such that the numpy.ndarray method gets called first.
 
             op = ufunc.__name__
             if ufunc.__name__ == "true_divide":
@@ -692,7 +691,7 @@ class SparseNdarray:
             return _operate_with_args_on_SparseNdarray(self, v, op, right=False)
 
         elif ufunc.__name__ in translate_ufunc_to_op_simple:
-            dummy = ufunc(zeros(1, dtype=self._dtype))
+            dummy = ufunc(numpy.zeros(1, dtype=self._dtype))
             if dummy[0] == 0:
                 return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, ufunc(v)), dummy.dtype)
             else:
@@ -720,7 +719,7 @@ class SparseNdarray:
                 axis = kwargs["axis"]
             else:
                 axis = 0
-            return _concatenate_SparseNdarray(args[0], along=axis)
+            return _concatenate_SparseNdarrays(args[0], along=axis)
 
         if func == numpy.transpose:
             if "axes" in kwargs:
@@ -735,7 +734,7 @@ class SparseNdarray:
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
 
-    def astype(self, dtype: dtype, **kwargs) -> "SparseNdarray":
+    def astype(self, dtype: numpy.dtype, **kwargs) -> "SparseNdarray":
         """See :py:meth:`~numpy.ndarray.astype` for details.
 
         All keyword arguments are currently ignored.
@@ -774,7 +773,7 @@ def _peek_for_type(contents: list, dim: int):
 _CheckPayload = namedtuple("_CheckPayload", [ "max_index", "dtype", "index_dtype" ])
 
 
-def _check_sparse_tuple(indices: ndarray, values: ndarray, payload: _CheckPayload):
+def _check_sparse_tuple(indices: numpy.ndarray, values: numpy.ndarray, payload: _CheckPayload):
     if len(indices) != len(values):
         raise ValueError("length of index and value vectors should be the same")
 
@@ -870,7 +869,7 @@ def _characterize_indices(subset: Sequence[int], dim_extent: int):
     )
 
 
-def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, f: Callable):
+def _extract_sparse_vector_internal(indices: numpy.ndarray, values: numpy.ndarray, subset_summary: _SubsetSummary, f: Callable):
     subset = subset_summary.subset
 
     start_pos = 0
@@ -901,7 +900,7 @@ def _extract_sparse_vector_internal(indices: ndarray, values: ndarray, subset_su
                         f(t, ix, values[x])
 
 
-def _extract_sparse_vector_to_dense(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary, output: ndarray):
+def _extract_sparse_vector_to_dense(indices: numpy.ndarray, values: numpy.ndarray, subset_summary: _SubsetSummary, output: numpy.ndarray):
     if len(subset_summary.subset) == 0:
         pass
     elif subset_summary.consecutive:
@@ -922,7 +921,7 @@ def _extract_sparse_vector_to_dense(indices: ndarray, values: ndarray, subset_su
         _extract_sparse_vector_internal(indices, values, subset_summary, f)
 
 
-def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence[int], ...], subset_summary: _SubsetSummary, output: ndarray, dim: int):
+def _recursive_extract_dense_array(contents: numpy.ndarray, subset: Tuple[Sequence[int], ...], subset_summary: _SubsetSummary, output: numpy.ndarray, dim: int):
     curdex = subset[dim]
     if dim == 1:
         pos = 0
@@ -946,22 +945,33 @@ def _recursive_extract_dense_array(contents: ndarray, subset: Tuple[Sequence[int
             pos += 1
 
 
-def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> ndarray:
+def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     idims = [len(y) for y in subset]
     subset_summary = _characterize_indices(subset[0], x._shape[0])
 
-    output = zeros((*reversed(idims),), dtype=x._dtype)
+    # We reverse the dimensions so that we use F-contiguous storage. This also
+    # makes it slightly easier to do the recursion as we can just index by
+    # the first dimension to obtain a subarray at each recursive step. 
+    output = numpy.zeros((*reversed(idims),), dtype=x._dtype)
+
     if x._contents is not None:
+        # Wrapping it in a masked array so that masked values are respected.
+        output = numpy.ma.MaskedArray(output, mask=False)
+
         ndim = len(x._shape)
         if ndim > 1:
             _recursive_extract_dense_array(x._contents, subset, subset_summary=subset_summary, output=output, dim=ndim-1)
         else:
             _extract_sparse_vector_to_dense(x._contents[0], x._contents[1], subset_summary=subset_summary, output=output)
 
+        # Stripping out the mask if there were, in fact, no masked values.
+        if isinstance(output.mask, bool) and not output.mask:
+            output = output.data
+
     return output.T
 
 
-def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_summary: _SubsetSummary):
+def _extract_sparse_vector_to_sparse(indices: numpy.ndarray, values: numpy.ndarray, subset_summary: _SubsetSummary):
     if len(subset_summary.subset) == 0:
         pass
 
@@ -996,7 +1006,10 @@ def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_s
 
         if len(new_indices) == 0:
             return None
-        return array(new_indices, dtype=indices.dtype), _create_ndarray_from_values(new_values, template=values)
+        return (
+            _convert_to_unmasked_1darray(new_indices, dtype=indices.dtype), 
+            _convert_to_maybe_masked_1darray(new_values, dtype=values.dtype, masked=numpy.ma.is_masked(values))
+        )
 
     else:
         new_pairs = []
@@ -1005,8 +1018,9 @@ def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_s
         _extract_sparse_vector_internal(indices, values, subset_summary, f)
         new_pairs.sort()
 
-        new_indices = ndarray(len(new_pairs), dtype=indices.dtype)
-        new_values = ndarray(len(new_pairs), dtype=values.dtype)
+        shape = (len(new_pairs),)
+        new_indices = _allocate_unmasked_ndarray(shape, dtype=indices.dtype)
+        new_values = _allocate_maybe_masked_ndarray(shape, dtype=values.dtype, masked=numpy.ma.is_masked(values))
         for i, pair in enumerate(new_pairs):
             new_indices[i] = pair[0]
             new_values[i] = pair[1]
@@ -1068,7 +1082,7 @@ def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Seq
 _TransformPayload = namedtuple("_TransformPayload", [ "fun", "output_dtype" ])
 
 
-def _transform_sparse_vector(location: Sequence[int], indices: ndarray, values: ndarray, payload: _TransformPayload):
+def _transform_sparse_vector(location: Sequence[int], indices: numpy.ndarray, values: numpy.ndarray, payload: _TransformPayload):
     idx, val = payload.fun(location, indices, values)
     return (idx.astype(indices.dtype, copy=False), val.astype(payload.output_dtype, copy=False)) # a bit of safety with respect to types.
 
@@ -1108,7 +1122,7 @@ def _recursive_transform_sparse_array(contents: list, shape: Tuple[int, ...], pa
     return None
 
 
-def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, output_dtype: dtype) -> SparseNdarray:
+def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, output_dtype: numpy.dtype) -> SparseNdarray:
     new_contents = None
     if x._contents is not None:
         payload = _TransformPayload(fun=f, output_dtype=output_dtype)
@@ -1128,18 +1142,18 @@ def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, ou
 _BinaryOpPayload = namedtuple("_BinaryOpPayload", [ "fun", "dtype1", "dtype2", "output_dtype", "output_index_dtype" ])
 
 
-def _binary_operate_sparse_vector(vector1: Tuple[ndarray, ndarray], vector2: Tuple[ndarray, ndarray], payload: _BinaryOpPayload):
+def _binary_operate_sparse_vector(vector1: Tuple[numpy.ndarray, numpy.ndarray], vector2: Tuple[numpy.ndarray, numpy.ndarray], payload: _BinaryOpPayload):
     if vector1 is None and vector2 is None:
         return None
 
     elif vector1 is not None and vector2 is None:
         indices1, values1 = vector1
-        mock = zeros((1,), dtype=payload.dtype2) # get vector of length 1 for correct type coercion.
+        mock = numpy.zeros((1,), dtype=payload.dtype2) # get vector of length 1 for correct type coercion.
         return indices1.astype(payload.output_index_dtype, copy=False), payload.fun(values1, mock).astype(payload.output_dtype, copy=False)
 
     elif vector1 is None and vector2 is not None:
         indices2, values2 = vector2
-        mock = zeros((1,), dtype=payload.dtype1)
+        mock = numpy.zeros((1,), dtype=payload.dtype1)
         return indices2.astype(payload.output_index_dtype, copy=False), payload.fun(mock, values2).astype(payload.output_dtype, copy=False)
 
     else:
@@ -1183,8 +1197,8 @@ def _binary_operate_sparse_vector(vector1: Tuple[ndarray, ndarray], vector2: Tup
             i1 += 1
 
         return (
-            array(outidx, dtype=payload.output_index_dtype), 
-            _create_ndarray_from_parameters(outval, dtype=payload.dtype, masked=numpy.ma.is_masked(values1) or numpy.ma.is_masked(values2))
+            _convert_to_unmasked_1darray(outidx, dtype=payload.output_index_dtype), 
+            _convert_to_maybe_masked_1darray(outval, dtype=payload.output_dtype, masked=numpy.ma.is_masked(values1) or numpy.ma.is_masked(values2))
         )
 
 
@@ -1226,8 +1240,8 @@ def _recursive_binary_operation_on_SparseNdarray(contents1: list, contents2: lis
 def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, operation: ISOMETRIC_OP_WITH_ARGS):
     op = _choose_operator(operation)
 
-    dummy1 = zeros(1, dtype=x._dtype)
-    dummy2 = zeros(1, dtype=y._dtype)
+    dummy1 = numpy.zeros(1, dtype=x._dtype)
+    dummy2 = numpy.zeros(1, dtype=y._dtype)
     dummy = op(dummy1, dummy2)
     if dummy[0] != 0:
         return op(numpy.array(x), numpy.array(y))
@@ -1257,7 +1271,7 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
     num_other = 1
 
     op = _choose_operator(operation)
-    dummy = zeros(num_other, dtype=x._dtype)
+    dummy = numpy.zeros(num_other, dtype=x._dtype)
     if right:
         dummy = op(dummy, other)
     else:
@@ -1269,7 +1283,7 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
         else:
             return op(other, numpy.array(x))
 
-    if isinstance(other, ndarray):
+    if isinstance(other, numpy.ndarray):
         num_other = numpy.prod(other.shape)
         other = other.reshape((num_other,)) # flattening
 
@@ -1307,7 +1321,7 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
 _TransposeFillPayload = namedtuple("_TransposeFillPayload", [ "perm", "new_shape", "new_contents" ])
 
 
-def _transpose_SparseNdarray_contents_internal(location: Sequence[int], indices: ndarray, values: ndarray, payload: _TransposeFillPayload):
+def _transpose_SparseNdarray_contents_internal(location: Sequence[int], indices: numpy.ndarray, values: numpy.ndarray, payload: _TransposeFillPayload):
     destination = []
     final = None
     for i, p in enumerate(payload.perm):
@@ -1362,8 +1376,8 @@ def _recursive_transpose_SparseNdarray_reallocate(contents: list, payload: _Tran
         for i, con in enumerate(contents):
             if con is not None:
                 contents[i] = (
-                    array(con[0], dtype=payload.output_index_dtype), 
-                    _create_possibly_masked_ndarray_with_parameters(con[1], dtype=payload.output_dtype)
+                    _convert_to_unmasked_1darray(con[0], dtype=payload.output_index_dtype), 
+                    _convert_to_1darray_with_inferred_mask(con[1], dtype=payload.output_dtype)
                 )
     else:
         for i, con in enumerate(contents):
@@ -1406,9 +1420,9 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
 _ConcatenatePayload = namedtuple("_ConcatenatePayload", [ "shapes", "offset", "output_dtype", "output_index_dtype"])
 
 
-def _concatenate_sparse_vectors(idx: ndarray, val: ndarray, payload: _ConcatenatePayload):
-    newidx = numpy.concatenate(idx).astype(payload.output_index_dtype, copy=False)
-    newval = numpy.concatenate(val).astype(payload.output_dtype, copy=False)
+def _concatenate_sparse_vectors(idx: List[numpy.ndarray], val: List[numpy.ndarray], payload: _ConcatenatePayload):
+    newidx = _concatenate_unmasked_ndarrays(idx, axis=0).astype(payload.output_index_dtype, copy=False)
+    newval = _concatenate_maybe_masked_ndarrays(val, axis=0).astype(payload.output_dtype, copy=False)
     return (newidx, newval)
 
 
@@ -1425,7 +1439,7 @@ def _coerce_concatenated_SparseNdarray_types(contents: list, payload: _Concatena
                 _coerce_concatenated_SparseNdarray_types(con, payload, dim=dim - 1)
 
 
-def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int, ...], along: int, payload: _ConcatenatePayload, dim: int):
+def _recursive_concatenate_SparseNdarrays(contents: list, final_shape: Tuple[int, ...], along: int, payload: _ConcatenatePayload, dim: int):
     if along == dim:
         all_none = True
         for x in contents:
@@ -1465,11 +1479,11 @@ def _recursive_concatenate_SparseNdarray(contents: list, final_shape: Tuple[int,
             for j, c in enumerate(contents):
                 if c is not None:
                     collected[j] = c[i]
-            new_contents.append(_recursive_concatenate_SparseNdarray(collected, final_shape, along, payload, dim=dim-1))
+            new_contents.append(_recursive_concatenate_SparseNdarrays(collected, final_shape, along, payload, dim=dim-1))
         return new_contents
 
 
-def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
+def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
     all_contents = []
     all_shapes = []
     for x in xs:
@@ -1493,10 +1507,11 @@ def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
     dummy_collected = []
     dummy_collected_index = []
     for x in xs:
-        dummy_collected.append(zeros(1, dtype=x._dtype))
-        dummy_collected_index.append(zeros(1, dtype=x._index_dtype))
-    dummy = numpy.concatenate(dummy_collected)
-    dummy_index = numpy.concatenate(dummy_collected_index)
+        dummy_collected.append(numpy.zeros(1, dtype=x._dtype))
+        dummy_collected_index.append(numpy.zeros(1, dtype=x._index_dtype))
+
+    output_dtype = _concatenate_unmasked_ndarrays(dummy_collected, axis=0).dtype
+    output_index_dtype = _concatenate_unmasked_ndarrays(dummy_collected_index, axis=0).dtype
 
     all_none = True
     for con in all_contents:
@@ -1506,9 +1521,12 @@ def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
     new_contents = None
     if not all_none:
         offset = None
-        index_dtype = dummy_index.dtype
+        index_dtype = output_index_dtype
         ndim = len(new_shape)
 
+        # Upgrading the index type to ensure we can hold the output, if we're
+        # concatenating on the first dimension (and thus possibly increasing
+        # the indices in the leaves of the subsequent SparseNdarrays).
         if along == 0:
             last = 0
             offset = []
@@ -1516,15 +1534,15 @@ def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
                 offset.append(last)
                 last += shape[along]
 
-            for candidate in [index_dtype, int32, uint32, int64, uint64]:
-                if last == array([last], dtype=candidate)[0]:
+            for candidate in [index_dtype, numpy.uint32, numpy.uint64]:
+                if last < numpy.iinfo(candidate).max:
                     index_dtype = candidate
                     break
 
-        payload = _ConcatenatePayload(shapes=all_shapes, offset=offset, output_dtype=dummy.dtype, output_index_dtype=index_dtype)
+        payload = _ConcatenatePayload(shapes=all_shapes, offset=offset, output_dtype=output_dtype, output_index_dtype=index_dtype)
 
         if ndim > 1:
-            new_contents = _recursive_concatenate_SparseNdarray(all_contents, new_shape, along=along, payload=payload, dim=ndim-1)
+            new_contents = _recursive_concatenate_SparseNdarrays(all_contents, new_shape, along=along, payload=payload, dim=ndim-1)
         else:
             outidx = []
             outval = [] 
@@ -1534,4 +1552,4 @@ def _concatenate_SparseNdarray(xs: List[SparseNdarray], along: int):
                     outval.append(c[1])
             new_contents = _concatenate_sparse_vectors(outidx, outval, payload)
 
-    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=dummy.dtype, index_dtype=dummy_index.dtype, check=False)
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=output_dtype, index_dtype=output_index_dtype, check=False)

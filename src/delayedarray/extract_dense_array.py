@@ -1,5 +1,5 @@
 from functools import singledispatch
-from numpy import array, ndarray, ix_, asfortranarray
+import numpy
 from typing import Any, Optional, Tuple, Sequence
 from biocutils.package_utils import is_package_installed
 
@@ -12,7 +12,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> ndarray:
+def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> numpy.ndarray:
     """Extract the realized contents (or a subset thereof) into a dense NumPy
     array with Fortran storage order, i.e., earlier dimensions change fastest. 
 
@@ -34,15 +34,15 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = No
 
 
 @extract_dense_array.register
-def extract_dense_array_ndarray(x: ndarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_ndarray(x: numpy.ndarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if _is_subset_noop(x.shape, subset):
         subset = None
     if subset is None:
         tmp = x
     else:
-        tmp = x[ix_(*subset)]
-    return array(tmp, dtype=tmp.dtype, order="F", copy=False)
+        tmp = x[numpy.ix_(*subset)]
+    return _sanitize_to_fortran(tmp)
 
 
 @extract_dense_array.register
@@ -56,8 +56,10 @@ def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[S
 def _sanitize_to_fortran(x):
     if x.flags.f_contiguous:
         return x
-    else: 
-        return asfortranarray(x)
+    else:
+        # Don't use asfortranarray, as this strips any masks.
+        return x.astype(x.dtype, order="F", casting="no", copy=False)
+
 
 if is_package_installed("scipy"):
     import scipy.sparse as sp
@@ -66,7 +68,7 @@ if is_package_installed("scipy"):
         if _is_subset_noop(x.shape, subset):
             tmp = x
         else:
-            tmp = x[ix_(*subset)]
+            tmp = x[numpy.ix_(*subset)]
         return tmp.toarray(order="F")
 
     @extract_dense_array.register
