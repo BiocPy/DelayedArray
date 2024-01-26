@@ -5,6 +5,7 @@ from typing import Any, Optional, Tuple, Sequence
 from biocutils.package_utils import is_package_installed
 
 from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
+from ._mask import _create_potentially_masked_ndarray
 from .SparseNdarray import SparseNdarray, _extract_sparse_array_from_SparseNdarray
 
 __author__ = "ltla"
@@ -202,7 +203,7 @@ if is_package_installed("scipy"):
                 if len(con):
                     con.sort()
                     idx = ndarray(len(con), dtype=x.row.dtype)
-                    val = ndarray(len(con), dtype=x.data.dtype)
+                    val = _create_potentially_masked_ndarray(source=x.data)
                     for j, y in enumerate(con):
                         idx[j] = y[0]
                         val[j] = y[1]

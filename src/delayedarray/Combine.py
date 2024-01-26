@@ -122,7 +122,15 @@ def _extract_array(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: C
             flexargs[x._along] = fragmented[i]
             extracted.append(f(s, (*flexargs,)))
 
-    return concatenate((*extracted,), axis=x._along)
+    is_masked = False
+    for f in fragmented:
+        if numpy.ma.is_masked(f):
+            is_masked = True
+
+    if is_masked:
+        return numpy.ma.concatenate((*extracted,), axis=x._along)
+    else:
+        return concatenate((*extracted,), axis=x._along)
 
 
 @extract_dense_array.register

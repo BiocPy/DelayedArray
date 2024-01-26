@@ -996,7 +996,7 @@ def _extract_sparse_vector_to_sparse(indices: ndarray, values: ndarray, subset_s
 
         if len(new_indices) == 0:
             return None
-        return array(new_indices, dtype=indices.dtype), array(new_values, dtype=values.dtype)
+        return array(new_indices, dtype=indices.dtype), _create_ndarray_from_values(new_values, template=values)
 
     else:
         new_pairs = []
@@ -1182,7 +1182,10 @@ def _binary_operate_sparse_vector(vector1: Tuple[ndarray, ndarray], vector2: Tup
             outidx.append(indices1[i1])
             i1 += 1
 
-        return array(outidx, dtype=payload.output_index_dtype), array(outval, dtype=payload.output_dtype)
+        return (
+            array(outidx, dtype=payload.output_index_dtype), 
+            _create_ndarray_from_parameters(outval, dtype=payload.dtype, masked=numpy.ma.is_masked(values1) or numpy.ma.is_masked(values2))
+        )
 
 
 def _recursive_binary_operation_on_SparseNdarray(contents1: list, contents2: list, payload: _BinaryOpPayload, dim: int):
@@ -1358,7 +1361,10 @@ def _recursive_transpose_SparseNdarray_reallocate(contents: list, payload: _Tran
     if dim == 1:
         for i, con in enumerate(contents):
             if con is not None:
-                contents[i] = (array(con[0], dtype=payload.output_index_dtype), array(con[1], dtype=payload.output_dtype))
+                contents[i] = (
+                    array(con[0], dtype=payload.output_index_dtype), 
+                    _create_possibly_masked_ndarray_with_parameters(con[1], dtype=payload.output_dtype)
+                )
     else:
         for i, con in enumerate(contents):
             if con is not None:
