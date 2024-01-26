@@ -42,7 +42,7 @@ def safe_concatenate(x: List[numpy.ndarray], axis: int = 0):
 def simulate_ndarray(shape: Tuple[int, ...], dtype: numpy.dtype = numpy.dtype("float64"), mask_rate: float = 0):
     y = numpy.random.rand(*shape)
     if isinstance(dtype, numpy.integer):
-        y *= 10
+        y *= 10 # just to get some more interesting values
     y = y.astype(dtype, copy=False)
     if mask_rate:
         y = numpy.ma.MaskedArray(y, numpy.random.rand(*shape) < mask_rate)
