@@ -1163,8 +1163,10 @@ def _binary_operate_sparse_vector(vector1: Tuple[numpy.ndarray, numpy.ndarray], 
 
         i1 = 0
         len1 = len(indices1)
+        z1 = values1.dtype.type(0)
         i2 = 0
         len2 = len(indices2)
+        z2 = values2.dtype.type(0)
         outval = []
         outidx = []
 
@@ -1172,11 +1174,11 @@ def _binary_operate_sparse_vector(vector1: Tuple[numpy.ndarray, numpy.ndarray], 
             ix1 = indices1[i1]
             ix2 = indices2[i2]
             if ix1 > ix2:
-                outval.append(f(0, values2[i2]))
+                outval.append(f(z1, values2[i2]))
                 outidx.append(ix2)
                 i2 += 1
             elif ix1 < ix2:
-                outval.append(f(values1[i1], 0))
+                outval.append(f(values1[i1], z2))
                 outidx.append(ix1)
                 i1 += 1
             else:
@@ -1187,12 +1189,12 @@ def _binary_operate_sparse_vector(vector1: Tuple[numpy.ndarray, numpy.ndarray], 
 
         # Only one of the following should be called.
         while i2 < len2:
-            outval.append(f(0, values2[i2]))
+            outval.append(f(z1, values2[i2]))
             outidx.append(indices2[i2])
             i2 += 1
 
         while i1 < len1:
-            outval.append(f(values1[i1], 0))
+            outval.append(f(values1[i1], z2))
             outidx.append(indices1[i1])
             i1 += 1
 
@@ -1244,7 +1246,7 @@ def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, opera
     dummy2 = numpy.zeros(1, dtype=y._dtype)
     dummy = op(dummy1, dummy2)
     if dummy[0] != 0:
-        return op(numpy.array(x), numpy.array(y))
+        return op(x.__array__(), y.__array__())
 
     if x._contents is None and y._contents is None:
         new_contents = None
@@ -1279,9 +1281,9 @@ def _operate_with_args_on_SparseNdarray(x: SparseNdarray, other, operation: ISOM
 
     if num_other and not (dummy == 0).all(): # densifying.
         if right:
-            return op(numpy.array(x), other)
+            return op(x.__array__(), other)
         else:
-            return op(other, numpy.array(x))
+            return op(other, x.__array__())
 
     if isinstance(other, numpy.ndarray):
         num_other = numpy.prod(other.shape)
