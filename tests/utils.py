@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 import numpy
 
 
@@ -37,3 +37,20 @@ def safe_concatenate(x: List[numpy.ndarray], axis: int = 0):
         return numpy.ma.concatenate(x, axis=axis)
     else:
         return numpy.concatenate(x, axis=axis)
+
+
+def simulate_ndarray(shape: Tuple[int, ...], dtype: numpy.dtype = numpy.dtype("float64"), mask_rate: float = 0):
+    y = numpy.random.rand(*shape)
+    if isinstance(dtype, numpy.integer):
+        y *= 10
+    y = y.astype(dtype, copy=False)
+    if mask_rate:
+        y = numpy.ma.MaskedArray(y, numpy.random.rand(*shape) < mask_rate)
+    return y
+
+
+def inject_mask_for_sparse_matrix(x, mask_rate: float):
+    if mask_rate:
+        x.data = numpy.ma.MaskedArray(x.data, numpy.random.rand(x.data.shape[0]) < mask_rate)
+    return
+
