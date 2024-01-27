@@ -1,9 +1,8 @@
 import numpy
 import delayedarray
-import scipy.sparse
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray 
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -34,12 +33,13 @@ def test_Round_subset(mask_rate):
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_Round_sparse(mask_rate):
-    y = scipy.sparse.random(30, 10, 0.05)
-    inject_mask_for_sparse_matrix(y, mask_rate=mask_rate) 
+    y = simulate_SparseNdarray((30, 10), mask_rate=mask_rate) * 10
     x = delayedarray.DelayedArray(y)
+    densed = delayedarray.extract_dense_array(y)
+
     z = numpy.round(x)
     assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.round(y.toarray()))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.round(densed))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])

@@ -1,9 +1,8 @@
 import delayedarray
 import numpy
-import scipy.sparse
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -518,21 +517,22 @@ def test_UnaryIsometricOpWithArgs_logical_xor(left_mask_rate, right_mask_rate):
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
 def test_UnaryIsometricOpWithArgs_sparse(left_mask_rate, right_mask_rate):
-    y = scipy.sparse.random(100, 50, 0.1)
+    y = simulate_SparseNdarray((100, 50), density1=0.1, mask_rate=left_mask_rate)
     x = delayedarray.DelayedArray(y)
+    densed = delayedarray.extract_dense_array(y)
     z = x + 1
     assert not delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() + 1)
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), densed + 1)
 
     v = simulate_ndarray((50,), mask_rate=right_mask_rate)
     z = x / v
     assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() / v)
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), densed / v)
 
     if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
         z = v * x
         assert delayedarray.is_sparse(z)
-        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y.toarray())
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * densed)
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])

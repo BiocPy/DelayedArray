@@ -99,6 +99,9 @@ class SparseNdarray:
                     if info is not None:
                         index_dtype0 = info[0]
                         dtype0 = info[1]
+                    else:
+                        dtype0 = None
+                        index_dtype0 = None
                 else:
                     index_dtype0 = contents[0].dtype
                     dtype0 = contents[1].dtype

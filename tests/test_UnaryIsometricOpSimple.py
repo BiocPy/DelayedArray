@@ -2,10 +2,9 @@ import warnings
 
 import delayedarray
 import numpy
-import scipy
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -99,14 +98,14 @@ def test_UnaryIsometricOpSimple_subset(mask_rate):
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_UnaryIsometricOpSimple_sparse(mask_rate):
-    y = scipy.sparse.rand(20, 50, 0.5)
-    inject_mask_for_sparse_matrix(y, mask_rate)
+    y = simulate_SparseNdarray((20, 50), density1=0.15, mask_rate=mask_rate)
     x = delayedarray.DelayedArray(y)
+    densed = delayedarray.extract_dense_array(y)
 
     z = numpy.exp(x)
     assert not delayedarray.is_sparse(z)
-    assert_identical_ndarrays(numpy.exp(y.toarray()), delayedarray.extract_dense_array(z))
+    assert_identical_ndarrays(numpy.exp(densed), delayedarray.extract_dense_array(z))
 
     z = numpy.log1p(x)
     assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(numpy.log1p(y.toarray()), delayedarray.extract_dense_array(z))
+    assert_identical_ndarrays(numpy.log1p(densed), delayedarray.extract_dense_array(z))

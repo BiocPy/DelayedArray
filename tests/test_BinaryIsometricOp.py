@@ -1,9 +1,8 @@
 import delayedarray
 import numpy
-import scipy.sparse
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -283,25 +282,25 @@ def test_BinaryIsometricOp_subset(left_mask_rate, right_mask_rate):
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
 def test_BinaryIsometricOp_sparse(left_mask_rate, right_mask_rate):
-    y = scipy.sparse.random(100, 50, 0.1)
-    inject_mask_for_sparse_matrix(y, left_mask_rate)
+    y = simulate_SparseNdarray((100, 50), mask_rate=left_mask_rate, density1=0.1)
     x = delayedarray.DelayedArray(y)
+    densed = delayedarray.extract_dense_array(y)
 
     y2 = simulate_ndarray(y.shape, mask_rate=right_mask_rate)
     x2 = delayedarray.DelayedArray(y2)
     z = numpy.logical_xor(x != 0, x2 != 0)
     assert not delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_xor(y.toarray() != 0, y2 != 0))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_xor(densed != 0, y2 != 0))
 
     z = x + x2
     assert not delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() + y2)
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), densed + y2)
 
-    y3 = scipy.sparse.random(100, 50, 0.1)
+    y3 = simulate_SparseNdarray((100, 50), mask_rate=left_mask_rate, density1=0.1)
     x3 = delayedarray.DelayedArray(y3)
     z = x + x3
     assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() + y3)
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), densed + delayedarray.extract_dense_array(y3))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])

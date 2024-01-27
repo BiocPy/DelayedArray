@@ -1,5 +1,7 @@
 from typing import List, Tuple
 import numpy
+import random
+import delayedarray
 
 
 def sanitize_ndarray(x: numpy.ndarray):
@@ -49,8 +51,53 @@ def simulate_ndarray(shape: Tuple[int, ...], dtype: numpy.dtype = numpy.dtype("f
     return y
 
 
-def inject_mask_for_sparse_matrix(x, mask_rate: float):
-    if mask_rate:
-        x.data = numpy.ma.MaskedArray(x.data, numpy.random.rand(x.data.shape[0]) < mask_rate)
-    return
+def mock_SparseNdarray_contents(
+    shape: Tuple[int, ...], 
+    density1: float = 0.5, 
+    density2: float = 0.5, 
+    lower: float = -1, 
+    upper: float = 1, 
+    dtype: numpy.dtype = numpy.dtype("float64"), 
+    mask_rate: float = 0
+):
+    if len(shape) == 1:
+        new_indices = []
+        new_values = []
+        for i in range(shape[0]):
+            if random.uniform(0, 1) < density2:
+                new_indices.append(i)
+                new_values.append(random.uniform(lower, upper))
 
+        new_indices = numpy.array(new_indices, dtype=numpy.int32)
+        new_values = numpy.array(new_values, dtype=dtype)
+        if mask_rate:
+            new_mask = numpy.random.rand(len(new_values)) < mask_rate
+            new_values = numpy.ma.MaskedArray(new_values, mask=new_mask)
+        return new_indices, new_values
+
+    # We use a survivor system to force at least one element of each dimension to 
+    # proceed to the next recursion depth; this ensures that the type can be inferred.
+    new_content = []
+    survivor = random.randint(0, shape[-1] - 1)
+    for i in range(shape[-1]):
+        if i != survivor and random.uniform(0, 1) > density1:
+            new_content.append(None)
+        else:
+            new_content.append(
+                mock_SparseNdarray_contents(
+                    shape[:-1],
+                    density1=density1,
+                    density2=density2,
+                    lower=lower,
+                    upper=upper,
+                    dtype=dtype,
+                    mask_rate=mask_rate,
+                )
+            )
+
+    return new_content
+
+
+def simulate_SparseNdarray(shape, **kwargs):
+    contents = mock_SparseNdarray_contents(shape, **kwargs)
+    return delayedarray.SparseNdarray(shape, contents)

@@ -1,9 +1,8 @@
 import numpy
 import delayedarray
-import scipy
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix, safe_concatenate
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray, safe_concatenate
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -81,22 +80,22 @@ def test_Combine_mixed_chunks(left_mask_rate, right_mask_rate):
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
 def test_Combine_mixed_sparse(left_mask_rate, right_mask_rate):
-    y1 = scipy.sparse.rand(100, 10, 0.2)
-    inject_mask_for_sparse_matrix(y1, left_mask_rate)
-    y2a = scipy.sparse.rand(100, 20, 0.2)
-    inject_mask_for_sparse_matrix(y2a, right_mask_rate)
+    y1 = simulate_SparseNdarray((100, 10), density1=0.2, mask_rate=left_mask_rate)
+    y2a = simulate_SparseNdarray((100, 20), density2=0.2, mask_rate=right_mask_rate)
+    densed1 = delayedarray.extract_dense_array(y1)
+    densed2 = delayedarray.extract_dense_array(y2a)
 
     x1 = delayedarray.DelayedArray(y1)
     x2a = delayedarray.DelayedArray(y2a)
     x = numpy.concatenate((x1, x2a), axis=1)
     assert delayedarray.is_sparse(x)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(x), safe_concatenate((y1.toarray(), y2a.toarray()), axis=1))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(x), safe_concatenate((densed1, densed2), axis=1))
 
     y2b = simulate_ndarray((100, 20), mask_rate=right_mask_rate)
     x2b = delayedarray.DelayedArray(y2b)
     x = numpy.concatenate((x1, x2b), axis=1)
     assert not delayedarray.is_sparse(x)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(x), safe_concatenate((y1.toarray(), y2b), axis=1))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(x), safe_concatenate((densed1, y2b), axis=1))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])

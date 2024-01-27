@@ -1,9 +1,8 @@
 import numpy
 import delayedarray
-import scipy.sparse
 import pytest
 
-from utils import simulate_ndarray, assert_identical_ndarrays, inject_mask_for_sparse_matrix
+from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -36,13 +35,13 @@ def test_Cast_subset(mask_rate):
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_Cast_sparse(mask_rate):
-    y = scipy.sparse.random(10, 20, 0.05)
-    inject_mask_for_sparse_matrix(y, mask_rate)
+    y = simulate_SparseNdarray((10, 20), mask_rate=mask_rate, density1=0.1) * 100 # scaling it up that coercion doesn't create an all-zero matrix.
     x = delayedarray.DelayedArray(y)
+    densed = delayedarray.extract_dense_array(y)
 
     z = x.astype(numpy.int32)
     assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray().astype(numpy.int32))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), densed.astype(numpy.int32))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])

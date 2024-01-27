@@ -68,6 +68,9 @@ if is_package_installed("scipy"):
         if _is_subset_noop(x.shape, subset):
             tmp = x
         else:
+            # This just drops any masking on the scipy data; so, not our fault.
+            # I am inclined to believe that scipy.sparse does not support
+            # masked arrays, which is fine with me.
             tmp = x[numpy.ix_(*subset)]
         return tmp.toarray(order="F")
 
