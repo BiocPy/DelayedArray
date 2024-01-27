@@ -49,7 +49,7 @@ def test_UnaryIsometricOpSimple_basic(mask_rate):
             da = delayedarray.create_dask_array(z).compute()
             expected = ufunc(y)
 
-        assert isinstance(z, delayedarray.DelayedArray)
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpSimple)
         assert z.shape == x.shape
         assert z.seed.operation == op
         assert delayedarray.chunk_shape(z) == (1, 55)
@@ -60,25 +60,13 @@ def test_UnaryIsometricOpSimple_basic(mask_rate):
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
-def test_UnaryIsometricOpSimple_negate(mask_rate):
-    test_shape = (30, 55)
-    y = simulate_ndarray(test_shape, mask_rate=mask_rate)
-    x = delayedarray.DelayedArray(y)
-    z = -x
-
-    assert isinstance(z, delayedarray.DelayedArray)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), -y)
-
-
-@pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_UnaryIsometricOpSimple_logical_not(mask_rate):
     test_shape = (30, 55)
     y = simulate_ndarray(test_shape, dtype=numpy.dtype("bool"), mask_rate=mask_rate)
     x = delayedarray.DelayedArray(y)
     z = numpy.logical_not(x)
 
-    assert isinstance(z, delayedarray.DelayedArray)
+    assert isinstance(z.seed, delayedarray.UnaryIsometricOpSimple)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_not(y))
 
@@ -92,7 +80,7 @@ def test_UnaryIsometricOpSimple_abs(mask_rate):
     # Absolute values have their own dunder method, so we check it explicitly.
     z = abs(x)
 
-    assert isinstance(z, delayedarray.DelayedArray)
+    assert isinstance(z.seed, delayedarray.UnaryIsometricOpSimple)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), abs(y))
 
