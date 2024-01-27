@@ -60,6 +60,7 @@ class UnaryIsometricOpWithArgs(DelayedOp):
 
         along = _infer_along_with_args(seed.shape, value)
         if along is None and isinstance(value, ndarray):
+            ndim = len(value.shape)
             value = value[(*([0] * ndim),)]
 
         with warnings.catch_warnings():  # silence warnings from divide by zero.
@@ -145,7 +146,7 @@ def _extract_array(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[
     target = f(x._seed, subset)
 
     subvalue = x._value
-    if isinstance(subvalue, ndarray):
+    if isinstance(subvalue, ndarray) and not subvalue is numpy.ma.masked:
         if subset is None:
             subset = _spawn_indices(x.shape)
         if len(subvalue.shape) == 1:

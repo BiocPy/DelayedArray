@@ -176,8 +176,7 @@ class DelayedArray:
             or ufunc.__name__ == "true_divide"
         ):
             # This is required to support situations where the NumPy array is on
-            # the LHS, such that the ndarray method gets called first.
-
+            # the LHS, such that the ndarray method gets called first. 
             op = ufunc.__name__
             if ufunc.__name__ == "true_divide":
                 op = "divide"
@@ -203,8 +202,12 @@ class DelayedArray:
                 UnaryIsometricOpSimple(_extract_seed(inputs[0]), operation="logical_not")
             )
 
-
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
+
+    # Just get the array priority above that of the numpy MaskedArray so that
+    # we call DelayedArray's __array_ufunc__ override instead... annoyingly, it
+    # doesn't actually work (https://github.com/numpy/numpy/issues/15200).
+    __array_priority__ = numpy.ma.MaskedArray.__array_priority__ + 1
 
     def __array_function__(self, func, types, args, kwargs) -> "DelayedArray":
         """Interface to NumPy's high-level array functions.  This is used to
@@ -243,6 +246,9 @@ class DelayedArray:
             else:
                 decimals = 0
             return DelayedArray(Round(seed, decimals=decimals))
+
+        if func == numpy.shape:
+            return self.shape 
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 

@@ -43,17 +43,17 @@ def test_UnaryIsometricOpWithArgs_add(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + 5)
 
     v = simulate_ndarray((15,), mask_rate=right_mask_rate)
-    z = v + x
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v + y)
-
-    v = simulate_ndarray((15,), mask_rate=right_mask_rate)
     z = x + v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + v)
     assert z.seed.along == 1
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v + x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v + y)
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -74,15 +74,16 @@ def test_UnaryIsometricOpWithArgs_subtract(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5 - y)
 
     v = simulate_ndarray((15,), mask_rate=right_mask_rate)
-    z = v - x
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v - y)
-
     z = x - v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y - v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v - x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v - y)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -115,15 +116,16 @@ def test_UnaryIsometricOpWithArgs_multiply(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5 * y)
 
     v = simulate_ndarray((25,), mask_rate=right_mask_rate)
-    z = v * x
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y)
-
     z = x * v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y * v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v * x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y)
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -144,15 +146,16 @@ def test_UnaryIsometricOpWithArgs_divide(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5 / (y + 1))
 
     v = simulate_ndarray((25,), mask_rate=right_mask_rate)
-    z = v / (x + 1)
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v / (y + 1))
-
     z = x / v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y / v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v / (x + 1)
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v / (y + 1))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -173,15 +176,16 @@ def test_UnaryIsometricOpWithArgs_modulo(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5 % (y + 1))
 
     v = simulate_ndarray((44,), mask_rate=right_mask_rate)
-    z = v % (x + 1)
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v % (y + 1))
-
     z = x % v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y % v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v % (x + 1)
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v % (y + 1))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -202,15 +206,16 @@ def test_UnaryIsometricOpWithArgs_floordivide(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5 // (y + 1))
 
     v = simulate_ndarray((55,), mask_rate=right_mask_rate)
-    z = v // (x + 1)
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v // (y + 1))
-
     z = x // v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y // v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v // (x + 1)
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v // (y + 1))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -233,15 +238,16 @@ def test_UnaryIsometricOpWithArgs_power(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), 5**y)
 
     v = simulate_ndarray((55,), mask_rate=right_mask_rate)
-    z = v**x
-    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
-    assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v**y)
-
     z = x**v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y**v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v**x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v**y)
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -251,24 +257,33 @@ def test_UnaryIsometricOpWithArgs_equal(left_mask_rate, right_mask_rate):
     y = simulate_ndarray(test_shape, mask_rate=left_mask_rate)
     x = delayedarray.DelayedArray(y)
 
-    val = x[0,0]
+    val = x[0,0,0]
     z = x == val
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y == val))
 
-    val = x[1,1]
+    val = x[1,1,1]
     z = val == x
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y == val))
 
     # Generating something that could actually compare equal for a proper test.
-    v = y[2,:]
+    v = y[2,3,:]
     if right_mask_rate:
-        v.mask = numpy.random.rand(len(v)) < right_mask_rate
-    z = v == x
+        v = numpy.ma.MaskedArray(v, mask = numpy.random.rand(len(v)) < right_mask_rate)
+    elif left_mask_rate:
+        v = v.data
+
+    z = x == v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v == y))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v == x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v == y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -291,11 +306,20 @@ def test_UnaryIsometricOpWithArgs_not_equal(left_mask_rate, right_mask_rate):
     # Generating something that could actually compare equal for a proper test.
     v = y[2,:]
     if right_mask_rate:
-        v.mask = numpy.random.rand(len(v)) < right_mask_rate
-    z = v != x
+        v = numpy.ma.MaskedArray(v, mask = numpy.random.rand(len(v)) < right_mask_rate)
+    elif left_mask_rate:
+        v = v.data
+
+    z = x != v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v != y))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v != x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v != y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -314,10 +338,16 @@ def test_UnaryIsometricOpWithArgs_greater(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y < 0.2))
 
     v = simulate_ndarray((11,), mask_rate=right_mask_rate)
-    z = v > x
+    z = x > v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v > y))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y > v))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v > x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v > y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -336,10 +366,16 @@ def test_UnaryIsometricOpWithArgs_greater_equal(left_mask_rate, right_mask_rate)
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y <= 0.2))
 
     v = simulate_ndarray((13,), mask_rate=right_mask_rate)
-    z = v >= x
+    z = x >= v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v >= y))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y >= v))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v >= x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v >= y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -358,10 +394,16 @@ def test_UnaryIsometricOpWithArgs_less(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y > 0.4))
 
     v = simulate_ndarray((13,), mask_rate=right_mask_rate)
-    z = v < x
+    z = x < v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v < y))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y < v))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v < x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v < y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -380,10 +422,16 @@ def test_UnaryIsometricOpWithArgs_less_than(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y >= 0.2))
 
     v = simulate_ndarray((33,), mask_rate=right_mask_rate)
-    z = v <= x
+    z = x <= v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v <= y))
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), (y <= v))
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v <= x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), (v <= y))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -407,6 +455,11 @@ def test_UnaryIsometricOpWithArgs_logical_and(left_mask_rate, right_mask_rate):
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_and(v, y))
 
+    z = numpy.logical_and(x, v)
+    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert z.shape == x.shape
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_and(y, v))
+
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
@@ -428,6 +481,11 @@ def test_UnaryIsometricOpWithArgs_logical_or(left_mask_rate, right_mask_rate):
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_or(v, y))
+
+    z = numpy.logical_or(x, v)
+    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert z.shape == x.shape
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_or(y, v))
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -451,6 +509,11 @@ def test_UnaryIsometricOpWithArgs_logical_xor(left_mask_rate, right_mask_rate):
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_xor(v, y))
 
+    z = numpy.logical_xor(x, v)
+    assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert z.shape == x.shape
+    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.logical_xor(y, v))
+
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
@@ -462,14 +525,14 @@ def test_UnaryIsometricOpWithArgs_sparse(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() + 1)
 
     v = simulate_ndarray((50,), mask_rate=right_mask_rate)
-    z = v * x
-    assert delayedarray.is_sparse(z)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y.toarray())
-
-    v = simulate_ndarray((50,), mask_rate=right_mask_rate)
     z = x / v
     assert delayedarray.is_sparse(z)
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.toarray() / v)
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v * x
+        assert delayedarray.is_sparse(z)
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y.toarray())
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
@@ -498,6 +561,13 @@ def test_UnaryIsometricOpWithArgs_with_array(left_mask_rate, right_mask_rate):
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + v)
     assert z.seed.along == 2 
+
+    if right_mask_rate == 0: # due to bug in MaskedArray ufunc dispatch.
+        z = v * x
+        assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+        assert z.shape == x.shape
+        assert_identical_ndarrays(delayedarray.extract_dense_array(z), v * y)
+        assert z.seed.along == 2
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
