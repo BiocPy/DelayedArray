@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="delayedarray package" href="delayedarray.html" /><link rel="prev" title="Changelog" href="../changelog.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray - DelayedArray 0.3.4 documentation</title>
+        <title>delayedarray - DelayedArray 0.3.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">DelayedArray 0.3.4 documentation</div></a>
+      <a href="../index.html"><div class="brand">DelayedArray 0.3.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -219,6 +219,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.create_dask_array_BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">create_dask_array_BinaryIsometricOp()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.extract_dense_array_BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_BinaryIsometricOp()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.extract_sparse_array_BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_BinaryIsometricOp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.is_masked_BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">is_masked_BinaryIsometricOp()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.BinaryIsometricOp.is_sparse_BinaryIsometricOp"><code class="docutils literal notranslate"><span class="pre">is_sparse_BinaryIsometricOp()</span></code></a></li>
 </ul>
 </li>
@@ -234,6 +235,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.create_dask_array_Cast"><code class="docutils literal notranslate"><span class="pre">create_dask_array_Cast()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.extract_dense_array_Cast"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_Cast()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.extract_sparse_array_Cast"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_Cast()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.is_masked_Cast"><code class="docutils literal notranslate"><span class="pre">is_masked_Cast()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Cast.is_sparse_Cast"><code class="docutils literal notranslate"><span class="pre">is_sparse_Cast()</span></code></a></li>
 </ul>
 </li>
@@ -250,6 +252,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.create_dask_array_Combine"><code class="docutils literal notranslate"><span class="pre">create_dask_array_Combine()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.extract_dense_array_Combine"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_Combine()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.extract_sparse_array_Combine"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_Combine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.is_masked_Combine"><code class="docutils literal notranslate"><span class="pre">is_masked_Combine()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Combine.is_sparse_Combine"><code class="docutils literal notranslate"><span class="pre">is_sparse_Combine()</span></code></a></li>
 </ul>
 </li>
@@ -260,6 +263,7 @@
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__add__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__add__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_function__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array_function__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_priority__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array_priority__</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__array_ufunc__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__array_ufunc__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__eq__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__eq__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.DelayedArray.__floordiv__"><code class="docutils literal notranslate"><span class="pre">DelayedArray.__floordiv__()</span></code></a></li>
@@ -304,6 +308,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.create_dask_array_DelayedArray"><code class="docutils literal notranslate"><span class="pre">create_dask_array_DelayedArray()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.extract_dense_array_DelayedArray"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_DelayedArray()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.extract_sparse_array_DelayedArray"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_DelayedArray()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.is_masked_DelayedArray"><code class="docutils literal notranslate"><span class="pre">is_masked_DelayedArray()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.DelayedArray.is_sparse_DelayedArray"><code class="docutils literal notranslate"><span class="pre">is_sparse_DelayedArray()</span></code></a></li>
 </ul>
 </li>
@@ -327,6 +332,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Round.create_dask_array_Round"><code class="docutils literal notranslate"><span class="pre">create_dask_array_Round()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Round.extract_dense_array_Round"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_Round()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Round.extract_sparse_array_Round"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_Round()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Round.is_masked_Round"><code class="docutils literal notranslate"><span class="pre">is_masked_Round()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Round.is_sparse_Round"><code class="docutils literal notranslate"><span class="pre">is_sparse_Round()</span></code></a></li>
 </ul>
 </li>
@@ -390,6 +396,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.create_dask_array_Subset"><code class="docutils literal notranslate"><span class="pre">create_dask_array_Subset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.extract_dense_array_Subset"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_Subset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.extract_sparse_array_Subset"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_Subset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.is_masked_Subset"><code class="docutils literal notranslate"><span class="pre">is_masked_Subset()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Subset.is_sparse_Subset"><code class="docutils literal notranslate"><span class="pre">is_sparse_Subset()</span></code></a></li>
 </ul>
 </li>
@@ -406,6 +413,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.create_dask_array_Transpose"><code class="docutils literal notranslate"><span class="pre">create_dask_array_Transpose()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.extract_dense_array_Transpose"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_Transpose()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.extract_sparse_array_Transpose"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_Transpose()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.is_masked_Transpose"><code class="docutils literal notranslate"><span class="pre">is_masked_Transpose()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.Transpose.is_sparse_Transpose"><code class="docutils literal notranslate"><span class="pre">is_sparse_Transpose()</span></code></a></li>
 </ul>
 </li>
@@ -422,6 +430,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.create_dask_array_UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">create_dask_array_UnaryIsometricOpSimple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.extract_dense_array_UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_UnaryIsometricOpSimple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.extract_sparse_array_UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_UnaryIsometricOpSimple()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.is_masked_UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">is_masked_UnaryIsometricOpSimple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpSimple.is_sparse_UnaryIsometricOpSimple"><code class="docutils literal notranslate"><span class="pre">is_sparse_UnaryIsometricOpSimple()</span></code></a></li>
 </ul>
 </li>
@@ -441,6 +450,7 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.create_dask_array_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">create_dask_array_UnaryIsometricOpWithArgs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_dense_array_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">extract_dense_array_UnaryIsometricOpWithArgs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.extract_sparse_array_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_UnaryIsometricOpWithArgs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.is_masked_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">is_masked_UnaryIsometricOpWithArgs()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.UnaryIsometricOpWithArgs.is_sparse_UnaryIsometricOpWithArgs"><code class="docutils literal notranslate"><span class="pre">is_sparse_UnaryIsometricOpWithArgs()</span></code></a></li>
 </ul>
 </li>
@@ -484,6 +494,12 @@
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.extract_sparse_array.extract_sparse_array_coo_matrix"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_coo_matrix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.extract_sparse_array.extract_sparse_array_csc_matrix"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_csc_matrix()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.extract_sparse_array.extract_sparse_array_csr_matrix"><code class="docutils literal notranslate"><span class="pre">extract_sparse_array_csr_matrix()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="delayedarray.html#module-delayedarray.is_masked">delayedarray.is_masked module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.is_masked.is_masked"><code class="docutils literal notranslate"><span class="pre">is_masked()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.is_masked.is_masked_MaskedArray"><code class="docutils literal notranslate"><span class="pre">is_masked_MaskedArray()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="delayedarray.html#delayedarray.is_masked.is_masked_SparseNdarray"><code class="docutils literal notranslate"><span class="pre">is_masked_SparseNdarray()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="delayedarray.html#module-delayedarray.is_pristine">delayedarray.is_pristine module</a><ul>
@@ -559,7 +575,7 @@
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=1e28cc32"></script>
+</div><script src="../_static/documentation_options.js?v=ba50482b"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=32e29ea5"></script>

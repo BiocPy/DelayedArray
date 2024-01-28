@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.Combine - DelayedArray 0.3.4 documentation</title>
+        <title>delayedarray.Combine - DelayedArray 0.3.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.3.4 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.3.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -199,15 +199,18 @@
         <article role="main">
           <h1>Source code for delayedarray.Combine</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">concatenate</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">ndarray</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
 
 <span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
 <span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span>
+<span class="kn">from</span> <span class="nn">._mask</span> <span class="kn">import</span> <span class="n">_concatenate_unmasked_ndarrays</span><span class="p">,</span> <span class="n">_concatenate_maybe_masked_ndarrays</span>
 <span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span><span class="p">,</span> <span class="n">_sanitize_to_fortran</span>
+<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">_concatenate_SparseNdarrays</span>
 <span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
 <span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
 <span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
 <span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
+<span class="kn">from</span> <span class="nn">.is_masked</span> <span class="kn">import</span> <span class="n">is_masked</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -262,8 +265,10 @@
         <span class="c1"># Guessing the dtype.</span>
         <span class="n">to_combine</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">seeds</span><span class="p">)):</span>
-            <span class="n">to_combine</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seeds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">to_combine</span><span class="p">,))</span><span class="o">.</span><span class="n">dtype</span></div>
+            <span class="n">to_combine</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">seeds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">_concatenate_unmasked_ndarrays</span><span class="p">(</span><span class="n">to_combine</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_masked</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">is_masked</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seeds</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -276,7 +281,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            NumPy type for the combined data.  This may or may not be</span>
@@ -302,7 +307,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_extract_subarrays</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">subset</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">subset</span> <span class="o">=</span> <span class="n">_spawn_indices</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 
@@ -328,7 +333,7 @@
             <span class="n">flexargs</span><span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">]</span> <span class="o">=</span> <span class="n">fragmented</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
             <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">flexargs</span><span class="p">,)))</span>
 
-    <span class="k">return</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">extracted</span>
 
 
 <div class="viewcode-block" id="extract_dense_array_Combine">
@@ -336,8 +341,9 @@
 <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
 <span class="k">def</span> <span class="nf">extract_dense_array_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+    <span class="n">fragments</span> <span class="o">=</span> <span class="n">_extract_subarrays</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span>
+    <span class="n">combined</span> <span class="o">=</span> <span class="n">_concatenate_maybe_masked_ndarrays</span><span class="p">(</span><span class="n">fragments</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">,</span> <span class="n">masked</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_is_masked</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_sanitize_to_fortran</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span></div>
 
 
 
@@ -346,7 +352,8 @@
 <span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
 <span class="k">def</span> <span class="nf">extract_sparse_array_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
+    <span class="n">fragments</span> <span class="o">=</span> <span class="n">_extract_subarrays</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_concatenate_SparseNdarrays</span><span class="p">(</span><span class="n">fragments</span><span class="p">,</span> <span class="n">along</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span></div>
 
 
 
@@ -358,7 +365,7 @@
     <span class="n">extracted</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">:</span>
         <span class="n">extracted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="o">*</span><span class="n">extracted</span><span class="p">,),</span> <span class="n">axis</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_along</span><span class="p">)</span></div>
 
 
 
@@ -394,6 +401,15 @@
             <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seeds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
 
+
+
+<div class="viewcode-block" id="is_masked_Combine">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Combine.is_masked_Combine">[docs]</a>
+<span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">is_masked_Combine</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Combine</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">_is_masked</span></div>
+
 </pre></div>
         </article>
       </div>
@@ -426,7 +442,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=1e28cc32"></script>
+</div><script src="../../_static/documentation_options.js?v=ba50482b"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

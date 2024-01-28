@@ -140,6 +140,14 @@ delayedarray.extract\_sparse\_array module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.is\_masked module
+------------------------------
+
+.. automodule:: delayedarray.is_masked
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.is\_pristine module
 --------------------------------
 

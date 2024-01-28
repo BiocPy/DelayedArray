@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer notes" href="developers.html" /><link rel="prev" title="DelayedArrays, in Python" href="index.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>DelayedArrays, in Python - DelayedArray 0.3.4 documentation</title>
+        <title>DelayedArrays, in Python - DelayedArray 0.3.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.3.4 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.3.5 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.4 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.3.5 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -300,7 +300,10 @@ For example, to iterate over the rows with 100 MB blocks:</p>
 </pre></div>
 </div>
 <p>This yields <code class="docutils literal notranslate"><span class="pre">current</span></code>, a NumPy array in Fortran storage order with the specified rows and columns.
-For sparse arrays (where <code class="docutils literal notranslate"><span class="pre">is_sparse()</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>), we can instead do:</p>
+If the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> might contain masked values, a NumPy <code class="docutils literal notranslate"><span class="pre">MaskedArray</span></code> is returned instead;
+this can be determined by checking whether <code class="docutils literal notranslate"><span class="pre">is_masked(d)</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> contains sparse data, <code class="docutils literal notranslate"><span class="pre">is_sparse(d)</span></code> will return <code class="docutils literal notranslate"><span class="pre">True</span></code>.
+This allows callers to instead use the <code class="docutils literal notranslate"><span class="pre">extract_sparse_array()</span></code> function for block processing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
     <span class="n">current</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">extract_sparse_array</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">block_coords</span><span class="p">,))</span>
 </pre></div>
@@ -459,7 +462,7 @@ For example, we can pull out the “seed” object underlying our <code class="d
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=1e28cc32"></script>
+</div><script src="_static/documentation_options.js?v=ba50482b"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>
