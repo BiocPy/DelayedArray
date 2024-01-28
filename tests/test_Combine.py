@@ -20,6 +20,7 @@ def test_Combine_simple(left_mask_rate, right_mask_rate):
     assert x.seed.along == 0
     assert delayedarray.chunk_shape(x) == (1, 23)
     assert not delayedarray.is_sparse(x)
+    assert delayedarray.is_masked(x) == (left_mask_rate + right_mask_rate > 0)
 
     assert_identical_ndarrays(delayedarray.extract_dense_array(x), safe_concatenate((y1, y2)))
 

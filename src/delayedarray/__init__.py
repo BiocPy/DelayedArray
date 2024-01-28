@@ -31,6 +31,7 @@ from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 from .chunk_shape import chunk_shape
 from .is_pristine import is_pristine
 from .apply_over_dimension import apply_over_dimension, choose_block_size_for_1d_iteration, guess_iteration_block_size

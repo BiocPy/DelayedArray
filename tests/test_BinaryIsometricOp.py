@@ -20,6 +20,9 @@ def test_BinaryIsometricOp_add(left_mask_rate, right_mask_rate):
     assert z.shape == x.shape
     assert z.seed.left.shape == test_shape
     assert z.seed.right.shape == test_shape
+    assert not delayedarray.is_sparse(z)
+    assert delayedarray.is_masked(z) == (left_mask_rate + right_mask_rate > 0)
+
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + y2)
 
 

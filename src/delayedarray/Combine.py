@@ -10,6 +10,7 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -62,6 +63,8 @@ class Combine(DelayedOp):
         for i in range(len(seeds)):
             to_combine.append(numpy.ndarray((0,), dtype=seeds[i].dtype))
         self._dtype = _concatenate_unmasked_ndarrays(to_combine, axis=0).dtype
+
+        self._is_masked = any(is_masked(y) for y in self._seeds)
 
     @property
     def shape(self) -> Tuple[int, ...]:
@@ -131,7 +134,7 @@ def _extract_subarrays(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], 
 def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     fragments = _extract_subarrays(x, subset, extract_dense_array)
-    combined = _concatenate_maybe_masked_ndarrays(fragments, axis=x._along)
+    combined = _concatenate_maybe_masked_ndarrays(fragments, axis=x._along, masked=x._is_masked)
     return _sanitize_to_fortran(combined)
 
 
@@ -177,3 +180,9 @@ def is_sparse_Combine(x: Combine):
         if not is_sparse(s):
             return False
     return len(x._seeds) > 0
+
+
+@is_masked.register
+def is_masked_Combine(x: Combine):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return x._is_masked

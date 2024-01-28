@@ -17,6 +17,7 @@ def test_Cast_simple(mask_rate):
     assert z.shape == test_shape
     assert delayedarray.chunk_shape(z) == (1, 23)
     assert not delayedarray.is_sparse(z)
+    assert delayedarray.is_masked(z) == (mask_rate > 0)
 
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y.astype(numpy.int32))
 

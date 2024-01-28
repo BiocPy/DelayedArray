@@ -14,6 +14,7 @@ def test_UnaryIsometricOpWithArgs_basics(mask_rate):
     z = x + 2
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
     assert z.shape == x.shape
+    assert delayedarray.is_masked(z) == (mask_rate > 0)
 
     assert isinstance(z.seed.seed, numpy.ndarray)
     assert z.seed.right
@@ -34,6 +35,8 @@ def test_UnaryIsometricOpWithArgs_add(left_mask_rate, right_mask_rate):
 
     z = x + 2
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert not delayedarray.is_sparse(z)
+    assert delayedarray.is_masked(z) == (left_mask_rate > 0)
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + 2)
 
     z = 5 + x
@@ -44,6 +47,7 @@ def test_UnaryIsometricOpWithArgs_add(left_mask_rate, right_mask_rate):
     v = simulate_ndarray((15,), mask_rate=right_mask_rate)
     z = x + v
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert delayedarray.is_masked(z) == (left_mask_rate + right_mask_rate > 0)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), y + v)
     assert z.seed.along == 1
@@ -93,6 +97,7 @@ def test_UnaryIsometricOpWithArgs_negate(mask_rate):
     z = -x
 
     assert isinstance(z.seed, delayedarray.UnaryIsometricOpWithArgs)
+    assert not delayedarray.is_sparse(z)
     assert z.shape == x.shape
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), -y)
 

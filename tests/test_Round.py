@@ -16,6 +16,7 @@ def test_Round_default(mask_rate):
     assert z.shape == (30, 23)
     assert delayedarray.chunk_shape(z) == (1, 23)
     assert not delayedarray.is_sparse(z)
+    assert delayedarray.is_masked(z) == (mask_rate > 0)
 
     assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.round(y))
 

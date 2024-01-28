@@ -8,6 +8,8 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
+
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -135,3 +137,9 @@ def chunk_shape_Transpose(x: Transpose):
 def is_sparse_Transpose(x: Transpose):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return is_sparse(x._seed)
+
+
+@is_masked.register
+def is_masked_Transpose(x: Transpose):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return is_masked(x._seed)

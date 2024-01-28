@@ -18,6 +18,7 @@ def test_Subset_ix(mask_rate):
     assert len(sub.seed.subset) == 3
     assert delayedarray.chunk_shape(sub) == (1, 1, 4)
     assert not delayedarray.is_sparse(sub)
+    assert delayedarray.is_masked(sub) == (mask_rate > 0)
 
     assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[subix])
 

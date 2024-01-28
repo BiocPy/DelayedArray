@@ -18,6 +18,7 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -70,6 +71,7 @@ class DelayedArray:
       same type as the corresponding properties of NumPy arrays.
     - A method for the
       :py:meth:`~delayedarray.extract_dense_array.extract_dense_array` generic.
+    - A method for the :py:meth:`~delayedarray.is_masked.is_masked` generic.
 
     If the seed contains sparse data, it should also implement:
 
@@ -753,3 +755,9 @@ def chunk_shape_DelayedArray(x: DelayedArray):
 def is_sparse_DelayedArray(x: DelayedArray):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return is_sparse(x._seed)
+
+
+@is_masked.register
+def is_masked_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return is_masked(x._seed)

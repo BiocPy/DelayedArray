@@ -8,6 +8,7 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -146,3 +147,9 @@ def chunk_shape_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
 def is_sparse_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return x._sparse
+
+
+@is_masked.register
+def is_masked_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return is_masked(x._seed)

@@ -11,8 +11,7 @@ from ._mask import (
     _convert_to_unmasked_1darray, 
     _convert_to_maybe_masked_1darray,
     _concatenate_unmasked_ndarrays,
-    _concatenate_maybe_masked_ndarrays,
-    _convert_to_1darray_with_inferred_mask,
+    _concatenate_maybe_masked_ndarrays
 )
 
 __author__ = "ltla"
@@ -60,6 +59,7 @@ class SparseNdarray:
         contents,
         dtype: Optional[numpy.dtype] = None,
         index_dtype: Optional[numpy.dtype] = None,
+        is_masked: Optional[bool] = None,
         check: bool = True,
     ):
         """
@@ -83,6 +83,10 @@ class SparseNdarray:
                 NumPy type of the array indices.
                 If None, this is inferred from ``contents``.
 
+            is_masked:
+                Whether ``contents`` contains masked values.
+                If None, this is inferred from ``contents``.
+
             check:
                 Whether to check the consistency of the ``contents`` during construction.
                 This can be set to False for speed.
@@ -92,35 +96,43 @@ class SparseNdarray:
         self._contents = contents
         ndim = len(shape)
 
-        if dtype is None or index_dtype is None:
+        if dtype is None or index_dtype is None or is_masked is None:
             if contents is not None:
                 if ndim > 1:
-                    info = _peek_for_type(contents, dim=ndim-1)
+                    info = _peek(contents, dim=ndim-1)
                     if info is not None:
                         index_dtype0 = info[0]
                         dtype0 = info[1]
+                        is_masked0 = info[2]
                     else:
                         dtype0 = None
                         index_dtype0 = None
+                        is_masked0 = False
                 else:
                     index_dtype0 = contents[0].dtype
                     dtype0 = contents[1].dtype
+                    is_masked0 = numpy.ma.isMaskedArray(contents[1])
 
                 if dtype is None:
                     dtype = dtype0
                 if index_dtype is None:
                     index_dtype = index_dtype0
+                if is_masked is None:
+                    is_masked = is_masked0
 
             if dtype is None:
                 raise ValueError("cannot infer 'dtype' from 'contents'")
             if index_dtype is None:
                 raise ValueError("cannot infer 'index_dtype' from 'contents'")
+            if is_masked is None:
+                is_masked = False 
 
         self._dtype = dtype
         self._index_dtype = index_dtype
+        self._is_masked = is_masked
 
         if check is True and contents is not None:
-            payload = _CheckPayload(dtype=self._dtype, index_dtype=self._index_dtype, max_index=self._shape[0])
+            payload = _CheckPayload(dtype=self._dtype, index_dtype=self._index_dtype, is_masked=self._is_masked, max_index=self._shape[0])
             if len(shape) > 1:
                 _recursive_check(self._contents, self._shape, payload=payload, dim=ndim-1)
             else:
@@ -759,21 +771,21 @@ class SparseNdarray:
 #########################################################
 
 
-def _peek_for_type(contents: list, dim: int):
+def _peek(contents: list, dim: int):
     if dim == 1:
         for x in contents:
             if x is not None:
-                return x[0].dtype, x[1].dtype
+                return x[0].dtype, x[1].dtype, numpy.ma.isMaskedArray(x[1])
     else:
         for x in contents:
             if x is not None:
-                out = _peek_for_type(x, dim - 1)
+                out = _peek(x, dim - 1)
                 if out is not None:
                     return out
     return None
 
 
-_CheckPayload = namedtuple("_CheckPayload", [ "max_index", "dtype", "index_dtype" ])
+_CheckPayload = namedtuple("_CheckPayload", [ "max_index", "dtype", "index_dtype", "is_masked" ])
 
 
 def _check_sparse_tuple(indices: numpy.ndarray, values: numpy.ndarray, payload: _CheckPayload):
@@ -793,6 +805,9 @@ def _check_sparse_tuple(indices: numpy.ndarray, values: numpy.ndarray, payload: 
     for i in range(1, len(indices)):
         if indices[i] <= indices[i - 1]:
             raise ValueError("index vectors should be sorted in strictly increasing order")
+
+    if payload.is_masked != numpy.ma.isMaskedArray(values):
+        raise ValueError("inconsistent masking status for different value vectors")
 
 
 def _recursive_check(contents: list, shape: Tuple[int, ...], payload: _CheckPayload, dim: int):
@@ -1011,7 +1026,7 @@ def _extract_sparse_vector_to_sparse(indices: numpy.ndarray, values: numpy.ndarr
             return None
         return (
             _convert_to_unmasked_1darray(new_indices, dtype=indices.dtype), 
-            _convert_to_maybe_masked_1darray(new_values, dtype=values.dtype, masked=numpy.ma.is_masked(values))
+            _convert_to_maybe_masked_1darray(new_values, dtype=values.dtype, masked=numpy.ma.isMaskedArray(values))
         )
 
     else:
@@ -1023,7 +1038,7 @@ def _extract_sparse_vector_to_sparse(indices: numpy.ndarray, values: numpy.ndarr
 
         shape = (len(new_pairs),)
         new_indices = _allocate_unmasked_ndarray(shape, dtype=indices.dtype)
-        new_values = _allocate_maybe_masked_ndarray(shape, dtype=values.dtype, masked=numpy.ma.is_masked(values))
+        new_values = _allocate_maybe_masked_ndarray(shape, dtype=values.dtype, masked=numpy.ma.isMaskedArray(values))
         for i, pair in enumerate(new_pairs):
             new_indices[i] = pair[0]
             new_values[i] = pair[1]
@@ -1203,7 +1218,7 @@ def _binary_operate_sparse_vector(vector1: Tuple[numpy.ndarray, numpy.ndarray], 
 
         return (
             _convert_to_unmasked_1darray(outidx, dtype=payload.output_index_dtype), 
-            _convert_to_maybe_masked_1darray(outval, dtype=payload.output_dtype, masked=numpy.ma.is_masked(values1) or numpy.ma.is_masked(values2))
+            _convert_to_maybe_masked_1darray(outval, dtype=payload.output_dtype, masked=numpy.ma.isMaskedArray(values1) or numpy.ma.isMaskedArray(values2))
         )
 
 
@@ -1373,7 +1388,7 @@ def _recursive_transpose_SparseNdarray_fill(contents: list, payload: _TransposeF
     location.pop()
 
 
-_TransposeReallocPayload = namedtuple("_TransposeReallocatePayload", [ "output_dtype", "output_index_dtype" ])
+_TransposeReallocPayload = namedtuple("_TransposeReallocatePayload", [ "output_dtype", "output_index_dtype", "output_is_masked" ])
 
 
 def _recursive_transpose_SparseNdarray_reallocate(contents: list, payload: _TransposeReallocPayload, dim: int):
@@ -1382,7 +1397,7 @@ def _recursive_transpose_SparseNdarray_reallocate(contents: list, payload: _Tran
             if con is not None:
                 contents[i] = (
                     _convert_to_unmasked_1darray(con[0], dtype=payload.output_index_dtype), 
-                    _convert_to_1darray_with_inferred_mask(con[1], dtype=payload.output_dtype)
+                    _convert_to_maybe_masked_1darray(con[1], dtype=payload.output_dtype, masked=payload.output_is_masked)
                 )
     else:
         for i, con in enumerate(contents):
@@ -1411,7 +1426,7 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
 
         _recursive_transpose_SparseNdarray_reallocate(
             new_contents, 
-            _TransposeReallocPayload(output_dtype=x._dtype, output_index_dtype=x._index_dtype),
+            _TransposeReallocPayload(output_dtype=x._dtype, output_index_dtype=x._index_dtype, output_is_masked=x._is_masked),
             dim=ndim - 1,
         )
 
@@ -1422,12 +1437,12 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
 #########################################################
 
 
-_ConcatenatePayload = namedtuple("_ConcatenatePayload", [ "shapes", "offset", "output_dtype", "output_index_dtype"])
+_ConcatenatePayload = namedtuple("_ConcatenatePayload", [ "shapes", "offset", "output_dtype", "output_index_dtype", "output_is_masked"])
 
 
 def _concatenate_sparse_vectors(idx: List[numpy.ndarray], val: List[numpy.ndarray], payload: _ConcatenatePayload):
     newidx = _concatenate_unmasked_ndarrays(idx, axis=0).astype(payload.output_index_dtype, copy=False)
-    newval = _concatenate_maybe_masked_ndarrays(val, axis=0).astype(payload.output_dtype, copy=False)
+    newval = _concatenate_maybe_masked_ndarrays(val, axis=0, masked=payload.output_is_masked).astype(payload.output_dtype, copy=False)
     return (newidx, newval)
 
 
@@ -1544,7 +1559,13 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
                     index_dtype = candidate
                     break
 
-        payload = _ConcatenatePayload(shapes=all_shapes, offset=offset, output_dtype=output_dtype, output_index_dtype=index_dtype)
+        payload = _ConcatenatePayload(
+            shapes=all_shapes, 
+            offset=offset, 
+            output_dtype=output_dtype, 
+            output_index_dtype=index_dtype, 
+            output_is_masked=any(y._is_masked for y in xs)
+        )
 
         if ndim > 1:
             new_contents = _recursive_concatenate_SparseNdarrays(all_contents, new_shape, along=along, payload=payload, dim=ndim-1)

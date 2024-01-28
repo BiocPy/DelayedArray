@@ -58,3 +58,10 @@ def test_DelayedArray_sparse():
     assert isinstance(out, delayedarray.SparseNdarray)
     assert delayedarray.chunk_shape(x) == (3, 1)
     assert delayedarray.is_sparse(x)
+
+
+def test_DelayedArray_masked():
+    raw = numpy.random.rand(30, 40)
+    y = numpy.ma.MaskedArray(raw, raw > 0.5)
+    x = delayedarray.wrap(y)
+    assert delayedarray.is_masked(x)

@@ -29,6 +29,9 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = No
     Returns:
         NumPy array with Fortran storage order. This may be a view so callers should
         create a copy if they intend to modify it.
+
+        If :py:func:`~delayedarray.is_masked.is_masked` is True for ``x``, a NumPy
+        ``MaskedArray`` is returned instead.
     """
     raise NotImplementedError("'extract_dense_array(" + str(type(x)) + ")' has not yet been implemented") 
 

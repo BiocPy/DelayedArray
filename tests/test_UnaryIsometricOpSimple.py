@@ -53,6 +53,7 @@ def test_UnaryIsometricOpSimple_basic(mask_rate):
         assert z.seed.operation == op
         assert delayedarray.chunk_shape(z) == (1, 55)
         assert not delayedarray.is_sparse(z)
+        assert delayedarray.is_masked(z) == (mask_rate > 0)
 
         assert_identical_ndarrays(obs, expected)
         assert_identical_ndarrays(obs, da)

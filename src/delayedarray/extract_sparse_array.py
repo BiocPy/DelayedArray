@@ -30,8 +30,11 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = N
             all dimensions.
 
     Returns:
-        SparseNdarray for the requested subset. This may be a view so callers
-        should create a copy if they intend to modify it.
+        ``SparseNdarray`` for the requested subset. This may be a view so
+        callers should create a copy if they intend to modify it.
+
+        If :py:func:`~delayedarray.is_masked.is_masked` is True for ``x``, the
+        ``SparseNdarray`` will contain NumPy ``MaskedArray``s internally.
     """
     raise NotImplementedError("'extract_sparse_array(" + str(type(x)) + ")' has not yet been implemented") 
 
@@ -108,7 +111,7 @@ if is_package_installed("scipy"):
                     if len(new_val):
                         new_contents.append((
                             _convert_to_unmasked_1darray(new_idx, dtype=x.indices.dtype), 
-                            _convert_to_maybe_masked_1darray(new_val, dtype=x.data.dtype, masked=numpy.ma.is_masked(x.data))
+                            _convert_to_maybe_masked_1darray(new_val, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
                         )) 
                     else:
                         new_contents.append(None)
@@ -171,7 +174,7 @@ if is_package_installed("scipy"):
                 if len(idx):
                     new_contents[i] = (
                         _convert_to_unmasked_1darray(idx, dtype=x.indices.dtype), 
-                        _convert_to_maybe_masked_1darray(val, dtype=x.data.dtype, masked=numpy.ma.is_masked(x.data))
+                        _convert_to_maybe_masked_1darray(val, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
                     )
                 else:
                     new_contents[i] = None
@@ -211,7 +214,7 @@ if is_package_installed("scipy"):
                     con.sort()
                     shape = (len(con),)
                     idx = _allocate_unmasked_ndarray(shape, dtype=x.row.dtype)
-                    val = _allocate_maybe_masked_ndarray(shape, dtype=x.data.dtype, masked=numpy.ma.is_masked(x.data))
+                    val = _allocate_maybe_masked_ndarray(shape, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
                     for j, y in enumerate(con):
                         idx[j] = y[0]
                         val[j] = y[1]

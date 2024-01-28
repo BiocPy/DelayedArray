@@ -30,22 +30,14 @@ def _convert_to_maybe_masked_1darray(contents: Sequence, dtype: numpy.dtype, mas
     return output
 
 
-def _convert_to_1darray_with_inferred_mask(contents: Sequence, dtype: numpy.dtype) -> numpy.ndarray:
-    has_mask = any(numpy.ma.is_masked(y) for y in contents)
-    output = _allocate_maybe_masked_ndarray((len(contents),), dtype=dtype, masked=has_mask)
-    for i, y in enumerate(contents):
-        output[i] = y
-    return output
-
-
 # Same logic as above; force the rest of the package to make an explicit choice
 # between concatenate() and ma.concatenate() to consider masking properly.
 def _concatenate_unmasked_ndarrays(x: List[numpy.ndarray], axis: int) -> numpy.ndarray:
     return numpy.concatenate(x, axis=axis)
 
 
-def _concatenate_maybe_masked_ndarrays(x: List[numpy.ndarray], axis: int) -> numpy.ndarray:
-    if any(numpy.ma.is_masked(y) for y in x):
+def _concatenate_maybe_masked_ndarrays(x: List[numpy.ndarray], axis: int, masked: bool) -> numpy.ndarray:
+    if masked:
         return numpy.ma.concatenate(x, axis=axis)
     else:
         return numpy.concatenate(x, axis=axis)
