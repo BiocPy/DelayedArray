@@ -115,7 +115,11 @@ for start in range(0, d.shape[0], block_size):
 ```
 
 This yields `current`, a NumPy array in Fortran storage order with the specified rows and columns.
-For sparse arrays (where `is_sparse()` returns `True`), we can instead do:
+If the `DelayedArray` might contain masked values, a NumPy `MaskedArray` is returned instead;
+this can be determined by checking whether `is_masked(d)` returns `True`.
+
+If the `DelayedArray` contains sparse data, `is_sparse(d)` will return `True`.
+This allows callers to instead use the `extract_sparse_array()` function for block processing:
 
 ```python
 if delayedarray.is_sparse(d):

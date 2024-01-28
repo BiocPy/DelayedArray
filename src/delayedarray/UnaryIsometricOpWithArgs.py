@@ -11,6 +11,7 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -60,6 +61,7 @@ class UnaryIsometricOpWithArgs(DelayedOp):
 
         along = _infer_along_with_args(seed.shape, value)
         if along is None and isinstance(value, ndarray):
+            ndim = len(value.shape)
             value = value[(*([0] * ndim),)]
 
         with warnings.catch_warnings():  # silence warnings from divide by zero.
@@ -145,7 +147,7 @@ def _extract_array(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[
     target = f(x._seed, subset)
 
     subvalue = x._value
-    if isinstance(subvalue, ndarray):
+    if isinstance(subvalue, ndarray) and not subvalue is numpy.ma.masked:
         if subset is None:
             subset = _spawn_indices(x.shape)
         if len(subvalue.shape) == 1:
@@ -196,3 +198,10 @@ def chunk_shape_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs):
 def is_sparse_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return x._sparse
+
+
+@is_masked.register
+def is_masked_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return is_masked(x._seed) or numpy.ma.isMaskedArray(x._value) or x._value is numpy.ma.masked
+

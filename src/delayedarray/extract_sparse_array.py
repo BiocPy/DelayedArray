@@ -1,10 +1,11 @@
 from functools import singledispatch
-from numpy import array, ndarray, ix_
+import numpy
 from bisect import bisect_left
 from typing import Any, Optional, Tuple, Sequence
 from biocutils.package_utils import is_package_installed
 
 from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
+from ._mask import _convert_to_unmasked_1darray, _convert_to_maybe_masked_1darray, _allocate_unmasked_ndarray, _allocate_maybe_masked_ndarray
 from .SparseNdarray import SparseNdarray, _extract_sparse_array_from_SparseNdarray
 
 __author__ = "ltla"
@@ -29,8 +30,11 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = N
             all dimensions.
 
     Returns:
-        SparseNdarray for the requested subset. This may be a view so callers
-        should create a copy if they intend to modify it.
+        ``SparseNdarray`` for the requested subset. This may be a view so
+        callers should create a copy if they intend to modify it.
+
+        If :py:func:`~delayedarray.is_masked.is_masked` is True for ``x``, the
+        ``SparseNdarray`` will contain NumPy ``MaskedArray``s internally.
     """
     raise NotImplementedError("'extract_sparse_array(" + str(type(x)) + ")' has not yet been implemented") 
 
@@ -41,6 +45,7 @@ def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[
     if _is_subset_noop(x.shape, subset):
         subset = None
     if subset is None:
+        import numpy
         return x
     else:
         return _extract_sparse_array_from_SparseNdarray(x, subset)
@@ -104,7 +109,10 @@ if is_package_installed("scipy"):
                             pos += 1
 
                     if len(new_val):
-                        new_contents.append((array(new_idx, dtype=x.indices.dtype), array(new_val, dtype=x.dtype))) 
+                        new_contents.append((
+                            _convert_to_unmasked_1darray(new_idx, dtype=x.indices.dtype), 
+                            _convert_to_maybe_masked_1darray(new_val, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
+                        )) 
                     else:
                         new_contents.append(None)
 
@@ -164,7 +172,10 @@ if is_package_installed("scipy"):
             for i in range(len(new_contents)):
                 idx, val = new_contents[i]
                 if len(idx):
-                    new_contents[i] = (array(idx, dtype=x.indices.dtype), array(val, dtype=x.dtype))
+                    new_contents[i] = (
+                        _convert_to_unmasked_1darray(idx, dtype=x.indices.dtype), 
+                        _convert_to_maybe_masked_1darray(val, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
+                    )
                 else:
                     new_contents[i] = None
 
@@ -201,8 +212,9 @@ if is_package_installed("scipy"):
             for i, con in enumerate(new_contents):
                 if len(con):
                     con.sort()
-                    idx = ndarray(len(con), dtype=x.row.dtype)
-                    val = ndarray(len(con), dtype=x.data.dtype)
+                    shape = (len(con),)
+                    idx = _allocate_unmasked_ndarray(shape, dtype=x.row.dtype)
+                    val = _allocate_maybe_masked_ndarray(shape, dtype=x.data.dtype, masked=numpy.ma.isMaskedArray(x.data))
                     for j, y in enumerate(con):
                         idx[j] = y[0]
                         val[j] = y[1]

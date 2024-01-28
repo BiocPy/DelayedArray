@@ -18,6 +18,7 @@ from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
+from .is_masked import is_masked
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -70,6 +71,7 @@ class DelayedArray:
       same type as the corresponding properties of NumPy arrays.
     - A method for the
       :py:meth:`~delayedarray.extract_dense_array.extract_dense_array` generic.
+    - A method for the :py:meth:`~delayedarray.is_masked.is_masked` generic.
 
     If the seed contains sparse data, it should also implement:
 
@@ -176,8 +178,7 @@ class DelayedArray:
             or ufunc.__name__ == "true_divide"
         ):
             # This is required to support situations where the NumPy array is on
-            # the LHS, such that the ndarray method gets called first.
-
+            # the LHS, such that the ndarray method gets called first. 
             op = ufunc.__name__
             if ufunc.__name__ == "true_divide":
                 op = "divide"
@@ -203,8 +204,12 @@ class DelayedArray:
                 UnaryIsometricOpSimple(_extract_seed(inputs[0]), operation="logical_not")
             )
 
-
         raise NotImplementedError(f"'{ufunc.__name__}' is not implemented!")
+
+    # Just get the array priority above that of the numpy MaskedArray so that
+    # we call DelayedArray's __array_ufunc__ override instead... annoyingly, it
+    # doesn't actually work (https://github.com/numpy/numpy/issues/15200).
+    __array_priority__ = numpy.ma.MaskedArray.__array_priority__ + 1
 
     def __array_function__(self, func, types, args, kwargs) -> "DelayedArray":
         """Interface to NumPy's high-level array functions.  This is used to
@@ -243,6 +248,9 @@ class DelayedArray:
             else:
                 decimals = 0
             return DelayedArray(Round(seed, decimals=decimals))
+
+        if func == numpy.shape:
+            return self.shape 
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
@@ -747,3 +755,9 @@ def chunk_shape_DelayedArray(x: DelayedArray):
 def is_sparse_DelayedArray(x: DelayedArray):
     """See :py:meth:`~delayedarray.is_sparse.is_sparse`."""
     return is_sparse(x._seed)
+
+
+@is_masked.register
+def is_masked_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.is_masked.is_masked`."""
+    return is_masked(x._seed)
