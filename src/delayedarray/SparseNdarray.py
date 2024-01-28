@@ -1551,7 +1551,6 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
     new_contents = None
     if not all_none:
         offset = None
-        index_dtype = output_index_dtype
         ndim = len(new_shape)
 
         # Upgrading the index type to ensure we can hold the output, if we're
@@ -1564,16 +1563,16 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
                 offset.append(last)
                 last += shape[along]
 
-            for candidate in [index_dtype, numpy.uint32, numpy.uint64]:
+            for candidate in [output_index_dtype, numpy.uint32, numpy.uint64]:
                 if last < numpy.iinfo(candidate).max:
-                    index_dtype = candidate
+                    output_index_dtype = candidate
                     break
 
         payload = _ConcatenatePayload(
             shapes=all_shapes, 
             offset=offset, 
             output_dtype=output_dtype, 
-            output_index_dtype=index_dtype, 
+            output_index_dtype=output_index_dtype, 
             output_is_masked=output_is_masked
         )
 
