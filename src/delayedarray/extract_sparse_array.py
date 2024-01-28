@@ -118,7 +118,7 @@ if is_package_installed("scipy"):
 
             new_contents = _set_empty_contents(new_contents)
 
-        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, check=False)
+        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, is_masked=False, check=False)
 
     @extract_sparse_array.register
     def extract_sparse_array_csr_matrix(x: sp.csr_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
@@ -181,7 +181,7 @@ if is_package_installed("scipy"):
 
             new_contents = _set_empty_contents(new_contents)
 
-        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, check=False)
+        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, is_masked=False, check=False)
 
     @extract_sparse_array.register
     def extract_sparse_array_coo_matrix(x: sp.coo_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
@@ -224,4 +224,4 @@ if is_package_installed("scipy"):
 
             new_contents = _set_empty_contents(new_contents)
 
-        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.row.dtype, check=False)
+        return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.row.dtype, is_masked=False, check=False)

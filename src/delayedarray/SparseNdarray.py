@@ -165,6 +165,15 @@ class SparseNdarray:
 
 
     @property
+    def is_masked(self) -> bool:
+        """
+        Returns:
+            Whether the values are masked.
+        """
+        return self._is_masked
+
+
+    @property
     def contents(self):
         """Contents of the array. This is intended to be read-only and 
         should only be modified if you really know what you're doing.
@@ -1090,7 +1099,7 @@ def _extract_sparse_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Seq
         else:
             new_contents = _extract_sparse_vector_to_sparse(x._contents[0], x._contents[1], subset_summary)
 
-    return SparseNdarray(shape=(*idims,), contents=new_contents, index_dtype=x.index_dtype, dtype=x.dtype, check=False)
+    return SparseNdarray(shape=(*idims,), contents=new_contents, index_dtype=x.index_dtype, dtype=x.dtype, is_masked=x.is_masked, check=False)
 
 
 #########################################################
@@ -1150,7 +1159,7 @@ def _transform_sparse_array_from_SparseNdarray(x: SparseNdarray, f: Callable, ou
         else:
             new_contents = _transform_sparse_vector((), indices=x._contents[0], values=x._contents[1], payload=payload)
 
-    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=output_dtype, check=False)
+    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=output_dtype, is_masked=x.is_masked, check=False)
 
 
 #########################################################
@@ -1276,7 +1285,7 @@ def _binary_operation_on_SparseNdarray(x: SparseNdarray, y: SparseNdarray, opera
         else:
             new_contents = _binary_operate_sparse_vector(x._contents, y._contents, payload=payload)
 
-    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=dummy.dtype, check=False)
+    return SparseNdarray(shape=x._shape, contents=new_contents, index_dtype=x.index_dtype, dtype=dummy.dtype, is_masked=x.is_masked, check=False)
 
 
 #########################################################
@@ -1430,7 +1439,7 @@ def _transpose_SparseNdarray(x: SparseNdarray, perm):
             dim=ndim - 1,
         )
 
-    return SparseNdarray(shape=(*new_shape,), contents=new_contents, index_dtype=x._index_dtype, dtype=x._dtype, check=False)
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, index_dtype=x._index_dtype, dtype=x._dtype, is_masked=x.is_masked, check=False)
 
 
 #########################################################
@@ -1532,6 +1541,7 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
 
     output_dtype = _concatenate_unmasked_ndarrays(dummy_collected, axis=0).dtype
     output_index_dtype = _concatenate_unmasked_ndarrays(dummy_collected_index, axis=0).dtype
+    output_is_masked = any(y._is_masked for y in xs)
 
     all_none = True
     for con in all_contents:
@@ -1564,7 +1574,7 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
             offset=offset, 
             output_dtype=output_dtype, 
             output_index_dtype=index_dtype, 
-            output_is_masked=any(y._is_masked for y in xs)
+            output_is_masked=output_is_masked
         )
 
         if ndim > 1:
@@ -1578,4 +1588,4 @@ def _concatenate_SparseNdarrays(xs: List[SparseNdarray], along: int):
                     outval.append(c[1])
             new_contents = _concatenate_sparse_vectors(outidx, outval, payload)
 
-    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=output_dtype, index_dtype=output_index_dtype, check=False)
+    return SparseNdarray(shape=(*new_shape,), contents=new_contents, dtype=output_dtype, index_dtype=output_index_dtype, is_masked=output_is_masked, check=False)
