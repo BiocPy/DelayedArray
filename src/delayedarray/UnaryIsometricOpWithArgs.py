@@ -7,7 +7,7 @@ from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
 from ._subset import _spawn_indices
-from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
@@ -168,8 +168,7 @@ def _extract_array(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...
 @extract_dense_array.register
 def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(x, subset, extract_dense_array)
-    return _sanitize_to_fortran(out)
+    return _extract_array(x, subset, extract_dense_array)
 
 
 @extract_sparse_array.register

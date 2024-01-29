@@ -208,9 +208,8 @@ class SparseNdarray:
         """Convert a ``SparseNdarray`` to a NumPy array.
 
         Returns:
-            Array of the same type as :py:attr:`~dtype` and shape as
-            :py:attr:`~shape`. This is guaranteed to be in Fortran storage
-            order and to not be a view on other data.
+            Dense array of the same type as :py:attr:`~dtype` and shape as
+            :py:attr:`~shape`.
         """
         indices = _spawn_indices(self._shape)
         return _extract_dense_array_from_SparseNdarray(self, indices)

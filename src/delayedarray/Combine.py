@@ -3,7 +3,7 @@ import numpy
 
 from .DelayedOp import DelayedOp
 from ._mask import _concatenate_unmasked_ndarrays, _concatenate_maybe_masked_ndarrays
-from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_dense_array import extract_dense_array
 from .SparseNdarray import _concatenate_SparseNdarrays
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
@@ -130,8 +130,7 @@ def _extract_subarrays(x: Combine, subset: Tuple[Sequence[int], ...], f: Callabl
 def extract_dense_array_Combine(x: Combine, subset: Tuple[Sequence[int], ...]):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     fragments = _extract_subarrays(x, subset, extract_dense_array)
-    combined = _concatenate_maybe_masked_ndarrays(fragments, axis=x._along, masked=x._is_masked)
-    return _sanitize_to_fortran(combined)
+    return _concatenate_maybe_masked_ndarrays(fragments, axis=x._along, masked=x._is_masked)
 
 
 @extract_sparse_array.register

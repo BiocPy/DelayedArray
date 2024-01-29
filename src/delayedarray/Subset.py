@@ -5,7 +5,7 @@ import numpy
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
 from ._subset import _spawn_indices, _sanitize_subset
-from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
+from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
@@ -119,8 +119,7 @@ def _extract_array(x: Subset, subset: Tuple[Sequence[int], ...], f: Callable):
 @extract_dense_array.register
 def extract_dense_array_Subset(x: Subset, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    out = _extract_array(x, subset, extract_dense_array)
-    return _sanitize_to_fortran(out)
+    return _extract_array(x, subset, extract_dense_array)
 
 
 @extract_sparse_array.register

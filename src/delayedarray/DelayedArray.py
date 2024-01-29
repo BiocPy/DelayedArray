@@ -156,8 +156,7 @@ class DelayedArray:
 
         Returns:
             NumPy array of the same type as :py:attr:`~dtype` and shape as
-            :py:attr:`~shape`.  This is guaranteed to be in Fortran storage
-            order and to not be a view on other data.
+            :py:attr:`~shape`. 
         """
         return to_dense_array(self._seed)
 
