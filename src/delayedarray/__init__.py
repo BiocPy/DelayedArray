@@ -37,3 +37,5 @@ from .is_pristine import is_pristine
 from .apply_over_dimension import apply_over_dimension, choose_block_size_for_1d_iteration, guess_iteration_block_size
 from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration
 from .wrap import wrap
+
+from .to_scipy import *

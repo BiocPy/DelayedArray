@@ -127,7 +127,14 @@ if delayedarray.is_sparse(d):
 ```
 
 This returns a `SparseNdarray` consisting of a tree of sparse vectors for the specified block.
-(For the two-dimensional case, this is effectively a compressed sparse column matrix.)
+For the two-dimensional case, this is effectively a compressed sparse column matrix.
+Users can easily convert a `SparseNdarray` to some of the common SciPy sparse matrix classes:
+
+```python
+delayedarray.to_scipy_csc_matrix(current)
+delayedarray.to_scipy_csr_matrix(current)
+delayedarray.to_scipy_coo_matrix(current)
+```
 
 More simply, users can just call `numpy.array()` to realize the delayed operations into a standard NumPy array for consumption.
 
