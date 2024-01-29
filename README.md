@@ -99,13 +99,14 @@ Check out the [documentation](https://biocpy.github.io/DelayedArray/) for more i
 
 ## Extracting data
 
-Users can process a `DelayedArray` by iteratively extracting contiguous blocks on a dimension of interest.
-This "block processing" strategy saves memory by only realizing the delayed operations for a subset of the data,
-while reducing overhead from repeated calls to the `extract_*_array`  functions.
+### Block processing
+
+A `DelayedArray` is typically used by iteratively extracting blocks into memory for further calculations.
+This "block processing" strategy improves memory efficiency by only realizing the delayed operations for a subset of the data.
 For example, to iterate over the rows with 100 MB blocks:
 
 ```python
-block_size = delayedarray.guess_iteration_block_size(d, dimension=0, memory=1e8)
+block_size = delayedarray.choose_block_size_for_1d_iteration(d, dimension=0, memory=1e8)
 block_coords = [ None, range(d.shape[1]) ]
 
 for start in range(0, d.shape[0], block_size):
@@ -114,9 +115,31 @@ for start in range(0, d.shape[0], block_size):
     current = delayedarray.extract_dense_array(d, (*block_coords,))
 ```
 
-This yields `current`, a NumPy array in Fortran storage order with the specified rows and columns.
+Each call to `extract_dense_array()` yields a NumPy array containing the the specified rows and columns.
 If the `DelayedArray` might contain masked values, a NumPy `MaskedArray` is returned instead;
 this can be determined by checking whether `is_masked(d)` returns `True`.
+
+The above iteration can be simplified with the `apply_over_dimension()` function, which handles the block coordinate calculations for us.
+We could also use the `apply_over_blocks()` function to iterate over arbitrary block shapes, which may be more efficient if the best dimension for iteration is not known.
+
+```python
+# To iterate over a single dimension:
+delayedarray.apply_over_dimension(
+    d,
+    dimension=0,
+    fun=some_user_supplied_function,
+    block_size=block_size,
+)
+
+# To iterate over arbitrary blocks.
+delayedarray.apply_over_blocks(
+    d,
+    fun=another_user_supplied_function,
+    block_shape=(20, 100),
+)
+```
+
+### Handling sparse data
 
 If the `DelayedArray` contains sparse data, `is_sparse(d)` will return `True`.
 This allows callers to instead use the `extract_sparse_array()` function for block processing:
@@ -127,8 +150,46 @@ if delayedarray.is_sparse(d):
 ```
 
 This returns a `SparseNdarray` consisting of a tree of sparse vectors for the specified block.
-For the two-dimensional case, this is effectively a compressed sparse column matrix.
-Users can easily convert a `SparseNdarray` to some of the common SciPy sparse matrix classes:
+Users can retrieve the sparse vectors by inspecting the `contents` property of the `SparseNdarray`:
+
+- In the one-dimensional case, this is a tuple of two 1-dimensional NumPy arrays storing data about the non-zero elements.
+  The first array contains sorted indices while the secon array contains the associated values.
+  If `is_masked(d)` returns `True`, the values will be represented as NumPy `MaskedArray` objects.
+- For the two-dimensional case, this is a list of such tuples, with one tuple per column.
+  This is roughly analogous to a compressed sparse column matrix.
+  An entry of the list may also be `None`, indicating that no non-zero elements are present in that column.
+- For higher-dimensionals, the tree is a nested list of lists of tuples.
+  Each nesting level corresponds to a dimension; the outermost level contains elements of the last dimension,
+  the next nesting level contains elements of the second-last dimension, and so on,
+  with the indices in the tuple referring to the first dimension.
+  Any list element may be `None` indicating that the corresponding element of the dimension has no non-zero elements.
+- In all cases, it is possible for `contents` to be `None`, indicating that there are no non-zero elements in the entire array.
+
+The `apply_over_*` functions can also be instructed to iteratively extract blocks as `SparseNdarray` objects.
+This only occurs if the input array is sparse (as specified by `is_sparse`).
+
+```python
+# To iterate over a single dimension:
+delayedarray.apply_over_dimension(
+    d,
+    dimension=0,
+    fun=some_user_supplied_function,
+    block_size=block_size,
+    allow_sparse=True,
+)
+```
+
+### Other coercions
+
+A `DelayedArray` can be converted to a (possibly masked) NumPy array with the `to_dense_array()` function.
+Similarly, sparse `DelayedArray`s can be converted to `SparseNdarray`s with the `to_sparse_array()` function.
+
+```python
+delayedarray.to_dense_array(d)
+delayedarray.to_sparse_array(d)
+```
+
+Users can easily convert a 2-dimensional `SparseNdarray` to some of the common SciPy sparse matrix classes downstream calculations.
 
 ```python
 delayedarray.to_scipy_csc_matrix(current)
@@ -137,6 +198,7 @@ delayedarray.to_scipy_coo_matrix(current)
 ```
 
 More simply, users can just call `numpy.array()` to realize the delayed operations into a standard NumPy array for consumption.
+Note that this discards any masking information so should not be called if `is_masked()` returns `True`.
 
 ```python
 simple = numpy.array(n)
@@ -144,7 +206,7 @@ type(simple)
 ## <class 'numpy.ndarray'>
 ```
 
-Or `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations:
+Users can also call `delayedarray.create_dask_array()`, to obtain a **dask** array that contains the delayed operations:
 
 ```python
 # Note: requires installation as 'delayedarray[dask]'.
@@ -211,6 +273,7 @@ Any array-like object can be used as a "seed" in a `DelayedArray` provided it ha
 
 - `dtype` and `shape` properties, like those in NumPy arrays.
 - a method for the `extract_dense_array()` generic.
+- a method for the `is_masked()` generic.
 
 If the object may contain sparse data, it should also implement:
 

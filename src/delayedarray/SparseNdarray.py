@@ -41,7 +41,9 @@ class SparseNdarray:
     All ``index`` objects in the same ``SparseNdarray`` should have the same
     ``dtype`` (defined by the ``index_dtype`` property). ``value`` may be any
     numeric/boolean :py:class:`~numpy.ndarray` but the ``dtype`` should be
-    consistent across all ``value`` objects in the ``SparseNdarray``.
+    consistent across all ``value`` objects in the ``SparseNdarray``. If the
+    array contains masked values, all ``value`` objects should be a
+    ``MaskedArray``, otherwise they should be regular NumPy arrays.
 
     Any entry of any (nested) list may also be None, indicating that the
     corresponding element of the dimension contains no non-zero values. In

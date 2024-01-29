@@ -16,8 +16,7 @@ def is_masked(x: Any) -> bool:
         x: Any array-like object.
 
     Returns:
-        Whether ``x`` contains masked values. If no method is defined
-        for ``x``, False is returned by default.
+        Whether ``x`` contains masked values.
     """
     raise NotImplementedError("'is_masked(" + str(type(x)) + ")' has not yet been implemented") 
 
