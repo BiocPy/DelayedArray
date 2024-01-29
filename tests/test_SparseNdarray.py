@@ -5,7 +5,7 @@ import delayedarray
 import numpy
 import pytest
 
-from utils import sanitize_ndarray, assert_identical_ndarrays, safe_concatenate, mock_SparseNdarray_contents, simulate_SparseNdarray
+from utils import sanitize_ndarray, assert_identical_ndarrays, assert_close_ndarrays, safe_concatenate, mock_SparseNdarray_contents, simulate_SparseNdarray
 
 #######################################################
 #######################################################
@@ -1145,3 +1145,86 @@ def test_SparseNdarray_concatenate_nones(mask_rate):
     combined = numpy.concatenate((y, y2), axis=1)
     assert isinstance(combined, delayedarray.SparseNdarray)
     assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
+
+
+
+#######################################################
+#######################################################
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.2])
+def test_SparseNdarray_sum(mask_rate):
+    test_shape = (10, 20, 30)
+    y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
+    ref = delayedarray.to_dense_array(y)
+
+    assert ref.sum() == y.sum()
+    assert_identical_ndarrays(ref.sum(axis=1), y.sum(axis=1))
+    assert_identical_ndarrays(ref.sum(axis=-1), y.sum(axis=-1))
+    assert_identical_ndarrays(ref.sum(axis=(0, 2)), y.sum(axis=(0, 2)))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    y = numpy.round(simulate_SparseNdarray(test_shape, lower=-5, upper=5, mask_rate=mask_rate))
+    ref = delayedarray.to_dense_array(y)
+    assert ref.sum() == y.sum()
+
+    # Checking that full masking is respected.
+    y = delayedarray.SparseNdarray((1,), (numpy.array([0]), numpy.ma.MaskedArray([1], mask=True)))
+    assert y.sum() is numpy.ma.masked
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.2])
+def test_SparseNdarray_mean(mask_rate):
+    test_shape = (10, 20, 30)
+    y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
+    ref = delayedarray.to_dense_array(y)
+
+    assert numpy.isclose(ref.mean(), y.mean())
+    assert_close_ndarrays(ref.mean(axis=1), y.mean(axis=1))
+    assert_close_ndarrays(ref.mean(axis=-1), y.mean(axis=-1))
+    assert_close_ndarrays(ref.mean(axis=(0, 2)), y.mean(axis=(0, 2)))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    y = numpy.round(simulate_SparseNdarray(test_shape, lower=-5, upper=5, mask_rate=mask_rate))
+    ref = delayedarray.to_dense_array(y)
+    assert numpy.isclose(ref.mean(), y.mean())
+
+    # Checking that full masking is respected.
+    y = delayedarray.SparseNdarray((1,), (numpy.array([0]), numpy.ma.MaskedArray([1], mask=True)))
+    assert y.mean() is numpy.ma.masked
+
+    # Checking that an empty vector behaves correctly.
+    y = delayedarray.SparseNdarray((0,), None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int8"))
+    with pytest.warns(RuntimeWarning):
+        assert numpy.isnan(y.mean())
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.2])
+def test_SparseNdarray_var(mask_rate):
+    test_shape = (10, 20, 30)
+    y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
+    ref = delayedarray.to_dense_array(y)
+
+    assert numpy.isclose(ref.var(), y.var())
+    assert_close_ndarrays(ref.var(axis=1), y.var(axis=1))
+    assert_close_ndarrays(ref.var(axis=-1), y.var(axis=-1))
+    assert_close_ndarrays(ref.var(axis=(0, 2)), y.var(axis=(0, 2)))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    y = numpy.round(simulate_SparseNdarray(test_shape, lower=-5, upper=5, mask_rate=mask_rate))
+    ref = delayedarray.to_dense_array(y)
+    assert numpy.isclose(ref.var(), y.var())
+
+    # Checking that full masking is respected.
+    y = delayedarray.SparseNdarray((1,), (numpy.array([0]), numpy.ma.MaskedArray([1], mask=True)))
+    with pytest.warns(RuntimeWarning):
+        assert y.var() is numpy.ma.masked
+
+    # Checking that an empty vector behaves correctly.
+    y = delayedarray.SparseNdarray((0,), None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int8"))
+    with pytest.warns(RuntimeWarning):
+        assert numpy.isnan(y.var())
+

@@ -34,6 +34,25 @@ def is_equal_with_nan(left: numpy.ndarray, right: numpy.ndarray):
         return left == right
 
 
+def assert_close_ndarrays(x: numpy.ndarray, y: numpy.ndarray): 
+    x = sanitize_ndarray(x)
+    y = sanitize_ndarray(y)
+    assert numpy.ma.is_masked(x) == numpy.ma.is_masked(y)
+    if numpy.ma.is_masked(x):
+        assert (x.mask == y.mask).all()
+        comp = is_close_with_nan(x.data, y.data)
+        assert numpy.logical_or(x.mask, comp).all()
+    else:
+        assert is_close_with_nan(x, y).all()
+
+
+def is_close_with_nan(left: numpy.ndarray, right: numpy.ndarray):
+    if numpy.issubdtype(left.dtype, numpy.floating) or numpy.issubdtype(right.dtype, numpy.floating):
+        return numpy.logical_or(numpy.isnan(left) == numpy.isnan(right), numpy.isclose(left, right))
+    else:
+        return numpy.isclose(left, right)
+
+
 def safe_concatenate(x: List[numpy.ndarray], axis: int = 0):
     if any(numpy.ma.is_masked(y) for y in x):
         return numpy.ma.concatenate(x, axis=axis)
