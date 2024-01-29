@@ -2,6 +2,7 @@ from bisect import bisect_left
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 from collections import namedtuple
 import numpy
+import copy
 
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args, ISOMETRIC_OP_WITH_ARGS, _choose_operator, _infer_along_with_args
 from ._subset import _spawn_indices, _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
@@ -775,6 +776,30 @@ class SparseNdarray:
         """
         axes = list(range(len(self._shape) - 1, -1, -1))
         return _transpose_SparseNdarray(self, axes)
+
+
+    # Other stuff
+    def __copy__(self) -> "SparseNdarray":
+        """
+        Returns:
+            A deep copy of this object.
+        """
+        return SparseNdarray(
+            shape=self._shape, 
+            contents=copy.deepcopy(self._contents), 
+            index_dtype=self._index_dtype, 
+            dtype=self._dtype, 
+            is_masked=self._is_masked, 
+            check=False
+        )
+
+
+    def copy(self) -> "SparseNdarray":
+        """
+        Returns:
+            A deep copy of this object.
+        """
+        return self.__copy__()
 
 
 #########################################################

@@ -126,6 +126,10 @@ def test_SparseNdarray_check(mask_rate):
     assert delayedarray.is_masked(y) == (mask_rate > 0)
     assert delayedarray.is_masked(y) == y.is_masked
 
+    clone = copy.copy(y)
+    clone.contents[0] = "FOOBAR"
+    assert y.contents[0] != "FOOBAR"
+
     with pytest.raises(ValueError, match="match the extent"):
         y = delayedarray.SparseNdarray((10, 15, 1), contents)
 
