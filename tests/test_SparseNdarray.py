@@ -58,12 +58,15 @@ def _compare_sparse_vectors(left, right):
 
     val_l = sanitize_ndarray(val_l)
     val_r = sanitize_ndarray(val_r)
-    assert (val_l == val_r).all()
+    comp = (val_l == val_r)
 
     masked = numpy.ma.is_masked(val_l) 
     assert masked == numpy.ma.is_masked(val_r) 
     if masked:
         assert (val_l.mask == val_r.mask).all()
+        assert numpy.logical_or(comp, val_r.mask).all()
+    else:
+        assert comp.all()
 
 
 def _recursive_compare_contents(left, right, dim):
