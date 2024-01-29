@@ -20,7 +20,7 @@ def test_Subset_ix(mask_rate):
     assert not delayedarray.is_sparse(sub)
     assert delayedarray.is_masked(sub) == (mask_rate > 0)
 
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[subix])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[subix])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -33,13 +33,13 @@ def test_Subset_slice(mask_rate):
     sub = x[0:15, 30:50, 0:20:2]
     assert sub.shape == (15, 20, 10)
     assert isinstance(sub._seed, delayedarray.Subset)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[0:15, 30:50, 0:20:2])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[0:15, 30:50, 0:20:2])
 
     # All but one dimension.
     sub = x[:, :, range(0, 20, 2)]
     assert sub.shape == (30, 55, 10)
     assert isinstance(sub._seed, delayedarray.Subset)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[:, :, range(0, 20, 2)])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, :, range(0, 20, 2)])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -56,7 +56,7 @@ def test_Subset_booleans(mask_rate):
 
     assert sub.shape == (30, 55, 3)
     assert (sub.seed.subset[-1] == numpy.array([2, 3, 5])).all()
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[:, :, booled])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, :, booled])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -68,11 +68,11 @@ def test_Subset_fewer_indices(mask_rate):
     # Works when fewer indices are supplied.
     sub = x[[1, 3, 5]]
     assert sub.shape == (3, 55, 20)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[[1, 3, 5]])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[[1, 3, 5]])
 
     sub = x[:, [1, 3, 5]]
     assert sub.shape == (30, 3, 20)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[:, [1, 3, 5]])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, [1, 3, 5]])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -82,10 +82,10 @@ def test_Subset_unsorted_duplicates(mask_rate):
     x = delayedarray.DelayedArray(y)
 
     sub = x[:, :, [1, 1, 2, 3]]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[:, :, [1, 1, 2, 3]])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, :, [1, 1, 2, 3]])
 
     sub = x[:, [5, 4, 3, 2, 1, 0], :]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), y[:, [5, 4, 3, 2, 1, 0], :])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, [5, 4, 3, 2, 1, 0], :])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -125,11 +125,11 @@ def test_Subset_collapse(mask_rate):
 def test_Subset_sparse(mask_rate):
     y = simulate_SparseNdarray((50, 20), mask_rate=mask_rate)
     x = delayedarray.DelayedArray(y)
-    densed = delayedarray.extract_dense_array(y)
+    densed = delayedarray.to_dense_array(y)
 
     sub = x[5:45:5, 0:20:2]
     assert delayedarray.is_sparse(sub)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), densed[5:45:5, 0:20:2])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), densed[5:45:5, 0:20:2])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -142,4 +142,4 @@ def test_Subset_dask(mask_rate):
     import dask
     da = delayedarray.create_dask_array(sub)
     assert isinstance(da, dask.array.core.Array)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), da.compute())
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), da.compute())

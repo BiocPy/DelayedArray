@@ -1,7 +1,7 @@
 from functools import singledispatch
 import numpy
 from bisect import bisect_left
-from typing import Any, Optional, Tuple, Sequence
+from typing import Any, Tuple, Sequence, List, Union
 from biocutils.package_utils import is_package_installed
 
 from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
@@ -14,7 +14,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> SparseNdarray:
+def extract_sparse_array(x: Any, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     """Extract the contents of ``x`` (or a subset thereof) into a
     :py:class:`~delayedarray.SparseNdarray.SparseNdarray`. This should only be
     used for ``x`` where :py:meth:`~delayedarray.is_sparse.is_sparse` is True.
@@ -26,8 +26,7 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = N
         subset: 
             Tuple of length equal to the number of dimensions, each containing
             a sorted and unique sequence of integers specifying the elements of
-            each dimension to extract. If None, all elements are extracted from
-            all dimensions.
+            each dimension to extract.
 
     Returns:
         ``SparseNdarray`` for the requested subset. This may be a view so
@@ -40,31 +39,28 @@ def extract_sparse_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = N
 
 
 @extract_sparse_array.register
-def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     if _is_subset_noop(x.shape, subset):
-        subset = None
-    if subset is None:
-        import numpy
         return x
     else:
         return _extract_sparse_array_from_SparseNdarray(x, subset)
 
+
 if is_package_installed("scipy"):
     import scipy.sparse as sp
 
-    def _set_empty_contents(contents):
+
+    def _set_empty_contents(contents: List) -> Union[List, None]:
         for x in contents:
             if x is not None:
                 return contents
-        return contents
+        return None
+
 
     @extract_sparse_array.register
-    def extract_sparse_array_csc_matrix(x: sp.csc_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def extract_sparse_array_csc_matrix(x: sp.csc_matrix, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
         """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-        if subset is None:
-            subset = _spawn_indices(x.shape)
-
         final_shape = [len(s) for s in subset]
         new_contents = None
 
@@ -120,12 +116,10 @@ if is_package_installed("scipy"):
 
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, is_masked=False, check=False)
 
-    @extract_sparse_array.register
-    def extract_sparse_array_csr_matrix(x: sp.csr_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
-        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-        if subset is None:
-            subset = _spawn_indices(x.shape)
 
+    @extract_sparse_array.register
+    def extract_sparse_array_csr_matrix(x: sp.csr_matrix, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         final_shape = [len(s) for s in subset]
         new_contents = None
 
@@ -183,12 +177,10 @@ if is_package_installed("scipy"):
 
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.indices.dtype, is_masked=False, check=False)
 
-    @extract_sparse_array.register
-    def extract_sparse_array_coo_matrix(x: sp.coo_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
-        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
-        if subset is None:
-            subset = _spawn_indices(x.shape)
 
+    @extract_sparse_array.register
+    def extract_sparse_array_coo_matrix(x: sp.coo_matrix, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
+        """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
         final_shape = [len(s) for s in subset]
         new_contents = None
 
@@ -225,3 +217,19 @@ if is_package_installed("scipy"):
             new_contents = _set_empty_contents(new_contents)
 
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.row.dtype, is_masked=False, check=False)
+
+
+def to_sparse_array(x: Any) -> numpy.ndarray:
+    """
+    Convenience function that extracts the entirety of ``x`` as a
+    :py:class:`~delayedarray.SparseNdarray.SparseNdarray`. This simply calls
+    :py:func:`~extract_sparse_array` with ``subset`` set to the full extent of
+    all dimensions.
+
+    Args:
+        x: Any array-like object containing sparse data.
+
+    Returns:
+        ``SparseNdarray`` with the full contents of ``x``.
+    """
+    return extract_sparse_array(x, _spawn_indices(x.shape))

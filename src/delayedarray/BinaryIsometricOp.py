@@ -1,5 +1,5 @@
 import warnings
-from typing import Callable, Optional, Tuple, Sequence
+from typing import Callable, Tuple, Sequence
 import numpy
 
 from .DelayedOp import DelayedOp
@@ -104,21 +104,21 @@ class BinaryIsometricOp(DelayedOp):
         return self._op
 
  
-def _extract_array(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
+def _extract_array(x: BinaryIsometricOp, subset: Tuple[Sequence[int], ...], f: Callable):
     ls = f(x._left, subset)
     rs = f(x._right, subset)
     return _execute(ls, rs, x._op)
 
 
 @extract_dense_array.register
-def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Tuple[Sequence[int], ...]):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_BinaryIsometricOp(x: BinaryIsometricOp, subset: Tuple[Sequence[int], ...]):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

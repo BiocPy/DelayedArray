@@ -185,7 +185,7 @@ def test_SparseNdarray_extract_dense_array_3d(mask_rate):
     y = simulate_SparseNdarray(test_shape, mask_rate=mask_rate)
 
     # Full extraction.
-    output = delayedarray.extract_dense_array(y)
+    output = delayedarray.to_dense_array(y)
     assert_identical_ndarrays(output, convert_SparseNdarray_to_numpy(y))
 
     # Sliced extraction.
@@ -212,7 +212,7 @@ def test_SparseNdarray_extract_dense_array_2d(mask_rate):
     y = simulate_SparseNdarray(test_shape, mask_rate=mask_rate)
 
     # Full extraction.
-    output = delayedarray.extract_dense_array(y)
+    output = delayedarray.to_dense_array(y)
     assert_identical_ndarrays(output, convert_SparseNdarray_to_numpy(y))
 
     # Sliced extraction.
@@ -236,7 +236,7 @@ def test_SparseNdarray_extract_dense_array_1d(mask_rate):
     assert y.dtype == numpy.float64
 
     # Full extraction.
-    output = delayedarray.extract_dense_array(y)
+    output = delayedarray.to_dense_array(y)
     assert_identical_ndarrays(output, convert_SparseNdarray_to_numpy(y))
 
     # Sliced extraction.
@@ -376,19 +376,19 @@ def test_SparseNdarray_subset_simple(mask_rate):
     # Consecutive subset.
     subset = (slice(2, 18), slice(3, 20), slice(5, 22))
     sub = y[subset]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), ref[subset])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), ref[subset])
 
     # Increasing non-consecutive subset.
     subset = (slice(2, 18, 2), slice(3, 20, 2), slice(1, 22, 2))
     sub = y[subset]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), ref[subset])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), ref[subset])
 
     # Unsorted subset.
     subset = [list(range(s)) for s in test_shape]
     for s in subset:
         numpy.random.shuffle(s)
     sub = y[numpy.ix_(*subset)]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), ref[numpy.ix_(*subset)])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), ref[numpy.ix_(*subset)])
 
     # Duplicated subset.
     subset = []
@@ -398,7 +398,7 @@ def test_SparseNdarray_subset_simple(mask_rate):
             cursub += [i] * numpy.random.randint(4)
         subset.append(cursub)
     sub = y[numpy.ix_(*subset)]
-    assert_identical_ndarrays(delayedarray.extract_dense_array(sub), ref[numpy.ix_(*subset)])
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub), ref[numpy.ix_(*subset)])
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
@@ -425,41 +425,41 @@ def test_SparseNdarray_abs(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
     out = abs(y)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), abs(delayedarray.extract_dense_array(y)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), abs(delayedarray.to_dense_array(y)))
 
     # Checking that the transformer does something sensible here.
     y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int32"))
     out = abs(y)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.zeros(test_shape))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.zeros(test_shape))
 
     test_shape = (99,)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"))
     out = abs(y)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), abs(delayedarray.extract_dense_array(y)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), abs(delayedarray.to_dense_array(y)))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_neg(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(-y), -delayedarray.extract_dense_array(y))
+    assert_identical_ndarrays(delayedarray.to_dense_array(-y), -delayedarray.to_dense_array(y))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_ufunc_simple(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = numpy.log1p(y)
     assert isinstance(out, delayedarray.SparseNdarray)
     assert out.dtype == numpy.float32
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.log1p(ref))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.log1p(ref))
 
     out = numpy.exp(y)
     assert isinstance(out, numpy.ndarray)
     assert out.dtype == numpy.float32
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.exp(ref))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.exp(ref))
 
 
 #######################################################
@@ -470,7 +470,7 @@ def test_SparseNdarray_ufunc_simple(mask_rate):
 def test_SparseNdarray_add(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1 + y
     assert isinstance(out, numpy.ndarray)
@@ -496,17 +496,17 @@ def test_SparseNdarray_add(mask_rate):
     assert_identical_ndarrays(out, ref + other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y + y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref + ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref + ref2)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_sub(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 - y
     assert isinstance(out, numpy.ndarray)
@@ -532,53 +532,53 @@ def test_SparseNdarray_sub(mask_rate):
     assert_identical_ndarrays(out, ref - other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"))
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y - y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref - ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref - ref2)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_multiply(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 * y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), 1.5 * ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), 1.5 * ref)
     out = y * 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref * 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref * 2)
 
     other = numpy.random.rand(40)
     out = other * y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other * ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other * ref)
     out = y * other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref * other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref * other)
 
     other = numpy.random.rand(30, 1)
     out = other * y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other * ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other * ref)
     out = y * other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref * other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref * other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y * y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref * ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref * ref2)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_divide(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -587,7 +587,7 @@ def test_SparseNdarray_divide(mask_rate):
         assert_identical_ndarrays(out, 1.5 / ref)
     out = y / 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref / 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref / 2)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -597,7 +597,7 @@ def test_SparseNdarray_divide(mask_rate):
         assert_identical_ndarrays(out, other / ref)
     out = y / other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref / other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref / other)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -607,10 +607,10 @@ def test_SparseNdarray_divide(mask_rate):
         assert_identical_ndarrays(out, other / ref)
     out = y / other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref / other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref / other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         out = y / y2 
@@ -622,7 +622,7 @@ def test_SparseNdarray_divide(mask_rate):
 def test_SparseNdarray_floor_divide(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -631,7 +631,7 @@ def test_SparseNdarray_floor_divide(mask_rate):
         assert_identical_ndarrays(out, 1.5 // ref)
     out = y // 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref // 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref // 2)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -641,7 +641,7 @@ def test_SparseNdarray_floor_divide(mask_rate):
         assert_identical_ndarrays(out, other // ref)
     out = y // other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref // other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref // other)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -651,10 +651,10 @@ def test_SparseNdarray_floor_divide(mask_rate):
         assert_identical_ndarrays(out, other // ref)
     out = y // other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref // other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref // other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         out = y // y2 
@@ -666,7 +666,7 @@ def test_SparseNdarray_floor_divide(mask_rate):
 def test_SparseNdarray_modulo(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -675,7 +675,7 @@ def test_SparseNdarray_modulo(mask_rate):
         assert_identical_ndarrays(out, 1.5 % ref)
     out = y % 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref % 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref % 2)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -685,7 +685,7 @@ def test_SparseNdarray_modulo(mask_rate):
         assert_identical_ndarrays(out, other % ref)
     out = y % other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref % other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref % other)
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -695,10 +695,10 @@ def test_SparseNdarray_modulo(mask_rate):
         assert_identical_ndarrays(out, other % ref)
     out = y % other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref % other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref % other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         out = y % y2 
@@ -710,14 +710,14 @@ def test_SparseNdarray_modulo(mask_rate):
 def test_SparseNdarray_power(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 ** y
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, 1.5 ** ref)
     out = y ** 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref ** 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref ** 2)
 
     other = numpy.random.rand(40)
     out = other ** y
@@ -725,7 +725,7 @@ def test_SparseNdarray_power(mask_rate):
     assert_identical_ndarrays(out, other ** ref)
     out = y ** other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref ** other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref ** other)
 
     other = numpy.random.rand(30, 1)
     out = other ** y
@@ -733,10 +733,10 @@ def test_SparseNdarray_power(mask_rate):
     assert_identical_ndarrays(out, other ** ref)
     out = y ** other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref ** other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref ** other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=1, upper=5, dtype=numpy.dtype("float64"))
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y ** y2 
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, (ref ** ref2))
@@ -746,33 +746,33 @@ def test_SparseNdarray_power(mask_rate):
 def test_SparseNdarray_equal(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 == y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), 1.5 == ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), 1.5 == ref)
     out = y == 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref == 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref == 2)
 
     other = numpy.random.rand(40)
     out = other == y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other == ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other == ref)
     out = y == other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref == other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref == other)
 
     other = numpy.random.rand(30, 1)
     out = other == y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other == ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other == ref)
     out = y == other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref == other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref == other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y == y2 
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref == ref2)
@@ -782,7 +782,7 @@ def test_SparseNdarray_equal(mask_rate):
 def test_SparseNdarray_not_equal(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 != y
     assert isinstance(out, numpy.ndarray)
@@ -808,24 +808,24 @@ def test_SparseNdarray_not_equal(mask_rate):
     assert_identical_ndarrays(out, ref != other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y != y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref != ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref != ref2)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_greater_than_or_equal(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 >= y
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, 1.5 >= ref)
     out = y >= 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref >= 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref >= 2)
 
     other = numpy.random.rand(40)
     out = other >= y
@@ -833,7 +833,7 @@ def test_SparseNdarray_greater_than_or_equal(mask_rate):
     assert_identical_ndarrays(out, other >= ref)
     out = y >= other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref >= other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref >= other)
 
     other = numpy.random.rand(30, 1)
     out = other >= y
@@ -841,10 +841,10 @@ def test_SparseNdarray_greater_than_or_equal(mask_rate):
     assert_identical_ndarrays(out, other >= ref)
     out = y >= other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref >= other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref >= other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y >= y2 
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref >= ref2)
@@ -854,14 +854,14 @@ def test_SparseNdarray_greater_than_or_equal(mask_rate):
 def test_SparseNdarray_greater(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 > y
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, 1.5 > ref)
     out = y > 2
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref > 2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref > 2)
 
     other = numpy.random.rand(40)
     out = other > y
@@ -869,7 +869,7 @@ def test_SparseNdarray_greater(mask_rate):
     assert_identical_ndarrays(out, other > ref)
     out = y > other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref > other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref > other)
 
     other = numpy.random.rand(30, 1)
     out = other > y
@@ -877,24 +877,24 @@ def test_SparseNdarray_greater(mask_rate):
     assert_identical_ndarrays(out, other > ref)
     out = y > other
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref > other)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref > other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y > y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref > ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref > ref2)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_less_than_or_equal(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 <= y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), 1.5 <= ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), 1.5 <= ref)
     out = y <= 2
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref <= 2)
@@ -902,7 +902,7 @@ def test_SparseNdarray_less_than_or_equal(mask_rate):
     other = numpy.random.rand(40)
     out = other <= y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other <= ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other <= ref)
     out = y <= other
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref <= other)
@@ -910,13 +910,13 @@ def test_SparseNdarray_less_than_or_equal(mask_rate):
     other = numpy.random.rand(30, 1)
     out = other <= y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other <= ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other <= ref)
     out = y <= other
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref <= other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y <= y2 
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref <= ref2)
@@ -926,11 +926,11 @@ def test_SparseNdarray_less_than_or_equal(mask_rate):
 def test_SparseNdarray_less_than_or_equal(mask_rate):
     test_shape = (30, 40)
     y = simulate_SparseNdarray(test_shape, lower=1, upper=10, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = 1.5 < y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), 1.5 < ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), 1.5 < ref)
     out = y < 2
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref < 2)
@@ -938,7 +938,7 @@ def test_SparseNdarray_less_than_or_equal(mask_rate):
     other = numpy.random.rand(40)
     out = other < y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other < ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other < ref)
     out = y < other
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref < other)
@@ -946,16 +946,16 @@ def test_SparseNdarray_less_than_or_equal(mask_rate):
     other = numpy.random.rand(30, 1)
     out = other < y
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), other < ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), other < ref)
     out = y < other
     assert isinstance(out, numpy.ndarray)
     assert_identical_ndarrays(out, ref < other)
 
     y2 = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
     out = y < y2 
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref < ref2)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref < ref2)
 
 
 #######################################################
@@ -977,17 +977,17 @@ def test_SparseNdarray_astype(mask_rate):
 def test_SparseNdarray_round(mask_rate):
     test_shape = (50, 30, 20)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("float64"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     z = numpy.round(y)
     assert isinstance(z, delayedarray.SparseNdarray)
     assert z.dtype == numpy.float64
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.round(ref))
+    assert_identical_ndarrays(delayedarray.to_dense_array(z), numpy.round(ref))
 
     z = numpy.round(y, decimals=1)
     assert isinstance(z, delayedarray.SparseNdarray)
     assert z.dtype == numpy.float64
-    assert_identical_ndarrays(delayedarray.extract_dense_array(z), numpy.round(ref, decimals=1))
+    assert_identical_ndarrays(delayedarray.to_dense_array(z), numpy.round(ref, decimals=1))
 
 
 #######################################################
@@ -998,31 +998,31 @@ def test_SparseNdarray_round(mask_rate):
 def test_SparseNdarray_transpose(mask_rate):
     test_shape = (50, 30, 20)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     out = numpy.transpose(y, axes=[1, 2, 0])
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.transpose(ref, axes=[1, 2, 0]))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.transpose(ref, axes=[1, 2, 0]))
 
     out = numpy.transpose(y, axes=[0, 2, 1])
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.transpose(ref, axes=[0, 2, 1]))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.transpose(ref, axes=[0, 2, 1]))
 
     out = numpy.transpose(y, axes=[1, 0, 2])
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.transpose(ref, axes=[1, 0, 2]))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.transpose(ref, axes=[1, 0, 2]))
 
     out = y.T
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref.T)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref.T)
 
     # No-op for 1-dimensional arrays.
     test_shape = (50,)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
     out = numpy.transpose(y)
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), ref)
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), ref)
 
     # Works for Nones.
     test_shape = (20, 30)
@@ -1030,7 +1030,7 @@ def test_SparseNdarray_transpose(mask_rate):
     ref = numpy.zeros(test_shape)
     out = numpy.transpose(y)
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(out), numpy.transpose(ref))
+    assert_identical_ndarrays(delayedarray.to_dense_array(out), numpy.transpose(ref))
 
 
 #######################################################
@@ -1041,103 +1041,103 @@ def test_SparseNdarray_transpose(mask_rate):
 def test_SparseNdarray_concatenate_3d(mask_rate):
     test_shape = (10, 20, 30)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     # Combining on the first dimension.
     test_shape2 = (5, 20, 30)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2))
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2)))
 
     # Combining on the middle dimension.
     test_shape2 = (10, 15, 30)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2), axis=1)
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
 
     # Combining on the last dimension.
     test_shape2 = (10, 20, 15)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2), axis=2)
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2), axis=2))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=2))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_concatenate_2d(mask_rate):
     test_shape = (55, 20)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     # Combining on the first dimension.
     test_shape2 = (25, 20)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2))
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2)))
 
     # Combining on the last dimension.
     test_shape2 = (55, 15)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2), axis=1)
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_concatenate_1d(mask_rate):
     test_shape = (10,)
     y = simulate_SparseNdarray(test_shape, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     test_shape2 = (5,)
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2))
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2)))
 
     # One dimension plus None's.
     test_shape2 = (5,)
     y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int32"))
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2))
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2)))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2)))
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_SparseNdarray_concatenate_nones(mask_rate):
     test_shape = (10, 20)
     y = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int32"))
-    ref = delayedarray.extract_dense_array(y)
+    ref = delayedarray.to_dense_array(y)
 
     test_shape2 = (10, 25)
     y2 = delayedarray.SparseNdarray(test_shape2, None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int32"))
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2), axis=1)
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
 
     # Partial none.
     y2 = simulate_SparseNdarray(test_shape2, lower=-100, upper=100, dtype=numpy.dtype("int16"), mask_rate=mask_rate)
-    ref2 = delayedarray.extract_dense_array(y2)
+    ref2 = delayedarray.to_dense_array(y2)
 
     combined = numpy.concatenate((y, y2), axis=1)
     assert isinstance(combined, delayedarray.SparseNdarray)
-    assert_identical_ndarrays(delayedarray.extract_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
+    assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))

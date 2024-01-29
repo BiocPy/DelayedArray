@@ -1,9 +1,10 @@
 import warnings
-from typing import Callable, Optional, Tuple, Union, Sequence
+from typing import Callable, Tuple, Union, Sequence
 import numpy
 from numpy import ndarray
 
 from .DelayedOp import DelayedOp
+from .SparseNdarray import SparseNdarray
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
 from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
@@ -143,7 +144,7 @@ class UnaryIsometricOpWithArgs(DelayedOp):
         return self._along
 
 
-def _extract_array(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[int], ...]], f: Callable): 
+def _extract_array(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...], f: Callable): 
     target = f(x._seed, subset)
 
     subvalue = x._value
@@ -165,14 +166,14 @@ def _extract_array(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[
 
 
 @extract_dense_array.register
-def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_UnaryIsometricOpWithArgs(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

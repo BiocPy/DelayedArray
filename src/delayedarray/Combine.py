@@ -1,8 +1,7 @@
-from typing import Callable, Optional, Tuple, Sequence
+from typing import Callable, Tuple, Sequence
 import numpy
 
 from .DelayedOp import DelayedOp
-from ._subset import _spawn_indices
 from ._mask import _concatenate_unmasked_ndarrays, _concatenate_maybe_masked_ndarrays
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .SparseNdarray import _concatenate_SparseNdarrays
@@ -101,10 +100,7 @@ class Combine(DelayedOp):
         return self._along
 
 
-def _extract_subarrays(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
-    if subset is None:
-        subset = _spawn_indices(x.shape)
-
+def _extract_subarrays(x: Combine, subset: Tuple[Sequence[int], ...], f: Callable):
     # Figuring out which slices belong to who.
     chosen = subset[x._along]
     limit = 0
@@ -131,7 +127,7 @@ def _extract_subarrays(x: Combine, subset: Optional[Tuple[Sequence[int], ...]], 
 
 
 @extract_dense_array.register
-def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_Combine(x: Combine, subset: Tuple[Sequence[int], ...]):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     fragments = _extract_subarrays(x, subset, extract_dense_array)
     combined = _concatenate_maybe_masked_ndarrays(fragments, axis=x._along, masked=x._is_masked)
@@ -139,7 +135,7 @@ def extract_dense_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int]
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Combine(x: Combine, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_Combine(x: Combine, subset: Tuple[Sequence[int], ...]):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     fragments = _extract_subarrays(x, subset, extract_sparse_array)
     return _concatenate_SparseNdarrays(fragments, along=x._along)

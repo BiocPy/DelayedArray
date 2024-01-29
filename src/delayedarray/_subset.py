@@ -2,8 +2,8 @@ from typing import Sequence, Tuple, Union, Callable
 from numpy import prod, ndarray, integer, issubdtype, array, ix_, get_printoptions
 
 
-def _spawn_indices(shape: Tuple[int, ...]):
-    return [range(s) for s in shape]
+def _spawn_indices(shape: Tuple[int, ...]) -> Tuple[Sequence[int], ...]:
+    return (*[range(s) for s in shape],)
 
 
 def _is_subset_consecutive(subset: Sequence):

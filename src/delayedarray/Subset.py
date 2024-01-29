@@ -1,7 +1,9 @@
-from typing import Optional, Callable, Sequence, Tuple
+from typing import Callable, Sequence, Tuple
 from numpy import dtype, ndarray, ix_
+import numpy
 
 from .DelayedOp import DelayedOp
+from .SparseNdarray import SparseNdarray
 from ._subset import _spawn_indices, _sanitize_subset
 from .extract_dense_array import extract_dense_array, _sanitize_to_fortran
 from .extract_sparse_array import extract_sparse_array
@@ -85,7 +87,7 @@ class Subset(DelayedOp):
         return self._subset
 
 
-def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
+def _extract_array(x: Subset, subset: Tuple[Sequence[int], ...], f: Callable):
     if subset is None:
         subset = _spawn_indices(x.shape)
 
@@ -115,14 +117,14 @@ def _extract_array(x: Subset, subset: Optional[Tuple[Sequence[int], ...]], f: Ca
 
 
 @extract_dense_array.register
-def extract_dense_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_Subset(x: Subset, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Subset(x: Subset, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_Subset(x: Subset, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

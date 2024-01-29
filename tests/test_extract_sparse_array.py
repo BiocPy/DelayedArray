@@ -7,7 +7,7 @@ def test_extract_sparse_array_csc_matrix():
     y = scipy.sparse.random(100, 20, 0.2).tocsc()
 
     # Full:
-    out = delayedarray.extract_sparse_array(y)
+    out = delayedarray.to_sparse_array(y)
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == y.toarray()).all()
 
@@ -23,7 +23,7 @@ def test_extract_sparse_array_csc_matrix():
 
     # Empty.
     empty = scipy.sparse.random(100, 20, 0).tocsc()
-    out = delayedarray.extract_sparse_array(empty)
+    out = delayedarray.to_sparse_array(empty)
     assert (numpy.array(out) == numpy.zeros((100, 20))).all()
 
     # Nosub.
@@ -37,7 +37,7 @@ def test_extract_sparse_array_csr_matrix():
     y = scipy.sparse.random(100, 20, 0.2).tocsr()
 
     # Full:
-    out = delayedarray.extract_sparse_array(y)
+    out = delayedarray.to_sparse_array(y)
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == y.toarray()).all()
 
@@ -53,7 +53,7 @@ def test_extract_sparse_array_csr_matrix():
 
     # Empty.
     empty = scipy.sparse.random(100, 20, 0).tocsr()
-    out = delayedarray.extract_sparse_array(empty)
+    out = delayedarray.to_sparse_array(empty)
     assert (numpy.array(out) == numpy.zeros((100, 20))).all()
 
     # Nosub.
@@ -67,7 +67,7 @@ def test_extract_sparse_array_coo_matrix():
     y = scipy.sparse.random(100, 20, 0.2).tocoo()
 
     # Full:
-    out = delayedarray.extract_sparse_array(y)
+    out = delayedarray.to_sparse_array(y)
     assert isinstance(out, delayedarray.SparseNdarray)
     assert (numpy.array(out) == y.toarray()).all()
 
@@ -83,7 +83,7 @@ def test_extract_sparse_array_coo_matrix():
 
     # Empty.
     empty = scipy.sparse.random(100, 20, 0).tocoo()
-    out = delayedarray.extract_sparse_array(empty)
+    out = delayedarray.to_sparse_array(empty)
     assert (numpy.array(out) == numpy.zeros((100, 20))).all()
 
     # Nosub.

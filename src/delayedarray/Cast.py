@@ -1,4 +1,4 @@
-from typing import Callable, Optional, Tuple, Sequence
+from typing import Callable, Tuple, Sequence
 from numpy import dtype
 
 from .DelayedOp import DelayedOp
@@ -61,19 +61,19 @@ class Cast(DelayedOp):
         return self._seed
 
 
-def _extract_array(x: Cast, subset: Optional[Tuple[Sequence[int], ...]], f: Callable):
+def _extract_array(x: Cast, subset: Tuple[Sequence[int], ...], f: Callable):
     return f(x._seed, subset).astype(x._dtype, copy=False)
 
 
 @extract_dense_array.register
-def extract_dense_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_Cast(x: Cast, subset: Tuple[Sequence[int], ...] = None):
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     out = _extract_array(x, subset, extract_dense_array)
     return _sanitize_to_fortran(out)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_Cast(x: Cast, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_Cast(x: Cast, subset: Tuple[Sequence[int], ...] = None):
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return _extract_array(x, subset, extract_sparse_array)
 

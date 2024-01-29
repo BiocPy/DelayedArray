@@ -1,6 +1,6 @@
 from functools import singledispatch
 import numpy
-from typing import Any, Optional, Tuple, Sequence
+from typing import Any, Tuple, Sequence
 from biocutils.package_utils import is_package_installed
 
 from ._subset import _spawn_indices, _is_subset_noop
@@ -12,7 +12,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = None) -> numpy.ndarray:
+def extract_dense_array(x: Any, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """Extract the realized contents (or a subset thereof) into a dense NumPy
     array with Fortran storage order, i.e., earlier dimensions change fastest. 
 
@@ -23,8 +23,7 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = No
         subset: 
             Tuple of length equal to the number of dimensions, each containing
             a sorted and unique sequence of integers specifying the elements of
-            each dimension to extract. If None, all elements are extracted from
-            all dimensions.
+            each dimension to extract.
 
     Returns:
         NumPy array with Fortran storage order. This may be a view so callers should
@@ -37,11 +36,9 @@ def extract_dense_array(x: Any, subset: Optional[Tuple[Sequence[int], ...]] = No
 
 
 @extract_dense_array.register
-def extract_dense_array_ndarray(x: numpy.ndarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_ndarray(x: numpy.ndarray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     if _is_subset_noop(x.shape, subset):
-        subset = None
-    if subset is None:
         tmp = x
     else:
         tmp = x[numpy.ix_(*subset)]
@@ -49,14 +46,12 @@ def extract_dense_array_ndarray(x: numpy.ndarray, subset: Optional[Tuple[Sequenc
 
 
 @extract_dense_array.register
-def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
-    if subset is None:
-        subset = _spawn_indices(x.shape)
     return _extract_dense_array_from_SparseNdarray(x, subset)
 
 
-def _sanitize_to_fortran(x):
+def _sanitize_to_fortran(x: numpy.ndarray) -> numpy.ndarray:
     if x.flags.f_contiguous:
         return x
     else:
@@ -67,7 +62,7 @@ def _sanitize_to_fortran(x):
 if is_package_installed("scipy"):
     import scipy.sparse as sp
 
-    def _extract_dense_array_sparse(x, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def _extract_dense_array_sparse(x, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
         if _is_subset_noop(x.shape, subset):
             tmp = x
         else:
@@ -77,27 +72,46 @@ if is_package_installed("scipy"):
             tmp = x[numpy.ix_(*subset)]
         return tmp.toarray(order="F")
 
+
     @extract_dense_array.register
-    def extract_dense_array_csc_matrix(x: sp.csc_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def extract_dense_array_csc_matrix(x: sp.csc_matrix, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
+
     @extract_dense_array.register
-    def extract_dense_array_csr_matrix(x: sp.csr_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def extract_dense_array_csr_matrix(x: sp.csr_matrix, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
+
     @extract_dense_array.register
-    def extract_dense_array_coo_matrix(x: sp.coo_matrix, subset: Optional[Tuple[Sequence[int], ...]] = None):
+    def extract_dense_array_coo_matrix(x: sp.coo_matrix, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
 
-    def extract_dense_array_sparse_array(x, subset: Optional[Tuple[Sequence[int], ...]] = None):
+
+    def extract_dense_array_sparse_array(x, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
         """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
         return _extract_dense_array_sparse(x, subset)
-    
+
+
     try:
         extract_dense_array.register(sp.sparray, extract_dense_array_sparse_array)
     except Exception:
         pass
 
+
+def to_dense_array(x: Any) -> numpy.ndarray:
+    """
+    Convenience function that extracts the entirety of ``x`` as a dense NumPy
+    array. This simply calls :py:func:`~extract_dense_array` with ``subset``
+    set to the full extent of all dimensions.
+
+    Args:
+        x: Any array-like object.
+
+    Returns:
+        NumPy array contains the full contents of ``x``. This may be masked.
+    """
+    return extract_dense_array(x, _spawn_indices(x.shape))

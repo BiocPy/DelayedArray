@@ -1,7 +1,8 @@
-from typing import Optional, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import numpy
 from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
 
+from .SparseNdarray import SparseNdarray
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
 from .Combine import Combine
@@ -13,7 +14,7 @@ from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
 from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
-from .extract_dense_array import extract_dense_array
+from .extract_dense_array import extract_dense_array, to_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
@@ -158,7 +159,7 @@ class DelayedArray:
             :py:attr:`~shape`.  This is guaranteed to be in Fortran storage
             order and to not be a view on other data.
         """
-        return extract_dense_array(self._seed)
+        return to_dense_array(self._seed)
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods. This is used to implement
@@ -713,28 +714,28 @@ class DelayedArray:
     # For python-level compute.
     def sum(self, *args, **kwargs):
         """See :py:meth:`~numpy.sums` for details."""
-        target = extract_dense_array(self._seed)
+        target = to_dense_array(self._seed)
         return target.sum(*args, **kwargs)
 
     def var(self, *args, **kwargs):
         """See :py:meth:`~numpy.vars` for details."""
-        target = extract_dense_array(self._seed)
+        target = to_dense_array(self._seed)
         return target.var(*args, **kwargs)
 
     def mean(self, *args, **kwargs):
         """See :py:meth:`~numpy.means` for details."""
-        target = extract_dense_array(self._seed)
+        target = to_dense_array(self._seed)
         return target.mean(*args, **kwargs)
 
 
 @extract_dense_array.register
-def extract_dense_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_dense_array_DelayedArray(x: DelayedArray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
     """See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`."""
     return extract_dense_array(x._seed, subset)
 
 
 @extract_sparse_array.register
-def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Optional[Tuple[Sequence[int], ...]] = None):
+def extract_sparse_array_DelayedArray(x: DelayedArray, subset: Tuple[Sequence[int], ...]) -> SparseNdarray:
     """See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`."""
     return extract_sparse_array(x._seed, subset)
 

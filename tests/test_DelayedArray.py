@@ -54,7 +54,7 @@ def test_DelayedArray_sparse():
     y = scipy.sparse.csc_matrix([[1, 2, 0], [0, 0, 3], [4, 0, 5]])
     x = delayedarray.wrap(y)
 
-    out = delayedarray.extract_sparse_array(x)
+    out = delayedarray.to_sparse_array(x)
     assert isinstance(out, delayedarray.SparseNdarray)
     assert delayedarray.chunk_shape(x) == (3, 1)
     assert delayedarray.is_sparse(x)
