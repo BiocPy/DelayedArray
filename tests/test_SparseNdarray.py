@@ -122,6 +122,9 @@ def test_SparseNdarray_check(mask_rate):
     assert y.shape == test_shape
     assert y.dtype == numpy.float64
     assert repr(y).find("SparseNdarray") > 0
+    assert delayedarray.is_sparse(y)
+    assert delayedarray.is_masked(y) == (mask_rate > 0)
+    assert delayedarray.is_masked(y) == y.is_masked
 
     with pytest.raises(ValueError, match="match the extent"):
         y = delayedarray.SparseNdarray((10, 15, 1), contents)
@@ -169,6 +172,7 @@ def test_SparseNdarray_check(mask_rate):
     empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.dtype("int32"), index_dtype=numpy.dtype("int32"))
     assert empty.shape == test_shape
     assert empty.dtype == numpy.int32
+    assert not empty.is_masked
 
 
 #######################################################
