@@ -29,7 +29,8 @@ def assert_identical_ndarrays(x: numpy.ndarray, y: numpy.ndarray):
 
 def is_equal_with_nan(left: numpy.ndarray, right: numpy.ndarray):
     if numpy.issubdtype(left.dtype, numpy.floating) or numpy.issubdtype(right.dtype, numpy.floating):
-        return numpy.logical_or(numpy.isnan(left) == numpy.isnan(right), left == right)
+        lnan = numpy.isnan(left)
+        return numpy.logical_and(lnan == numpy.isnan(right), numpy.logical_or(lnan, left == right))
     else:
         return left == right
 
@@ -48,7 +49,8 @@ def assert_close_ndarrays(x: numpy.ndarray, y: numpy.ndarray):
 
 def is_close_with_nan(left: numpy.ndarray, right: numpy.ndarray):
     if numpy.issubdtype(left.dtype, numpy.floating) or numpy.issubdtype(right.dtype, numpy.floating):
-        return numpy.logical_or(numpy.isnan(left) == numpy.isnan(right), numpy.isclose(left, right))
+        lnan = numpy.isnan(left)
+        return numpy.logical_and(lnan == numpy.isnan(right), numpy.logical_or(lnan, numpy.isclose(left, right)))
     else:
         return numpy.isclose(left, right)
 
