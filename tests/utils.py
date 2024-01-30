@@ -4,22 +4,9 @@ import random
 import delayedarray
 
 
-def sanitize_ndarray(x: numpy.ndarray):
-    if numpy.ma.is_masked(x):
-        if isinstance(x.mask, bool):
-            if not x.mask:
-                return x.data
-        else:
-            if not x.mask.any():
-                return x.data
-    return x
-
-
 def assert_identical_ndarrays(x: numpy.ndarray, y: numpy.ndarray): 
-    x = sanitize_ndarray(x)
-    y = sanitize_ndarray(y)
-    assert numpy.ma.is_masked(x) == numpy.ma.is_masked(y)
-    if numpy.ma.is_masked(x):
+    assert numpy.ma.isMaskedArray(x) == numpy.ma.isMaskedArray(y)
+    if numpy.ma.isMaskedArray(x):
         assert (x.mask == y.mask).all()
         comp = is_equal_with_nan(x.data, y.data)
         remask = numpy.logical_or(numpy.zeros(x.shape), x.mask) # using an OR to force broadcasting of buggy masks of different shape.
@@ -38,10 +25,8 @@ def is_equal_with_nan(left: numpy.ndarray, right: numpy.ndarray):
 
 
 def assert_close_ndarrays(x: numpy.ndarray, y: numpy.ndarray): 
-    x = sanitize_ndarray(x)
-    y = sanitize_ndarray(y)
-    assert numpy.ma.is_masked(x) == numpy.ma.is_masked(y)
-    if numpy.ma.is_masked(x):
+    assert numpy.ma.isMaskedArray(x) == numpy.ma.isMaskedArray(y)
+    if numpy.ma.isMaskedArray(x):
         assert (x.mask == y.mask).all()
         comp = is_close_with_nan(x.data, y.data)
         remask = numpy.logical_or(numpy.zeros(x.shape, dtype=numpy.bool_), x.mask) # using an OR to force broadcasting of buggy masks of different shape.
@@ -60,7 +45,7 @@ def is_close_with_nan(left: numpy.ndarray, right: numpy.ndarray):
 
 
 def safe_concatenate(x: List[numpy.ndarray], axis: int = 0):
-    if any(numpy.ma.is_masked(y) for y in x):
+    if any(numpy.ma.isMaskedArray(y) for y in x):
         return numpy.ma.concatenate(x, axis=axis)
     else:
         return numpy.concatenate(x, axis=axis)

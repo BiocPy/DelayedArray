@@ -5,7 +5,7 @@ import delayedarray
 import numpy
 import pytest
 
-from utils import sanitize_ndarray, assert_identical_ndarrays, assert_close_ndarrays, safe_concatenate, mock_SparseNdarray_contents, simulate_SparseNdarray
+from utils import assert_identical_ndarrays, assert_close_ndarrays, safe_concatenate, mock_SparseNdarray_contents, simulate_SparseNdarray
 
 #######################################################
 #######################################################
@@ -40,12 +40,12 @@ def convert_SparseNdarray_to_numpy(x):
     elif contents is not None:
         _recursive_compute_reference(contents, ndim, triplets)
 
-    output = numpy.ma.MaskedArray(numpy.zeros(shape))
+    output = numpy.zeros(shape)
+    if x.is_masked:
+        output = numpy.ma.MaskedArray(output)
     for pos, val in triplets:
         output[pos] = val
 
-    if isinstance(output.mask, bool) and not output.mask:
-        output = output.data
     return output
 
 
@@ -55,13 +55,10 @@ def _compare_sparse_vectors(left, right):
 
     assert len(idx_l) == len(idx_r)
     assert (idx_l == idx_r).all()
-
-    val_l = sanitize_ndarray(val_l)
-    val_r = sanitize_ndarray(val_r)
     comp = (val_l == val_r)
 
-    masked = numpy.ma.is_masked(val_l) 
-    assert masked == numpy.ma.is_masked(val_r) 
+    masked = numpy.ma.isMaskedArray(val_l) 
+    assert masked == numpy.ma.isMaskedArray(val_r) 
     if masked:
         assert (val_l.mask == val_r.mask).all()
         assert numpy.logical_or(comp, val_r.mask).all()
