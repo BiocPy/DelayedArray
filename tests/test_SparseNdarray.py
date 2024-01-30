@@ -1147,7 +1147,6 @@ def test_SparseNdarray_concatenate_nones(mask_rate):
     assert_identical_ndarrays(delayedarray.to_dense_array(combined), safe_concatenate((ref, ref2), axis=1))
 
 
-
 #######################################################
 #######################################################
 

@@ -52,6 +52,16 @@ def _choose_output_type(dtype: numpy.dtype, preserve_integer: bool) -> numpy.dty
     return dtype
 
 
+def _allocate_output_array(shape: Tuple[int, ...], axes: List[int], dtype: numpy.dtype) -> numpy.ndarray:
+    if len(axes) == 0:
+        # Returning a length-1 array to allow for continued use of offsets.
+        return numpy.zeros(1, dtype=dtype)
+    else:
+        # Use Fortran order so that the offsets make sense. 
+        shape = [shape[i] for i in axes]
+        return numpy.zeros((*shape,), dtype=dtype, order="F")
+
+
 def _create_offset_multipliers(shape: Tuple[int, ...], axes: List[int]) -> List[int]:
     multipliers = [0] * len(shape)
     sofar = 1

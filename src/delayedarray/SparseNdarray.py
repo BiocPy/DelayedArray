@@ -14,7 +14,13 @@ from ._mask import (
     _concatenate_unmasked_ndarrays,
     _concatenate_maybe_masked_ndarrays
 )
-from ._statistics import _find_useful_axes, _expected_sample_size, _choose_output_type, _create_offset_multipliers
+from ._statistics import (
+    _find_useful_axes, 
+    _expected_sample_size, 
+    _choose_output_type, 
+    _allocate_output_array,
+    _create_offset_multipliers
+)
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -1719,15 +1725,6 @@ def _reduce_SparseNdarray(x: SparseNdarray, axes: List[int], operation: Callable
         else:
             _recursive_reduce_SparseNdarray(x.contents, payload, dim=ndim - 1)
     return        
-
-
-def _allocate_output_array(shape: Tuple[int, ...], axes: List[int], dtype: numpy.dtype) -> numpy.ndarray:
-    # Either returning a scalar or not.
-    if len(axes) == 0:
-        return numpy.zeros(1, dtype=dtype)
-    else:
-        shape = [shape[i] for i in axes]
-        return numpy.zeros((*shape,), dtype=dtype, order="F")
 
 
 def _sum(x: SparseNdarray, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype]) -> numpy.ndarray:
