@@ -718,7 +718,8 @@ class DelayedArray:
     def sum(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
         """
         Take the sum of values across the ``DelayedArray``, possibly over a
-        given axis or set of axes.
+        given axis or set of axes. If the seed has a ``sum()`` method, that
+        method is called directly with the supplied arguments.
 
         Args:
             axis: 
@@ -753,7 +754,8 @@ class DelayedArray:
     def mean(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
         """
         Take the mean of values across the ``DelayedArray``, possibly over a
-        given axis or set of axes.
+        given axis or set of axes. If the seed has a ``mean()`` method, that
+        method is called directly with the supplied arguments.
 
         Args:
             axis: 
@@ -787,8 +789,9 @@ class DelayedArray:
 
     def var(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, ddof: int = 0, buffer_size: int = 1e8) -> numpy.ndarray:
         """
-        Take the variances of values across the ``DelayedArray``, possibly
-        over a given axis or set of axes.
+        Take the variances of values across the ``DelayedArray``, possibly over
+        a given axis or set of axes. If the seed has a ``var()`` method, that
+        method is called directly with the supplied arguments.
 
         Args:
             axis: 

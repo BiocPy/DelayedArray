@@ -2,7 +2,7 @@ import numpy
 import delayedarray
 import pytest
 
-from utils import simulate_ndarray, simulate_SparseNdarray, assert_close_ndarrays
+from utils import simulate_ndarray, simulate_SparseNdarray, assert_close_ndarrays, assert_identical_ndarrays
 
 
 def test_DelayedArray_dense():
@@ -78,9 +78,11 @@ def test_DelayedArray_masked():
 @pytest.mark.parametrize("buffer_size", [100, 500, 2000])
 def test_SparseNdarray_sum_dense(mask_rate, buffer_size):
     raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    assert_identical_ndarrays(raw.sum(), delayedarray.wrap(raw).sum())
+    assert_identical_ndarrays(raw.sum(axis=0), delayedarray.wrap(raw).sum(axis=0))
+
     y = delayedarray.wrap(raw) * 5
     ref = raw * 5
-
     assert numpy.isclose(ref.sum(), y.sum(buffer_size=buffer_size))
     assert_close_ndarrays(ref.sum(axis=1), y.sum(axis=1, buffer_size=buffer_size))
     assert_close_ndarrays(ref.sum(axis=-1), y.sum(axis=-1, buffer_size=buffer_size))
@@ -127,9 +129,11 @@ def test_SparseNdarray_sum_sparse(mask_rate, buffer_size):
 @pytest.mark.parametrize("buffer_size", [100, 500, 2000])
 def test_SparseNdarray_mean_dense(mask_rate, buffer_size):
     raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    assert_identical_ndarrays(raw.mean(), delayedarray.wrap(raw).mean())
+    assert_identical_ndarrays(raw.mean(axis=0), delayedarray.wrap(raw).mean(axis=0))
+
     y = delayedarray.wrap(raw) - 12
     ref = raw - 12
-
     assert numpy.isclose(ref.mean(), y.mean(buffer_size=buffer_size))
     assert_close_ndarrays(ref.mean(axis=1), y.mean(axis=1, buffer_size=buffer_size))
     assert_close_ndarrays(ref.mean(axis=-1), y.mean(axis=-1, buffer_size=buffer_size))
@@ -184,9 +188,11 @@ def test_SparseNdarray_mean_sparse(mask_rate, buffer_size):
 @pytest.mark.parametrize("buffer_size", [100, 500, 2000])
 def test_SparseNdarray_var_dense(mask_rate, buffer_size):
     raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    assert_identical_ndarrays(raw.var(), delayedarray.wrap(raw).var())
+    assert_identical_ndarrays(raw.var(axis=0), delayedarray.wrap(raw).var(axis=0))
+
     y = delayedarray.wrap(raw) - 12
     ref = raw - 12
-
     assert numpy.isclose(ref.var(), y.var(buffer_size=buffer_size))
     assert_close_ndarrays(ref.var(axis=1), y.var(axis=1, buffer_size=buffer_size))
     assert_close_ndarrays(ref.var(axis=-1), y.var(axis=-1, buffer_size=buffer_size))
