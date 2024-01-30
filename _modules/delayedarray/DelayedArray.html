@@ -4,8 +4,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>delayedarray.DelayedArray - DelayedArray 0.3.5 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>delayedarray.DelayedArray - DelayedArray 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.3.5 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.5 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -198,10 +198,12 @@
         </div>
         <article role="main">
           <h1>Source code for delayedarray.DelayedArray</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">integer</span><span class="p">,</span> <span class="n">issubdtype</span><span class="p">,</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">prod</span><span class="p">,</span> <span class="n">array2string</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 
+<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">SparseNdarray</span>
 <span class="kn">from</span> <span class="nn">.BinaryIsometricOp</span> <span class="kn">import</span> <span class="n">BinaryIsometricOp</span>
 <span class="kn">from</span> <span class="nn">.Cast</span> <span class="kn">import</span> <span class="n">Cast</span>
 <span class="kn">from</span> <span class="nn">.Combine</span> <span class="kn">import</span> <span class="n">Combine</span>
@@ -211,14 +213,18 @@
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpSimple</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpSimple</span>
 <span class="kn">from</span> <span class="nn">.UnaryIsometricOpWithArgs</span> <span class="kn">import</span> <span class="n">UnaryIsometricOpWithArgs</span>
 
-<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_getitem_subset_preserves_dimensions</span><span class="p">,</span> <span class="n">_getitem_subset_discards_dimensions</span><span class="p">,</span> <span class="n">_repr_subset</span>
-<span class="kn">from</span> <span class="nn">._isometric</span> <span class="kn">import</span> <span class="n">translate_ufunc_to_op_simple</span><span class="p">,</span> <span class="n">translate_ufunc_to_op_with_args</span>
 <span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span>
+<span class="kn">from</span> <span class="nn">.to_dense_array</span> <span class="kn">import</span> <span class="n">to_dense_array</span>
 <span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
+<span class="kn">from</span> <span class="nn">.apply_over_blocks</span> <span class="kn">import</span> <span class="n">apply_over_blocks</span>
 <span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
 <span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
 <span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 <span class="kn">from</span> <span class="nn">.is_masked</span> <span class="kn">import</span> <span class="n">is_masked</span>
+
+<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_getitem_subset_preserves_dimensions</span><span class="p">,</span> <span class="n">_getitem_subset_discards_dimensions</span><span class="p">,</span> <span class="n">_repr_subset</span>
+<span class="kn">from</span> <span class="nn">._isometric</span> <span class="kn">import</span> <span class="n">translate_ufunc_to_op_simple</span><span class="p">,</span> <span class="n">translate_ufunc_to_op_with_args</span>
+<span class="kn">from</span> <span class="nn">._statistics</span> <span class="kn">import</span> <span class="n">array_mean</span><span class="p">,</span> <span class="n">array_var</span><span class="p">,</span> <span class="n">array_sum</span><span class="p">,</span> <span class="n">_create_offset_multipliers</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -365,10 +371,9 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            NumPy array of the same type as :py:attr:`~dtype` and shape as</span>
-<span class="sd">            :py:attr:`~shape`.  This is guaranteed to be in Fortran storage</span>
-<span class="sd">            order and to not be a view on other data.</span>
+<span class="sd">            :py:attr:`~shape`. </span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">to_dense_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DelayedArray.__array_ufunc__">
@@ -1020,26 +1025,123 @@
     <span class="c1"># For python-level compute.</span>
 <div class="viewcode-block" id="DelayedArray.sum">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.sum">[docs]</a>
-    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.sums` for details.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take the sum of values across the ``DelayedArray``, possibly over a</span>
+<span class="sd">        given axis or set of axes. If the seed has a ``sum()`` method, that</span>
+<span class="sd">        method is called directly with the supplied arguments.</span>
 
+<span class="sd">        Args:</span>
+<span class="sd">            axis: </span>
+<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
+<span class="sd">                Alternatively a tuple or None, see ``numpy.sum`` for details.</span>
 
-<div class="viewcode-block" id="DelayedArray.var">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.var">[docs]</a>
-    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.vars` for details.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+<span class="sd">            dtype:</span>
+<span class="sd">                NumPy type for the output array. If None, this is automatically</span>
+<span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
+<span class="sd">                ``numpy.sum`` for details.</span>
+
+<span class="sd">            buffer_size:</span>
+<span class="sd">                Buffer size in bytes to use for block processing. Larger values</span>
+<span class="sd">                generally improve speed at the cost of memory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A NumPy array containing the summed values. If ``axis = None``,</span>
+<span class="sd">            this will be a NumPy scalar instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">array_sum</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> 
+                <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> 
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> 
+                <span class="n">reduce_over_x</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span> <span class="p">:</span> <span class="n">_reduce</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">),</span>
+                <span class="n">masked</span><span class="o">=</span><span class="n">is_masked</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="DelayedArray.mean">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.mean">[docs]</a>
-    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.means` for details.&quot;&quot;&quot;</span>
-        <span class="n">target</span> <span class="o">=</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take the mean of values across the ``DelayedArray``, possibly over a</span>
+<span class="sd">        given axis or set of axes. If the seed has a ``mean()`` method, that</span>
+<span class="sd">        method is called directly with the supplied arguments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            axis: </span>
+<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
+<span class="sd">                Alternatively a tuple or None, see ``numpy.mean`` for details.</span>
+
+<span class="sd">            dtype:</span>
+<span class="sd">                NumPy type for the output array. If None, this is automatically</span>
+<span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
+<span class="sd">                ``numpy.mean`` for details.</span>
+
+<span class="sd">            buffer_size:</span>
+<span class="sd">                Buffer size in bytes to use for block processing. Larger values</span>
+<span class="sd">                generally improve speed at the cost of memory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A NumPy array containing the mean values. If ``axis = None``,</span>
+<span class="sd">            this will be a NumPy scalar instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">array_mean</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> 
+                <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> 
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> 
+                <span class="n">reduce_over_x</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span> <span class="p">:</span> <span class="n">_reduce</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">),</span>
+                <span class="n">masked</span><span class="o">=</span><span class="n">is_masked</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DelayedArray.var">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.DelayedArray.var">[docs]</a>
+    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Take the variances of values across the ``DelayedArray``, possibly over</span>
+<span class="sd">        a given axis or set of axes. If the seed has a ``var()`` method, that</span>
+<span class="sd">        method is called directly with the supplied arguments.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            axis: </span>
+<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
+<span class="sd">                Alternatively a tuple or None, see ``numpy.var`` for details.</span>
+
+<span class="sd">            dtype:</span>
+<span class="sd">                NumPy type for the output array. If None, this is automatically</span>
+<span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
+<span class="sd">                ``numpy.var`` for details.</span>
+
+<span class="sd">            ddof:</span>
+<span class="sd">                Delta in the degrees of freedom to subtract from the denominator.</span>
+<span class="sd">                Typically set to 1 to obtain the sample variance.</span>
+
+<span class="sd">            buffer_size:</span>
+<span class="sd">                Buffer size in bytes to use for block processing. Larger values</span>
+<span class="sd">                generally improve speed at the cost of memory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A NumPy array containing the variances. If ``axis = None``,</span>
+<span class="sd">            this will be a NumPy scalar instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="s2">&quot;var&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">array_var</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> 
+                <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> 
+                <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> 
+                <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">,</span>
+                <span class="n">reduce_over_x</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span> <span class="p">:</span> <span class="n">_reduce</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">),</span>
+                <span class="n">masked</span><span class="o">=</span><span class="n">is_masked</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="p">)</span></div>
 </div>
 
 
@@ -1047,7 +1149,7 @@
 <div class="viewcode-block" id="extract_dense_array_DelayedArray">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.extract_dense_array_DelayedArray">[docs]</a>
 <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_dense_array_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_dense_array_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 
@@ -1056,7 +1158,7 @@
 <div class="viewcode-block" id="extract_sparse_array_DelayedArray">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.extract_sparse_array_DelayedArray">[docs]</a>
 <span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_sparse_array_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">extract_sparse_array_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">extract_sparse_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span></div>
 
@@ -1096,6 +1198,92 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">is_masked</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
+
+
+<span class="c1">#########################################################</span>
+<span class="c1">#########################################################</span>
+
+
+<span class="n">_StatisticsPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_StatisticsPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;operation&quot;</span><span class="p">,</span> <span class="s2">&quot;multipliers&quot;</span><span class="p">,</span> <span class="s2">&quot;starts&quot;</span> <span class="p">])</span>
+
+
+<span class="k">def</span> <span class="nf">_reduce_1darray</span><span class="p">(</span><span class="n">val</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_StatisticsPayload</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">payload</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">_recursive_reduce_ndarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_StatisticsPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+    <span class="n">shift</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">_reduce_1darray</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">payload</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">mult</span> <span class="o">*</span> <span class="p">(</span><span class="n">shift</span> <span class="o">+</span> <span class="n">i</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">_recursive_reduce_ndarray</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">mult</span> <span class="o">*</span> <span class="p">(</span><span class="n">shift</span> <span class="o">+</span> <span class="n">i</span><span class="p">))</span>
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">_reduce_ndarray</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">multipliers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">position</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">_StatisticsPayload</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">,</span> <span class="n">multipliers</span><span class="o">=</span><span class="n">multipliers</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">position</span><span class="p">),))</span>
+    <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">_reduce_1darray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">payload</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_recursive_reduce_ndarray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span>        
+
+
+<span class="k">def</span> <span class="nf">_reduce_sparse_vector</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_StatisticsPayload</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">ix</span> <span class="o">+</span> <span class="n">payload</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">payload</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">_recursive_reduce_SparseNdarray</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_StatisticsPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">starts</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">con</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_reduce_sparse_vector</span><span class="p">(</span><span class="n">con</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">con</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">payload</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">mult</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">start</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">con</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">_recursive_reduce_SparseNdarray</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">mult</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">start</span><span class="p">))</span>
+    <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="nf">_reduce_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">multipliers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">position</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">_StatisticsPayload</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">,</span> <span class="n">multipliers</span><span class="o">=</span><span class="n">multipliers</span><span class="p">,</span> <span class="n">starts</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">position</span><span class="p">),))</span>
+        <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">_reduce_sparse_vector</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">contents</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">payload</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_recursive_reduce_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">contents</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span>        
+
+
+<span class="k">def</span> <span class="nf">_reduce</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">multipliers</span> <span class="o">=</span> <span class="n">_create_offset_multipliers</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="n">apply_over_blocks</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> 
+            <span class="k">lambda</span> <span class="n">position</span><span class="p">,</span> <span class="n">block</span> <span class="p">:</span> <span class="n">_reduce_SparseNdarray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">multipliers</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">operation</span><span class="p">),</span> 
+            <span class="n">buffer_size</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">,</span>
+            <span class="n">allow_sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">apply_over_blocks</span><span class="p">(</span>
+            <span class="n">x</span><span class="p">,</span> 
+            <span class="k">lambda</span> <span class="n">position</span><span class="p">,</span> <span class="n">block</span> <span class="p">:</span> <span class="n">_reduce_ndarray</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">multipliers</span><span class="p">,</span> <span class="n">axes</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">operation</span><span class="p">),</span> 
+            <span class="n">buffer_size</span><span class="o">=</span><span class="n">buffer_size</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span>
 </pre></div>
         </article>
       </div>
@@ -1128,7 +1316,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=ba50482b"></script>
+</div><script src="../../_static/documentation_options.js?v=6c02275b"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

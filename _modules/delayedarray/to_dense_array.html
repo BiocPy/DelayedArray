@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.is_masked - DelayedArray 0.4.0 documentation</title>
+        <title>delayedarray.to_dense_array - DelayedArray 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -197,94 +197,31 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for delayedarray.is_masked</h1><div class="highlight"><pre>
+          <h1>Source code for delayedarray.to_dense_array</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">singledispatch</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 <span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">from</span> <span class="nn">biocutils.package_utils</span> <span class="kn">import</span> <span class="n">is_package_installed</span>
 
-<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">SparseNdarray</span>
+<span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span>
+<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span>
 
 
-<div class="viewcode-block" id="is_masked">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked">[docs]</a>
+<div class="viewcode-block" id="to_dense_array">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.to_dense_array.to_dense_array">[docs]</a>
 <span class="nd">@singledispatch</span>
-<span class="k">def</span> <span class="nf">is_masked</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">to_dense_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine whether an array-like object contains masked values,</span>
-<span class="sd">    equivalent to those in NumPy&#39;s ``MaskedArray`` class.</span>
+<span class="sd">    Extract ``x`` as a dense NumPy array. The default method simply calls</span>
+<span class="sd">    :py:func:`~delayedarray.extract_dense_array.extract_dense_array` with</span>
+<span class="sd">    ``subset`` set to the full extent of all dimensions.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        x: Any array-like object.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Whether ``x`` contains masked values.</span>
+<span class="sd">        NumPy array contains the full contents of ``x``. This may be masked.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;&#39;is_masked(&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;)&#39; has not yet been implemented&quot;</span><span class="p">)</span> </div>
-
-
-
-<div class="viewcode-block" id="is_masked_ndarray">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_ndarray">[docs]</a>
-<span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">is_masked_ndarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">False</span></div>
-
-
-
-<div class="viewcode-block" id="is_masked_MaskedArray">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_MaskedArray">[docs]</a>
-<span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">is_masked_MaskedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">MaskedArray</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="kc">True</span></div>
-
-
-
-<div class="viewcode-block" id="is_masked_SparseNdarray">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_SparseNdarray">[docs]</a>
-<span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">is_masked_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">_is_masked</span></div>
-
-
-<span class="c1"># If scipy is installed, we add all the methods for the various scipy.sparse</span>
-<span class="c1"># matrices. Currently, it seems like scipy&#39;s sparse matrices are not intended</span>
-<span class="c1"># to be masked, seeing as how any subsetting discards the masks, e.g.,</span>
-<span class="c1">#</span>
-<span class="c1"># &gt;&gt;&gt; y = (scipy.sparse.random(1000, 200, 0.1)).tocsr()</span>
-<span class="c1"># &gt;&gt;&gt; y.data = numpy.ma.MaskedArray(y.data, y.data &gt; 0.5)</span>
-<span class="c1"># &gt;&gt;&gt; y[0:5,:].data # gives back a regulary NumPy array.</span>
-<span class="c1">#</span>
-<span class="c1"># So we won&#39;t bother capturing the mask state (as of scipy 1.11.1).</span>
-
-<span class="k">if</span> <span class="n">is_package_installed</span><span class="p">(</span><span class="s2">&quot;scipy&quot;</span><span class="p">):</span>
-    <span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
-
-<div class="viewcode-block" id="is_masked_csc_matrix">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_csc_matrix">[docs]</a>
-    <span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">is_masked_csc_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="is_masked_csr_matrix">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_csr_matrix">[docs]</a>
-    <span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">is_masked_csr_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
-
-<div class="viewcode-block" id="is_masked_coo_matrix">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_masked.is_masked_coo_matrix">[docs]</a>
-    <span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-    <span class="k">def</span> <span class="nf">is_masked_coo_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+    <span class="k">return</span> <span class="n">extract_dense_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">_spawn_indices</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span></div>
 
 </pre></div>
         </article>

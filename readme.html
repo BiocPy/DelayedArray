@@ -5,8 +5,8 @@
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Developer notes" href="developers.html" /><link rel="prev" title="DelayedArrays, in Python" href="index.html" />
 
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>DelayedArrays, in Python - DelayedArray 0.3.5 documentation</title>
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
+        <title>DelayedArrays, in Python - DelayedArray 0.4.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=36a5483c" />
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.3.5 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.3.5 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -286,11 +286,12 @@ Check out the <a class="reference external" href="https://biocpy.github.io/Delay
 </section>
 <section id="extracting-data">
 <h2>Extracting data<a class="headerlink" href="#extracting-data" title="Link to this heading">#</a></h2>
-<p>Users can process a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> by iteratively extracting contiguous blocks on a dimension of interest.
-This “block processing” strategy saves memory by only realizing the delayed operations for a subset of the data,
-while reducing overhead from repeated calls to the <code class="docutils literal notranslate"><span class="pre">extract_*_array</span></code>  functions.
+<section id="block-processing">
+<h3>Block processing<a class="headerlink" href="#block-processing" title="Link to this heading">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> is typically used by iteratively extracting blocks into memory for further calculations.
+This “block processing” strategy improves memory efficiency by only realizing the delayed operations for a subset of the data.
 For example, to iterate over the rows with 100 MB blocks:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">block_size</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">guess_iteration_block_size</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">block_size</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">choose_block_size_for_1d_iteration</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">dimension</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="mf">1e8</span><span class="p">)</span>
 <span class="n">block_coords</span> <span class="o">=</span> <span class="p">[</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="p">]</span>
 
 <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">block_size</span><span class="p">):</span>
@@ -299,9 +300,30 @@ For example, to iterate over the rows with 100 MB blocks:</p>
     <span class="n">current</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">extract_dense_array</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">block_coords</span><span class="p">,))</span>
 </pre></div>
 </div>
-<p>This yields <code class="docutils literal notranslate"><span class="pre">current</span></code>, a NumPy array in Fortran storage order with the specified rows and columns.
+<p>Each call to <code class="docutils literal notranslate"><span class="pre">extract_dense_array()</span></code> yields a NumPy array containing the the specified rows and columns.
 If the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> might contain masked values, a NumPy <code class="docutils literal notranslate"><span class="pre">MaskedArray</span></code> is returned instead;
 this can be determined by checking whether <code class="docutils literal notranslate"><span class="pre">is_masked(d)</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<p>The above iteration can be simplified with the <code class="docutils literal notranslate"><span class="pre">apply_over_dimension()</span></code> function, which handles the block coordinate calculations for us.
+We could also use the <code class="docutils literal notranslate"><span class="pre">apply_over_blocks()</span></code> function to iterate over arbitrary block shapes, which may be more efficient if the best dimension for iteration is not known.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To iterate over a single dimension:</span>
+<span class="n">delayedarray</span><span class="o">.</span><span class="n">apply_over_dimension</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">,</span>
+    <span class="n">dimension</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">fun</span><span class="o">=</span><span class="n">some_user_supplied_function</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># To iterate over arbitrary blocks.</span>
+<span class="n">delayedarray</span><span class="o">.</span><span class="n">apply_over_blocks</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">,</span>
+    <span class="n">fun</span><span class="o">=</span><span class="n">another_user_supplied_function</span><span class="p">,</span>
+    <span class="n">block_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="handling-sparse-data">
+<h3>Handling sparse data<a class="headerlink" href="#handling-sparse-data" title="Link to this heading">#</a></h3>
 <p>If the <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> contains sparse data, <code class="docutils literal notranslate"><span class="pre">is_sparse(d)</span></code> will return <code class="docutils literal notranslate"><span class="pre">True</span></code>.
 This allows callers to instead use the <code class="docutils literal notranslate"><span class="pre">extract_sparse_array()</span></code> function for block processing:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">is_sparse</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
@@ -309,20 +331,61 @@ This allows callers to instead use the <code class="docutils literal notranslate
 </pre></div>
 </div>
 <p>This returns a <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> consisting of a tree of sparse vectors for the specified block.
-(For the two-dimensional case, this is effectively a compressed sparse column matrix.)</p>
-<p>More simply, users can just call <code class="docutils literal notranslate"><span class="pre">numpy.array()</span></code> to realize the delayed operations into a standard NumPy array for consumption.</p>
+Users can retrieve the sparse vectors by inspecting the <code class="docutils literal notranslate"><span class="pre">contents</span></code> property of the <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code>:</p>
+<ul class="simple">
+<li><p>In the one-dimensional case, this is a tuple of two 1-dimensional NumPy arrays storing data about the non-zero elements.
+The first array contains sorted indices while the secon array contains the associated values.
+If <code class="docutils literal notranslate"><span class="pre">is_masked(d)</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>, the values will be represented as NumPy <code class="docutils literal notranslate"><span class="pre">MaskedArray</span></code> objects.</p></li>
+<li><p>For the two-dimensional case, this is a list of such tuples, with one tuple per column.
+This is roughly analogous to a compressed sparse column matrix.
+An entry of the list may also be <code class="docutils literal notranslate"><span class="pre">None</span></code>, indicating that no non-zero elements are present in that column.</p></li>
+<li><p>For higher-dimensionals, the tree is a nested list of lists of tuples.
+Each nesting level corresponds to a dimension; the outermost level contains elements of the last dimension,
+the next nesting level contains elements of the second-last dimension, and so on,
+with the indices in the tuple referring to the first dimension.
+Any list element may be <code class="docutils literal notranslate"><span class="pre">None</span></code> indicating that the corresponding element of the dimension has no non-zero elements.</p></li>
+<li><p>In all cases, it is possible for <code class="docutils literal notranslate"><span class="pre">contents</span></code> to be <code class="docutils literal notranslate"><span class="pre">None</span></code>, indicating that there are no non-zero elements in the entire array.</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">apply_over_*</span></code> functions can also be instructed to iteratively extract blocks as <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> objects.
+This only occurs if the input array is sparse (as specified by <code class="docutils literal notranslate"><span class="pre">is_sparse</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># To iterate over a single dimension:</span>
+<span class="n">delayedarray</span><span class="o">.</span><span class="n">apply_over_dimension</span><span class="p">(</span>
+    <span class="n">d</span><span class="p">,</span>
+    <span class="n">dimension</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">fun</span><span class="o">=</span><span class="n">some_user_supplied_function</span><span class="p">,</span>
+    <span class="n">block_size</span><span class="o">=</span><span class="n">block_size</span><span class="p">,</span>
+    <span class="n">allow_sparse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="other-coercions">
+<h3>Other coercions<a class="headerlink" href="#other-coercions" title="Link to this heading">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code> can be converted to a (possibly masked) NumPy array with the <code class="docutils literal notranslate"><span class="pre">to_dense_array()</span></code> function.
+Similarly, sparse <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>s can be converted to <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code>s with the <code class="docutils literal notranslate"><span class="pre">to_sparse_array()</span></code> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">delayedarray</span><span class="o">.</span><span class="n">to_dense_array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">delayedarray</span><span class="o">.</span><span class="n">to_sparse_array</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Users can easily convert a 2-dimensional <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> to some of the common SciPy sparse matrix classes downstream calculations.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">delayedarray</span><span class="o">.</span><span class="n">to_scipy_sparse_matrix</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>More simply, users can just call <code class="docutils literal notranslate"><span class="pre">numpy.array()</span></code> to realize the delayed operations into a standard NumPy array for consumption.
+Note that this discards any masking information so should not be called if <code class="docutils literal notranslate"><span class="pre">is_masked()</span></code> returns <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="nb">type</span><span class="p">(</span><span class="n">simple</span><span class="p">)</span>
 <span class="c1">## &lt;class &#39;numpy.ndarray&#39;&gt;</span>
 </pre></div>
 </div>
-<p>Or <code class="docutils literal notranslate"><span class="pre">delayedarray.create_dask_array()</span></code>, to obtain a <strong>dask</strong> array that contains the delayed operations:</p>
+<p>Users can also call <code class="docutils literal notranslate"><span class="pre">delayedarray.create_dask_array()</span></code>, to obtain a <strong>dask</strong> array that contains the delayed operations:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note: requires installation as &#39;delayedarray[dask]&#39;.</span>
 <span class="n">dasky</span> <span class="o">=</span> <span class="n">delayedarray</span><span class="o">.</span><span class="n">create_dask_array</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 <span class="nb">type</span><span class="p">(</span><span class="n">dasky</span><span class="p">)</span>
 <span class="c1">## &lt;class &#39;dask.array.core.Array&#39;&gt;</span>
 </pre></div>
 </div>
+</section>
 </section>
 <section id="interoperability-with-other-packages">
 <h2>Interoperability with other packages<a class="headerlink" href="#interoperability-with-other-packages" title="Link to this heading">#</a></h2>
@@ -374,6 +437,7 @@ For example, we can pull out the “seed” object underlying our <code class="d
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code> properties, like those in NumPy arrays.</p></li>
 <li><p>a method for the <code class="docutils literal notranslate"><span class="pre">extract_dense_array()</span></code> generic.</p></li>
+<li><p>a method for the <code class="docutils literal notranslate"><span class="pre">is_masked()</span></code> generic.</p></li>
 </ul>
 <p>If the object may contain sparse data, it should also implement:</p>
 <ul class="simple">
@@ -448,7 +512,12 @@ For example, we can pull out the “seed” object underlying our <code class="d
 <li><a class="reference internal" href="#">DelayedArrays, in Python</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
 <li><a class="reference internal" href="#quick-start">Quick start</a></li>
-<li><a class="reference internal" href="#extracting-data">Extracting data</a></li>
+<li><a class="reference internal" href="#extracting-data">Extracting data</a><ul>
+<li><a class="reference internal" href="#block-processing">Block processing</a></li>
+<li><a class="reference internal" href="#handling-sparse-data">Handling sparse data</a></li>
+<li><a class="reference internal" href="#other-coercions">Other coercions</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#interoperability-with-other-packages">Interoperability with other packages</a></li>
 <li><a class="reference internal" href="#developing-seeds">Developing seeds</a></li>
 </ul>
@@ -462,7 +531,7 @@ For example, we can pull out the “seed” object underlying our <code class="d
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=ba50482b"></script>
+</div><script src="_static/documentation_options.js?v=6c02275b"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=32e29ea5"></script>

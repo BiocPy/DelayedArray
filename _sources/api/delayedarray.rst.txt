@@ -164,6 +164,30 @@ delayedarray.is\_sparse module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.to\_dense\_array module
+------------------------------------
+
+.. automodule:: delayedarray.to_dense_array
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.to\_scipy\_sparse\_matrix module
+---------------------------------------------
+
+.. automodule:: delayedarray.to_scipy_sparse_matrix
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.to\_sparse\_array module
+-------------------------------------
+
+.. automodule:: delayedarray.to_sparse_array
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.wrap module
 ------------------------
 
