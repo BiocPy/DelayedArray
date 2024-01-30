@@ -192,9 +192,7 @@ delayedarray.to_sparse_array(d)
 Users can easily convert a 2-dimensional `SparseNdarray` to some of the common SciPy sparse matrix classes downstream calculations.
 
 ```python
-delayedarray.to_scipy_csc_matrix(current)
-delayedarray.to_scipy_csr_matrix(current)
-delayedarray.to_scipy_coo_matrix(current)
+delayedarray.to_scipy_sparse_matrix(current, "csc")
 ```
 
 More simply, users can just call `numpy.array()` to realize the delayed operations into a standard NumPy array for consumption.

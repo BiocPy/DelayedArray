@@ -1,38 +1,17 @@
 import numpy
-from typing import Any
+from functools import singledispatch
+from typing import Any, Literal
 from biocutils.package_utils import is_package_installed
 
 from .SparseNdarray import SparseNdarray
-from .extract_sparse_array import to_sparse_array
+from .to_sparse_array import to_sparse_array
 
 
 if is_package_installed("scipy"):
     import scipy.sparse
 
 
-    def to_scipy_csc_matrix(x: Any) -> scipy.sparse.csc_matrix:
-        """
-        Convert a 2-dimensional ``DelayedArray`` or ``SparseNdarray`` into a
-        SciPy compressed sparse column (CSC) matrix.
-
-        Args:
-            x:
-                Input matrix where :py:func:`~delayedarray.is_sparse.is_sparse`
-                returns True and :py:func:`~delayedarray.is_sparse.is_masked`
-                returns False.
-
-        Returns:
-            A CSC matrix with the contents of ``x``.
-        """
-        # One might think that we could be more memory-efficient by doing block
-        # processing. However, there is no advantage from doing so as we eventually
-        # need to hold all the blocks in memory before concatenation. We'd only
-        # avoid this if we did two passes; one to collect the total size for
-        # allocation, and another to actually fill the vectors; not good, so we
-        # just forget about it and load it all into memory up-front.
-        if not isinstance(x, SparseNdarray):
-            x = to_sparse_array(x)
-
+    def _to_csc(x: Any) -> scipy.sparse.csc_matrix:
         all_indptrs = numpy.zeros(x.shape[1] + 1, dtype=numpy.uint64)
         if x.contents is not None:
             all_indices = []
@@ -53,26 +32,7 @@ if is_package_installed("scipy"):
         return scipy.sparse.csc_matrix((all_values, all_indices, all_indptrs), shape=x.shape)
 
 
-    def to_scipy_csr_matrix(x: Any) -> scipy.sparse.csr_matrix:
-        """
-        Convert a 2-dimensional ``DelayedArray`` or ``SparseNdarray`` into a
-        SciPy compressed sparse row (CSR) matrix.
-
-        Args:
-            x:
-                Input matrix where :py:func:`~delayedarray.is_sparse.is_sparse`
-                returns True and :py:func:`~delayedarray.is_sparse.is_masked`
-                returns False.
-
-        Returns:
-            A CSR matrix with the contents of ``x``.
-        """
-        # Same logic as above; block processing just ends up reading the entire
-        # thing into memory before forming the full arrays, so we just load it
-        # all in to start with and save ourselves the trouble.
-        if not isinstance(x, SparseNdarray):
-            x = to_sparse_array(x)
-
+    def _to_csr(x: Any) -> scipy.sparse.csr_matrix:
         all_indptrs = numpy.zeros(x.shape[0] + 1, dtype=numpy.uint64)
         if x.contents is not None:
             # First pass (in memory) to obtain the total sizes.
@@ -103,24 +63,7 @@ if is_package_installed("scipy"):
         return scipy.sparse.csr_matrix((all_values, all_indices, all_indptrs), shape=x.shape)
 
 
-    def to_scipy_coo_matrix(x: Any) -> scipy.sparse.coo_matrix:
-        """
-        Convert a 2-dimensional ``DelayedArray`` or ``SparseNdarray`` into a
-        SciPy sparse coordinate (COO) matrix.
-
-        Args:
-            x:
-                Input matrix where :py:func:`~delayedarray.is_sparse.is_sparse`
-                returns True and :py:func:`~delayedarray.is_sparse.is_masked`
-                returns False.
-
-        Returns:
-            A COO matrix with the contents of ``x``.
-        """
-        # Same logic as above.
-        if not isinstance(x, SparseNdarray):
-            x = to_sparse_array(x)
-
+    def _to_coo(x: Any) -> scipy.sparse.coo_matrix:
         if x.contents is not None:
             # First pass (in memory) to obtain the total sizes.
             total_count = 0
@@ -147,3 +90,41 @@ if is_package_installed("scipy"):
             all_values = numpy.zeros(0, dtype=x.dtype)
 
         return scipy.sparse.coo_matrix((all_values, (all_rows, all_cols)), shape=x.shape)
+
+
+    @singledispatch
+    def to_scipy_sparse_matrix(x: Any, format: Literal["coo", "csr", "csc"] = "csc") -> scipy.sparse.spmatrix:
+        """
+        Convert a 2-dimensional array into a SciPy sparse matrix.
+
+        Args:
+            x:
+                Input matrix where :py:func:`~delayedarray.is_sparse.is_sparse`
+                returns True and :py:func:`~delayedarray.is_masked.is_masked`
+                returns False.
+
+            format:
+                Type of SciPy matrix to create - coordinate (coo), compressed
+                sparse row (csr) or compressed sparse column (csc).
+
+        Returns:
+            A SciPy sparse matrix with the contents of ``x``.
+        """
+        # One might think that we could be more memory-efficient by doing block
+        # processing. However, there is no advantage from doing so as we eventually
+        # need to hold all the blocks in memory before concatenation. We'd only
+        # avoid this if we did two passes; one to collect the total size for
+        # allocation, and another to actually fill the vectors; not good, so we
+        # just forget about it and load it all into memory up-front.
+        return to_scipy_sparse_matrix_from_SparseNdarray(to_sparse_array(x), format=format) 
+
+
+    @to_scipy_sparse_matrix.register
+    def to_scipy_sparse_matrix_from_SparseNdarray(x: SparseNdarray, format: Literal["coo", "csr", "csc"] = "csc") -> scipy.sparse.spmatrix:
+        """See :py:meth:`~to_scipy_sparse_matrix`."""
+        if format == "csc":
+            return _to_csc(x)
+        elif format == "csr":
+            return _to_csr(x)
+        else:
+            return _to_coo(x)
