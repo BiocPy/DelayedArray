@@ -1,4 +1,5 @@
-from typing import Callable, Optional
+from typing import Any, Callable, Optional, Generator, Tuple
+from functools import singledispatch
 import math
 
 from .chunk_shape import chunk_shape
@@ -14,11 +15,12 @@ __license__ = "MIT"
 def guess_iteration_block_size(x, dimension, memory: int = 10000000) -> int:
     """
     Soft-deprecated alias for :py:func:`~choose_block_size_for_1d_iteration`.
+    Soft-deprecated.
     """
     return choose_block_size_for_1d_iteration(x, dimension, memory)
 
 
-def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000) -> int:
+def _choose_block_size_for_1d_iteration(x, dimension: int, buffer_size: int) -> int:
     """
     Choose a block size for iterating over an array on a certain dimension,
     see `~apply_over_dimension` for more details.
@@ -28,7 +30,7 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
 
         dimension: Dimension to iterate over.
 
-        memory: Available memory in bytes, to hold a single block in memory.
+        buffer_size: Buffer size in bytes, to hold a single block in memory.
 
     Returns:
         Size of the block on the iteration dimension. This is guaranteed to be
@@ -59,7 +61,40 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
     return int(ideal / curdim) * curdim
 
 
-def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[int] = None, allow_sparse: bool = False) -> list:
+@singledispatch
+def iterate_over_dimension(x: Any, dimension: int, buffer_size: int = 1e8) -> Generator[Tuple]:
+    """
+    Create a generator for iterating over an array on a certain dimension,
+    see :py:func:`~apply_over_dimension` for more details.
+
+    Args:
+        x: An array-like object.
+
+        dimension: Dimension to iterate over.
+
+        buffer_size:
+            Size of the buffer in bytes, to hold the block at each iteration.
+            Larger values generally improve speed at the cost of memory.
+
+    Returns:
+        Generator that returns a tuple. The first element is a tuple containing
+        the start/end of the current block on the chosen ``dimension``; the
+        second is a tuple of the block indices on each dimension of ``x``.
+    """
+    block_size = choose_block_size_for_1d_iteration(x, dimension)
+
+    limit = x.shape[dimension]
+    tasks = math.ceil(limit / block_size)
+    components = [range(n) for n in x.shape]
+
+    for job in range(tasks):
+        start = job * block_size
+        end = min(start + block_size, limit)
+        components[dimension] = range(start, end)
+        yield (start, end), (*components,)
+
+
+def apply_over_dimension(x: Any, dimension: int, fun: Callable, buffer_size: int = 1e8, allow_sparse: bool = False) -> list:
     """
     Iterate over an array on a certain dimension. At each iteration, the block
     of observations consists of the full extent of all dimensions other than
@@ -77,10 +112,9 @@ def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[
             on the chosen ``dimension``, and the second is the block contents.
             Each block is typically provided as a :py:class:`~numpy.ndarray`.
 
-        block_size:
-            Size of the block on the iteration dimension. This should be a
-            positive integer, even for zero-extent dimensions. If None, this is
-            chosen by :py:func:`~choose_block_size_for_1d_iteration`.
+        buffer_size:
+            Size of the buffer in bytes, to hold the block at each iteration.
+            Larger values generally improve speed at the cost of memory.
 
         allow_sparse:
             Whether to allow extraction of sparse subarrays. If true and
@@ -90,24 +124,13 @@ def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[
     Returns:
         List containing the output of ``fun`` on each block.
     """
-    if block_size is None:
-        block_size = choose_block_size_for_1d_iteration(x, dimension)
-
-    limit = x.shape[dimension]
-    tasks = math.ceil(limit / block_size)
-    components = [range(n) for n in x.shape]
     if allow_sparse and is_sparse(x):
         extractor = extract_sparse_array
     else:
         extractor = extract_dense_array
 
     collected = []
-    for job in range(tasks):
-        start = job * block_size
-        end = min(start + block_size, limit)
-        components[dimension] = range(start, end)
-        subset = (*components,)
-        output = fun((start, end), extractor(x, subset))
-        collected.append(output)
+    for position, subset in iterate_over_dimension(x, dimension, buffer_size):
+        collected.append(fun(position, extractor(x, subset)))
 
     return collected
