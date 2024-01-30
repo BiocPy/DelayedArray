@@ -18,7 +18,7 @@ def guess_iteration_block_size(x, dimension, memory: int = 10000000) -> int:
     return choose_block_size_for_1d_iteration(x, dimension, memory)
 
 
-def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000) -> int:
+def choose_block_size_for_1d_iteration(x, dimension: int, buffer_size: int = 10000000) -> int:
     """
     Choose a block size for iterating over an array on a certain dimension,
     see `~apply_over_dimension` for more details.
@@ -28,7 +28,9 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
 
         dimension: Dimension to iterate over.
 
-        memory: Available memory in bytes, to hold a single block in memory.
+        buffer_size: 
+            Buffer_size in bytes, to hold a single block per iteration. Larger
+            values generally improve speed at the cost of memory.
 
     Returns:
         Size of the block on the iteration dimension. This is guaranteed to be
@@ -46,7 +48,7 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
         if i != dimension:
             prod_other *= s
 
-    num_elements = memory / x.dtype.itemsize
+    num_elements = buffer_size / x.dtype.itemsize
     ideal = int(num_elements / prod_other)
     if ideal == 0:
         return 1
@@ -59,7 +61,7 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
     return int(ideal / curdim) * curdim
 
 
-def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[int] = None, allow_sparse: bool = False) -> list:
+def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[int] = None, allow_sparse: bool = False, buffer_size: int = 1e8) -> list:
     """
     Iterate over an array on a certain dimension. At each iteration, the block
     of observations consists of the full extent of all dimensions other than
@@ -87,11 +89,16 @@ def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[
             ``x`` contains a sparse array, the block contents are instead
             represented by a :py:class:`~SparseNdarray.SparseNdarray`.
 
+        buffer_size: 
+            Buffer_size in bytes, to hold a single block per iteration. Larger
+            values generally improve speed at the cost of memory. Only used
+            if ``block_size`` is not provided.
+
     Returns:
         List containing the output of ``fun`` on each block.
     """
     if block_size is None:
-        block_size = choose_block_size_for_1d_iteration(x, dimension)
+        block_size = choose_block_size_for_1d_iteration(x, dimension, buffer_size = buffer_size)
 
     limit = x.shape[dimension]
     tasks = math.ceil(limit / block_size)

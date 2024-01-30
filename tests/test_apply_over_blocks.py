@@ -27,21 +27,21 @@ def chunk_shape_ChunkyBoi(x: _ChunkyBoi):
 
 def test_choose_block_shape_for_iteration():
     x = np.random.rand(100, 10)
-    assert da.choose_block_shape_for_iteration(x, memory=200) == (2, 10)
-    assert da.choose_block_shape_for_iteration(x, memory=800) == (10, 10)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=200) == (2, 10)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=800) == (10, 10)
 
-    # Not enough memory. 
-    assert da.choose_block_shape_for_iteration(x, memory=0) == (1, 1)
-    assert da.choose_block_shape_for_iteration(x, memory=40) == (1, 5)
+    # Not enough buffer_size. 
+    assert da.choose_block_shape_for_iteration(x, buffer_size=0) == (1, 1)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=40) == (1, 5)
 
     # Behaves correctly with empty objects.
     empty = np.random.rand(100, 0)
     assert da.choose_block_shape_for_iteration(empty) == (100, 1)
 
     x = _ChunkyBoi((100, 200), (20, 25))
-    assert da.choose_block_shape_for_iteration(x, memory=4000) == (20, 25)
-    assert da.choose_block_shape_for_iteration(x, memory=40000) == (100, 50)
-    assert da.choose_block_shape_for_iteration(x, memory=80000) == (100, 100)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=4000) == (20, 25)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=40000) == (100, 50)
+    assert da.choose_block_shape_for_iteration(x, buffer_size=80000) == (100, 100)
 
 
 def _dense_sum(position, block):

@@ -11,7 +11,7 @@ __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ...]:
+def choose_block_shape_for_iteration(x, buffer_size: int = 10000000) -> Tuple[int, ...]:
     """
     Choose the block dimensions for blockwise iteration through an array, see
     `~apply_over_blocks` for details.
@@ -21,7 +21,9 @@ def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ..
 
         dimension: Dimension to iterate over.
 
-        memory: Available memory in bytes, to hold a single block in memory.
+        buffer_size: 
+            Buffer_size in bytes, to hold a single block per iteration. Larger
+            values generally improve speed at the cost of memory.
 
     Returns:
         Dimensions of the blocks. All values are guaranteed to be positive,
@@ -32,7 +34,7 @@ def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ..
         if d == 0:
             return (*(max(1, d) for d in x.shape),)
 
-    num_elements = memory / x.dtype.itemsize
+    num_elements = buffer_size / x.dtype.itemsize
     chunk_dims = chunk_shape(x)
     block_size = 1
     for s in chunk_dims:
@@ -64,7 +66,7 @@ def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ..
     return (*block_dims,)
 
 
-def apply_over_blocks(x, fun: Callable, block_shape: Optional[Tuple] = None, allow_sparse: bool = False) -> list:
+def apply_over_blocks(x, fun: Callable, block_shape: Optional[Tuple] = None, allow_sparse: bool = False, buffer_size: int = 1e8) -> list:
     """
     Iterate over an array by blocks. We apply a user-provided function and
     collect the results before proceeding to the next block.
@@ -88,11 +90,16 @@ def apply_over_blocks(x, fun: Callable, block_shape: Optional[Tuple] = None, all
             ``x`` contains a sparse array, the block contents are instead
             represented by a :py:class:`~SparseNdarray.SparseNdarray`.
 
+        buffer_size: 
+            Buffer_size in bytes, to hold a single block per iteration. Larger
+            values generally improve speed at the cost of memory. Only used
+            if ``block_shape`` is not provided.
+
     Returns:
         List containing the output of ``fun`` on each block.
     """
     if block_shape is None:
-        block_shape = choose_block_shape_for_iteration(x)
+        block_shape = choose_block_shape_for_iteration(x, buffer_size = buffer_size)
 
     num_tasks_total = 1
     num_tasks_by_dim = []

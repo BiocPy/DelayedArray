@@ -16,7 +16,7 @@ from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .extract_dense_array import extract_dense_array
 from .to_dense_array import to_dense_array
 from .extract_sparse_array import extract_sparse_array
-from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration
+from .apply_over_blocks import apply_over_blocks
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
@@ -934,19 +934,18 @@ def _reduce_SparseNdarray(x: SparseNdarray, multipliers: List[int], axes: List[i
 
 
 def _reduce(x: DelayedArray, axes: List[int], operation: Callable, buffer_size: int):
-    block_shape = choose_block_shape_for_iteration(x, memory = buffer_size)
     multipliers = _create_offset_multipliers(x.shape, axes)
     if is_sparse(x):
         apply_over_blocks(
             x, 
             lambda position, block : _reduce_SparseNdarray(block, multipliers, axes, position, operation), 
-            block_shape=block_shape, 
-            allow_sparse=True
+            buffer_size=buffer_size,
+            allow_sparse=True,
         )
     else:
         apply_over_blocks(
             x, 
             lambda position, block : _reduce_ndarray(block, multipliers, axes, position, operation), 
-            block_shape=block_shape
+            buffer_size=buffer_size,
         )
     return
