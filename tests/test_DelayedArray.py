@@ -2,7 +2,7 @@ import numpy
 import delayedarray
 import pytest
 
-from utils import simulate_ndarray, assert_close_ndarrays
+from utils import simulate_ndarray, simulate_SparseNdarray, assert_close_ndarrays
 
 
 def test_DelayedArray_dense():
@@ -77,21 +77,163 @@ def test_DelayedArray_masked():
 @pytest.mark.parametrize("mask_rate", [0, 0.5])
 @pytest.mark.parametrize("buffer_size", [100, 500, 2000])
 def test_SparseNdarray_sum_dense(mask_rate, buffer_size):
-    ref = simulate_ndarray((50, 40, 20), mask_rate = mask_rate)
-    y = delayedarray.wrap(ref)
+    raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    y = delayedarray.wrap(raw) * 5
+    ref = raw * 5
 
     assert numpy.isclose(ref.sum(), y.sum(buffer_size=buffer_size))
-    print(numpy.allclose(ref.sum(axis=1), y.sum(axis=1, buffer_size=buffer_size)))
     assert_close_ndarrays(ref.sum(axis=1), y.sum(axis=1, buffer_size=buffer_size))
     assert_close_ndarrays(ref.sum(axis=-1), y.sum(axis=-1, buffer_size=buffer_size))
     assert_close_ndarrays(ref.sum(axis=(0, 2)), y.sum(axis=(0, 2), buffer_size=buffer_size))
 
     # Trying with a single dimension.
     test_shape = (100,)
-    ref = simulate_ndarray((100,), mask_rate=mask_rate)
-    y = delayedarray.wrap(ref)
+    raw = simulate_ndarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) * 5
+    ref = raw * 5
     assert numpy.isclose(ref.sum(), y.sum(buffer_size=buffer_size))
 
     # Full masking is respected.
-    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True))
+    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) * 5
     assert y.sum() is numpy.ma.masked
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_sum_sparse(mask_rate, buffer_size):
+    raw = simulate_SparseNdarray((20, 30, 25), mask_rate = mask_rate)
+    y = delayedarray.wrap(raw) * 10
+    ref = raw * 10
+
+    assert numpy.isclose(ref.sum(), y.sum(buffer_size=buffer_size))
+    assert_close_ndarrays(ref.sum(axis=1), y.sum(axis=1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.sum(axis=-1), y.sum(axis=-1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.sum(axis=(0, 2)), y.sum(axis=(0, 2), buffer_size=buffer_size))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    raw = simulate_SparseNdarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) * 10
+    ref = raw * 10
+    assert numpy.isclose(ref.sum(), y.sum(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    ref = delayedarray.SparseNdarray((1,), (numpy.zeros(1, dtype=numpy.int_), numpy.ma.MaskedArray([1], mask=True)))
+    y = delayedarray.wrap(ref) * 10
+    assert y.sum() is numpy.ma.masked
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_mean_dense(mask_rate, buffer_size):
+    raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    y = delayedarray.wrap(raw) - 12
+    ref = raw - 12
+
+    assert numpy.isclose(ref.mean(), y.mean(buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=1), y.mean(axis=1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=-1), y.mean(axis=-1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=(0, 2)), y.mean(axis=(0, 2), buffer_size=buffer_size))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    raw = simulate_ndarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) + 29
+    ref = raw + 29
+    assert numpy.isclose(ref.mean(), y.mean(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) + 20
+    assert y.mean() is numpy.ma.masked
+
+#    # Zero-length array is respected.
+#    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+#    assert numpy.isnan(y.mean())
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_mean_sparse(mask_rate, buffer_size):
+    raw = simulate_SparseNdarray((20, 30, 25), mask_rate = mask_rate)
+    ref = raw * 19
+    y = delayedarray.wrap(raw) * 19
+
+    assert numpy.isclose(ref.mean(), y.mean(buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=1), y.mean(axis=1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=-1), y.mean(axis=-1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.mean(axis=(0, 2)), y.mean(axis=(0, 2), buffer_size=buffer_size))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    raw = simulate_SparseNdarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) * 12
+    ref = raw * 12
+    assert numpy.isclose(ref.mean(), y.mean(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    ref = delayedarray.SparseNdarray((1,), (numpy.zeros(1, dtype=numpy.int_), numpy.ma.MaskedArray([1], mask=True)))
+    y = delayedarray.wrap(ref) / 5
+    assert y.mean() is numpy.ma.masked
+
+#    # Zero-length array is respected.
+#    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None)) * 50
+#    assert numpy.isnan(y.mean())
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_var_dense(mask_rate, buffer_size):
+    raw = simulate_ndarray((30, 40, 15), mask_rate = mask_rate)
+    y = delayedarray.wrap(raw) - 12
+    ref = raw - 12
+
+    assert numpy.isclose(ref.var(), y.var(buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=1), y.var(axis=1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=-1), y.var(axis=-1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=(0, 2)), y.var(axis=(0, 2), buffer_size=buffer_size))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    raw = simulate_ndarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) + 29
+    ref = raw + 29
+    assert numpy.isclose(ref.var(), y.var(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) + 20
+    with pytest.warns(RuntimeWarning):
+        assert y.var() is numpy.ma.masked
+
+#    # Zero-length array is respected.
+#    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+#    assert numpy.isnan(y.var())
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_var_sparse(mask_rate, buffer_size):
+    raw = simulate_SparseNdarray((20, 30, 25), mask_rate = mask_rate)
+    ref = raw * 19
+    y = delayedarray.wrap(raw) * 19
+
+    assert numpy.isclose(ref.var(), y.var(buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=1), y.var(axis=1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=-1), y.var(axis=-1, buffer_size=buffer_size))
+    assert_close_ndarrays(ref.var(axis=(0, 2)), y.var(axis=(0, 2), buffer_size=buffer_size))
+
+    # Trying with a single dimension.
+    test_shape = (100,)
+    raw = simulate_SparseNdarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) * 12
+    ref = raw * 12
+    assert numpy.isclose(ref.var(), y.var(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    ref = delayedarray.SparseNdarray((1,), (numpy.zeros(1, dtype=numpy.int_), numpy.ma.MaskedArray([1], mask=True)))
+    y = delayedarray.wrap(ref) / 5
+    with pytest.warns(RuntimeWarning):
+        assert y.var() is numpy.ma.masked
+
+#    # Zero-length array is respected.
+#    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None)) * 50
+#    assert numpy.isnan(y.var())
