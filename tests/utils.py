@@ -22,7 +22,9 @@ def assert_identical_ndarrays(x: numpy.ndarray, y: numpy.ndarray):
     if numpy.ma.is_masked(x):
         assert (x.mask == y.mask).all()
         comp = is_equal_with_nan(x.data, y.data)
-        assert numpy.logical_or(x.mask, comp).all()
+        remask = numpy.logical_or(numpy.zeros(x.shape), x.mask) # using an OR to force broadcasting of buggy masks of different shape.
+        comp[remask] = True 
+        assert comp.all()
     else:
         assert is_equal_with_nan(x, y).all()
 
@@ -42,7 +44,9 @@ def assert_close_ndarrays(x: numpy.ndarray, y: numpy.ndarray):
     if numpy.ma.is_masked(x):
         assert (x.mask == y.mask).all()
         comp = is_close_with_nan(x.data, y.data)
-        assert numpy.logical_or(x.mask, comp).all()
+        remask = numpy.logical_or(numpy.zeros(x.shape, dtype=numpy.bool_), x.mask) # using an OR to force broadcasting of buggy masks of different shape.
+        comp[remask] = True
+        assert comp.all()
     else:
         assert is_close_with_nan(x, y).all()
 
