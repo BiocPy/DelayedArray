@@ -1,6 +1,7 @@
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union, Optional, List, Callable
 import numpy
 from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
+from collections import namedtuple
 
 from .SparseNdarray import SparseNdarray
 from .BinaryIsometricOp import BinaryIsometricOp
@@ -12,14 +13,17 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
-from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
-from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
 from .extract_dense_array import extract_dense_array, to_dense_array
 from .extract_sparse_array import extract_sparse_array
+from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration
 from .create_dask_array import create_dask_array
 from .chunk_shape import chunk_shape
 from .is_sparse import is_sparse
 from .is_masked import is_masked
+
+from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
+from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
+from ._statistics import array_mean, array_var, array_sum, _create_offset_multipliers
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -711,20 +715,117 @@ class DelayedArray:
 
 
     # For python-level compute.
-    def sum(self, *args, **kwargs):
-        """See :py:meth:`~numpy.sums` for details."""
-        target = to_dense_array(self._seed)
-        return target.sum(*args, **kwargs)
+    def sum(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+        """
+        Take the sum of values across the ``DelayedArray``, possibly over a
+        given axis or set of axes. If the seed has a ``sum()`` method, that
+        method is called directly with the supplied arguments.
 
-    def var(self, *args, **kwargs):
-        """See :py:meth:`~numpy.vars` for details."""
-        target = to_dense_array(self._seed)
-        return target.var(*args, **kwargs)
+        Args:
+            axis: 
+                A single integer specifying the axis to perform the calculation.
+                Alternatively a tuple or None, see ``numpy.sum`` for details.
 
-    def mean(self, *args, **kwargs):
-        """See :py:meth:`~numpy.means` for details."""
-        target = to_dense_array(self._seed)
-        return target.mean(*args, **kwargs)
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                ``numpy.sum`` for details.
+
+            buffer_size:
+                Buffer size in bytes to use for block processing. Larger values
+                generally improve speed at the cost of memory.
+
+        Returns:
+            A NumPy array containing the summed values. If ``axis = None``,
+            this will be a NumPy scalar instead.
+        """
+        if hasattr(self._seed, "sum"):
+            return self._seed.sum(axis=axis, dtype=dtype)
+        else:
+            return array_sum(
+                self, 
+                axis=axis, 
+                dtype=dtype, 
+                reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
+                masked=is_masked(self),
+            )
+
+
+    def mean(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+        """
+        Take the mean of values across the ``DelayedArray``, possibly over a
+        given axis or set of axes. If the seed has a ``mean()`` method, that
+        method is called directly with the supplied arguments.
+
+        Args:
+            axis: 
+                A single integer specifying the axis to perform the calculation.
+                Alternatively a tuple or None, see ``numpy.mean`` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                ``numpy.mean`` for details.
+
+            buffer_size:
+                Buffer size in bytes to use for block processing. Larger values
+                generally improve speed at the cost of memory.
+
+        Returns:
+            A NumPy array containing the mean values. If ``axis = None``,
+            this will be a NumPy scalar instead.
+        """
+        if hasattr(self._seed, "mean"):
+            return self._seed.mean(axis=axis, dtype=dtype)
+        else:
+            return array_mean(
+                self, 
+                axis=axis, 
+                dtype=dtype, 
+                reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
+                masked=is_masked(self),
+            )
+
+
+    def var(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, ddof: int = 0, buffer_size: int = 1e8) -> numpy.ndarray:
+        """
+        Take the variances of values across the ``DelayedArray``, possibly over
+        a given axis or set of axes. If the seed has a ``var()`` method, that
+        method is called directly with the supplied arguments.
+
+        Args:
+            axis: 
+                A single integer specifying the axis to perform the calculation.
+                Alternatively a tuple or None, see ``numpy.var`` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                ``numpy.var`` for details.
+
+            ddof:
+                Delta in the degrees of freedom to subtract from the denominator.
+                Typically set to 1 to obtain the sample variance.
+
+            buffer_size:
+                Buffer size in bytes to use for block processing. Larger values
+                generally improve speed at the cost of memory.
+
+        Returns:
+            A NumPy array containing the variances. If ``axis = None``,
+            this will be a NumPy scalar instead.
+        """
+        if hasattr(self._seed, "var"):
+            return self._seed.var(axis=axis, dtype=dtype, ddof=ddof)
+        else:
+            return array_var(
+                self, 
+                axis=axis, 
+                dtype=dtype, 
+                ddof=ddof,
+                reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
+                masked=is_masked(self),
+            )
 
 
 @extract_dense_array.register
@@ -761,3 +862,90 @@ def is_sparse_DelayedArray(x: DelayedArray):
 def is_masked_DelayedArray(x: DelayedArray):
     """See :py:meth:`~delayedarray.is_masked.is_masked`."""
     return is_masked(x._seed)
+
+
+#########################################################
+#########################################################
+
+
+_StatisticsPayload = namedtuple("_StatisticsPayload", [ "operation", "multipliers", "starts" ])
+
+
+def _reduce_1darray(val: numpy.ndarray, payload: _StatisticsPayload, offset: int = 0):
+    for i, v in enumerate(val):
+        extra = payload.multipliers[-1] * (i + payload.starts[-1])
+        payload.operation(offset + extra, v)
+    return
+
+
+def _recursive_reduce_ndarray(x: numpy.ndarray, payload: _StatisticsPayload, dim: int, offset: int = 0):
+    mult = payload.multipliers[dim]
+    shift = payload.starts[dim]
+    if len(x.shape) == 2:
+        for i in range(x.shape[0]):
+            _reduce_1darray(x[i], payload, offset = offset + mult * (shift + i))
+    else:
+        for i in range(x.shape[0]):
+            _recursive_reduce_ndarray(x[i], payload, dim = dim + 1, offset = offset + mult * (shift + i))
+    return
+
+
+def _reduce_ndarray(block: numpy.ndarray, multipliers: List[int], axes: List[int], position: Tuple[Tuple[int, int], ...], operation: Callable):
+    ndim = len(block.shape)
+    payload = _StatisticsPayload(operation=operation, multipliers=multipliers, starts=(*(s[0] for s in position),))
+    if ndim == 1:
+        _reduce_1darray(block, payload)
+    else:
+        _recursive_reduce_ndarray(block, payload, dim=0)
+    return        
+
+
+def _reduce_sparse_vector(idx: numpy.ndarray, val: numpy.ndarray, payload: _StatisticsPayload, offset: int = 0):
+    for j, ix in enumerate(idx):
+        extra = payload.multipliers[0] * (ix + payload.starts[0])
+        payload.operation(offset + extra, val[j])
+    return
+
+
+def _recursive_reduce_SparseNdarray(contents, payload: _StatisticsPayload, dim: int, offset: int  = 0):
+    mult = payload.multipliers[dim]
+    start = payload.starts[dim]
+    if dim == 1:
+        for i, con in enumerate(contents):
+            if con is not None:
+                _reduce_sparse_vector(con[0], con[1], payload, offset = offset + mult * (i + start))
+    else:
+        for i, con in enumerate(contents):
+            if con is not None:
+                _recursive_reduce_SparseNdarray(con, payload, dim = dim - 1, offset = offset + mult * (i + start))
+    return
+
+
+def _reduce_SparseNdarray(x: SparseNdarray, multipliers: List[int], axes: List[int], position: Tuple[Tuple[int, int], ...], operation: Callable):
+    if x.contents is not None:
+        payload = _StatisticsPayload(operation=operation, multipliers=multipliers, starts=(*(s[0] for s in position),))
+        ndim = len(x.shape)
+        if ndim == 1:
+            _reduce_sparse_vector(x.contents[0], x.contents[1], payload)
+        else:
+            _recursive_reduce_SparseNdarray(x.contents, payload, dim=ndim - 1)
+    return        
+
+
+def _reduce(x: DelayedArray, axes: List[int], operation: Callable, buffer_size: int):
+    block_shape = choose_block_shape_for_iteration(x, memory = buffer_size)
+    multipliers = _create_offset_multipliers(x.shape, axes)
+    if is_sparse(x):
+        apply_over_blocks(
+            x, 
+            lambda position, block : _reduce_SparseNdarray(block, multipliers, axes, position, operation), 
+            block_shape=block_shape, 
+            allow_sparse=True
+        )
+    else:
+        apply_over_blocks(
+            x, 
+            lambda position, block : _reduce_ndarray(block, multipliers, axes, position, operation), 
+            block_shape=block_shape
+        )
+    return
