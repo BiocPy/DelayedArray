@@ -150,9 +150,10 @@ def test_SparseNdarray_mean_dense(mask_rate, buffer_size):
     y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) + 20
     assert y.mean() is numpy.ma.masked
 
-#    # Zero-length array is respected.
-#    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
-#    assert numpy.isnan(y.mean())
+    # Zero-length array is respected.
+    with pytest.warns(RuntimeWarning):
+        y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+        assert numpy.isnan(y.mean())
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.5])
@@ -179,9 +180,10 @@ def test_SparseNdarray_mean_sparse(mask_rate, buffer_size):
     y = delayedarray.wrap(ref) / 5
     assert y.mean() is numpy.ma.masked
 
-#    # Zero-length array is respected.
-#    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None)) * 50
-#    assert numpy.isnan(y.mean())
+    # Zero-length array is respected.
+    with pytest.warns(RuntimeWarning):
+        y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None, dtype=numpy.int32, index_dtype=numpy.int32)) * 50
+        assert numpy.isnan(y.mean())
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.5])
@@ -210,9 +212,10 @@ def test_SparseNdarray_var_dense(mask_rate, buffer_size):
     with pytest.warns(RuntimeWarning):
         assert y.var() is numpy.ma.masked
 
-#    # Zero-length array is respected.
-#    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
-#    assert numpy.isnan(y.var())
+    # Zero-length array is respected.
+    with pytest.warns(RuntimeWarning):
+        y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+        assert numpy.isnan(y.var())
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.5])
@@ -240,6 +243,7 @@ def test_SparseNdarray_var_sparse(mask_rate, buffer_size):
     with pytest.warns(RuntimeWarning):
         assert y.var() is numpy.ma.masked
 
-#    # Zero-length array is respected.
-#    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None)) * 50
-#    assert numpy.isnan(y.var())
+    # Zero-length array is respected.
+    with pytest.warns(RuntimeWarning):
+        y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None, dtype=numpy.int32, index_dtype=numpy.int32)) * 50
+        assert numpy.isnan(y.var())

@@ -24,8 +24,14 @@ def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ..
         memory: Available memory in bytes, to hold a single block in memory.
 
     Returns:
-        Dimensions of the blocks.
+        Dimensions of the blocks. All values are guaranteed to be positive,
+        even if the extent of any dimension of ``x`` is zero.
     """
+    # Checking for empty dimensions and bailing out if we find any.
+    for d in x.shape:
+        if d == 0:
+            return (*(max(1, d) for d in x.shape),)
+
     num_elements = memory / x.dtype.itemsize
     chunk_dims = chunk_shape(x)
     block_size = 1
@@ -55,7 +61,6 @@ def choose_block_shape_for_iteration(x, memory: int = 10000000) -> Tuple[int, ..
             block_size = block_size_other
             block_dims[i] = 1
 
-
     return (*block_dims,)
 
 
@@ -74,8 +79,9 @@ def apply_over_blocks(x, fun: Callable, block_shape: Optional[Tuple] = None, all
             block is typically provided as a :py:class:`~numpy.ndarray`.
 
         block_shape:
-            Dimensionsof the block on the iteration dimension. If None, this is
-            chosen by :py:func:`~choose_block_shape_for_iteration`.
+            Dimensions of the block. All entries should be positive, even for
+            zero-extent dimensions of ``x``. If None, this is chosen by
+            :py:func:`~choose_block_shape_for_iteration`.
 
         allow_sparse:
             Whether to allow extraction of sparse subarrays. If true and

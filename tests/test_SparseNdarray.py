@@ -1223,4 +1223,3 @@ def test_SparseNdarray_var(mask_rate):
     y = delayedarray.SparseNdarray((0,), None, dtype=numpy.dtype("float64"), index_dtype=numpy.dtype("int8"))
     with pytest.warns(RuntimeWarning):
         assert numpy.isnan(y.var())
-

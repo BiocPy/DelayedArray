@@ -12,8 +12,13 @@ __license__ = "MIT"
 
 @singledispatch
 def chunk_shape(x: Any) -> Tuple[int, ...]:
-    """Get the dimensions of the array chunks. These define the preferred
-    blocks with which to iterate over the array in each dimension.
+    """
+    Get the dimensions of the array chunks. These define the preferred
+    intervals with which to iterate over the array in each dimension, usually
+    reflecting a particular layout on disk or in memory. The extent of each
+    chunk dimension should be positive and less than that of the array's;
+    except for zero-length dimensions, in which case the chunk's extent should
+    be greater than the array (typically 1 to avoid divide by zero errors). 
 
     Args:
         x: An array-like object.

@@ -34,6 +34,10 @@ def test_choose_block_shape_for_iteration():
     assert da.choose_block_shape_for_iteration(x, memory=0) == (1, 1)
     assert da.choose_block_shape_for_iteration(x, memory=40) == (1, 5)
 
+    # Behaves correctly with empty objects.
+    empty = np.random.rand(100, 0)
+    assert da.choose_block_shape_for_iteration(empty) == (100, 1)
+
     x = _ChunkyBoi((100, 200), (20, 25))
     assert da.choose_block_shape_for_iteration(x, memory=4000) == (20, 25)
     assert da.choose_block_shape_for_iteration(x, memory=40000) == (100, 50)
@@ -48,7 +52,7 @@ def _dense_sum(position, block):
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
-def test_apply_over_dimension_dense(mask_rate):
+def test_apply_over_block_dense(mask_rate):
     x = np.ndarray([100, 200])
     counter = 0
     for i in range(x.shape[0]):
@@ -72,7 +76,7 @@ def test_apply_over_dimension_dense(mask_rate):
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
-def test_apply_over_dimension_sparse(mask_rate):
+def test_apply_over_block_sparse(mask_rate):
     x = simulate_SparseNdarray((100, 200), mask_rate=mask_rate)
 
     expected = 0
@@ -105,3 +109,9 @@ def test_apply_over_dimension_sparse(mask_rate):
     assert np.allclose(expected, sum(y[1] for y in output))
     assert output[0][0] == [(0, 3), (0, 7)]
     assert output[-1][0] == [(99, 100), (196, 200)]
+
+
+def test_apply_over_block_empty():
+    x = np.ndarray([100, 0])
+    output = da.apply_over_blocks(x, _dense_sum)
+    assert len(output) == 0 

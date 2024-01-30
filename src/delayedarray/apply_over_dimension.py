@@ -10,11 +10,13 @@ __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
+
 def guess_iteration_block_size(x, dimension, memory: int = 10000000) -> int:
     """
     Soft-deprecated alias for :py:func:`~choose_block_size_for_1d_iteration`.
     """
     return choose_block_size_for_1d_iteration(x, dimension, memory)
+
 
 def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000) -> int:
     """
@@ -29,24 +31,31 @@ def choose_block_size_for_1d_iteration(x, dimension: int, memory: int = 10000000
         memory: Available memory in bytes, to hold a single block in memory.
 
     Returns:
-        Size of the block on the iteration dimension.
+        Size of the block on the iteration dimension. This is guaranteed to be
+        positive, even if the extent of the dimension of ``x`` is zero.
     """
-    num_elements = memory / x.dtype.itemsize
     shape = x.shape
+    fulldim = shape[dimension]
 
     prod_other = 1
     for i, s in enumerate(shape):
+        if s == 0:
+            # Bailing out if there's a zero-length dimension anywhere.
+            # We set a floor of 1 to avoid divide-by-zero errors.
+            return max(1, fulldim)
         if i != dimension:
             prod_other *= s
 
+    num_elements = memory / x.dtype.itemsize
     ideal = int(num_elements / prod_other)
     if ideal == 0:
         return 1
+    if ideal >= fulldim:
+        return fulldim
 
     curdim = chunk_shape(x)[dimension]
     if ideal <= curdim:
         return ideal
-
     return int(ideal / curdim) * curdim
 
 
@@ -69,7 +78,8 @@ def apply_over_dimension(x, dimension: int, fun: Callable, block_size: Optional[
             Each block is typically provided as a :py:class:`~numpy.ndarray`.
 
         block_size:
-            Size of the block on the iteration dimension. If None, this is
+            Size of the block on the iteration dimension. This should be a
+            positive integer, even for zero-extent dimensions. If None, this is
             chosen by :py:func:`~choose_block_size_for_1d_iteration`.
 
         allow_sparse:

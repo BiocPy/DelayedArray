@@ -34,6 +34,11 @@ def test_choose_block_size_for_1d_iteration():
     assert da.choose_block_size_for_1d_iteration(x, 0, memory=0) == 1
     assert da.choose_block_size_for_1d_iteration(x, 1, memory=0) == 1
 
+    # Behaves correctly with empty objects.
+    empty = np.random.rand(100, 0)
+    assert da.choose_block_size_for_1d_iteration(empty, 0) == 100
+    assert da.choose_block_size_for_1d_iteration(empty, 1) == 1
+
     # Making a slightly more complex situation.
     x = _ChunkyBoi((100, 200), (20, 25))
     assert da.choose_block_size_for_1d_iteration(x, 0, memory=4000) == 2
@@ -125,3 +130,12 @@ def test_apply_over_dimension_sparse(mask_rate):
     assert np.allclose(expected, sum(y[1] for y in output))
     assert output[0][0] == (0, 7)
     assert output[-1][0] == (196, 200)
+
+
+def test_apply_over_dimension_empty():
+    x = np.ndarray([100, 0])
+    output = da.apply_over_dimension(x, 0, _dense_sum)
+    assert len(output) == 1
+
+    output = da.apply_over_dimension(x, 1, _dense_sum)
+    assert len(output) == 0
