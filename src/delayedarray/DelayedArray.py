@@ -13,7 +13,8 @@ from .Transpose import Transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
-from .extract_dense_array import extract_dense_array, to_dense_array
+from .extract_dense_array import extract_dense_array
+from .to_dense_array import to_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration
 from .create_dask_array import create_dask_array

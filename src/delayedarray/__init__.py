@@ -27,8 +27,11 @@ from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 from .SparseNdarray import SparseNdarray
 
-from .extract_dense_array import extract_dense_array, to_dense_array
-from .extract_sparse_array import extract_sparse_array, to_sparse_array
+from .extract_dense_array import extract_dense_array
+from .extract_sparse_array import extract_sparse_array
+from .to_dense_array import to_dense_array
+from .to_sparse_array import to_sparse_array
+
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse
 from .is_masked import is_masked

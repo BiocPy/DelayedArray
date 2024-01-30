@@ -217,19 +217,3 @@ if is_package_installed("scipy"):
             new_contents = _set_empty_contents(new_contents)
 
         return SparseNdarray((*final_shape,), new_contents, dtype=x.dtype, index_dtype=x.row.dtype, is_masked=False, check=False)
-
-
-def to_sparse_array(x: Any) -> numpy.ndarray:
-    """
-    Convenience function that extracts the entirety of ``x`` as a
-    :py:class:`~delayedarray.SparseNdarray.SparseNdarray`. This simply calls
-    :py:func:`~extract_sparse_array` with ``subset`` set to the full extent of
-    all dimensions.
-
-    Args:
-        x: Any array-like object containing sparse data.
-
-    Returns:
-        ``SparseNdarray`` with the full contents of ``x``.
-    """
-    return extract_sparse_array(x, _spawn_indices(x.shape))

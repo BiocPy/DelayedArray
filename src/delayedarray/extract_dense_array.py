@@ -3,7 +3,7 @@ import numpy
 from typing import Any, Tuple, Sequence
 from biocutils.package_utils import is_package_installed
 
-from ._subset import _spawn_indices, _is_subset_noop
+from ._subset import _is_subset_noop
 from .SparseNdarray import SparseNdarray, _extract_dense_array_from_SparseNdarray
 
 __author__ = "ltla"
@@ -91,18 +91,3 @@ if is_package_installed("scipy"):
         extract_dense_array.register(sp.sparray, extract_dense_array_sparse_array)
     except Exception:
         pass
-
-
-def to_dense_array(x: Any) -> numpy.ndarray:
-    """
-    Convenience function that extracts the entirety of ``x`` as a dense NumPy
-    array. This simply calls :py:func:`~extract_dense_array` with ``subset``
-    set to the full extent of all dimensions.
-
-    Args:
-        x: Any array-like object.
-
-    Returns:
-        NumPy array contains the full contents of ``x``. This may be masked.
-    """
-    return extract_dense_array(x, _spawn_indices(x.shape))
