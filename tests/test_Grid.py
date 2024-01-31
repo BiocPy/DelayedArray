@@ -1,5 +1,7 @@
 import delayedarray
 import random
+import pytest
+import numpy
 
 
 def test_SimpleGrid_basic():
@@ -58,3 +60,74 @@ def test_SimpleGrid_subset():
     assert subgrid.shape == (len(sub[0]), len(sub[1]))
     assert_valid_reassignments(sub[0], grid.boundaries[0], subgrid.boundaries[0])
     assert_valid_reassignments(sub[1], grid.boundaries[1], subgrid.boundaries[1])
+
+
+@pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
+def test_SimpleGrid_iterate_2d(buffer_elements):
+    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)))
+
+    # Full iteration on both dimensions.
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(0,1), buffer_elements=buffer_elements):
+        full_size = 1
+        for s, e in block:
+            full_size *= e - s
+        assert full_size <= buffer_elements
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+    # Iteration on only one dimension.
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(0,), buffer_elements=buffer_elements):
+        assert block[1] == (0, grid.shape[1]) 
+        gap = block[0][1] - block[0][0]
+        assert gap == 1 or gap * grid.shape[1] <= buffer_elements
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(1,), buffer_elements=buffer_elements):
+        assert block[0] == (0, grid.shape[0]) 
+        gap = block[1][1] - block[1][0]
+        assert gap == 1 or gap * grid.shape[0] <= buffer_elements
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+
+@pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
+def test_SimpleGrid_iterate_3d(buffer_elements):
+    grid = delayedarray.SimpleGrid((range(1, 11, 1), range(10, 51, 10), range(2, 21, 3)))
+
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(0,1,2), buffer_elements=buffer_elements):
+        full_size = 1
+        for s, e in block:
+            full_size *= e - s
+        assert full_size <= buffer_elements
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(0,2), buffer_elements=buffer_elements):
+        assert block[1] == (0, grid.shape[1]) 
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(1,2), buffer_elements=buffer_elements):
+        assert block[0] == (0, grid.shape[0]) 
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()
+
+    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
+    for block in grid.iterate(dimensions=(0,1), buffer_elements=buffer_elements):
+        assert block[2] == (0, grid.shape[2]) 
+        sub = (*(slice(s, e) for s, e in block),)
+        empty[sub] += 1
+    assert (empty == 1).all()

@@ -113,13 +113,17 @@ class SimpleGrid(Grid):
         bounds = self._boundaries[dimension]
         full_end = self._shape[dimension]
 
-        if used:
+        if used[dimension]:
             # We assume the worst case and consider the space available if all
             # the remaining dimensions use their maximum gap. Note that this
             # only differs from buffer_elements when dimension > 0.
             conservative_buffer_elements = buffer_elements
             for d in range(dimension):
-                conservative_buffer_elements /= self._maxgap[d]
+                if used[d]:
+                    denom = self._maxgap[d]
+                else:
+                    denom = self._shape[d]
+                conservative_buffer_elements //= denom
             conservative_buffer_elements = max(1, conservative_buffer_elements)
 
             start = 0
@@ -134,9 +138,9 @@ class SimpleGrid(Grid):
                         starts[dimension] = start
                         ends[dimension] = full_end
                         if dimension == 0:
-                            yield (*starts,), (*ends,)
+                            yield (*zip(starts, ends),)
                         else:
-                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (full_end - start))
+                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (full_end - start))
                     break
 
                 # Check if we can keep going to make a larger block.
@@ -145,7 +149,10 @@ class SimpleGrid(Grid):
                     pos += 1
                     continue
 
-                previous_end = bounds[pos - 1]
+                if pos:
+                    previous_end = bounds[pos - 1]
+                else:
+                    previous_end = 0
 
                 # Break grid intervals to force compliance with the buffer element limit.
                 if previous_end == start:
@@ -154,12 +161,12 @@ class SimpleGrid(Grid):
                         breaking_end = min(current_end, start + conservative_buffer_elements)
                         ends[dimension] = breaking_end
                         if dimension == 0:
-                            yield (*starts,), (*ends,)
+                            yield (*zip(starts, ends),)
                         else:
                             # Next level of recursion uses buffer_elements, not its 
                             # conservative counterpart, as the next level actually has 
                             # knowledge of the boundaries for that dimension.
-                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (breaking_end - start))
+                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (breaking_end - start))
                         start = breaking_end
                     pos += 1
                     continue
@@ -168,9 +175,9 @@ class SimpleGrid(Grid):
                 starts[dimension] = start
                 ends[dimension] = previous_end
                 if dimension == 0:
-                    yield (*starts,), (*ends,)
+                    yield (*zip(starts, ends),)
                 else:
-                    yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (previous_end - start))
+                    yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (previous_end - start))
                 start = previous_end
 
         else:
@@ -178,9 +185,9 @@ class SimpleGrid(Grid):
             starts[dimension] = 0
             ends[dimension] = full_end
             if dimension == 0:
-                yield (*starts,), (*ends,)
+                yield (*zip(starts, ends),)
             else:
-                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // full_end)
+                yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // full_end)
 
 
     def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple, None, None]:
@@ -210,10 +217,6 @@ class SimpleGrid(Grid):
         for i in dimensions:
             used[i] = True
 
-        for i, d in enumerate(self._shape):
-            if not used[i]:
-                buffer_elements //= d
-
         starts = [0] * ndim
         ends = [0] * ndim
-        yield from self._recursive_iterate(self, dimension=ndim - 1, used=used, starts=starts, ends=ends, buffer_elements=buffer_elements)
+        yield from self._recursive_iterate(ndim - 1, used, starts, ends, buffer_elements)
