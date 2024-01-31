@@ -97,6 +97,15 @@ def test_SimpleGrid_iterate_3d(buffer_elements):
     assert_okay_2of3d_iteration(grid, 2, buffer_elements)
 
 
+def test_SimpleGrid_empty():
+    grid = delayedarray.SimpleGrid(([], range(2, 21, 3)), cost_factor=1)
+    assert grid.shape == (0, 20)
+    assert len(grid.boundaries[0]) == 0
+    assert len(grid.boundaries[1]) == 7
+    assert grid.cost == 0
+    assert_okay_full_iteration(grid, buffer_elements=100)
+
+
 def test_SimpleGrid_transpose():
     grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
 
@@ -287,3 +296,18 @@ def test_CompositeGrid_subset():
     assert_valid_reassignments(sub[0], combined.boundaries[0], subcombined.boundaries[0])
     assert_valid_reassignments(sub[1], combined.boundaries[1], subcombined.boundaries[1])
     assert_okay_full_iteration(subcombined, buffer_elements=100)
+
+
+def test_CompositeGrid_empty():
+    grid1 = delayedarray.SimpleGrid(([], range(2, 21, 3)), cost_factor=1)
+    grid2 = delayedarray.SimpleGrid(([], range(6, 21, 7)), cost_factor=1)
+
+    combined = delayedarray.CompositeGrid([grid1, grid2], along=0)
+    assert combined.shape == (0, 20)
+    assert combined.cost == 0
+    assert_okay_full_iteration(combined, buffer_elements=100)
+
+    combined = delayedarray.CompositeGrid([grid1, grid2], along=1)
+    assert combined.shape == (0, 40)
+    assert combined.cost == 0
+    assert_okay_full_iteration(combined, buffer_elements=100)

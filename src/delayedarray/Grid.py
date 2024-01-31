@@ -1,11 +1,11 @@
 from typing import Tuple, Sequence, Optional, List, Generator, Dict
 import bisect
-import math
+import abc
 
 
-class Grid:
+class AbstractGrid(abc.ABC):
     """
-    Virtual base class for array grids. Each grid subdivides an array to
+    Abstract base class for array grids. Each grid subdivides an array to
     determine how it should be iterated over; this is useful for ensuring that
     iteration respects the physical layout of an array. 
 
@@ -14,14 +14,45 @@ class Grid:
     methods; see the :py:class:`~SimpleGrid` and :py:class:`~CompositeGrid`
     subclasses for examples.
     """
-    pass
+
+    @property
+    @abc.abstractmethod
+    def shape(self) -> Tuple[int, ...]:
+        pass
+
+
+    @property
+    @abc.abstractmethod
+    def cost(self) -> int:
+        pass
+
+
+    @property
+    @abc.abstractmethod
+    def boundaries(self) -> Tuple[Sequence[int], ...]:
+        pass
+
+
+    @abc.abstractmethod
+    def transpose(self, perm: Tuple[int, ...]) -> "AbstractGrid":
+        pass
+
+
+    @abc.abstractmethod
+    def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "AbstractGrid":
+        pass
+
+
+    @abc.abstractmethod
+    def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple, None, None]:
+        pass
 
 
 ############################################################
 ############################################################
 
 
-class SimpleGrid(Grid): 
+class SimpleGrid(AbstractGrid): 
     """
     A simple grid to subdivide an array, involving arbitrary boundaries on each
     dimension. Each grid element is defined by boundaries on each dimension.
@@ -33,8 +64,9 @@ class SimpleGrid(Grid):
             boundaries: 
                 Tuple of length equal to the number of dimensions. Each entry
                 should be a strictly increasing sequence of integers specifying
-                the position of the grid boundaries; the last element should
-                be equal to the extent of the dimension for the array.
+                the position of the grid boundaries; the last element should be
+                equal to the extent of the dimension for the array. A tuple
+                entry may also be an empty list for a zero-extent dimension.
 
             cost_factor:
                 Positive number representing the cost of iteration over each
@@ -50,7 +82,13 @@ class SimpleGrid(Grid):
         if internals is not None and "shape" in internals:
             shape = internals["shape"]
         else:
-            shape = (*(bounds[-1] for bounds in boundaries),)
+            new_shape = []
+            for bounds in boundaries:
+                if len(bounds):
+                    new_shape.append(bounds[-1])
+                else:
+                    new_shape.append(0)
+            shape = (*new_shape,)
         self._shape = shape
 
         if internals is not None and "maxgap" in internals:
@@ -164,15 +202,16 @@ class SimpleGrid(Grid):
             else: 
                 my_boundaries = []
                 counter = 0
-                last_chunk = -1
-                for y in cursub:
-                    cur_chunk = bisect.bisect_right(bounds, y)
-                    if cur_chunk != last_chunk:
-                        if counter > 0:
-                            my_boundaries.append(counter)
-                        last_chunk = cur_chunk
-                    counter += 1 
-                my_boundaries.append(counter)
+                if len(bounds):
+                    last_chunk = -1
+                    for y in cursub:
+                        cur_chunk = bisect.bisect_right(bounds, y)
+                        if cur_chunk != last_chunk:
+                            if counter > 0:
+                                my_boundaries.append(counter)
+                            last_chunk = cur_chunk
+                        counter += 1 
+                    my_boundaries.append(counter)
 
                 new_boundaries.append(my_boundaries)
                 new_shape.append(counter)
@@ -291,6 +330,9 @@ class SimpleGrid(Grid):
             dimensions. Each element contains the start and end of the block
             on its corresponding dimension.
         """
+        if 0 in self._shape:
+            return
+
         ndim = len(self._shape)
         used = [False] * ndim
         for i in dimensions:
@@ -305,14 +347,27 @@ class SimpleGrid(Grid):
 ############################################################
 
 
-class CompositeGrid(Grid): 
+class CompositeGrid(AbstractGrid): 
     """
     A grid to subdivide an array, constructed by combining component grids
     along a specified dimension. This aims to mirror the same combining
     operation for the arrays associated with the component grids.
     """
 
-    def __init__(self, components: Tuple[Grid, ...], along: int, internals: Optional[Dict] = None):
+    def __init__(self, components: Tuple[AbstractGrid, ...], along: int, internals: Optional[Dict] = None):
+        """
+        Args:
+            components: 
+                Component grids to be combined to form the composite grid.
+                Each grid should have the same dimension extents, except for
+                the ``along`` dimension.
+
+            along:
+                Dimension over which to combine entries of ``components``.
+
+            internals:
+                Internal use only.
+        """
         self._components = components
         self._along = along
 
@@ -529,6 +584,9 @@ class CompositeGrid(Grid):
             dimensions. Each element contains the start and end of the block
             on its corresponding dimension.
         """
+        if 0 in self._shape:
+            return
+
         if self._along in dimensions:
             first = True
             offset = 0
