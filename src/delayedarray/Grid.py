@@ -11,14 +11,23 @@ class SimpleGrid(Grid):
         if len(shape) != len(spacing):
             raise ValueError("'shape' and 'spacing' should have the same length")
 
+        maxgap = []
         for i, d in enumerate(shape):
-            if spacing[i][0] != 0:
+            curs = spacing[i]
+            if curs[0] != 0:
                 raise ValueError("first element of each 'spacing' should be zero")
-            if spacing[i][-1] != d:
+            if curs[-1] != d:
                 raise ValueError("last element of each 'spacing' should be equal to the corresponding entry of 'shape'")
+            curmax = 0
+            for j in range(1, len(curs)):
+                gap = curs[j] - curs[j-1]
+                if gap > curmax:
+                    curmax = gap
+            maxgap.append(curmax)
 
         self._shape = shape
         self._spacing = spacing
+        self._maxgap = maxgap
 
 
     @property
@@ -58,24 +67,73 @@ class SimpleGrid(Grid):
         return SimpleGrid(new_shape, new_spacing)
 
 
+    def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
+        curs = self._spacing[dimension]
+
+        if dimension == 0:
+            if used:
+                start = 0
+                for pos in range(2, len(curs)):
+                    # This setup ensures that we always take whole chunks, even
+                    # if we technically don't have enough buffer to do so.
+                    if curs[pos] - start > buffer_elements:
+                        starts[0] = start
+                        end = curs[pos - 1]
+                        ends[0] = end
+                        yield starts, ends
+                        start = end
+
+                starts[0] = start
+                ends[0] = curs[-1]
+                yield starts, ends
+
+            else:
+                starts[0] = 0
+                ends[0] = self._shape[0]
+                yield starts, ends
+
+        else:
+            if used:
+                # We assume the worst case and consider the space available
+                # if all the remaining dimensions use their maximum gap.
+                conservative_buffer_elements = buffer_elements
+                for d in range(dimension):
+                    conservative_buffer_elements /= self._maxgap[d]
+
+                start = 0
+                for pos in range(2, len(curs)):
+                    # Again, ensuring that we always proceed with whole chunks.
+                    if curs[pos] - start > conservative_buffer_elements:
+                        starts[dimension] = start
+                        end = curs[pos - 1]
+                        ends[dimension] = end
+                        yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
+                        start = end
+
+                starts[dimension] = start
+                ends[dimension] = curs[-1]
+                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements)
+
+            else:
+                starts[0] = 0
+                ends[0] = self._shape[dimension]
+                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // self._shape[dimension])
+
 
     def iterate(self, dimensions: Union[int, Tuple[int, ...]], buffer_elements: int) -> Generator[Tuple]:
         ndim = len(self._shape)
-        nused = len(dimensions)
         used = [False] * ndim
         for i in dimensions:
             used[i] = True
-            buffer_elements /= self._shape[i]
-        buffer_elements = max(1, buffer_dimensions)
 
-        counters = [0] * ndim
-        while True:
-            # Trying to choose a square-ish block size.
-            rough_per_dim = math.ceil(buffer_elements ^ (1.0 / nused))
+        for i, d in enumerate(self._shape):
+            if not used[i]:
+                buffer_elements //= d
 
-
-
-
+        starts = [0] * ndim
+        ends = [0] * ndim
+        yield from self._recursive_iterate(self, dimension, used, starts, ends, buffer_elements)
+                        
 
 
 
@@ -85,8 +143,7 @@ class SimpleGrid(Grid):
 
 
 
-class CompositeGrid(Grid):
-    def __init__(components: List[Grid], along: int):
-        self._grids = grids
-        self._along = along
+
+
+
 
