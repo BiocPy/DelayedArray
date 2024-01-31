@@ -69,55 +69,59 @@ class SimpleGrid(Grid):
 
     def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
         curs = self._spacing[dimension]
+        buffer_elements = max(1, buffer_elements)
 
-        if dimension == 0:
-            if used:
-                start = 0
-                for pos in range(2, len(curs)):
-                    # This setup ensures that we always take whole chunks, even
-                    # if we technically don't have enough buffer to do so.
-                    if curs[pos] - start > buffer_elements:
-                        starts[0] = start
-                        end = curs[pos - 1]
-                        ends[0] = end
-                        yield starts, ends
+        if used:
+            # We assume the worst case and consider the space available if all
+            # the remaining dimensions use their maximum gap. Note that this
+            # only differs from buffer_elements when dimension > 0.
+            conservative_buffer_elements = buffer_elements
+            for d in range(dimension):
+                conservative_buffer_elements /= self._maxgap[d]
+
+            start = 0
+            ns = len(curs)
+            for pos in range(1, n):
+                if curs[pos] - start <= conservative_buffer_elements: # i.e., we can keep going to make a larger block.
+                    if pos + 1 < ns: # i.e., it's not the last element, in which case we would be forced to yield.
+                        continue
+
+                end = curs[pos - 1]
+                if end == start:
+                    # Break chunks to force compliance with the buffer element limit.
+                    full_end = curs[pos]
+                    while start < full_end:
+                        starts[dimension] = start
+                        end = min(full_end, start + conservative_buffer_elements)
+                        ends[dimension] = end
+                        if dimension == 0:
+                            yield starts, ends
+                        else:
+                            # Next level of recursion still uses buffer_elements, 
+                            # not its conservative counterpart, as the next level 
+                            # actually has access to the spacings for that dimension.
+                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
                         start = end
+                    continue
 
-                starts[0] = start
-                ends[0] = curs[-1]
-                yield starts, ends
-
-            else:
-                starts[0] = 0
-                ends[0] = self._shape[0]
-                yield starts, ends
+                # Falling back to the last breakpoint that fit in the buffer limit.
+                starts[dimension] = start
+                ends[dimension] = end
+                if dimension == 0:
+                    yield starts, ends
+                else:
+                    yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
+                start = end
 
         else:
-            if used:
-                # We assume the worst case and consider the space available
-                # if all the remaining dimensions use their maximum gap.
-                conservative_buffer_elements = buffer_elements
-                for d in range(dimension):
-                    conservative_buffer_elements /= self._maxgap[d]
-
-                start = 0
-                for pos in range(2, len(curs)):
-                    # Again, ensuring that we always proceed with whole chunks.
-                    if curs[pos] - start > conservative_buffer_elements:
-                        starts[dimension] = start
-                        end = curs[pos - 1]
-                        ends[dimension] = end
-                        yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
-                        start = end
-
-                starts[dimension] = start
-                ends[dimension] = curs[-1]
-                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements)
-
+            # If it's not used, we return the entire extent.
+            full = self._shape[0]
+            starts[0] = 0
+            ends[0] = full
+            if dimension == 0:
+                yield starts, ends
             else:
-                starts[0] = 0
-                ends[0] = self._shape[dimension]
-                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // self._shape[dimension])
+                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // full)
 
 
     def iterate(self, dimensions: Union[int, Tuple[int, ...]], buffer_elements: int) -> Generator[Tuple]:
@@ -132,18 +136,4 @@ class SimpleGrid(Grid):
 
         starts = [0] * ndim
         ends = [0] * ndim
-        yield from self._recursive_iterate(self, dimension, used, starts, ends, buffer_elements)
-                        
-
-
-
-
-
-
-
-
-
-
-
-
-
+        yield from self._recursive_iterate(self, dimension=ndim - 1, used=used, starts=starts, ends=ends, buffer_elements=buffer_elements)
