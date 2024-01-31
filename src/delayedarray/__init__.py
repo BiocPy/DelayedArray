@@ -39,7 +39,7 @@ from .RegularTicks import RegularTicks
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse
 from .is_masked import is_masked
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_pristine import is_pristine
 from .apply_over_dimension import apply_over_dimension, choose_block_size_for_1d_iteration, guess_iteration_block_size
 from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration

@@ -4,6 +4,8 @@ from numpy import ndarray
 from biocutils.package_utils import is_package_installed
 
 from .SparseNdarray import SparseNdarray
+from .RegularTicks import RegularTicks
+from .Grid import SimpleGrid
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -11,7 +13,7 @@ __license__ = "MIT"
 
 
 @singledispatch
-def chunk_shape(x: Any) -> Tuple[int, ...]:
+def chunk_grid(x: Any) -> Tuple[int, ...]:
     """
     Get the dimensions of the array chunks. These define the preferred
     intervals with which to iterate over the array in each dimension, usually
@@ -29,12 +31,12 @@ def chunk_shape(x: Any) -> Tuple[int, ...]:
         that any element of any dimension can be accessed efficiently.
     """
     raw = [1] * len(x.shape)
-    return (*raw,)
+    return SimpleGrid((*raw,), cost_factor=1)
 
 
-@chunk_shape.register
-def chunk_shape_ndarray(x: ndarray):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+@chunk_grid.register
+def chunk_grid_ndarray(x: ndarray):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
     sh = list(x.shape)
     if x.flags.f_contiguous:
         for i in range(1, len(sh)):
@@ -45,15 +47,15 @@ def chunk_shape_ndarray(x: ndarray):
         # that it's C-contiguous, given that most things are.
         for i in range(len(sh) - 1):
             sh[i] = 1
-    return (*sh,)
+    return SimpleGrid((*sh,), cost_factor=1)
 
 
-@chunk_shape.register
-def chunk_shape_SparseNdarray(x: SparseNdarray):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
+@chunk_grid.register
+def chunk_grid_SparseNdarray(x: SparseNdarray):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
     chunks = [1] * len(x.shape)
     chunks[0] = x.shape[0]
-    return (*chunks,)
+    return SimpleGrid((*chunks,), cost_factor=1.5)
 
 
 # If scipy is installed, we add all the methods for the various scipy.sparse matrices.
@@ -61,19 +63,20 @@ def chunk_shape_SparseNdarray(x: SparseNdarray):
 if is_package_installed("scipy"):
     import scipy.sparse as sp
 
-    @chunk_shape.register
-    def chunk_shape_csc_matrix(x: sp.csc_matrix):
-        """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-        return (x.shape[0], 1)
+    @chunk_grid.register
+    def chunk_grid_csc_matrix(x: sp.csc_matrix):
+        """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+        return SimpleGrid((x.shape[0], 1), cost_factor=1.5)
 
 
-    @chunk_shape.register
-    def chunk_shape_csr_matrix(x: sp.csr_matrix):
-        """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-        return (1, x.shape[1])
+    @chunk_grid.register
+    def chunk_grid_csr_matrix(x: sp.csr_matrix):
+        """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+        return SimpleGrid((1, x.shape[1]), cost_factor=1.5)
 
 
-    @chunk_shape.register
-    def chunk_shape_coo_matrix(x: sp.coo_matrix):
-        """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-        return x.shape # ???? well, let's just do our best.
+    @chunk_grid.register
+    def chunk_grid_coo_matrix(x: sp.coo_matrix):
+        """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+        # ???? let's just do our best here, there's no nice way to access COO.
+        return SimpleGrid(x.shape, cost_factor=1.5)

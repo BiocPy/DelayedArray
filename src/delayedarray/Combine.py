@@ -7,7 +7,8 @@ from .extract_dense_array import extract_dense_array
 from .SparseNdarray import _concatenate_SparseNdarrays
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
+from .Grid import CompositeGrid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -149,23 +150,11 @@ def create_dask_array_Combine(x: Combine):
     return numpy.concatenate((*extracted,), axis=x._along)
 
 
-@chunk_shape.register
-def chunk_shape_Combine(x: Combine):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    chunks = [chunk_shape(s) for s in x._seeds]
-
-    # Not bothering with doing anything too fancy here.  We just use the
-    # maximum chunk size (which might also expand, e.g., if you're
-    # combining column-major and row-major matrices; oh well).  Just accept
-    # that we'll probably need to break chunks during iteration.
-    output = []
-    for i in range(len(x._shape)):
-        dim = []
-        for ch in chunks:
-            dim.append(ch[i])
-        output.append(max(*dim))
-
-    return (*output,) 
+@chunk_grid.register
+def chunk_grid_Combine(x: Combine):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    chunks = [chunk_grid(s) for s in x._seeds]
+    return CompositeGrid(chunks, x._along)
 
 
 @is_sparse.register

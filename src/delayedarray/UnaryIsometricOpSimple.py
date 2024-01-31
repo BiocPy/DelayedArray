@@ -7,7 +7,7 @@ from .SparseNdarray import SparseNdarray
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -137,10 +137,10 @@ def create_dask_array_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
     return f(target)
 
 
-@chunk_shape.register
-def chunk_shape_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    return chunk_shape(x._seed)
+@chunk_grid.register
+def chunk_grid_UnaryIsometricOpSimple(x: UnaryIsometricOpSimple):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    return chunk_grid(x._seed)
 
 
 @is_sparse.register
