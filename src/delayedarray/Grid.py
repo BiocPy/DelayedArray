@@ -1,4 +1,4 @@
-from typing import Tuple, Sequence, Optional, List, Generator
+from typing import Tuple, Sequence, Optional, List, Generator, Dict
 import bisect
 import math
 
@@ -9,11 +9,16 @@ class Grid:
     determine how it should be iterated over; this is useful for ensuring that
     iteration respects the physical layout of an array. 
 
-    Subclasses are expected to define the ``shape``, ``boundaries`` and
-    ``cost`` properties; check out :py:class:`~SimpleGrid` and
-    :py:class:`~CompositeGrid` for examples.
+    Subclasses should define the ``shape``, ``boundaries`` and ``cost``
+    properties, as well as the ``subset``, ``transpose`` and ``iterate``
+    methods; see the :py:class:`~SimpleGrid` and :py:class:`~CompositeGrid`
+    subclasses for examples.
     """
     pass
+
+
+############################################################
+############################################################
 
 
 class SimpleGrid(Grid): 
@@ -22,7 +27,7 @@ class SimpleGrid(Grid):
     dimension. Each grid element is defined by boundaries on each dimension.
     """
 
-    def __init__(self, boundaries: Tuple[Sequence[int], ...], cost_factor: float):
+    def __init__(self, boundaries: Tuple[Sequence[int], ...], cost_factor: float, internals: Optional[Dict] = None):
         """
         Args:
             boundaries: 
@@ -36,28 +41,44 @@ class SimpleGrid(Grid):
                 element of the grid's array. The actual cost is defined by the
                 product of the cost factor by the array size. This is used to
                 choose between iteration schemes.
+
+            internals:
+                Internal use only.
         """
-        shape = []
-        maxgap = []
-        for i, curs in enumerate(boundaries):
-            shape.append(curs[-1])
-            last = 0
-            curmax = 0
-            for d in curs:
-                gap = d - last
-                if gap > curmax:
-                    curmax = gap
-                last = d
-            maxgap.append(curmax)
-
-        self._shape = (*shape,)
         self._boundaries = boundaries
-        self._maxgap = (*maxgap,)
 
-        cost = cost_factor
-        for s in shape:
-            cost *= s
+        if internals is not None and "shape" in internals:
+            shape = internals["shape"]
+        else:
+            shape = (*(bounds[-1] for bounds in boundaries),)
+        self._shape = shape
+
+        if internals is not None and "maxgap" in internals:
+            maxgap = internals["maxgap"]
+        else:
+            maxgap = (*(SimpleGrid._define_maxgap(b) for b in boundaries),)
+        self._maxgap = maxgap
+
+        if internals is not None and "cost" in internals:
+            cost = internals["cost"]
+        else:
+            cost = cost_factor
+            for s in shape:
+                cost *= s
         self._cost = cost
+        self._cost_factor = cost_factor
+
+
+    @staticmethod
+    def _define_maxgap(bounds):
+        last = 0
+        curmax = 0
+        for d in bounds:
+            gap = d - last
+            if gap > curmax:
+                curmax = gap
+            last = d
+        return curmax
 
 
     @property
@@ -87,6 +108,29 @@ class SimpleGrid(Grid):
         return self._cost
 
 
+    def transpose(self, perm: Tuple[int, ...]) -> "SimpleGrid":
+        """
+        Transpose a grid to reflect the same operation on the associated array.
+
+        Args:
+            perm:
+                Tuple of length equal to the dimensionality of the array,
+                containing the permutation of dimensions.
+
+        Returns:
+            A new ``SimpleGrid`` object.
+        """
+        return SimpleGrid(
+            (*(self._boundaries[p] for p in perm),), 
+            self._cost_factor,
+            internals = { # Save ourselves the trouble of recomputing these.
+                "shape": (*(self._shape[p] for p in perm),),
+                "maxgap": (*(self._maxgap[p] for p in perm),),
+                "cost": self._cost,
+            }
+        )
+
+
     def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "SimpleGrid":
         """
         Subset a grid to reflect the same operation on the associated array.
@@ -105,31 +149,43 @@ class SimpleGrid(Grid):
         Returns:
             A new ``SimpleGrid`` object.
         """
-        new_boundaries = []
         if len(subset) != len(self._shape):
             raise ValueError("'shape' and 'subset' should have the same length")
 
+        new_boundaries = []
+        new_shape = []
+        new_maxgap = []
         for i, bounds in enumerate(self._boundaries):
             cursub = subset[i]
             if cursub is None:
                 new_boundaries.append(bounds)
-                continue
+                new_shape.append(self._shape[i])
+                new_maxgap.append(self._maxgap[i])
+            else: 
+                my_boundaries = []
+                counter = 0
+                last_chunk = -1
+                for y in cursub:
+                    cur_chunk = bisect.bisect_right(bounds, y)
+                    if cur_chunk != last_chunk:
+                        if counter > 0:
+                            my_boundaries.append(counter)
+                        last_chunk = cur_chunk
+                    counter += 1 
+                my_boundaries.append(counter)
 
-            my_boundaries = []
-            counter = 0
-            last_chunk = -1
-            for y in cursub:
-                cur_chunk = bisect.bisect_right(bounds, y)
-                if cur_chunk != last_chunk:
-                    if counter > 0:
-                        my_boundaries.append(counter)
-                    last_chunk = cur_chunk
-                counter += 1 
-            my_boundaries.append(counter)
+                new_boundaries.append(my_boundaries)
+                new_shape.append(counter)
+                new_maxgap.append(SimpleGrid._define_maxgap(my_boundaries))
 
-            new_boundaries.append(my_boundaries)
-
-        return SimpleGrid((*new_boundaries,), cost_factor=self._cost)
+        return SimpleGrid(
+            (*new_boundaries,), 
+            self._cost_factor,
+            internals = {
+                "shape": (*new_shape,),
+                "maxgap": (*new_maxgap,),
+            }
+        )
 
 
     def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
@@ -245,23 +301,49 @@ class SimpleGrid(Grid):
         yield from self._recursive_iterate(ndim - 1, used, starts, ends, buffer_elements)
 
 
-class CompositeGrid(Grid): 
-    def __init__(self, components: Tuple[Grid, ...], along: int):
-        first = components[0]
-        shape = list(first.shape)
-        for i in range(1, len(components)):
-            current = components[i]
-            for j, d in enumerate(current.shape):
-                if j == along:
-                    shape[j] += d
-                elif shape[j] != d:
-                    raise ValueError("entries of 'components' should have the same shape on all dimensions except 'along'")
+############################################################
+############################################################
 
-        self._shape = (*shape,)
+
+class CompositeGrid(Grid): 
+    """
+    A grid to subdivide an array, constructed by combining component grids
+    along a specified dimension. This aims to mirror the same combining
+    operation for the arrays associated with the component grids.
+    """
+
+    def __init__(self, components: Tuple[Grid, ...], along: int, internals: Optional[Dict] = None):
         self._components = components
         self._along = along
-        self._boundaries = None
-        self._cost = None
+
+        if internals is not None and "shape" in internals:
+            shape = internals["shape"]
+        else:
+            first = components[0]
+            new_shape = list(first.shape)
+            for i in range(1, len(components)):
+                current = components[i]
+                for j, d in enumerate(current.shape):
+                    if j == along:
+                        new_shape[j] += d
+                    elif new_shape[j] != d:
+                        raise ValueError("entries of 'components' should have the same shape on all dimensions except 'along'")
+            shape = (*new_shape,)
+        self._shape = shape
+
+        if internals is not None and "boundaries" in internals:
+            boundaries = internals["boundaries"]
+        else:
+            boundaries = None
+        self._boundaries = boundaries
+
+        if internals is not None and "cost" in internals:
+            cost = internals["cost"]
+        else:
+            cost = 0
+            for comp in self._components:
+                cost += comp.cost
+        self._cost = cost
 
 
     @property
@@ -310,11 +392,6 @@ class CompositeGrid(Grid):
             Cost of iteration over the underlying array. This is defined
             as the sum of the costs of the component arrays.
         """
-        if self._cost is None: # lazy evaluation
-            cost = 0
-            for comp in self._components:
-                cost += comp.cost
-            self._cost = cost
         return self._cost
 
 
@@ -330,6 +407,36 @@ class CompositeGrid(Grid):
                 maxcost = curcost
                 chosen = i
         return chosen, maxcost
+
+
+    def transpose(self, perm: Tuple[int, ...]) -> "CompositeGrid":
+        """
+        Transpose a grid to reflect the same operation on the associated array.
+
+        Args:
+            perm:
+                Tuple of length equal to the dimensionality of the array,
+                containing the permutation of dimensions.
+
+        Returns:
+            A new ``CompositeGrid`` object.
+        """
+        new_components = [grid.transpose(perm) for grid in self._components]
+
+        new_along = 0
+        for i, p in enumerate(perm):
+            if p == self._along:
+                new_along = i
+
+        internals = { "cost": self._cost }
+        if self._boundaries is not None:
+            internals["boundaries"] = (*(self._boundaries[p] for p in perm),)
+
+        return CompositeGrid(
+            new_components,
+            new_along,
+            internals = internals,
+        )
 
 
     def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "CompositeGrid":
@@ -380,7 +487,21 @@ class CompositeGrid(Grid):
         if len(sofar):
             raw_subset[self._along] = sofar
             new_components.append(self._components[last_choice].subset((*raw_subset,)))
-        return CompositeGrid(new_components, self._along)
+
+        new_shape = []
+        for i, s in enumerate(subset):
+            if s is None:
+                new_shape.append(self._shape[i])
+            else:
+                new_shape.append(len(s))
+
+        return CompositeGrid(
+            new_components, 
+            self._along, 
+            internals = {
+                "shape": (*new_shape,),
+            }
+        )
 
 
     def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple, None, None]:
