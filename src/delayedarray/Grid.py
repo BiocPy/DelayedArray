@@ -1,4 +1,6 @@
 import bisect
+import math
+
 
 class Grid:
     pass
@@ -10,12 +12,10 @@ class SimpleGrid(Grid):
             raise ValueError("'shape' and 'spacing' should have the same length")
 
         for i, d in enumerate(shape):
-            if d:
-                if spacing[i][0] != 0:
-                    raise ValueError("first element of each 'spacing' should be zero")
-            else:
-                if len(spacing[i]) != 0:
-                    raise ValueError("'spacing' should have zero length of any zero-valued entry of 'shape'")
+            if spacing[i][0] != 0:
+                raise ValueError("first element of each 'spacing' should be zero")
+            if spacing[i][-1] != d:
+                raise ValueError("last element of each 'spacing' should be equal to the corresponding entry of 'shape'")
 
         self._shape = shape
         self._spacing = spacing
@@ -57,8 +57,21 @@ class SimpleGrid(Grid):
 
         return SimpleGrid(new_shape, new_spacing)
 
-    
+
+
     def iterate(self, dimensions: Union[int, Tuple[int, ...]], buffer_elements: int) -> Generator[Tuple]:
+        ndim = len(self._shape)
+        nused = len(dimensions)
+        used = [False] * ndim
+        for i in dimensions:
+            used[i] = True
+            buffer_elements /= self._shape[i]
+        buffer_elements = max(1, buffer_dimensions)
+
+        counters = [0] * ndim
+        while True:
+            # Trying to choose a square-ish block size.
+            rough_per_dim = math.ceil(buffer_elements ^ (1.0 / nused))
 
 
 
