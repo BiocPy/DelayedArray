@@ -5,15 +5,16 @@ import numpy
 
 
 def test_SimpleGrid_basic():
-    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)))
+    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
     assert grid.shape == (50, 20)
     assert len(grid.boundaries[0]) == 5
     assert len(grid.boundaries[1]) == 7
+    assert grid.cost == 1000
 
 
 def test_SimpleGrid_subset():
     # No-op subsetting.
-    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)))
+    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
     subgrid = grid.subset((None, None))
     assert subgrid.boundaries == grid.boundaries
 
@@ -62,13 +63,10 @@ def test_SimpleGrid_subset():
     assert_valid_reassignments(sub[1], grid.boundaries[1], subgrid.boundaries[1])
 
 
-@pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
-def test_SimpleGrid_iterate_2d(buffer_elements):
-    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)))
-
-    # Full iteration on both dimensions.
+def assert_okay_full_iteration(grid, buffer_elements):
     empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(0,1), buffer_elements=buffer_elements):
+    dimensions = (*range(len(grid.shape)),)
+    for block in grid.iterate(dimensions=dimensions, buffer_elements=buffer_elements):
         full_size = 1
         for s, e in block:
             full_size *= e - s
@@ -77,57 +75,83 @@ def test_SimpleGrid_iterate_2d(buffer_elements):
         empty[sub] += 1
     assert (empty == 1).all()
 
-    # Iteration on only one dimension.
+
+def assert_okay_1of2d_iteration(grid, dimension, buffer_elements):
+    other = 1 - dimension
     empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(0,), buffer_elements=buffer_elements):
-        assert block[1] == (0, grid.shape[1]) 
-        gap = block[0][1] - block[0][0]
-        assert gap == 1 or gap * grid.shape[1] <= buffer_elements
+    for block in grid.iterate(dimensions=(dimension,), buffer_elements=buffer_elements):
+        assert block[other] == (0, grid.shape[other]) 
+        gap = block[dimension][1] - block[dimension][0]
+        assert gap == 1 or gap * grid.shape[other] <= buffer_elements
         sub = (*(slice(s, e) for s, e in block),)
         empty[sub] += 1
     assert (empty == 1).all()
 
+
+def assert_okay_2of3d_iteration(grid, dimension, buffer_elements):
     empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(1,), buffer_elements=buffer_elements):
-        assert block[0] == (0, grid.shape[0]) 
-        gap = block[1][1] - block[1][0]
-        assert gap == 1 or gap * grid.shape[0] <= buffer_elements
+    keep = []
+    for i in range(len(grid.shape)):
+        if i != dimension:
+            keep.append(i)
+
+    for block in grid.iterate(dimensions=(*keep,), buffer_elements=buffer_elements):
+        assert block[dimension] == (0, grid.shape[dimension]) 
         sub = (*(slice(s, e) for s, e in block),)
         empty[sub] += 1
     assert (empty == 1).all()
+
+
+@pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
+def test_SimpleGrid_iterate_2d(buffer_elements):
+    grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
+    assert_okay_full_iteration(grid, buffer_elements)
+    assert_okay_1of2d_iteration(grid, 0, buffer_elements)
+    assert_okay_1of2d_iteration(grid, 1, buffer_elements)
 
 
 @pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
 def test_SimpleGrid_iterate_3d(buffer_elements):
-    grid = delayedarray.SimpleGrid((range(1, 11, 1), range(10, 51, 10), range(2, 21, 3)))
+    grid = delayedarray.SimpleGrid((range(1, 11, 1), range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
+    assert_okay_full_iteration(grid, buffer_elements)
+    assert_okay_2of3d_iteration(grid, 0, buffer_elements)
+    assert_okay_2of3d_iteration(grid, 1, buffer_elements)
+    assert_okay_2of3d_iteration(grid, 2, buffer_elements)
 
-    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(0,1,2), buffer_elements=buffer_elements):
-        full_size = 1
-        for s, e in block:
-            full_size *= e - s
-        assert full_size <= buffer_elements
-        sub = (*(slice(s, e) for s, e in block),)
-        empty[sub] += 1
-    assert (empty == 1).all()
 
-    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(0,2), buffer_elements=buffer_elements):
-        assert block[1] == (0, grid.shape[1]) 
-        sub = (*(slice(s, e) for s, e in block),)
-        empty[sub] += 1
-    assert (empty == 1).all()
+def test_CompositeGrid_basic():
+    grid1 = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
+    grid2 = delayedarray.SimpleGrid((range(2, 21, 6), range(5, 21, 5)), cost_factor=1)
+    combined = delayedarray.CompositeGrid([grid1, grid2], along=0)
+    assert combined.shape == (70, 20)
+    assert combined.boundaries[0] == [10, 20, 30, 40, 50, 52, 58, 64, 70]
+    assert combined.boundaries[1] == grid1.boundaries[1] # more expensive by size.
+    assert combined.cost == 1400
 
-    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(1,2), buffer_elements=buffer_elements):
-        assert block[0] == (0, grid.shape[0]) 
-        sub = (*(slice(s, e) for s, e in block),)
-        empty[sub] += 1
-    assert (empty == 1).all()
+    grid2 = delayedarray.SimpleGrid((range(2, 21, 6), range(5, 21, 5)), cost_factor=10)
+    combined = delayedarray.CompositeGrid([grid1, grid2], along=0)
+    assert combined.boundaries[1] == grid2.boundaries[1]
+    assert combined.cost == 5000 
 
-    empty = numpy.zeros(grid.shape, dtype=numpy.int32)
-    for block in grid.iterate(dimensions=(0,1), buffer_elements=buffer_elements):
-        assert block[2] == (0, grid.shape[2]) 
-        sub = (*(slice(s, e) for s, e in block),)
-        empty[sub] += 1
-    assert (empty == 1).all()
+    # Now combining along the other dimension.
+    grid3 = delayedarray.SimpleGrid((range(1, 51, 7), range(2, 12, 3)), cost_factor=1)
+    combined = delayedarray.CompositeGrid([grid1, grid3], along=1)
+    assert combined.boundaries[1] == [2, 5, 8, 11, 14, 17, 20, 22, 25, 28, 31]
+    assert combined.boundaries[0] == grid1.boundaries[0]
+
+
+@pytest.mark.parametrize("buffer_elements", [5, 10, 50, 100, 500])
+def test_CompositeGrid_iterate(buffer_elements):
+    grid1 = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
+    grid2 = delayedarray.SimpleGrid((range(2, 21, 6), range(5, 21, 5)), cost_factor=1)
+
+    combined = delayedarray.CompositeGrid([grid1, grid2], along=0)
+    assert_okay_full_iteration(combined, buffer_elements)
+    assert_okay_1of2d_iteration(combined, 0, buffer_elements)
+    assert_okay_1of2d_iteration(combined, 1, buffer_elements)
+
+    grid3 = delayedarray.SimpleGrid((range(1, 51, 7), range(2, 12, 3)), cost_factor=1)
+    combined = delayedarray.CompositeGrid([grid3, grid1], along=1)
+    assert_okay_full_iteration(combined, buffer_elements)
+    assert_okay_1of2d_iteration(combined, 0, buffer_elements)
+    assert_okay_1of2d_iteration(combined, 1, buffer_elements)

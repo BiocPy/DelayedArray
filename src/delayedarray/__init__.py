@@ -33,7 +33,7 @@ from .to_dense_array import to_dense_array
 from .to_sparse_array import to_sparse_array
 from .to_scipy_sparse_matrix import *
 
-from .Grid import Grid, SimpleGrid
+from .Grid import Grid, SimpleGrid, CompositeGrid
 
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse

@@ -129,7 +129,7 @@ class SimpleGrid(Grid):
 
             new_boundaries.append(my_boundaries)
 
-        return SimpleGrid((*new_boundaries,))
+        return SimpleGrid((*new_boundaries,), cost_factor=self._cost)
 
 
     def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
@@ -273,6 +273,7 @@ class CompositeGrid(Grid):
         return self._shape
 
 
+    @property
     def boundaries(self) -> Tuple[Sequence[int], ...]:
         """
         Returns:
@@ -294,12 +295,12 @@ class CompositeGrid(Grid):
                     addition = comp.boundaries[self._along]
                 for a in addition:
                     replacement.append(a + offset)
-                offset += comp.shape
+                offset += comp.shape[self._along]
 
             new_boundaries[self._along] = replacement
             self._boundaries = (*new_boundaries,)
 
-        return self._boundaries = new_boundaries
+        return self._boundaries
 
 
     @property
@@ -317,12 +318,12 @@ class CompositeGrid(Grid):
         return self._cost
 
 
-    def _max_cost() -> Tuple[int, float]:
+    def _maxcost(self) -> Tuple[int, float]:
         chosen = 0 
         maxcost = 0
         for i, comp in enumerate(self._components):
             if isinstance(comp, CompositeGrid):
-                tmp, curcost = comp._max_cost()
+                tmp, curcost = comp._maxcost()
             else:
                 curcost = comp.cost
             if curcost > maxcost:
@@ -408,9 +409,19 @@ class CompositeGrid(Grid):
             on its corresponding dimension.
         """
         if self._along in dimensions:
+            first = True
+            offset = 0
             for grid in self._components:
-                yield from grid.iterate(dimensions=dimensions, buffer_elements=buffer_elements)
+                for block in grid.iterate(dimensions=dimensions, buffer_elements=buffer_elements):
+                    if offset == 0:
+                        yield block 
+                    else:
+                        copy = list(block)
+                        comp = copy[self._along]
+                        copy[self._along] = (comp[0] + offset, comp[1] + offset)
+                        yield (*copy,)
+                offset += grid.shape[self._along]
             return
         
-        temp = SimpleGrid(self.boundaries)
+        temp = SimpleGrid(self.boundaries, cost_factor=1)
         yield from temp.iterate(dimensions=dimensions, buffer_elements=buffer_elements)
