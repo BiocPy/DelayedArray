@@ -3,73 +3,114 @@ import math
 
 
 class Grid:
+    """
+    Virtual base class for array grids. Each grid subdivides an array to
+    determine how it should be iterated over; this is useful for ensuring that
+    iteration respects the physical layout of an array.  Check out
+    :py:class:`~SimpleGrid` and :py:class:`~CompositeGrid` for subclasses.
+    """
     pass
 
 
 class SimpleGrid(Grid): 
-    def __init__(self, shape: Tuple[int, ...], spacing: Tuple[Sequence[int], ...], check: bool = True):
-        if len(shape) != len(spacing):
-            raise ValueError("'shape' and 'spacing' should have the same length")
+    """
+    A simple grid to subdivide an array, involving arbitrary boundaries on each
+    dimension. Each grid element is defined by boundaries on each dimension.
+    """
 
+    def __init__(self, boundaries: Tuple[Sequence[int], ...]):
+        """
+        Args:
+            boundaries: 
+                Tuple of length equal to the number of dimensions. Each entry
+                should be a strictly increasing sequence of integers specifying
+                the position of the grid boundaries; the last element should
+                be equal to the extent of the dimension for the array.
+        """
+        shape = []
         maxgap = []
         for i, d in enumerate(shape):
-            curs = spacing[i]
-            if curs[0] != 0:
-                raise ValueError("first element of each 'spacing' should be zero")
-            if curs[-1] != d:
-                raise ValueError("last element of each 'spacing' should be equal to the corresponding entry of 'shape'")
+            curs = boundaries[i]
+            shape.append(curs[-1])
+            last = 0
             curmax = 0
-            for j in range(1, len(curs)):
-                gap = curs[j] - curs[j-1]
+            for d in curs:
+                gap = d - last
                 if gap > curmax:
                     curmax = gap
+                last = d
             maxgap.append(curmax)
 
         self._shape = shape
-        self._spacing = spacing
+        self._boundaries = boundaries
         self._maxgap = maxgap
 
 
     @property
     def shape(self) -> Tuple[int, ...]:
+        """
+        Returns:
+            Shape of the grid, equivalent to the array's shape.
+        """
         return self._shape
 
 
-    def slice(self, subset: Tuple[Optional[Sequence[int]], ...]) -> SimpleGrid:
-        new_spacing = []
-        new_shape = []
+    @property
+    def boundaries(self) -> Tuple[Sequence[int], ...]:
+        """
+        Returns:
+            Boundaries on each dimension of the grid.
+        """
+        return self._boundaries
+
+
+    def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "SimpleGrid":
+        """
+        Subset a grid to reflect the same operation on the associated array.
+        For any given dimension, consecutive elements in the subset are only
+        placed in the same grid interval in the subsetted grid if they belong
+        to the same grid interval in the original grid.
+
+        Args:
+            subset:
+                Tuple of length equal to the number of grid dimensions. Each
+                entry should be a (possibly unsorted) sequence of integers,
+                specifying the subset to apply to each dimension of the grid.
+                Alternatively, an entry may be None if no subsetting is to be
+                applied to the corresponding dimension.
+
+        Returns:
+            A new ``SimpleGrid`` object.
+        """
+        new_boundaries = []
         if len(subset) != len(self._shape):
             raise ValueError("'shape' and 'subset' should have the same length")
 
-        for i, d in enumerate(self._spacing):
+        for i, bounds in enumerate(self._boundaries):
             cursub = subset[i]
             if cursub is None:
-                new_spacing.append(d)
-                new_shape.append(self._shape[i])
+                new_boundaries.append(bounds)
                 continue
 
-            my_spacing = []
+            my_boundaries = []
             counter = 0
             last_chunk = -1
-            cur_chunk = -2
             for y in cursub:
-                cur_chunk = bisect.bisect_left(cursub, y)
+                cur_chunk = bisect.bisect_right(bounds, y)
                 if cur_chunk != last_chunk:
-                    my_spacing.append(counter)
+                    my_boundaries.append(counter)
                     last_chunk = cur_chunk
                 counter += 1 
-            if cur_chunk == last_chunk:
-                my_spacing.append(counter)
+            my_boundaries.append(counter)
 
-            new_shape.append(len(cursub))
-            new_spacing.append(my_spacing)
+            new_boundaries.append(my_boundaries)
 
-        return SimpleGrid(new_shape, new_spacing)
+        return SimpleGrid(new_boundaries)
 
 
     def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
-        curs = self._spacing[dimension]
-        buffer_elements = max(1, buffer_elements)
+        bounds = self._boundaries[dimension]
+        full_end = self._shape[dimension]
 
         if used:
             # We assume the worst case and consider the space available if all
@@ -78,53 +119,91 @@ class SimpleGrid(Grid):
             conservative_buffer_elements = buffer_elements
             for d in range(dimension):
                 conservative_buffer_elements /= self._maxgap[d]
+            conservative_buffer_elements = max(1, conservative_buffer_elements)
 
             start = 0
-            ns = len(curs)
-            for pos in range(1, n):
-                if curs[pos] - start <= conservative_buffer_elements: # i.e., we can keep going to make a larger block.
-                    if pos + 1 < ns: # i.e., it's not the last element, in which case we would be forced to yield.
-                        continue
+            pos = 0
+            nb = len(bounds)
 
-                end = curs[pos - 1]
-                if end == start:
-                    # Break chunks to force compliance with the buffer element limit.
-                    full_end = curs[pos]
-                    while start < full_end:
+            while True:
+                if pos == nb:
+                    # Wrapping up the last block, if the grid-breaking code
+                    # has not already iterated to the end of the dimension.
+                    if start != full_end:
                         starts[dimension] = start
-                        end = min(full_end, start + conservative_buffer_elements)
-                        ends[dimension] = end
+                        ends[dimension] = full_end
                         if dimension == 0:
-                            yield starts, ends
+                            yield (*starts,), (*ends,)
                         else:
-                            # Next level of recursion still uses buffer_elements, 
-                            # not its conservative counterpart, as the next level 
-                            # actually has access to the spacings for that dimension.
-                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
-                        start = end
+                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (full_end - start))
+                    break
+
+                # Check if we can keep going to make a larger block.
+                current_end = bounds[pos]
+                if current_end - start <= conservative_buffer_elements:
+                    pos += 1
                     continue
 
-                # Falling back to the last breakpoint that fit in the buffer limit.
+                previous_end = bounds[pos - 1]
+
+                # Break grid intervals to force compliance with the buffer element limit.
+                if previous_end == start:
+                    while start < current_end:
+                        starts[dimension] = start
+                        breaking_end = min(current_end, start + conservative_buffer_elements)
+                        ends[dimension] = breaking_end
+                        if dimension == 0:
+                            yield (*starts,), (*ends,)
+                        else:
+                            # Next level of recursion uses buffer_elements, not its 
+                            # conservative counterpart, as the next level actually has 
+                            # knowledge of the boundaries for that dimension.
+                            yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (breaking_end - start))
+                        start = breaking_end
+                    pos += 1
+                    continue
+
+                # Falling back to the last boundary that fit in the buffer limit.
                 starts[dimension] = start
-                ends[dimension] = end
+                ends[dimension] = previous_end
                 if dimension == 0:
-                    yield starts, ends
+                    yield (*starts,), (*ends,)
                 else:
-                    yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (end - start))
-                start = end
+                    yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // (previous_end - start))
+                start = previous_end
 
         else:
-            # If it's not used, we return the entire extent.
-            full = self._shape[0]
-            starts[0] = 0
-            ends[0] = full
+            # If this dimension is not used, we return its entire extent.
+            starts[dimension] = 0
+            ends[dimension] = full_end
             if dimension == 0:
-                yield starts, ends
+                yield (*starts,), (*ends,)
             else:
-                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // full)
+                yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // full_end)
 
 
-    def iterate(self, dimensions: Union[int, Tuple[int, ...]], buffer_elements: int) -> Generator[Tuple]:
+    def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple]:
+        """
+        Iterate over an array grid. This assembles blocks of contiguous grid
+        intervals to reduce the number of iterations (and associated overhead)
+        at the cost of increased memory usage during data extraction.
+
+        Args:
+            dimensions:
+                Dimensions over which to perform the iteration. Any dimensions
+                not listed here are extracted in their entirety, i.e., each
+                block consists of the full extent of unlisted dimensions.
+
+            buffer_elements:
+                Total number of elements in each block. Larger values increase
+                the block size and reduce the number of iterations, at the cost
+                of increased memory usage at each iteration.
+
+        Returns:
+            A generator that returns a tuple of length equal to the number of
+            dimensions. Each element contains the start and end of the block
+            on its corresponding dimension.
+        """
         ndim = len(self._shape)
         used = [False] * ndim
         for i in dimensions:
