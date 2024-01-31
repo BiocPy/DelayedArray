@@ -1,3 +1,4 @@
+from typing import Tuple, Sequence, Optional, List, Generator
 import bisect
 import math
 
@@ -29,8 +30,7 @@ class SimpleGrid(Grid):
         """
         shape = []
         maxgap = []
-        for i, d in enumerate(shape):
-            curs = boundaries[i]
+        for i, curs in enumerate(boundaries):
             shape.append(curs[-1])
             last = 0
             curmax = 0
@@ -41,9 +41,9 @@ class SimpleGrid(Grid):
                 last = d
             maxgap.append(curmax)
 
-        self._shape = shape
+        self._shape = (*shape,)
         self._boundaries = boundaries
-        self._maxgap = maxgap
+        self._maxgap = (*maxgap,)
 
 
     @property
@@ -98,14 +98,15 @@ class SimpleGrid(Grid):
             for y in cursub:
                 cur_chunk = bisect.bisect_right(bounds, y)
                 if cur_chunk != last_chunk:
-                    my_boundaries.append(counter)
+                    if counter > 0:
+                        my_boundaries.append(counter)
                     last_chunk = cur_chunk
                 counter += 1 
             my_boundaries.append(counter)
 
             new_boundaries.append(my_boundaries)
 
-        return SimpleGrid(new_boundaries)
+        return SimpleGrid((*new_boundaries,))
 
 
     def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
@@ -182,7 +183,7 @@ class SimpleGrid(Grid):
                 yield from self._recursive_iterate(dimension - 1, starts, ends, buffer_elements // full_end)
 
 
-    def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple]:
+    def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple, None, None]:
         """
         Iterate over an array grid. This assembles blocks of contiguous grid
         intervals to reduce the number of iterations (and associated overhead)
