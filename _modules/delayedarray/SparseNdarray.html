@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.SparseNdarray - DelayedArray 0.4.0 documentation</title>
+        <title>delayedarray.SparseNdarray - DelayedArray 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -224,8 +224,9 @@
 <div class="viewcode-block" id="SparseNdarray">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray">[docs]</a>
 <span class="k">class</span> <span class="nc">SparseNdarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional</span>
-<span class="sd">    array. It is inspired by the ``SVTArray`` class from the `DelayedArray</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional</span>
+<span class="sd">    array. It is inspired by the ``SVT_Array`` class from the `DelayedArray</span>
 <span class="sd">    R/Bioconductor package &lt;https://bioconductor.org/packages/DelayedArray&gt;`_.</span>
 
 <span class="sd">    Internally, the ``SparseNdarray`` is represented as a nested list where</span>
@@ -400,8 +401,9 @@
 <div class="viewcode-block" id="SparseNdarray.__repr__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__repr__">[docs]</a>
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pretty-print this ``SparseNdarray``. This uses</span>
-<span class="sd">        :py:meth:`~numpy.array2string` and responds to all of its options.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty-print this ``SparseNdarray``. This uses</span>
+<span class="sd">        :py:func:`~numpy.array2string` and responds to all of its options.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            String containing a prettified display of the array contents.</span>
@@ -1095,13 +1097,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.sum`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the sum. Alternatively, a tuple (multiple axes) or None (no</span>
+<span class="sd">                axes), see :py:func:`~numpy.sum` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``SparseNdarray``, see</span>
-<span class="sd">                ``numpy.sum`` for details.</span>
+<span class="sd">                :py:func:`~numpy.sum` for details.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A NumPy array containing the summed values. If ``axis = None``,</span>
@@ -1126,13 +1129,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.mean`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the mean. Alternatively, a tuple (multiple axes) or None (no</span>
+<span class="sd">                axes), see :py:func:`~numpy.mean` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``SparseNdarray``, see</span>
-<span class="sd">                ``numpy.mean`` for details.</span>
+<span class="sd">                :py:func:`~numpy.mean` for details.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A NumPy array containing the mean values. If ``axis = None``,</span>
@@ -1157,13 +1161,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.mean`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the variance. Alternatively, a tuple (multiple axes) or None</span>
+<span class="sd">                (no axes), see :py:func:`~numpy.var` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``SparseNdarray``, see</span>
-<span class="sd">                ``numpy.mean`` for details.</span>
+<span class="sd">                :py:func:`~numpy.var` for details.</span>
 
 <span class="sd">            ddof:</span>
 <span class="sd">                Delta in the degrees of freedom to subtract from the denominator.</span>
@@ -2093,7 +2098,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

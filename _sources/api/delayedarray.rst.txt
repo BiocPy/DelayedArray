@@ -44,6 +44,22 @@ delayedarray.DelayedOp module
    :undoc-members:
    :show-inheritance:
 
+delayedarray.Grid module
+------------------------
+
+.. automodule:: delayedarray.Grid
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+delayedarray.RegularTicks module
+--------------------------------
+
+.. automodule:: delayedarray.RegularTicks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 delayedarray.Round module
 -------------------------
 
@@ -108,10 +124,10 @@ delayedarray.apply\_over\_dimension module
    :undoc-members:
    :show-inheritance:
 
-delayedarray.chunk\_shape module
---------------------------------
+delayedarray.chunk\_grid module
+-------------------------------
 
-.. automodule:: delayedarray.chunk_shape
+.. automodule:: delayedarray.chunk_grid
    :members:
    :undoc-members:
    :show-inheritance:

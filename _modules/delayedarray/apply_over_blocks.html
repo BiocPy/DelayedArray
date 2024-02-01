@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.apply_over_blocks - DelayedArray 0.4.0 documentation</title>
+        <title>delayedarray.apply_over_blocks - DelayedArray 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -201,7 +201,8 @@
 <span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">math</span>
 
-<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.chunk_grid</span> <span class="kn">import</span> <span class="n">chunk_grid</span>
+<span class="kn">from</span> <span class="nn">.Grid</span> <span class="kn">import</span> <span class="n">AbstractGrid</span>
 <span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 <span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span>
 <span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
@@ -211,67 +212,9 @@
 <span class="n">__license__</span> <span class="o">=</span> <span class="s2">&quot;MIT&quot;</span>
 
 
-<div class="viewcode-block" id="choose_block_shape_for_iteration">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.apply_over_blocks.choose_block_shape_for_iteration">[docs]</a>
-<span class="k">def</span> <span class="nf">choose_block_shape_for_iteration</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Choose the block dimensions for blockwise iteration through an array, see</span>
-<span class="sd">    `~apply_over_blocks` for details.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: An array-like object.</span>
-
-<span class="sd">        dimension: Dimension to iterate over.</span>
-
-<span class="sd">        buffer_size: </span>
-<span class="sd">            Buffer_size in bytes, to hold a single block per iteration. Larger</span>
-<span class="sd">            values generally improve speed at the cost of memory.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Dimensions of the blocks. All values are guaranteed to be positive,</span>
-<span class="sd">        even if the extent of any dimension of ``x`` is zero.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Checking for empty dimensions and bailing out if we find any.</span>
-    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">d</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">),)</span>
-
-    <span class="n">num_elements</span> <span class="o">=</span> <span class="n">buffer_size</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
-    <span class="n">chunk_dims</span> <span class="o">=</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">block_size</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">chunk_dims</span><span class="p">:</span>
-        <span class="n">block_size</span> <span class="o">*=</span> <span class="n">s</span>
-
-    <span class="n">block_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chunk_dims</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">num_elements</span> <span class="o">&gt;</span> <span class="n">block_size</span><span class="p">:</span>
-        <span class="c1"># Going from the first dimension and increasing the block size.</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">block_dims</span><span class="p">):</span>
-            <span class="n">multiple</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_elements</span> <span class="o">/</span> <span class="n">block_size</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">multiple</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="k">break</span>
-            <span class="n">block_size</span> <span class="o">/=</span> <span class="n">y</span>
-            <span class="n">block_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">multiple</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">block_size</span> <span class="o">*=</span> <span class="n">block_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-
-    <span class="k">elif</span> <span class="n">num_elements</span> <span class="o">&lt;</span> <span class="n">block_size</span><span class="p">:</span>
-        <span class="c1"># Going from the last dimension and decreasing the block size.</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">block_dims</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">block_size_other</span> <span class="o">=</span> <span class="n">block_size</span> <span class="o">/</span> <span class="n">block_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">multiple</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_elements</span> <span class="o">/</span> <span class="n">block_size_other</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">multiple</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">block_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">multiple</span>
-                <span class="k">break</span>
-            <span class="n">block_size</span> <span class="o">=</span> <span class="n">block_size_other</span>
-            <span class="n">block_dims</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">block_dims</span><span class="p">,)</span></div>
-
-
-
 <div class="viewcode-block" id="apply_over_blocks">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.apply_over_blocks.apply_over_blocks">[docs]</a>
-<span class="k">def</span> <span class="nf">apply_over_blocks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">block_shape</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_sparse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">apply_over_blocks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">fun</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">allow_sparse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">grid</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AbstractGrid</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mf">1e8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Iterate over an array by blocks. We apply a user-provided function and</span>
 <span class="sd">    collect the results before proceeding to the next block.</span>
@@ -285,52 +228,39 @@
 <span class="sd">            on each dimension, and the second is the block contents. Each</span>
 <span class="sd">            block is typically provided as a :py:class:`~numpy.ndarray`.</span>
 
-<span class="sd">        block_shape:</span>
-<span class="sd">            Dimensions of the block. All entries should be positive, even for</span>
-<span class="sd">            zero-extent dimensions of ``x``. If None, this is chosen by</span>
-<span class="sd">            :py:func:`~choose_block_shape_for_iteration`.</span>
-
 <span class="sd">        allow_sparse:</span>
-<span class="sd">            Whether to allow extraction of sparse subarrays. If true and</span>
-<span class="sd">            ``x`` contains a sparse array, the block contents are instead</span>
-<span class="sd">            represented by a :py:class:`~SparseNdarray.SparseNdarray`.</span>
+<span class="sd">            Whether to allow extraction of sparse subarrays. If true and ``x``</span>
+<span class="sd">            contains a sparse array, the block contents are instead represented</span>
+<span class="sd">            by a :py:class:`~delayedarray.SparseNdarray.SparseNdarray`.</span>
+
+<span class="sd">        grid:</span>
+<span class="sd">            Grid to subdivide ``x`` for iteration. Specifically, iteration will</span>
+<span class="sd">            attempt to extract blocks that are aligned with the grid boundaries,</span>
+<span class="sd">            e.g., to optimize extraction of chunked data. Defaults to the output</span>
+<span class="sd">            of :py:func:`~delayedarray.chunk_grid.chunk_grid` on ``x``.</span>
 
 <span class="sd">        buffer_size: </span>
 <span class="sd">            Buffer_size in bytes, to hold a single block per iteration. Larger</span>
-<span class="sd">            values generally improve speed at the cost of memory. Only used</span>
-<span class="sd">            if ``block_shape`` is not provided.</span>
+<span class="sd">            values generally improve speed at the cost of memory.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List containing the output of ``fun`` on each block.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">block_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">block_shape</span> <span class="o">=</span> <span class="n">choose_block_shape_for_iteration</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">buffer_size</span> <span class="o">=</span> <span class="n">buffer_size</span><span class="p">)</span>
-
-    <span class="n">num_tasks_total</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="n">num_tasks_by_dim</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">):</span>
-        <span class="n">curtasks</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="n">block_shape</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-        <span class="n">num_tasks_by_dim</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curtasks</span><span class="p">)</span>
-        <span class="n">num_tasks_total</span> <span class="o">*=</span> <span class="n">curtasks</span>
+    <span class="k">if</span> <span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">chunk_grid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">allow_sparse</span> <span class="ow">and</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="n">extractor</span> <span class="o">=</span> <span class="n">extract_sparse_array</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">extractor</span> <span class="o">=</span> <span class="n">extract_dense_array</span>
 
+    <span class="n">dims</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)),)</span>
     <span class="n">collected</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_tasks_total</span><span class="p">):</span>
-        <span class="n">subsets</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">position</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">counter</span> <span class="o">=</span> <span class="n">job</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">num_tasks_by_dim</span><span class="p">):</span>
-            <span class="n">curtask</span> <span class="o">=</span> <span class="n">counter</span> <span class="o">%</span> <span class="n">d</span>
-            <span class="n">start</span> <span class="o">=</span> <span class="n">curtask</span> <span class="o">*</span> <span class="n">block_shape</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="n">block_shape</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-            <span class="n">position</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
-            <span class="n">subsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span>
-            <span class="n">counter</span> <span class="o">//=</span> <span class="n">d</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">extractor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">*</span><span class="n">subsets</span><span class="p">,)))</span>
+    <span class="n">buffer_elements</span> <span class="o">=</span> <span class="n">buffer_size</span> <span class="o">//</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span>
+
+    <span class="k">for</span> <span class="n">job</span> <span class="ow">in</span> <span class="n">grid</span><span class="o">.</span><span class="n">iterate</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">buffer_elements</span> <span class="o">=</span> <span class="n">buffer_elements</span><span class="p">):</span>
+        <span class="n">subsets</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">job</span><span class="p">),)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">fun</span><span class="p">(</span><span class="n">job</span><span class="p">,</span> <span class="n">extractor</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subsets</span><span class="p">))</span>
         <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">collected</span></div>
@@ -367,7 +297,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

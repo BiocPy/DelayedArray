@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.BinaryIsometricOp - DelayedArray 0.4.0 documentation</title>
+        <title>delayedarray.BinaryIsometricOp - DelayedArray 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -207,7 +207,7 @@
 <span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span>
 <span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
 <span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
-<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.chunk_grid</span> <span class="kn">import</span> <span class="n">chunk_grid</span>
 <span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 <span class="kn">from</span> <span class="nn">.is_masked</span> <span class="kn">import</span> <span class="n">is_masked</span>
 
@@ -345,24 +345,30 @@
 
 
 
-<div class="viewcode-block" id="chunk_shape_BinaryIsometricOp">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.BinaryIsometricOp.chunk_shape_BinaryIsometricOp">[docs]</a>
-<span class="nd">@chunk_shape</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">chunk_shape_BinaryIsometricOp</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">BinaryIsometricOp</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_shape.chunk_shape`.&quot;&quot;&quot;</span>
-    <span class="n">lchunk</span> <span class="o">=</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_left</span><span class="p">)</span>
-    <span class="n">rchunk</span> <span class="o">=</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">)</span>
+<div class="viewcode-block" id="chunk_grid_BinaryIsometricOp">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.BinaryIsometricOp.chunk_grid_BinaryIsometricOp">[docs]</a>
+<span class="nd">@chunk_grid</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">chunk_grid_BinaryIsometricOp</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">BinaryIsometricOp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_grid.chunk_grid`.&quot;&quot;&quot;</span>
+    <span class="n">lchunk</span> <span class="o">=</span> <span class="n">chunk_grid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_left</span><span class="p">)</span>
+    <span class="n">rchunk</span> <span class="o">=</span> <span class="n">chunk_grid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_right</span><span class="p">)</span>
 
-    <span class="c1"># Not bothering with taking the lowest common denominator, as that</span>
-    <span class="c1"># might be too aggressive and expanding to the entire matrix size.</span>
-    <span class="c1"># We instead use the maximum chunk size (which might also expand, e.g.,</span>
-    <span class="c1"># if you&#39;re combining column-major and row-major matrices; oh well).</span>
-    <span class="c1"># Just accept that we&#39;ll probably need to break chunks during iteration.</span>
-    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lchunk</span><span class="p">)):</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">lchunk</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rchunk</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="p">,)</span> </div>
+    <span class="c1"># Favor the chunking for the more expensive grid, to avoid being penalized</span>
+    <span class="c1"># heavily from suboptimal chunking for that array. </span>
+    <span class="c1">#</span>
+    <span class="c1"># Technically, we could optimize for the case where multiple dimensions</span>
+    <span class="c1"># have the same boundaries, in which case we should favor full extraction</span>
+    <span class="c1"># of the other dimensions and just iterate over the common dimensions.</span>
+    <span class="c1"># This avoids any chunk discrepancies but seems like a pretty unlikely case</span>
+    <span class="c1"># - if two arrays of the same shape disagree on the chunk boundaries of one</span>
+    <span class="c1"># dimension, they&#39;d probably disagree on the others as well.</span>
+    <span class="c1"># </span>
+    <span class="c1"># The other solution is to figure out some high-dimensional caching scheme</span>
+    <span class="c1"># for the partially consumed chunks. Sounds like a royal pain.</span>
+    <span class="k">if</span> <span class="n">lchunk</span><span class="o">.</span><span class="n">cost</span> <span class="o">&gt;</span> <span class="n">rchunk</span><span class="o">.</span><span class="n">cost</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lchunk</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rchunk</span></div>
 
 
 
@@ -414,7 +420,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>

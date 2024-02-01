@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.is_pristine - DelayedArray 0.5.0 documentation</title>
+        <title>delayedarray.RegularTicks - DelayedArray 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -197,26 +197,70 @@
           </label>
         </div>
         <article role="main">
-          <h1>Source code for delayedarray.is_pristine</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">.DelayedArray</span> <span class="kn">import</span> <span class="n">DelayedArray</span>
-<span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
+          <h1>Source code for delayedarray.RegularTicks</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">collections</span>
 
 
-<div class="viewcode-block" id="is_pristine">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.is_pristine.is_pristine">[docs]</a>
-<span class="k">def</span> <span class="nf">is_pristine</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine whether an object is pristine, i.e., has no delayed operations.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        x: Some array-like object.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Whether ``x`` is a :py:class:`~delayedarray.DelayedArray.DelayedArray`</span>
-<span class="sd">        containing delayed operations.</span>
+<div class="viewcode-block" id="RegularTicks">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.RegularTicks.RegularTicks">[docs]</a>
+<span class="k">class</span> <span class="nc">RegularTicks</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Regular ticks of equal spacing until a limit is reached, at which point the</span>
+<span class="sd">    sequence terminates at that limit. This is intended for use as grid</span>
+<span class="sd">    boundaries in :py:class:`~delayedarray.Grid.SimpleGrid`, where the last</span>
+<span class="sd">    element of the boundary sequence needs to be equal to the grid extent. (We</span>
+<span class="sd">    do not use :py:class:`~range` as it may omit the last element if the extent</span>
+<span class="sd">    is not a multiple of the spacing.)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DelayedArray</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">seed</span>
-    <span class="k">return</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">DelayedOp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegularTicks.__init__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.RegularTicks.RegularTicks.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spacing</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">final</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            spacing: </span>
+<span class="sd">                Positive integer specifying the spacing between ticks.</span>
+
+<span class="sd">            final:</span>
+<span class="sd">                Position of the final tick, should be non-negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">spacing</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;spacing should be positive&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">final</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;final should be positive&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span> <span class="o">=</span> <span class="n">spacing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_final</span> <span class="o">=</span> <span class="n">final</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_len</span> <span class="o">=</span> <span class="p">(</span><span class="n">final</span> <span class="o">//</span> <span class="n">spacing</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">final</span> <span class="o">%</span> <span class="n">spacing</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RegularTicks.__len__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.RegularTicks.RegularTicks.__len__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Length of the tick sequence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span></div>
+
+
+<div class="viewcode-block" id="RegularTicks.__getitem__">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.RegularTicks.RegularTicks.__getitem__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            i: Index of the tick of interest.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Position of tick ``i``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;&#39;i&#39; is out of range&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;&#39;i&#39; is out of range&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_final</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spacing</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+</div>
 
 </pre></div>
         </article>

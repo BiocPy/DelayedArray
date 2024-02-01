@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.2.6 and Furo 2024.01.29 -->
-        <title>delayedarray.DelayedArray - DelayedArray 0.4.0 documentation</title>
+        <title>delayedarray.DelayedArray - DelayedArray 0.5.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=36a5483c" />
@@ -122,7 +122,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.4.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.5.0 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -145,7 +145,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.4.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.0 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -218,7 +218,7 @@
 <span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
 <span class="kn">from</span> <span class="nn">.apply_over_blocks</span> <span class="kn">import</span> <span class="n">apply_over_blocks</span>
 <span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
-<span class="kn">from</span> <span class="nn">.chunk_shape</span> <span class="kn">import</span> <span class="n">chunk_shape</span>
+<span class="kn">from</span> <span class="nn">.chunk_grid</span> <span class="kn">import</span> <span class="n">chunk_grid</span>
 <span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
 <span class="kn">from</span> <span class="nn">.is_masked</span> <span class="kn">import</span> <span class="n">is_masked</span>
 
@@ -280,6 +280,7 @@
 <span class="sd">    - A method for the</span>
 <span class="sd">      :py:meth:`~delayedarray.extract_dense_array.extract_dense_array` generic.</span>
 <span class="sd">    - A method for the :py:meth:`~delayedarray.is_masked.is_masked` generic.</span>
+<span class="sd">    - A method for the :py:meth:`~delayedarray.chunk_grid.chunk_grid` generic.</span>
 
 <span class="sd">    If the seed contains sparse data, it should also implement:</span>
 
@@ -290,11 +291,11 @@
 
 <span class="sd">    Optionally, a seed class may have:</span>
 
-<span class="sd">    - A method for the :py:meth:`~delayedarray.chunk_shape.chunk_shape` generic,</span>
-<span class="sd">      if there is some preferred dimension in which to take chunks of the array.</span>
 <span class="sd">    - A method for the</span>
 <span class="sd">      :py:meth:`~delayedarray.create_dask_array.create_dask_array` generic,</span>
 <span class="sd">      if the seed is not already compatible with the **dask** package.</span>
+<span class="sd">    - a method for the `wrap()` generic, to create a ``DelayedArray``</span>
+<span class="sd">      subclass that is specific to this seed class.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DelayedArray.__init__">
@@ -1033,21 +1034,22 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.sum`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the sum. Alternatively, a tuple (multiple axes) or None (no</span>
+<span class="sd">                axes), see :py:func:`~numpy.sum` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
-<span class="sd">                ``numpy.sum`` for details.</span>
+<span class="sd">                :py:func:`~numpy.sum` for details.</span>
 
 <span class="sd">            buffer_size:</span>
 <span class="sd">                Buffer size in bytes to use for block processing. Larger values</span>
 <span class="sd">                generally improve speed at the cost of memory.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A NumPy array containing the summed values. If ``axis = None``,</span>
-<span class="sd">            this will be a NumPy scalar instead.</span>
+<span class="sd">            A NumPy array containing the sums. If ``axis = None``, this will be</span>
+<span class="sd">            a NumPy scalar instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="s2">&quot;sum&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -1072,21 +1074,22 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.mean`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the mean. Alternatively, a tuple (multiple axes) or None (no</span>
+<span class="sd">                axes), see :py:func:`~numpy.mean` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
-<span class="sd">                ``numpy.mean`` for details.</span>
+<span class="sd">                :py:func:`~numpy.mean` for details.</span>
 
 <span class="sd">            buffer_size:</span>
 <span class="sd">                Buffer size in bytes to use for block processing. Larger values</span>
 <span class="sd">                generally improve speed at the cost of memory.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            A NumPy array containing the mean values. If ``axis = None``,</span>
-<span class="sd">            this will be a NumPy scalar instead.</span>
+<span class="sd">            A NumPy array containing the means. If ``axis = None``, this will</span>
+<span class="sd">            be a NumPy scalar instead.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
@@ -1111,13 +1114,14 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            axis: </span>
-<span class="sd">                A single integer specifying the axis to perform the calculation.</span>
-<span class="sd">                Alternatively a tuple or None, see ``numpy.var`` for details.</span>
+<span class="sd">                A single integer specifying the axis over which to calculate</span>
+<span class="sd">                the variance. Alternatively, a tuple (multiple axes) or None</span>
+<span class="sd">                (no axes), see :py:func:`~numpy.var` for details.</span>
 
 <span class="sd">            dtype:</span>
 <span class="sd">                NumPy type for the output array. If None, this is automatically</span>
 <span class="sd">                chosen based on the type of the ``DelayedArray``, see</span>
-<span class="sd">                ``numpy.var`` for details.</span>
+<span class="sd">                :py:func:`~numpy.var` for details.</span>
 
 <span class="sd">            ddof:</span>
 <span class="sd">                Delta in the degrees of freedom to subtract from the denominator.</span>
@@ -1173,12 +1177,12 @@
 
 
 
-<div class="viewcode-block" id="chunk_shape_DelayedArray">
-<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.chunk_shape_DelayedArray">[docs]</a>
-<span class="nd">@chunk_shape</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">chunk_shape_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_shape.chunk_shape`.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">chunk_shape</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
+<div class="viewcode-block" id="chunk_grid_DelayedArray">
+<a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.DelayedArray.chunk_grid_DelayedArray">[docs]</a>
+<span class="nd">@chunk_grid</span><span class="o">.</span><span class="n">register</span>
+<span class="k">def</span> <span class="nf">chunk_grid_DelayedArray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">DelayedArray</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_grid.chunk_grid`.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">chunk_grid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
 
 
@@ -1316,7 +1320,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=6c02275b"></script>
+</div><script src="../../_static/documentation_options.js?v=1dd76d02"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=32e29ea5"></script>
