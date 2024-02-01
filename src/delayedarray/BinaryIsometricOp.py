@@ -137,7 +137,17 @@ def chunk_grid_BinaryIsometricOp(x: BinaryIsometricOp):
     rchunk = chunk_grid(x._right)
 
     # Favor the chunking for the more expensive grid, to avoid being penalized
-    # heavily from suboptimal chunking for that array.
+    # heavily from suboptimal chunking for that array. 
+    #
+    # Technically, we could optimize for the case where multiple dimensions
+    # have the same boundaries, in which case we should favor full extraction
+    # of the other dimensions and just iterate over the common dimensions.
+    # This avoids any chunk discrepancies but seems like a pretty unlikely case
+    # - if two arrays of the same shape disagree on the chunk boundaries of one
+    # dimension, they'd probably disagree on the others as well.
+    # 
+    # The other solution is to figure out some high-dimensional caching scheme
+    # for the partially consumed chunks. Sounds like a royal pain.
     if lchunk.cost > rchunk.cost:
         return lchunk
     else:
