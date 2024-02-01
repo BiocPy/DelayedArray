@@ -6,6 +6,7 @@ def test_RegularTicks():
     ref = list(range(7, 50, 7)) + [50]
     assert len(out) == len(ref)
     assert list(out) == ref
+    assert out[-1] == 50 # check reverse indexing.
 
     out = delayedarray.RegularTicks(10, 50)
     ref = list(range(10, 51, 10))

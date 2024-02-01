@@ -59,9 +59,11 @@ def apply_over_dimension(x, dimension: int, fun: Callable, allow_sparse: bool = 
         extractor = extract_dense_array
 
     collected = []
-    for job in grid.iterate((dimension,), buffer_size = buffer_size)
+    buffer_elements = buffer_size // x.dtype.itemsize
+
+    for job in grid.iterate((dimension,), buffer_elements = buffer_elements):
         subsets = (*(range(s, e) for s, e in job),)
-        output = fun(job[dimension], extractor(x, subset))
+        output = fun(job[dimension], extractor(x, subsets))
         collected.append(output)
 
     return collected

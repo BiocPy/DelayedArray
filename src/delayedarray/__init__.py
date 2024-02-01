@@ -35,12 +35,12 @@ from .to_scipy_sparse_matrix import *
 
 from .Grid import AbstractGrid, SimpleGrid, CompositeGrid
 from .RegularTicks import RegularTicks
+from .apply_over_dimension import apply_over_dimension
+from .apply_over_blocks import apply_over_blocks
 
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 from .chunk_grid import chunk_grid
 from .is_pristine import is_pristine
-from .apply_over_dimension import apply_over_dimension, choose_block_size_for_1d_iteration, guess_iteration_block_size
-from .apply_over_blocks import apply_over_blocks, choose_block_shape_for_iteration
 from .wrap import wrap

@@ -41,4 +41,6 @@ class RegularTicks(collections.abc.Sequence):
         """
         if i >= self._len:
             raise IndexError("'i' is out of range")
+        elif i < 0:
+            i += self._len
         return min(self._final, self._spacing * (i + 1))

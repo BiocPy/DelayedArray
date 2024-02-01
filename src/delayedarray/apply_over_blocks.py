@@ -55,9 +55,11 @@ def apply_over_blocks(x, fun: Callable, allow_sparse: bool = False, grid: Option
 
     dims = (*range(len(x.shape)),)
     collected = []
-    for job in grid.iterate(dims, buffer_size = buffer_size)
+    buffer_elements = buffer_size // x.dtype.itemsize
+
+    for job in grid.iterate(dims, buffer_elements = buffer_elements):
         subsets = (*(range(s, e) for s, e in job),)
-        output = fun(job, extractor(x, positions))
+        output = fun(job, extractor(x, subsets))
         collected.append(output)
 
     return collected
