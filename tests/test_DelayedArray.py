@@ -11,7 +11,7 @@ def test_DelayedArray_dense():
     assert x.shape == raw.shape
     assert x.dtype == raw.dtype
     assert not delayedarray.is_sparse(x)
-    assert delayedarray.chunk_shape(x) == (1, 30)
+    assert delayedarray.chunk_grid(x).shape == x.shape
 
     out = str(x)
     assert out.find("<40 x 30> DelayedArray object of type 'int32'") != -1
@@ -37,7 +37,7 @@ def test_DelayedArray_colmajor():
     x = delayedarray.DelayedArray(raw)
     assert x.shape == raw.shape
     assert x.dtype == raw.dtype
-    assert delayedarray.chunk_shape(x) == (40, 1)
+    assert delayedarray.chunk_grid(x).shape == x.shape
 
     out = str(x)
     assert out.find("<40 x 30> DelayedArray object of type 'float64'") != -1
@@ -59,7 +59,7 @@ def test_DelayedArray_sparse():
 
     out = delayedarray.to_sparse_array(x)
     assert isinstance(out, delayedarray.SparseNdarray)
-    assert delayedarray.chunk_shape(x) == (3, 1)
+    assert delayedarray.chunk_grid(x).shape == x.shape
     assert delayedarray.is_sparse(x)
 
 

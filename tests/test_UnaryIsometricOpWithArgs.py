@@ -23,7 +23,7 @@ def test_UnaryIsometricOpWithArgs_basics(mask_rate):
     assert z.seed.along is None
 
     assert_identical_ndarrays(delayedarray.to_dense_array(z), y + 2)
-    assert delayedarray.chunk_shape(z) == (1, 15)
+    assert delayedarray.chunk_grid(z).shape == x.shape
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])

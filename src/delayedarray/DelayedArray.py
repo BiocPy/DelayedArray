@@ -18,7 +18,7 @@ from .to_dense_array import to_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .apply_over_blocks import apply_over_blocks
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -78,6 +78,7 @@ class DelayedArray:
     - A method for the
       :py:meth:`~delayedarray.extract_dense_array.extract_dense_array` generic.
     - A method for the :py:meth:`~delayedarray.is_masked.is_masked` generic.
+    - A method for the :py:meth:`~delayedarray.chunk_grid.chunk_grid` generic.
 
     If the seed contains sparse data, it should also implement:
 
@@ -88,11 +89,11 @@ class DelayedArray:
 
     Optionally, a seed class may have:
 
-    - A method for the :py:meth:`~delayedarray.chunk_shape.chunk_shape` generic,
-      if there is some preferred dimension in which to take chunks of the array.
     - A method for the
       :py:meth:`~delayedarray.create_dask_array.create_dask_array` generic,
       if the seed is not already compatible with the **dask** package.
+    - a method for the `wrap()` generic, to create a ``DelayedArray``
+      subclass that is specific to this seed class.
     """
 
     def __init__(self, seed):
@@ -847,10 +848,10 @@ def create_dask_array_DelayedArray(x: DelayedArray):
     return create_dask_array(x._seed)
 
 
-@chunk_shape.register
-def chunk_shape_DelayedArray(x: DelayedArray):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    return chunk_shape(x._seed)
+@chunk_grid.register
+def chunk_grid_DelayedArray(x: DelayedArray):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    return chunk_grid(x._seed)
 
 
 @is_sparse.register

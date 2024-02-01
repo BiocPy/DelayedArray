@@ -272,6 +272,7 @@ Any array-like object can be used as a "seed" in a `DelayedArray` provided it ha
 - `dtype` and `shape` properties, like those in NumPy arrays.
 - a method for the `extract_dense_array()` generic.
 - a method for the `is_masked()` generic.
+- a method for the `chunk_grid()` generic.
 
 If the object may contain sparse data, it should also implement:
 
@@ -280,7 +281,6 @@ If the object may contain sparse data, it should also implement:
 
 It may also be desirable to implement:
 
-- a method for the `chunk_shape()` generic.
 - a method for the `create_dask_array()` generic.
 - a method for the `wrap()` generic.
 

@@ -8,7 +8,7 @@ from ._subset import _spawn_indices, _sanitize_subset
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -147,22 +147,11 @@ def create_dask_array_Subset(x: Subset):
     return target
 
 
-@chunk_shape.register
-def chunk_shape_Subset(x: Subset):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    chunk = chunk_shape(x._seed)
-    full = x._shape
-
-    # We don't bother doing anything too fancy here because the subset
-    # might render the concept of rectangular chunks invalid (e.g., if the
-    # subset involves reordering or duplication). We'll just cap the chunk
-    # size to the matrix dimension and call it a day.  We also set lower
-    # bound of 1 to ensure that iteration is always positive.
-    output = []
-    for i in range(len(full)):
-        output.append(max(1, min(chunk[i], full[i])))
-
-    return (*output,)
+@chunk_grid.register
+def chunk_grid_Subset(x: Subset):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    chunk = chunk_grid(x._seed)
+    return chunk.subset(x._subset)
 
 
 @is_sparse.register

@@ -14,7 +14,7 @@ def test_Round_default(mask_rate):
     assert isinstance(z.seed, delayedarray.Round)
     assert z.dtype == numpy.float64
     assert z.shape == (30, 23)
-    assert delayedarray.chunk_shape(z) == (1, 23)
+    assert delayedarray.chunk_grid(z).shape == z.shape
     assert not delayedarray.is_sparse(z)
     assert delayedarray.is_masked(z) == (mask_rate > 0)
 

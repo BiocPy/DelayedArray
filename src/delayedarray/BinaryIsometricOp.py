@@ -7,7 +7,7 @@ from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -130,22 +130,28 @@ def create_dask_array_BinaryIsometricOp(x: BinaryIsometricOp):
     return _execute(ls, rs, x._op)
 
 
-@chunk_shape.register
-def chunk_shape_BinaryIsometricOp(x: BinaryIsometricOp):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    lchunk = chunk_shape(x._left)
-    rchunk = chunk_shape(x._right)
+@chunk_grid.register
+def chunk_grid_BinaryIsometricOp(x: BinaryIsometricOp):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    lchunk = chunk_grid(x._left)
+    rchunk = chunk_grid(x._right)
 
-    # Not bothering with taking the lowest common denominator, as that
-    # might be too aggressive and expanding to the entire matrix size.
-    # We instead use the maximum chunk size (which might also expand, e.g.,
-    # if you're combining column-major and row-major matrices; oh well).
-    # Just accept that we'll probably need to break chunks during iteration.
-    output = []
-    for i in range(len(lchunk)):
-        output.append(max(lchunk[i], rchunk[i]))
-
-    return (*output,) 
+    # Favor the chunking for the more expensive grid, to avoid being penalized
+    # heavily from suboptimal chunking for that array. 
+    #
+    # Technically, we could optimize for the case where multiple dimensions
+    # have the same boundaries, in which case we should favor full extraction
+    # of the other dimensions and just iterate over the common dimensions.
+    # This avoids any chunk discrepancies but seems like a pretty unlikely case
+    # - if two arrays of the same shape disagree on the chunk boundaries of one
+    # dimension, they'd probably disagree on the others as well.
+    # 
+    # The other solution is to figure out some high-dimensional caching scheme
+    # for the partially consumed chunks. Sounds like a royal pain.
+    if lchunk.cost > rchunk.cost:
+        return lchunk
+    else:
+        return rchunk
 
 
 @is_sparse.register

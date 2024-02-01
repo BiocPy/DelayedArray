@@ -8,7 +8,7 @@ from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
-from .chunk_shape import chunk_shape
+from .chunk_grid import chunk_grid
 from .is_sparse import is_sparse
 from .is_masked import is_masked
 
@@ -126,12 +126,11 @@ def create_dask_array_Transpose(x: Transpose):
     return transpose(target, axes=x._perm)
 
 
-@chunk_shape.register
-def chunk_shape_Transpose(x: Transpose):
-    """See :py:meth:`~delayedarray.chunk_shape.chunk_shape`."""
-    chunks = chunk_shape(x._seed)
-    output = [chunks[i] for i in x._perm]
-    return (*output,)
+@chunk_grid.register
+def chunk_grid_Transpose(x: Transpose):
+    """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
+    chunks = chunk_grid(x._seed)
+    return chunks.transpose(x._perm)
 
 
 @is_sparse.register

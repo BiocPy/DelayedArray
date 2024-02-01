@@ -15,7 +15,7 @@ def test_Cast_simple(mask_rate):
     assert isinstance(z.seed, delayedarray.Cast)
     assert z.dtype == numpy.dtype("int32")
     assert z.shape == test_shape
-    assert delayedarray.chunk_shape(z) == (1, 23)
+    assert delayedarray.chunk_grid(z).shape == test_shape
     assert not delayedarray.is_sparse(z)
     assert delayedarray.is_masked(z) == (mask_rate > 0)
 
