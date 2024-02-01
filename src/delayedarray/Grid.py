@@ -74,7 +74,8 @@ class SimpleGrid(AbstractGrid):
                 Positive number representing the cost of iteration over each
                 element of the grid's array. The actual cost is defined by the
                 product of the cost factor by the array size. This is used to
-                choose between iteration schemes.
+                choose between iteration schemes; as a reference, extraction
+                from an in-memory NumPy array has a cost factor of 1.
 
             internals:
                 Internal use only.

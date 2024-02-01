@@ -41,6 +41,6 @@ from .apply_over_blocks import apply_over_blocks
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse
 from .is_masked import is_masked
-from .chunk_grid import chunk_grid
+from .chunk_grid import chunk_grid, chunk_shape_to_grid
 from .is_pristine import is_pristine
 from .wrap import wrap
