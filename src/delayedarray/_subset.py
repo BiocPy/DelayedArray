@@ -7,31 +7,41 @@ def _spawn_indices(shape: Tuple[int, ...]) -> Tuple[Sequence[int], ...]:
 
 
 def _is_subset_consecutive(subset: Sequence):
+    if isinstance(subset, range):
+        return subset.step == 1
     for s in range(1, len(subset)):
         if subset[s] != subset[s-1]+1:
             return False
     return True
 
 
-def _is_subset_noop(shape: Tuple[int, ...], subset: Tuple[Sequence, ...]):
-    if subset is not None:
-        for i, s in enumerate(shape):
-            cursub = subset[i]
-            if len(cursub) != s:
-                return False
-            for j in range(s):
-                if cursub[j] != j:
-                    return False
+def _is_single_subset_noop(extent: int, subset: Sequence[int]) -> bool:
+    if isinstance(subset, range):
+        return subset == range(extent)
+    if len(subset) != extent:
+        return False
+    for i, s in enumerate(subset):
+        if s != i:
+            return False
+    return True
+
+
+def _is_subset_noop(shape: Tuple[int, ...], subset: Tuple[Sequence, ...]) -> bool:
+    for i, s in enumerate(shape):
+        if not _is_single_subset_noop(s, subset[i]):
+            return False
     return True
 
 
 def _sanitize_subset(subset: Sequence): 
-    okay = True
-    for i in range(1, len(subset)):
-        if subset[i] <= subset[i - 1]:
-            okay = False
-            break
-
+    if isinstance(subset, range):
+        okay = (subset.step > 0)
+    else:
+        okay = True
+        for i in range(1, len(subset)):
+            if subset[i] <= subset[i - 1]:
+                okay = False
+                break
     if okay:
         return subset, None
 

@@ -4,7 +4,6 @@ import numpy
 
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
-from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
@@ -96,9 +95,6 @@ class Transpose(DelayedOp):
 
 
 def _extract_array(x: Transpose, subset: Tuple[Sequence[int], ...], f: Callable):
-    if subset is None:
-        subset = _spawn_indices(x.shape)
-
     permsub = [None] * len(subset)
     for i, j in enumerate(x._perm):
         permsub[j] = subset[i]

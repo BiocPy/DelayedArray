@@ -4,7 +4,7 @@ from bisect import bisect_left
 from typing import Any, Tuple, Sequence, List, Union
 from biocutils.package_utils import is_package_installed
 
-from ._subset import _spawn_indices, _is_subset_noop, _is_subset_consecutive
+from ._subset import _is_subset_noop, _is_subset_consecutive
 from ._mask import _convert_to_unmasked_1darray, _convert_to_maybe_masked_1darray, _allocate_unmasked_ndarray, _allocate_maybe_masked_ndarray
 from .SparseNdarray import SparseNdarray, _extract_sparse_array_from_SparseNdarray
 

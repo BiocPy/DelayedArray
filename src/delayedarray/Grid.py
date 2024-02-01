@@ -2,6 +2,8 @@ from typing import Tuple, Sequence, Optional, List, Generator, Dict
 import bisect
 import abc
 
+from ._subset import _is_single_subset_noop
+
 
 class AbstractGrid(abc.ABC):
     """
@@ -39,7 +41,7 @@ class AbstractGrid(abc.ABC):
 
 
     @abc.abstractmethod
-    def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "AbstractGrid":
+    def subset(self, subset: Tuple[Sequence[int], ...]) -> "AbstractGrid":
         pass
 
 
@@ -169,7 +171,7 @@ class SimpleGrid(AbstractGrid):
         )
 
 
-    def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "SimpleGrid":
+    def subset(self, subset: Tuple[Sequence[int], ...]) -> "SimpleGrid":
         """
         Subset a grid to reflect the same operation on the associated array.
         For any given dimension, consecutive elements in the subset are only
@@ -195,7 +197,7 @@ class SimpleGrid(AbstractGrid):
         new_maxgap = []
         for i, bounds in enumerate(self._boundaries):
             cursub = subset[i]
-            if cursub is None:
+            if _is_single_subset_noop(self._shape[i], cursub):
                 new_boundaries.append(bounds)
                 new_shape.append(self._shape[i])
                 new_maxgap.append(self._maxgap[i])
@@ -504,7 +506,7 @@ class CompositeGrid(AbstractGrid):
         )
 
 
-    def subset(self, subset: Tuple[Optional[Sequence[int]], ...]) -> "CompositeGrid":
+    def subset(self, subset: Tuple[Sequence[int], ...]) -> "CompositeGrid":
         """
         Subset a grid to reflect the same operation on the associated array.
         This splits up the subset sequence for the ``along`` dimension and
@@ -515,14 +517,19 @@ class CompositeGrid(AbstractGrid):
                 Tuple of length equal to the number of grid dimensions. Each
                 entry should be a (possibly unsorted) sequence of integers,
                 specifying the subset to apply to each dimension of the grid.
-                Alternatively, an entry may be None if no subsetting is to be
-                applied to the corresponding dimension.
 
         Returns:
             A new ``CompositeGrid`` object.
         """
-        if subset[self._along] is None:
-            new_components = [grid.subset(subset) for grid in self._components]
+        if len(subset) != len(self._shape):
+            raise ValueError("'shape' and 'subset' should have the same length")
+
+        if _is_single_subset_noop(self._shape[self._along], subset[self._along]):
+            new_components = []
+            new_subset = list(subset)
+            for grid in self._components:
+                new_subset[self._along] = range(grid.shape[self._along])
+                new_components.append(grid.subset((*new_subset,)))
             return CompositeGrid(new_components, self._along)
 
         component_limits = []

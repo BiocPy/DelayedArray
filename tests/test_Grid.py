@@ -130,7 +130,7 @@ def test_SimpleGrid_subset():
     grid = delayedarray.SimpleGrid((range(10, 51, 10), range(2, 21, 3)), cost_factor=1)
 
     # No-op subsetting.
-    subgrid = grid.subset((None, None))
+    subgrid = grid.subset((*(range(s) for s in grid.shape),))
     assert subgrid.shape == grid.shape
     assert subgrid.boundaries == grid.boundaries
     assert subgrid.cost == grid.cost
@@ -267,7 +267,7 @@ def test_CompositeGrid_subset():
     combined = delayedarray.CompositeGrid([grid1, grid2], along=0)
 
     # No-op subsetting.
-    subcombined = combined.subset((None, None))
+    subcombined = combined.subset((*(range(s) for s in combined.shape),))
     assert combined.shape == subcombined.shape
     assert subcombined.boundaries == combined.boundaries
     assert subcombined.cost == combined.cost

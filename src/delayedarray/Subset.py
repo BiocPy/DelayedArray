@@ -4,7 +4,7 @@ import numpy
 
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
-from ._subset import _spawn_indices, _sanitize_subset
+from ._subset import _sanitize_subset
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
@@ -88,9 +88,6 @@ class Subset(DelayedOp):
 
 
 def _extract_array(x: Subset, subset: Tuple[Sequence[int], ...], f: Callable):
-    if subset is None:
-        subset = _spawn_indices(x.shape)
-
     newsub = list(subset)
     expanded = []
     is_safe = 0

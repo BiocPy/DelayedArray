@@ -6,7 +6,6 @@ from numpy import ndarray
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
 from ._isometric import ISOMETRIC_OP_WITH_ARGS, _execute, _infer_along_with_args
-from ._subset import _spawn_indices
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
@@ -149,8 +148,6 @@ def _extract_array(x: UnaryIsometricOpWithArgs, subset: Tuple[Sequence[int], ...
 
     subvalue = x._value
     if isinstance(subvalue, ndarray) and not subvalue is numpy.ma.masked:
-        if subset is None:
-            subset = _spawn_indices(x.shape)
         if len(subvalue.shape) == 1:
             subvalue = subvalue[subset[-1]]
         else:
