@@ -43,8 +43,10 @@ class RegularTicks(collections.abc.Sequence):
         Returns:
             Position of tick ``i``.
         """
-        if i >= self._len:
-            raise IndexError("'i' is out of range")
-        elif i < 0:
+        if i < 0:
             i += self._len
+            if i < 0:
+                raise IndexError("'i' is out of range")
+        elif i >= self._len:
+            raise IndexError("'i' is out of range")
         return min(self._final, self._spacing * (i + 1))

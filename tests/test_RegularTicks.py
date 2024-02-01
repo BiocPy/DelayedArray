@@ -1,4 +1,5 @@
 import delayedarray
+import pytest
 
 
 def test_RegularTicks():
@@ -7,6 +8,11 @@ def test_RegularTicks():
     assert len(out) == len(ref)
     assert list(out) == ref
     assert out[-1] == 50 # check reverse indexing.
+
+    with pytest.raises(IndexError, match="out of range") as ex:
+        out[-10]
+    with pytest.raises(IndexError, match="out of range") as ex:
+        out[10]
 
     out = delayedarray.RegularTicks(10, 50)
     ref = list(range(10, 51, 10))
