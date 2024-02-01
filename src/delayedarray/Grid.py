@@ -227,22 +227,19 @@ class SimpleGrid(AbstractGrid):
         )
 
 
-    def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int):
+    def _recursive_iterate(self, dimension: int, used: List[bool], starts: List[int], ends: List[int], buffer_elements: int, prescale: List[int]):
         bounds = self._boundaries[dimension]
         full_end = self._shape[dimension]
 
         if used[dimension]:
-            # We assume the worst case and consider the space available if all
-            # the remaining dimensions use their maximum gap. Note that this
-            # only differs from buffer_elements when dimension > 0.
-            conservative_buffer_elements = buffer_elements
-            for d in range(dimension):
-                if used[d]:
-                    denom = self._maxgap[d]
-                else:
-                    denom = self._shape[d]
-                conservative_buffer_elements //= denom
-            conservative_buffer_elements = max(1, conservative_buffer_elements)
+            # 'prescale' holds the worst-case minimum block sizes of the
+            # remaining dimensions (i.e., in the subsequent recursion levels).
+            # These are the worst-case because we assume that all remaining
+            # dimensions are using their maximum gap for a single grid interval
+            # to form a block, hence it's a conservative estimate of the space
+            # we have left to play with on the current dimenion. Note that this
+            # should only differ from buffer_elements when dimension > 0.
+            conservative_buffer_elements = max(1, buffer_elements // prescale[dimension])
 
             start = 0
             pos = 0
@@ -258,7 +255,7 @@ class SimpleGrid(AbstractGrid):
                         if dimension == 0:
                             yield (*zip(starts, ends),)
                         else:
-                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (full_end - start))
+                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (full_end - start), prescale)
                     break
 
                 # Check if we can keep going to make a larger block.
@@ -284,7 +281,7 @@ class SimpleGrid(AbstractGrid):
                             # Next level of recursion uses buffer_elements, not its 
                             # conservative counterpart, as the next level actually has 
                             # knowledge of the boundaries for that dimension.
-                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (breaking_end - start))
+                            yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (breaking_end - start), prescale)
                         start = breaking_end
                     pos += 1
                     continue
@@ -295,7 +292,7 @@ class SimpleGrid(AbstractGrid):
                 if dimension == 0:
                     yield (*zip(starts, ends),)
                 else:
-                    yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (previous_end - start))
+                    yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // (previous_end - start), prescale)
                 start = previous_end
 
         else:
@@ -305,7 +302,7 @@ class SimpleGrid(AbstractGrid):
             if dimension == 0:
                 yield (*zip(starts, ends),)
             else:
-                yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // full_end)
+                yield from self._recursive_iterate(dimension - 1, used, starts, ends, buffer_elements // full_end, prescale)
 
 
     def iterate(self, dimensions: Tuple[int, ...], buffer_elements: int = 1e6) -> Generator[Tuple, None, None]:
@@ -335,12 +332,25 @@ class SimpleGrid(AbstractGrid):
 
         ndim = len(self._shape)
         used = [False] * ndim
-        for i in dimensions:
-            used[i] = True
+        for d in dimensions:
+            used[d] = True
+
+        # See comments above about 'prescale'. For each dimension, this
+        # contains the worst-case minimum block size from the remaining
+        # dimensions. For used dimensions, this is computed from the max gap;
+        # for unused dimensions, the full extent is applied.
+        prescale = [1]
+        for i in range(ndim - 1):
+            last = prescale[-1]
+            if used[i]:
+                last *= self._maxgap[i]
+            else:
+                last *= self._shape[i]
+            prescale.append(last)
 
         starts = [0] * ndim
         ends = [0] * ndim
-        yield from self._recursive_iterate(ndim - 1, used, starts, ends, buffer_elements)
+        yield from self._recursive_iterate(ndim - 1, used, starts, ends, buffer_elements, prescale)
 
 
 ############################################################
