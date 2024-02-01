@@ -725,21 +725,22 @@ class DelayedArray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.sum`` for details.
+                A single integer specifying the axis over which to calculate
+                the sum. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.sum` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``DelayedArray``, see
-                ``numpy.sum`` for details.
+                :py:func:`~numpy.sum` for details.
 
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
                 generally improve speed at the cost of memory.
 
         Returns:
-            A NumPy array containing the summed values. If ``axis = None``,
-            this will be a NumPy scalar instead.
+            A NumPy array containing the sums. If ``axis = None``, this will be
+            a NumPy scalar instead.
         """
         if hasattr(self._seed, "sum"):
             return self._seed.sum(axis=axis, dtype=dtype)
@@ -761,21 +762,22 @@ class DelayedArray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.mean`` for details.
+                A single integer specifying the axis over which to calculate
+                the mean. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.mean` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``DelayedArray``, see
-                ``numpy.mean`` for details.
+                :py:func:`~numpy.mean` for details.
 
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
                 generally improve speed at the cost of memory.
 
         Returns:
-            A NumPy array containing the mean values. If ``axis = None``,
-            this will be a NumPy scalar instead.
+            A NumPy array containing the means. If ``axis = None``, this will
+            be a NumPy scalar instead.
         """
         if hasattr(self._seed, "mean"):
             return self._seed.mean(axis=axis, dtype=dtype)
@@ -797,13 +799,14 @@ class DelayedArray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.var`` for details.
+                A single integer specifying the axis over which to calculate
+                the variance. Alternatively, a tuple (multiple axes) or None
+                (no axes), see :py:func:`~numpy.var` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``DelayedArray``, see
-                ``numpy.var`` for details.
+                :py:func:`~numpy.var` for details.
 
             ddof:
                 Delta in the degrees of freedom to subtract from the denominator.

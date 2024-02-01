@@ -3,8 +3,12 @@ import collections
 
 class RegularTicks(collections.abc.Sequence):
     """
-    Regular ticks of equal spacing until a limit is reached,
-    at which point the sequence terminates at that limit.
+    Regular ticks of equal spacing until a limit is reached, at which point the
+    sequence terminates at that limit. This is intended for use as grid
+    boundaries in :py:class:`~delayedarray.Grid.SimpleGrid`, where the last
+    element of the boundary sequence needs to be equal to the grid extent. (We
+    do not use :py:class:`~range` as it may omit the last element if the extent
+    is not a multiple of the spacing.)
     """
 
     def __init__(self, spacing: int, final: int):

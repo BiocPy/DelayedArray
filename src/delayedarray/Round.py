@@ -17,11 +17,14 @@ __license__ = "MIT"
 
 
 class Round(DelayedOp):
-    """Delayed rounding, resulting from :py:meth:`~numpy.round`. This is very similar to
-    :py:class:`~UnaryIsometricOpSimple` but accepts an argument for the number of decimal places.
+    """
+    Delayed rounding from :py:meth:`~numpy.round`. This is very similar to
+    :py:class:`~delayedarray.UnaryIsometricOpSimple.UnaryIsometricOpSimple` but
+    accepts an argument for the number of decimal places.
 
-    This class is intended for developers to construct new :py:class:`~delayedarray.DelayedArray.DelayedArray`
-    instances. End users should not be interacting with ``Round`` objects directly.
+    This class is intended for developers to construct new
+    :py:class:`~delayedarray.DelayedArray.DelayedArray` instances. End users
+    should not be interacting with ``Round`` objects directly.
     """
 
     def __init__(self, seed, decimals: int):

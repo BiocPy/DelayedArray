@@ -183,8 +183,6 @@ class SimpleGrid(AbstractGrid):
                 Tuple of length equal to the number of grid dimensions. Each
                 entry should be a (possibly unsorted) sequence of integers,
                 specifying the subset to apply to each dimension of the grid.
-                Alternatively, an entry may be None if no subsetting is to be
-                applied to the corresponding dimension.
 
         Returns:
             A new ``SimpleGrid`` object.

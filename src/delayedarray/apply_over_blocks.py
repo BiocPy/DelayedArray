@@ -27,20 +27,19 @@ def apply_over_blocks(x, fun: Callable, allow_sparse: bool = False, grid: Option
             block is typically provided as a :py:class:`~numpy.ndarray`.
 
         allow_sparse:
-            Whether to allow extraction of sparse subarrays. If true and
-            ``x`` contains a sparse array, the block contents are instead
-            represented by a :py:class:`~SparseNdarray.SparseNdarray`.
+            Whether to allow extraction of sparse subarrays. If true and ``x``
+            contains a sparse array, the block contents are instead represented
+            by a :py:class:`~delayedarray.SparseNdarray.SparseNdarray`.
 
         grid:
             Grid to subdivide ``x`` for iteration. Specifically, iteration will
             attempt to extract blocks that are aligned with the grid boundaries,
             e.g., to optimize extraction of chunked data. Defaults to the output
-            of :py:func:`~chunk_grid.chunk_grid` on ``x``.
+            of :py:func:`~delayedarray.chunk_grid.chunk_grid` on ``x``.
 
         buffer_size: 
             Buffer_size in bytes, to hold a single block per iteration. Larger
-            values generally improve speed at the cost of memory. Only used
-            if ``block_shape`` is not provided.
+            values generally improve speed at the cost of memory.
 
     Returns:
         List containing the output of ``fun`` on each block.

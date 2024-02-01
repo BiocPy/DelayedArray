@@ -22,8 +22,9 @@ __license__ = "MIT"
 
 
 class SparseNdarray:
-    """The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional
-    array. It is inspired by the ``SVTArray`` class from the `DelayedArray
+    """
+    The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional
+    array. It is inspired by the ``SVT_Array`` class from the `DelayedArray
     R/Bioconductor package <https://bioconductor.org/packages/DelayedArray>`_.
 
     Internally, the ``SparseNdarray`` is represented as a nested list where
@@ -193,8 +194,9 @@ class SparseNdarray:
 
 
     def __repr__(self) -> str:
-        """Pretty-print this ``SparseNdarray``. This uses
-        :py:meth:`~numpy.array2string` and responds to all of its options.
+        """
+        Pretty-print this ``SparseNdarray``. This uses
+        :py:func:`~numpy.array2string` and responds to all of its options.
 
         Returns:
             String containing a prettified display of the array contents.
@@ -786,13 +788,14 @@ class SparseNdarray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.sum`` for details.
+                A single integer specifying the axis over which to calculate
+                the sum. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.sum` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``SparseNdarray``, see
-                ``numpy.sum`` for details.
+                :py:func:`~numpy.sum` for details.
 
         Returns:
             A NumPy array containing the summed values. If ``axis = None``,
@@ -814,13 +817,14 @@ class SparseNdarray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.mean`` for details.
+                A single integer specifying the axis over which to calculate
+                the mean. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.mean` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``SparseNdarray``, see
-                ``numpy.mean`` for details.
+                :py:func:`~numpy.mean` for details.
 
         Returns:
             A NumPy array containing the mean values. If ``axis = None``,
@@ -842,13 +846,14 @@ class SparseNdarray:
 
         Args:
             axis: 
-                A single integer specifying the axis to perform the calculation.
-                Alternatively a tuple or None, see ``numpy.mean`` for details.
+                A single integer specifying the axis over which to calculate
+                the variance. Alternatively, a tuple (multiple axes) or None
+                (no axes), see :py:func:`~numpy.var` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``SparseNdarray``, see
-                ``numpy.mean`` for details.
+                :py:func:`~numpy.var` for details.
 
             ddof:
                 Delta in the degrees of freedom to subtract from the denominator.
