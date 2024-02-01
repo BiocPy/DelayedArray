@@ -306,18 +306,22 @@ def test_BinaryIsometricOp_sparse(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.to_dense_array(z), densed + delayedarray.to_dense_array(y3))
 
 
-@pytest.mark.parametrize("left_mask_rate", [0, 0.2])
-@pytest.mark.parametrize("right_mask_rate", [0, 0.2])
-def test_BinaryIsometricOp_chunks(left_mask_rate, right_mask_rate):
-    y = simulate_ndarray((20, 30), mask_rate=left_mask_rate)
+def test_BinaryIsometricOp_chunks():
+    y = simulate_ndarray((20, 30))
     x = delayedarray.DelayedArray(y)
     z = x + x
-    assert delayedarray.chunk_shape(z) == (1, 30)
+    grid = delayedarray.chunk_grid(z) 
+    assert grid.shape == (20, 30)
+    assert len(grid.boundaries[0]) == 20
+    assert len(grid.boundaries[1]) == 1
 
-    y2 = simulate_ndarray((30, 20), mask_rate=right_mask_rate).T # i.e., Fortran order.
+    y2 = simulate_SparseNdarray((20, 30))
     x2 = delayedarray.DelayedArray(y2)
     z = x + x2
-    assert delayedarray.chunk_shape(z) == (20, 30)
+    grid = delayedarray.chunk_grid(z) # prefer iterating on columns for a more costly SparseNdarray.
+    assert grid.shape == (20, 30)
+    assert len(grid.boundaries[0]) == 1
+    assert len(grid.boundaries[1]) == 30
 
 
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])

@@ -51,7 +51,7 @@ def test_UnaryIsometricOpSimple_basic(mask_rate):
         assert isinstance(z.seed, delayedarray.UnaryIsometricOpSimple)
         assert z.shape == x.shape
         assert z.seed.operation == op
-        assert delayedarray.chunk_shape(z) == (1, 55)
+        assert delayedarray.chunk_grid(z).shape == x.shape
         assert not delayedarray.is_sparse(z)
         assert delayedarray.is_masked(z) == (mask_rate > 0)
 

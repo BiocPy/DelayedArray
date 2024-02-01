@@ -13,7 +13,7 @@ def test_Transpose_simple(mask_rate):
     t = x.T
     assert isinstance(t.seed, delayedarray.Transpose)
     assert t.shape == (23, 30)
-    assert delayedarray.chunk_shape(t) == (23, 1)
+    assert delayedarray.chunk_grid(t).shape == t.shape
     assert not delayedarray.is_sparse(t)
     assert delayedarray.is_masked(t) == (mask_rate > 0)
     assert_identical_ndarrays(delayedarray.to_dense_array(t), y.T)

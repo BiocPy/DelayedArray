@@ -18,7 +18,7 @@ def test_Combine_simple(left_mask_rate, right_mask_rate):
     assert x.shape == (80, 23)
     assert x.dtype == numpy.float64
     assert x.seed.along == 0
-    assert delayedarray.chunk_shape(x) == (1, 23)
+    assert delayedarray.chunk_grid(x).shape == x.shape
     assert not delayedarray.is_sparse(x)
     assert delayedarray.is_masked(x) == (left_mask_rate + right_mask_rate > 0)
 
@@ -38,7 +38,7 @@ def test_Combine_otherdim(left_mask_rate, right_mask_rate):
     assert x.shape == (19, 100)
     assert x.dtype == numpy.int32
     assert x.seed.along == 1
-    assert delayedarray.chunk_shape(x) == (1, 57)
+    assert delayedarray.chunk_grid(x).shape == x.shape
 
     assert_identical_ndarrays(delayedarray.to_dense_array(x), safe_concatenate((y1, y2), axis=1))
 
@@ -74,7 +74,7 @@ def test_Combine_mixed_chunks(left_mask_rate, right_mask_rate):
     x = numpy.concatenate((x1, x2.T))
 
     assert x.dtype == numpy.float64
-    assert delayedarray.chunk_shape(x) == (50, 23)
+    assert delayedarray.chunk_grid(x).shape == x.shape
     assert_identical_ndarrays(delayedarray.to_dense_array(x), safe_concatenate((y1, y2.T)))
 
 

@@ -5,7 +5,7 @@ from biocutils.package_utils import is_package_installed
 
 from .SparseNdarray import SparseNdarray
 from .RegularTicks import RegularTicks
-from .Grid import SimpleGrid
+from .Grid import SimpleGrid, AbstractGrid
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -26,25 +26,19 @@ def _chunk_shape_to_grid(chunks: Sequence[int], shape: Tuple[int, ...], cost_fac
 
 
 @singledispatch
-def chunk_grid(x: Any) -> Tuple[int, ...]:
+def chunk_grid(x: Any) -> AbstractGrid:
     """
-    Get the dimensions of the array chunks. These define the preferred
-    intervals with which to iterate over the array in each dimension, usually
-    reflecting a particular layout on disk or in memory. The extent of each
-    chunk dimension should be positive and less than that of the array's;
-    except for zero-length dimensions, in which case the chunk's extent should
-    be greater than the array (typically 1 to avoid divide by zero errors). 
+    Create a grid over the array, used to determine how a caller should iterate
+    over that array. The intervals of the grid usually reflects a particular
+    layout of the data on disk or in memory.
 
     Args:
         x: An array-like object.
     
     Returns:
-        Tuple of integers containing the shape of the chunk. If no method
-        is defined for ``x``, an all-1 tuple is returned under the assumption
-        that any element of any dimension can be accessed efficiently.
+        An instance of a :py:class:`~delayedarray.Grid.AbstractGrid`.
     """
-    raw = [1] * len(x.shape)
-    return _chunk_shape_to_grid(raw, x.shape, cost_factor=1)
+    raise NotImplementedError("'chunk_grid(" + str(type(x)) + ")' has not yet been implemented")
 
 
 @chunk_grid.register
@@ -78,17 +72,17 @@ if is_package_installed("scipy"):
     @chunk_grid.register
     def chunk_grid_csc_matrix(x: sp.csc_matrix):
         """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
-        return _chunk_shape_to_grid((x.shape[0], 1), cost_factor=1.5)
+        return _chunk_shape_to_grid((x.shape[0], 1), x.shape, cost_factor=1.5)
 
 
     @chunk_grid.register
     def chunk_grid_csr_matrix(x: sp.csr_matrix):
         """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
-        return _chunk_shape_to_grid((1, x.shape[1]), cost_factor=1.5)
+        return _chunk_shape_to_grid((1, x.shape[1]), x.shape, cost_factor=1.5)
 
 
     @chunk_grid.register
     def chunk_grid_coo_matrix(x: sp.coo_matrix):
         """See :py:meth:`~delayedarray.chunk_grid.chunk_grid`."""
         # ???? let's just do our best here, there's no nice way to access COO.
-        return _chunk_shape_to_grid(x.shape, cost_factor=1.5)
+        return _chunk_shape_to_grid(x.shape, x.shape, cost_factor=1.5)

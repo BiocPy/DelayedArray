@@ -16,7 +16,7 @@ def test_Subset_ix(mask_rate):
     assert sub.shape == (9, 3, 4)
     assert isinstance(sub.seed.seed, numpy.ndarray)
     assert len(sub.seed.subset) == 3
-    assert delayedarray.chunk_shape(sub) == (1, 1, 4)
+    assert delayedarray.chunk_grid(sub).shape == sub.shape
     assert not delayedarray.is_sparse(sub)
     assert delayedarray.is_masked(sub) == (mask_rate > 0)
 
