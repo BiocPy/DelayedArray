@@ -52,14 +52,17 @@ def _choose_output_type(dtype: numpy.dtype, preserve_integer: bool) -> numpy.dty
     return dtype
 
 
-def _allocate_output_array(shape: Tuple[int, ...], axes: List[int], dtype: numpy.dtype) -> numpy.ndarray:
+def _allocate_output_array(shape: Tuple[int, ...], axes: List[int], dtype: numpy.dtype, default_func: Callable = numpy.zeros) -> numpy.ndarray:
+    if default_func is None:
+        default_func = numpy.zeros
+
     if len(axes) == 0:
         # Returning a length-1 array to allow for continued use of offsets.
-        return numpy.zeros(1, dtype=dtype)
+        return default_func(1, dtype=dtype)
     else:
         # Use Fortran order so that the offsets make sense. 
         shape = [shape[i] for i in axes]
-        return numpy.zeros((*shape,), dtype=dtype, order="F")
+        return default_func((*shape,), dtype=dtype, order="F")
 
 
 def _create_offset_multipliers(shape: Tuple[int, ...], axes: List[int]) -> List[int]:
@@ -195,15 +198,18 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                buffer[offset] = numpy.any([buffer[offset], value])
+                if value and not buffer[offset]:
+                    buffer[offset] = True
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
         size = _expected_sample_size(x.shape, axes) 
-        output = numpy.ma.MaskedArray(output, mask=(masked == size))
+        denom = size - masked
+        output = numpy.ma.MaskedArray(output, mask=(denom == 0))
     else:
         def op(offset, value):
-            buffer[offset] = numpy.any([buffer[offset], value])
+            if value and not buffer[offset]:
+                buffer[offset] = True
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
@@ -216,24 +222,26 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
         dtype = _choose_output_type(x.dtype, preserve_integer = True)
-    output = _allocate_output_array(x.shape, axes, dtype)
+    output = _allocate_output_array(x.shape, axes, dtype, default_func=numpy.ones)
     buffer = output.ravel(order="F")
-    buffer += 1 # since all has to be true, we start with a value other than 0's
 
     if masked:
         masked = numpy.zeros(output.shape, dtype=numpy.uint, order="F")
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                buffer[offset] = numpy.all([buffer[offset], value])
+                if not value and buffer[offset]:
+                    buffer[offset] = False
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
         size = _expected_sample_size(x.shape, axes) 
-        output = numpy.ma.MaskedArray(output, mask=(masked == size))
+        denom = size - masked
+        output = numpy.ma.MaskedArray(output, mask=(denom == 0))
     else:
         def op(offset, value):
-            buffer[offset] = numpy.all([buffer[offset], value])
+            if not value and buffer[offset]:
+                buffer[offset] = False
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:

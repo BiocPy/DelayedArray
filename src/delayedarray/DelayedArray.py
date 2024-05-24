@@ -749,7 +749,7 @@ class DelayedArray:
         Returns:
             A ``DelayedArray`` containing the delayed AND operation.
         """
-        return _wrap_isometric_with_args(self, other, operation="logical_or", right=True)
+        return _wrap_isometric_with_args(self, other, operation="logical_and", right=True)
 
     def __rand__(self, other) -> "DelayedArray":
         """Element-wise AND with the right-hand-side of a ``DelayedArray``.
@@ -907,7 +907,7 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
-    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = numpy.bool_, buffer_size: int = 1e8) -> numpy.ndarray:
         """Test whether any array element along a given axis evaluates to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
@@ -916,14 +916,14 @@ class DelayedArray:
 
         Args:
             axis: 
-                A single integer specifying the axis over which to calculate
-                the mean. Alternatively, a tuple (multiple axes) or None (no
-                axes), see :py:func:`~numpy.mean` for details.
+                A single integer specifying the axis over which to test
+                for any. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.any` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``DelayedArray``, see
-                :py:func:`~numpy.mean` for details.
+                :py:func:`~numpy.any` for details.
 
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
@@ -934,7 +934,7 @@ class DelayedArray:
             be a NumPy scalar instead.
         """
         if hasattr(self._seed, "any"):
-            return self._seed.any(axis=axis, dtype=dtype)
+            return self._seed.any(axis=axis)
         else:
             return array_any(
                 self, 
@@ -944,23 +944,23 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
-    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = numpy.bool_, buffer_size: int = 1e8) -> numpy.ndarray:
         """Test whether all array elements along a given axis evaluate to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
-        given axis or set of axes. If the seed has a ``any()`` method, that
+        given axis or set of axes. If the seed has a ``all()`` method, that
         method is called directly with the supplied arguments.
 
         Args:
             axis: 
-                A single integer specifying the axis over which to calculate
-                the mean. Alternatively, a tuple (multiple axes) or None (no
-                axes), see :py:func:`~numpy.mean` for details.
+                A single integer specifying the axis over which to test 
+                for all. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.all` for details.
 
             dtype:
                 NumPy type for the output array. If None, this is automatically
                 chosen based on the type of the ``DelayedArray``, see
-                :py:func:`~numpy.mean` for details.
+                :py:func:`~numpy.all` for details.
 
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
@@ -971,7 +971,7 @@ class DelayedArray:
             be a NumPy scalar instead.
         """
         if hasattr(self._seed, "all"):
-            return self._seed.all(axis=axis, dtype=dtype)
+            return self._seed.all(axis=axis)
         else:
             return array_all(
                 self, 

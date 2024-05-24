@@ -14,7 +14,7 @@ from ._mask import (
     _concatenate_unmasked_ndarrays,
     _concatenate_maybe_masked_ndarrays
 )
-from ._statistics import array_mean, array_var, array_sum, _create_offset_multipliers
+from ._statistics import array_mean, array_var, array_sum, _create_offset_multipliers, array_all, array_any
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -665,6 +665,71 @@ class SparseNdarray:
             A ``SparseNdarray`` containing the delayed absolute value operation.
         """
         return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, abs(v)), self._dtype)
+    
+    def __or__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
+        """Element-wise OR with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
+        """
+        return _operate_with_args_on_SparseNdarray(self, other, operation="logical_or", right=True)
+
+    def __ror__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
+        """Element-wise OR with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
+        """
+        return _operate_with_args_on_SparseNdarray(self, other, operation="logical_or", right=False)
+
+    def __and__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
+        """Element-wise AND with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
+        """
+        return _operate_with_args_on_SparseNdarray(self, other, operation="logical_and", right=True)
+
+    def __rand__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
+        """Element-wise AND with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            Array containing the result of the check.
+            This may or may not be sparse depending on ``other``.
+        """
+        return _operate_with_args_on_SparseNdarray(self, other, operation="logical_and", right=False)
+
 
     # Subsetting.
     def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["SparseNdarray", numpy.ndarray]:
@@ -759,6 +824,21 @@ class SparseNdarray:
 
         if func == numpy.round:
             return _transform_sparse_array_from_SparseNdarray(self, lambda l, i, v : (i, func(v, **kwargs)), self._dtype)
+
+        if func == numpy.mean:
+            return self.mean(**kwargs)
+
+        if func == numpy.sum:
+            return self.sum(**kwargs)
+
+        if func == numpy.var:
+            return self.var(**kwargs)
+
+        if func == numpy.any:
+            return self.any(**kwargs)
+
+        if func == numpy.all:
+            return self.all(**kwargs)
 
         raise NotImplementedError(f"'{func.__name__}' is not implemented!")
 
@@ -872,6 +952,64 @@ class SparseNdarray:
             masked=self._is_masked,
         )
 
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = numpy.bool_) -> numpy.ndarray:
+        """Test whether any array element along a given axis evaluates to True.
+
+        Compute this test across the ``SparseNdarray``, possibly over a
+        given axis or set of axes. If the seed has a ``any()`` method, that
+        method is called directly with the supplied arguments.
+
+        Args:
+            axis: 
+                A single integer specifying the axis over which to test
+                for any. Alternatively, a tuple (multiple axes) or None
+                (no axes), see :py:func:`~numpy.any` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``SparseNdarray``, see
+                :py:func:`~numpy.any` for details.
+
+        Returns:
+            A NumPy array containing the variances. If ``axis = None``,
+            this will be a NumPy scalar instead.
+        """
+        return array_any(
+            self, 
+            axis=axis, 
+            dtype=dtype, 
+            reduce_over_x=_reduce_SparseNdarray,
+            masked=self._is_masked,
+        )
+
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = numpy.bool_) -> numpy.ndarray:
+        """Test whether all array elements along a given axis evaluate to True.
+
+        Compute this test across the ``SparseNdarray``, possibly over a
+        given axis or set of axes. If the seed has a ``all()`` method, that
+        method is called directly with the supplied arguments.
+        Args:
+            axis: 
+                A single integer specifying the axis over which to test
+                for any. Alternatively, a tuple (multiple axes) or None
+                (no axes), see :py:func:`~numpy.any` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``SparseNdarray``, see
+                :py:func:`~numpy.any` for details.
+
+        Returns:
+            A NumPy array containing the variances. If ``axis = None``,
+            this will be a NumPy scalar instead.
+        """
+        return array_all(
+            self, 
+            axis=axis, 
+            dtype=dtype, 
+            reduce_over_x=_reduce_SparseNdarray,
+            masked=self._is_masked,
+        )
 
     # Other stuff
     def __copy__(self) -> "SparseNdarray":
