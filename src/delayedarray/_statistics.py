@@ -185,8 +185,8 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                if value and not buffer[offset]:
-                    buffer[offset] = True if numpy.issubdtype(dtype, numpy.bool_) else 1
+                if value:
+                    buffer[offset] = True
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
@@ -195,8 +195,8 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         output = numpy.ma.MaskedArray(output, mask=(denom == 0))
     else:
         def op(offset, value):
-            if value and not buffer[offset]:
-                buffer[offset] = True if numpy.issubdtype(dtype, numpy.bool_) else 1
+            if value:
+                buffer[offset] = True
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
@@ -217,8 +217,8 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                if not value and buffer[offset]:
-                    buffer[offset] = False if numpy.issubdtype(dtype, numpy.bool_) else 0
+                if not value:
+                    buffer[offset] = False
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
@@ -227,8 +227,8 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         output = numpy.ma.MaskedArray(output, mask=(denom == 0))
     else:
         def op(offset, value):
-            if not value and buffer[offset]:
-                buffer[offset] = False if numpy.issubdtype(dtype, numpy.bool_) else 0
+            if not value:
+                buffer[offset] = False
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
