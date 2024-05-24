@@ -195,15 +195,15 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                buffer[offset] = numpy.any(value)
+                buffer[offset] = numpy.any([buffer[offset], value])
             else:
-                mask_buffer[offset] = True
+                mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
         size = _expected_sample_size(x.shape, axes) 
         output = numpy.ma.MaskedArray(output, mask=(masked == size))
     else:
         def op(offset, value):
-            buffer[offset] = numpy.any(value)
+            buffer[offset] = numpy.any([buffer[offset], value])
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
@@ -218,21 +218,22 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         dtype = _choose_output_type(x.dtype, preserve_integer = True)
     output = _allocate_output_array(x.shape, axes, dtype)
     buffer = output.ravel(order="F")
+    buffer += 1 # since all has to be true, we start with a value other than 0's
 
     if masked:
         masked = numpy.zeros(output.shape, dtype=numpy.uint, order="F")
         mask_buffer = masked.ravel(order="F")
         def op(offset, value):
             if value is not numpy.ma.masked:
-                buffer[offset] = numpy.all(value)
+                buffer[offset] = numpy.all([buffer[offset], value])
             else:
-                mask_buffer[offset] = True
+                mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
         size = _expected_sample_size(x.shape, axes) 
         output = numpy.ma.MaskedArray(output, mask=(masked == size))
     else:
         def op(offset, value):
-            buffer[offset] = numpy.all(value)
+            buffer[offset] = numpy.all([buffer[offset], value])
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
