@@ -106,6 +106,7 @@ translate_ufunc_to_op_simple = set(
         "floor",
         "trunc",
         "sign",
+        "isnan"
     ]
 )
 

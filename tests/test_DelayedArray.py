@@ -247,3 +247,113 @@ def test_SparseNdarray_var_sparse(mask_rate, buffer_size):
     with pytest.warns(RuntimeWarning):
         y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None, dtype=numpy.int32, index_dtype=numpy.int32)) * 50
         assert numpy.isnan(y.var())
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_any_dense(mask_rate, buffer_size):
+    raw = simulate_ndarray((30, 40), mask_rate = mask_rate)
+    assert raw.any() == delayedarray.wrap(raw).any()
+    assert (raw.any(axis=0) == delayedarray.wrap(raw).any(axis=0)).all()
+
+    # convert to boolean and set one of the columns to True
+    ref = raw == numpy.nan
+    ref[10, :] = True
+    y = delayedarray.wrap(ref)
+    assert ref.any() == y.any(buffer_size=buffer_size)
+    assert (ref.any(axis=1) == y.any(axis=1, buffer_size=buffer_size)).all()
+    assert (ref.any(axis=0) == y.any(axis=0, buffer_size=buffer_size)).all()
+
+    # Trying with a single dimension.
+    raw = simulate_ndarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw)
+    assert raw.any() == y.any(buffer_size=buffer_size)
+
+    # Full masking is respected.
+    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) + 20
+    assert y.any() is numpy.ma.masked
+
+    # Zero-length array is respected.
+    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+    assert y.any() == False
+
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_any_sparse(mask_rate, buffer_size):
+    ref = simulate_SparseNdarray((20, 30, 25), mask_rate = mask_rate)
+    y = delayedarray.wrap(ref)
+
+    assert ref.any() == y.any(buffer_size=buffer_size)
+    assert (ref.any(axis=1) == y.any(axis=1, buffer_size=buffer_size)).all()
+    assert (ref.any(axis=-1) == y.any(axis=-1, buffer_size=buffer_size)).all()
+    assert (ref.any(axis=(0, 2)) == y.any(axis=(0, 2), buffer_size=buffer_size)).all()
+
+    # Trying with a single dimension.
+    ref = simulate_SparseNdarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(ref)
+    assert numpy.isclose(ref.any(), y.any(buffer_size=buffer_size))
+
+    # Full masking is respected.
+    ref = delayedarray.SparseNdarray((1,), (numpy.zeros(1, dtype=numpy.int_), numpy.ma.MaskedArray([1], mask=True)))
+    y = delayedarray.wrap(ref) / 5
+    assert y.any() is numpy.ma.masked
+
+    # Zero-length array is respected.
+    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None, dtype=numpy.int32, index_dtype=numpy.int32)) * 50
+    assert y.any() == False
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_all_dense(mask_rate, buffer_size):
+    raw = simulate_ndarray((30, 40), mask_rate = mask_rate)
+    assert raw.all() == delayedarray.wrap(raw).all()
+    assert (raw.all(axis=0) == delayedarray.wrap(raw).all(axis=0)).all()
+
+    # convert to boolean and set one of the columns to True
+    ref = raw == numpy.nan
+    ref[:, 10] = True
+    y = delayedarray.wrap(ref)
+    assert ref.any() == y.any(buffer_size=buffer_size)
+    assert (ref.any(axis=1) == y.any(axis=1, buffer_size=buffer_size)).all()
+    assert (ref.any(axis=0) == y.any(axis=0, buffer_size=buffer_size)).all()
+
+    # Trying with a single dimension.
+    raw = simulate_ndarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) + 29
+    ref = raw + 29
+    assert ref.all() == y.all(buffer_size=buffer_size)
+
+    # Full masking is respected.
+    y = delayedarray.wrap(numpy.ma.MaskedArray([1], mask=True)) + 20
+    assert y.all() is numpy.ma.masked
+
+    # Zero-length array is respected.
+    y = delayedarray.wrap(numpy.ndarray((10, 0))) * 50
+    assert y.all()
+
+@pytest.mark.parametrize("mask_rate", [0, 0.5])
+@pytest.mark.parametrize("buffer_size", [100, 500, 2000])
+def test_SparseNdarray_all_sparse(mask_rate, buffer_size):
+    raw = simulate_SparseNdarray((20, 30, 25), mask_rate = mask_rate)
+    ref = raw * 19
+    y = delayedarray.wrap(raw) * 19
+
+    assert ref.all() == y.all(buffer_size=buffer_size)
+    assert (ref.all(axis=1) == y.all(axis=1, buffer_size=buffer_size)).all()
+    assert (ref.all(axis=-1) == y.all(axis=-1, buffer_size=buffer_size)).all()
+    assert (ref.all(axis=(0, 2)) == y.all(axis=(0, 2), buffer_size=buffer_size)).all()
+
+    # Trying with a single dimension.
+    raw = simulate_SparseNdarray((100,), mask_rate=mask_rate)
+    y = delayedarray.wrap(raw) * 12
+    ref = raw * 12
+    assert ref.any() == y.all(buffer_size=buffer_size)
+
+    # Full masking is respected.
+    ref = delayedarray.SparseNdarray((1,), (numpy.zeros(1, dtype=numpy.int_), numpy.ma.MaskedArray([1], mask=True)))
+    y = delayedarray.wrap(ref) / 5
+    assert y.all() is numpy.ma.masked
+
+    # Zero-length array is respected.
+    y = delayedarray.wrap(delayedarray.SparseNdarray((0,), None, dtype=numpy.int32, index_dtype=numpy.int32)) * 50
+    assert y.all()

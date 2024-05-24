@@ -1,6 +1,6 @@
 from typing import Sequence, Tuple, Union, Optional, List, Callable
 import numpy
-from numpy import array, dtype, integer, issubdtype, ndarray, prod, array2string
+from numpy import dtype, ndarray, array2string
 from collections import namedtuple
 
 from .SparseNdarray import SparseNdarray
@@ -24,7 +24,7 @@ from .is_masked import is_masked
 
 from ._subset import _getitem_subset_preserves_dimensions, _getitem_subset_discards_dimensions, _repr_subset
 from ._isometric import translate_ufunc_to_op_simple, translate_ufunc_to_op_with_args
-from ._statistics import array_mean, array_var, array_sum, _create_offset_multipliers
+from ._statistics import array_mean, array_var, array_sum, _create_offset_multipliers, array_any, array_all
 
 __author__ = "ltla"
 __copyright__ = "ltla"
@@ -254,6 +254,21 @@ class DelayedArray:
             else:
                 decimals = 0
             return DelayedArray(Round(seed, decimals=decimals))
+
+        if func == numpy.mean:
+            return self.mean(**kwargs)
+
+        if func == numpy.sum:
+            return self.sum(**kwargs)
+
+        if func == numpy.var:
+            return self.var(**kwargs)
+
+        if func == numpy.any:
+            return self.any(**kwargs)
+
+        if func == numpy.all:
+            return self.all(**kwargs)
 
         if func == numpy.shape:
             return self.shape 
@@ -691,6 +706,66 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
+    def __or__(self, other) -> "DelayedArray":
+        """Element-wise OR with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed OR operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_or", right=True)
+
+    def __ror__(self, other) -> "DelayedArray":
+        """Element-wise OR with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed OR operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_or", right=False)
+
+    def __and__(self, other) -> "DelayedArray":
+        """Element-wise AND with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed AND operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_and", right=True)
+
+    def __rand__(self, other) -> "DelayedArray":
+        """Element-wise AND with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed AND operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_and", right=False)
+
     # Subsetting.
     def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
@@ -832,6 +907,79 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+        """Test whether any array element along a given axis evaluates to True.
+
+        Compute this test across the ``DelayedArray``, possibly over a
+        given axis or set of axes. If the seed has a ``any()`` method, that
+        method is called directly with the supplied arguments.
+
+        Args:
+            axis: 
+                A single integer specifying the axis over which to test
+                for any. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.any` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                :py:func:`~numpy.any` for details.
+
+            buffer_size:
+                Buffer size in bytes to use for block processing. Larger values
+                generally improve speed at the cost of memory.
+
+        Returns:
+            A NumPy array containing the boolean values. If ``axis = None``, this will
+            be a NumPy scalar instead.
+        """
+        if hasattr(self._seed, "any"):
+            return self._seed.any(axis=axis).astype(dtype)
+        else:
+            return array_any(
+                self, 
+                axis=axis, 
+                dtype=dtype, 
+                reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
+                masked=is_masked(self),
+            )
+
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+        """Test whether all array elements along a given axis evaluate to True.
+
+        Compute this test across the ``DelayedArray``, possibly over a
+        given axis or set of axes. If the seed has a ``all()`` method, that
+        method is called directly with the supplied arguments.
+
+        Args:
+            axis: 
+                A single integer specifying the axis over which to test 
+                for all. Alternatively, a tuple (multiple axes) or None (no
+                axes), see :py:func:`~numpy.all` for details.
+
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                :py:func:`~numpy.all` for details.
+
+            buffer_size:
+                Buffer size in bytes to use for block processing. Larger values
+                generally improve speed at the cost of memory.
+
+        Returns:
+            A NumPy array containing the boolean values. If ``axis = None``, this will
+            be a NumPy scalar instead.
+        """
+        if hasattr(self._seed, "all"):
+            return self._seed.all(axis=axis).astype(dtype)
+        else:
+            return array_all(
+                self, 
+                axis=axis, 
+                dtype=dtype, 
+                reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
+                masked=is_masked(self),
+            )
 
 @extract_dense_array.register
 def extract_dense_array_DelayedArray(x: DelayedArray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
