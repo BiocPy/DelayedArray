@@ -700,6 +700,66 @@ class DelayedArray:
         """
         return DelayedArray(UnaryIsometricOpSimple(self._seed, operation="abs"))
 
+    def __or__(self, other) -> "DelayedArray":
+        """Element-wise OR with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed OR operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_or", right=True)
+
+    def __ror__(self, other) -> "DelayedArray":
+        """Element-wise OR with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed OR operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_or", right=False)
+
+    def __and__(self, other) -> "DelayedArray":
+        """Element-wise AND with something.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed AND operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_or", right=True)
+
+    def __rand__(self, other) -> "DelayedArray":
+        """Element-wise AND with the right-hand-side of a ``DelayedArray``.
+
+        Args:
+            other:
+                A numeric scalar;
+                or a NumPy array with dimensions as described in
+                :py:class:`~delayedarray.UnaryIsometricOpWithArgs.UnaryIsometricOpWithArgs`;
+                or a ``DelayedArray`` of the same dimensions as :py:attr:`~shape`.
+
+        Returns:
+            A ``DelayedArray`` containing the delayed AND operation.
+        """
+        return _wrap_isometric_with_args(self, other, operation="logical_and", right=False)
+
     # Subsetting.
     def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
