@@ -181,3 +181,61 @@ def array_var(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         return sumsq[0]
     else:
         return sumsq
+
+
+def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
+    axes = _find_useful_axes(len(x.shape), axis)
+    if dtype is None:
+        dtype = _choose_output_type(x.dtype, preserve_integer = True)
+    output = _allocate_output_array(x.shape, axes, dtype)
+    buffer = output.ravel(order="F")
+
+    if masked:
+        masked = numpy.zeros(output.shape, dtype=numpy.uint, order="F")
+        mask_buffer = masked.ravel(order="F")
+        def op(offset, value):
+            if value is not numpy.ma.masked:
+                buffer[offset] = numpy.any(value)
+            else:
+                mask_buffer[offset] = True
+        reduce_over_x(x, axes, op)
+        size = _expected_sample_size(x.shape, axes) 
+        output = numpy.ma.MaskedArray(output, mask=(masked == size))
+    else:
+        def op(offset, value):
+            buffer[offset] = numpy.any(value)
+        reduce_over_x(x, axes, op)
+
+    if len(axes) == 0:
+        return output[0]
+    else:
+        return output
+
+
+def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
+    axes = _find_useful_axes(len(x.shape), axis)
+    if dtype is None:
+        dtype = _choose_output_type(x.dtype, preserve_integer = True)
+    output = _allocate_output_array(x.shape, axes, dtype)
+    buffer = output.ravel(order="F")
+
+    if masked:
+        masked = numpy.zeros(output.shape, dtype=numpy.uint, order="F")
+        mask_buffer = masked.ravel(order="F")
+        def op(offset, value):
+            if value is not numpy.ma.masked:
+                buffer[offset] = numpy.all(value)
+            else:
+                mask_buffer[offset] = True
+        reduce_over_x(x, axes, op)
+        size = _expected_sample_size(x.shape, axes) 
+        output = numpy.ma.MaskedArray(output, mask=(masked == size))
+    else:
+        def op(offset, value):
+            buffer[offset] = numpy.all(value)
+        reduce_over_x(x, axes, op)
+
+    if len(axes) == 0:
+        return output[0]
+    else:
+        return output
