@@ -255,6 +255,15 @@ class DelayedArray:
                 decimals = 0
             return DelayedArray(Round(seed, decimals=decimals))
 
+        if func == numpy.mean:
+            return self.mean(**kwargs)
+
+        if func == numpy.sum:
+            return self.sum(**kwargs)
+
+        if func == numpy.var:
+            return self.var(**kwargs)
+
         if func == numpy.shape:
             return self.shape 
 
