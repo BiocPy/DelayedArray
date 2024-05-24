@@ -907,7 +907,7 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
-    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
         """Test whether any array element along a given axis evaluates to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
@@ -920,6 +920,11 @@ class DelayedArray:
                 for any. Alternatively, a tuple (multiple axes) or None (no
                 axes), see :py:func:`~numpy.any` for details.
 
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                :py:func:`~numpy.any` for details.
+
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
                 generally improve speed at the cost of memory.
@@ -929,17 +934,17 @@ class DelayedArray:
             be a NumPy scalar instead.
         """
         if hasattr(self._seed, "any"):
-            return self._seed.any(axis=axis)
+            return self._seed.any(axis=axis).astype(dtype)
         else:
             return array_any(
                 self, 
                 axis=axis, 
-                dtype=numpy.bool_, 
+                dtype=dtype, 
                 reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
                 masked=is_masked(self),
             )
 
-    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
         """Test whether all array elements along a given axis evaluate to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
@@ -952,6 +957,11 @@ class DelayedArray:
                 for all. Alternatively, a tuple (multiple axes) or None (no
                 axes), see :py:func:`~numpy.all` for details.
 
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``DelayedArray``, see
+                :py:func:`~numpy.all` for details.
+
             buffer_size:
                 Buffer size in bytes to use for block processing. Larger values
                 generally improve speed at the cost of memory.
@@ -961,12 +971,12 @@ class DelayedArray:
             be a NumPy scalar instead.
         """
         if hasattr(self._seed, "all"):
-            return self._seed.all(axis=axis)
+            return self._seed.all(axis=axis).astype(dtype)
         else:
             return array_all(
                 self, 
                 axis=axis, 
-                dtype=numpy.bool_, 
+                dtype=dtype, 
                 reduce_over_x=lambda x, axes, op : _reduce(x, axes, op, buffer_size),
                 masked=is_masked(self),
             )

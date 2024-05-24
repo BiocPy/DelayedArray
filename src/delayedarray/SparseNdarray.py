@@ -952,7 +952,7 @@ class SparseNdarray:
             masked=self._is_masked,
         )
 
-    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None) -> numpy.ndarray:
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None) -> numpy.ndarray:
         """Test whether any array element along a given axis evaluates to True.
 
         Compute this test across the ``SparseNdarray``, possibly over a
@@ -965,6 +965,11 @@ class SparseNdarray:
                 for any. Alternatively, a tuple (multiple axes) or None
                 (no axes), see :py:func:`~numpy.any` for details.
 
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``SparseNdarray``, see
+                :py:func:`~numpy.any` for details.
+
         Returns:
             A NumPy array containing the variances. If ``axis = None``,
             this will be a NumPy scalar instead.
@@ -972,12 +977,12 @@ class SparseNdarray:
         return array_any(
             self, 
             axis=axis, 
-            dtype=numpy.bool_, 
+            dtype=dtype, 
             reduce_over_x=_reduce_SparseNdarray,
             masked=self._is_masked,
         )
 
-    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None) -> numpy.ndarray:
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None) -> numpy.ndarray:
         """Test whether all array elements along a given axis evaluate to True.
 
         Compute this test across the ``SparseNdarray``, possibly over a
@@ -989,6 +994,11 @@ class SparseNdarray:
                 for any. Alternatively, a tuple (multiple axes) or None
                 (no axes), see :py:func:`~numpy.any` for details.
 
+            dtype:
+                NumPy type for the output array. If None, this is automatically
+                chosen based on the type of the ``SparseNdarray``, see
+                :py:func:`~numpy.any` for details.
+
         Returns:
             A NumPy array containing the variances. If ``axis = None``,
             this will be a NumPy scalar instead.
@@ -996,7 +1006,7 @@ class SparseNdarray:
         return array_all(
             self, 
             axis=axis, 
-            dtype=numpy.bool_, 
+            dtype=dtype, 
             reduce_over_x=_reduce_SparseNdarray,
             masked=self._is_masked,
         )

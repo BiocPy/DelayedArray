@@ -34,22 +34,9 @@ def _expected_sample_size(shape: Tuple[int, ...], axes: List[int]) -> int:
     return size
 
 
-def _choose_output_type(dtype: numpy.dtype, preserve_integer: bool) -> numpy.dtype:
-    # Mimic numpy.sum's method for choosing the type. 
-    if numpy.issubdtype(dtype, numpy.integer):
-        if preserve_integer:
-            xinfo = numpy.iinfo(dtype)
-            if xinfo.kind == "i":
-                pinfo = numpy.iinfo(numpy.int_)
-                if xinfo.bits < pinfo.bits:
-                    dtype = numpy.dtype(numpy.int_)
-            else:
-                pinfo = numpy.iinfo(numpy.uint)
-                if xinfo.bits < pinfo.bits:
-                    dtype = numpy.dtype(numpy.uint)
-        else:
-            dtype = numpy.dtype("float64")
-    return dtype
+def _choose_output_type(func: Callable, dtype: numpy.dtype) -> numpy.dtype:
+    # Mimicing func's method. 
+    return func(numpy.array(0, dtype=dtype)).dtype
 
 
 def _allocate_output_array(shape: Tuple[int, ...], axes: List[int], dtype: numpy.dtype, default_func: Callable = numpy.zeros) -> numpy.ndarray:
@@ -77,7 +64,7 @@ def _create_offset_multipliers(shape: Tuple[int, ...], axes: List[int]) -> List[
 def array_sum(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
-        dtype = _choose_output_type(x.dtype, preserve_integer = True)
+        dtype = _choose_output_type(func=numpy.sum, dtype=x.dtype)
     output = _allocate_output_array(x.shape, axes, dtype)
     buffer = output.ravel(order="F")
 
@@ -106,7 +93,7 @@ def array_sum(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
 def array_mean(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
-        dtype = _choose_output_type(x.dtype, preserve_integer = False)
+        dtype = _choose_output_type(func=numpy.mean, dtype=x.dtype)
     output = _allocate_output_array(x.shape, axes, dtype)
     buffer = output.ravel(order="F")
     size = _expected_sample_size(x.shape, axes) 
@@ -138,7 +125,7 @@ def array_mean(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[n
 def array_var(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], ddof: int, reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
-        dtype = _choose_output_type(x.dtype, preserve_integer = False)
+        dtype = _choose_output_type(func=numpy.var, dtype=x.dtype)
     size = _expected_sample_size(x.shape, axes) 
 
     # Using Welford's online algorithm.
@@ -189,7 +176,7 @@ def array_var(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
 def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
-        dtype = _choose_output_type(x.dtype, preserve_integer = True)
+        dtype = _choose_output_type(func=numpy.any, dtype=x.dtype)
     output = _allocate_output_array(x.shape, axes, dtype)
     buffer = output.ravel(order="F")
 
@@ -199,7 +186,7 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         def op(offset, value):
             if value is not numpy.ma.masked:
                 if value and not buffer[offset]:
-                    buffer[offset] = True
+                    buffer[offset] = True if numpy.issubdtype(dtype, numpy.bool_) else 1
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
@@ -209,7 +196,7 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
     else:
         def op(offset, value):
             if value and not buffer[offset]:
-                buffer[offset] = True
+                buffer[offset] = True if numpy.issubdtype(dtype, numpy.bool_) else 1
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
@@ -221,7 +208,7 @@ def array_any(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
 def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[numpy.dtype], reduce_over_x: Callable, masked: bool) -> numpy.ndarray:
     axes = _find_useful_axes(len(x.shape), axis)
     if dtype is None:
-        dtype = _choose_output_type(x.dtype, preserve_integer = True)
+        dtype = _choose_output_type(func=numpy.all, dtype=x.dtype)
     output = _allocate_output_array(x.shape, axes, dtype, default_func=numpy.ones)
     buffer = output.ravel(order="F")
 
@@ -231,7 +218,7 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
         def op(offset, value):
             if value is not numpy.ma.masked:
                 if not value and buffer[offset]:
-                    buffer[offset] = False
+                    buffer[offset] = False if numpy.issubdtype(dtype, numpy.bool_) else 0
             else:
                 mask_buffer[offset] += 1
         reduce_over_x(x, axes, op)
@@ -241,7 +228,7 @@ def array_all(x, axis: Optional[Union[int, Tuple[int, ...]]], dtype: Optional[nu
     else:
         def op(offset, value):
             if not value and buffer[offset]:
-                buffer[offset] = False
+                buffer[offset] = False if numpy.issubdtype(dtype, numpy.bool_) else 0
         reduce_over_x(x, axes, op)
 
     if len(axes) == 0:
