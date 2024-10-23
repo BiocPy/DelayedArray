@@ -50,3 +50,19 @@ class RegularTicks(collections.abc.Sequence):
         elif i >= self._len:
             raise IndexError("'i' is out of range")
         return min(self._final, self._spacing * (i + 1))
+
+    @property
+    def spacing(self) -> int:
+        """
+        Returns:
+            The spacing between ticks.
+        """
+        return self._spacing
+
+    @property
+    def final(self) -> int:
+        """
+        Returns:
+            Position of the final tick.
+        """
+        return self._final

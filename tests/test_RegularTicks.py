@@ -4,6 +4,9 @@ import pytest
 
 def test_RegularTicks():
     out = delayedarray.RegularTicks(7, 50)
+    assert out.spacing == 7
+    assert out.final == 50
+
     ref = list(range(7, 50, 7)) + [50]
     assert len(out) == len(ref)
     assert list(out) == ref
