@@ -210,15 +210,24 @@ class SparseNdarray:
 
 
     # For NumPy:
-    def __array__(self) -> numpy.ndarray:
+    def __array__(self, dtype: Optional[numpy.dtype] = None, copy: bool = True) -> numpy.ndarray:
         """Convert a ``SparseNdarray`` to a NumPy array.
+
+        Args:
+            dtype:
+                The desired NumPy type of the output array. If None, the
+                type of the seed is used.
+
+            copy:
+                Currently ignored. The output is never a reference to the
+                underlying seed, even if the seed is another NumPy array.
 
         Returns:
             Dense array of the same type as :py:attr:`~dtype` and shape as
             :py:attr:`~shape`.
         """
         indices = _spawn_indices(self._shape)
-        return _extract_dense_array_from_SparseNdarray(self, indices)
+        return _extract_dense_array_from_SparseNdarray(self, indices, dtype=dtype)
 
     # Assorted dunder methods.
     def __add__(self, other) -> Union["SparseNdarray", numpy.ndarray]:
@@ -1231,18 +1240,20 @@ def _recursive_extract_dense_array(contents: numpy.ndarray, subset: Tuple[Sequen
             pos += 1
 
 
-def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...]) -> numpy.ndarray:
+def _extract_dense_array_from_SparseNdarray(x: SparseNdarray, subset: Tuple[Sequence[int], ...], dtype: Optional[numpy.dtype] = None) -> numpy.ndarray:
     idims = [len(y) for y in subset]
     subset_summary = _characterize_indices(subset[0], x._shape[0])
 
     # We reverse the dimensions so that we use F-contiguous storage. This also
     # makes it slightly easier to do the recursion as we can just index by
     # the first dimension to obtain a subarray at each recursive step. 
-    output = numpy.zeros((*reversed(idims),), dtype=x._dtype)
+    if dtype is None:
+        dtype = x._dtype
+    output = numpy.zeros((*reversed(idims),), dtype=dtype)
+    if x._is_masked:
+        output = numpy.ma.MaskedArray(output, mask=False)
 
     if x._contents is not None:
-        if x._is_masked:
-            output = numpy.ma.MaskedArray(output, mask=False)
         ndim = len(x._shape)
         if ndim > 1:
             _recursive_extract_dense_array(x._contents, subset, subset_summary=subset_summary, output=output, dim=ndim-1)

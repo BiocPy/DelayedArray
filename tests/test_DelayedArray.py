@@ -18,6 +18,12 @@ def test_DelayedArray_dense():
 
     dump = numpy.array(x)
     assert isinstance(dump, numpy.ndarray)
+    assert dump.dtype == x.dtype
+    assert (dump == raw).all()
+
+    dump = numpy.array(x, dtype=numpy.float64)
+    assert isinstance(dump, numpy.ndarray)
+    assert dump.dtype == numpy.float64
     assert (dump == raw).all()
 
 
@@ -68,6 +74,16 @@ def test_DelayedArray_masked():
     y = numpy.ma.MaskedArray(raw, raw > 0.5)
     x = delayedarray.wrap(y)
     assert delayedarray.is_masked(x)
+
+    dump = numpy.array(x)
+    assert isinstance(dump, numpy.ndarray)
+    assert dump.dtype == x.dtype
+    assert (dump == numpy.array(y)).all()
+
+    dump = numpy.array(x, dtype=numpy.float32)
+    assert isinstance(dump, numpy.ndarray)
+    assert dump.dtype == numpy.float32
+    assert (dump == numpy.array(y, dtype=numpy.float32)).all()
 
 
 #######################################################
