@@ -188,6 +188,8 @@ def test_SparseNdarray_extract_dense_array_3d(mask_rate):
     # Full extraction.
     output = delayedarray.to_dense_array(y)
     assert_identical_ndarrays(output, convert_SparseNdarray_to_numpy(y))
+    assert_identical_ndarrays(numpy.array(output), numpy.array(y))
+    assert_identical_ndarrays(numpy.array(output, dtype=numpy.int32), numpy.array(y, dtype=numpy.int32))
 
     # Sliced extraction.
     slices = (slice(2, 15, 3), slice(0, 20, 2), slice(4, 8))

@@ -156,15 +156,36 @@ class DelayedArray:
         return preamble + "\n" + converted
 
     # For NumPy:
-    def __array__(self) -> ndarray:
+    def __array__(self, dtype: Optional[numpy.dtype] = None, copy: bool = True) -> ndarray:
         """Convert a ``DelayedArray`` to a NumPy array, to be used by
         :py:meth:`~numpy.array`. 
 
+        Args:
+            dtype:
+                The desired NumPy type of the output array. If None, the
+                type of the seed is used.
+
+            copy:
+                Currently ignored. The output is never a reference to the
+                underlying seed, even if the seed is another NumPy array.
+
         Returns:
             NumPy array of the same type as :py:attr:`~dtype` and shape as
-            :py:attr:`~shape`. 
+            :py:attr:`~shape`.
         """
-        return to_dense_array(self._seed)
+        if dtype is None or dtype == self.dtype:
+            return to_dense_array(self._seed)
+        else:
+            # Filling it chunk by chunk rather than doing a big coercion,
+            # to avoid creating an unnecessary intermediate full matrix.
+            output = numpy.ndarray(self.shape, dtype=dtype)
+            if is_masked(self._seed):
+                output = numpy.ma.array(output, mask=False)
+            def fill_output(job, part):
+                subsets = (*(slice(s, e) for s, e in job),)
+                output[subsets] = part
+            apply_over_blocks(self._seed, fill_output)
+            return output
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs) -> "DelayedArray":
         """Interface with NumPy array methods. This is used to implement
