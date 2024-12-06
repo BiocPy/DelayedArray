@@ -132,6 +132,13 @@ class SparseNdarray:
             if is_masked is None:
                 is_masked = False 
 
+        # Sometimes people put the numpy data class instead of the dtype.
+        # It's a common enough mistake that we ought to catch it here.
+        if not isinstance(dtype, numpy.dtype): 
+            dtype = numpy.dtype(dtype)
+        if not isinstance(index_dtype, numpy.dtype): 
+            index_dtype = numpy.dtype(index_dtype)
+
         self._dtype = dtype
         self._index_dtype = index_dtype
         self._is_masked = is_masked

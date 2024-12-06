@@ -117,7 +117,7 @@ def test_SparseNdarray_check(mask_rate):
     contents = mock_SparseNdarray_contents(test_shape, mask_rate=mask_rate)
     y = delayedarray.SparseNdarray(test_shape, contents)
     assert y.shape == test_shape
-    assert y.dtype == numpy.float64
+    assert y.dtype is numpy.dtype("float64")
     assert repr(y).find("SparseNdarray") > 0
     assert delayedarray.is_sparse(y)
     assert delayedarray.is_masked(y) == (mask_rate > 0)
@@ -172,8 +172,12 @@ def test_SparseNdarray_check(mask_rate):
 
     empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.dtype("int32"), index_dtype=numpy.dtype("int32"))
     assert empty.shape == test_shape
-    assert empty.dtype == numpy.int32
+    assert empty.dtype is numpy.dtype("int32")
     assert not empty.is_masked
+
+    empty = delayedarray.SparseNdarray(test_shape, None, dtype=numpy.float32, index_dtype=numpy.int32) # generics converted to dtypes
+    assert empty.dtype is numpy.dtype("float32")
+    assert empty.index_dtype is numpy.dtype("int32")
 
 
 #######################################################
