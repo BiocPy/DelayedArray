@@ -365,6 +365,19 @@ def test_SparseNdarray_empty(mask_rate):
     assert spout.shape == (3, 4, 5)
 
 
+def test_SparseNdarray_u64_index():
+    test_shape = (120, 50)
+    y = simulate_SparseNdarray(test_shape, mask_rate=0, index_dtype=numpy.uint64)
+    ref = convert_SparseNdarray_to_numpy(y)
+
+    slices = (slice(70, 120),slice(10, 40))
+    sliced = y[slices]
+    assert_identical_ndarrays(convert_SparseNdarray_to_numpy(sliced), ref[slices])
+
+    dout = delayedarray.extract_dense_array(y, slices2ranges(slices, test_shape))
+    assert_identical_ndarrays(dout, ref[slices])
+
+
 #######################################################
 #######################################################
 

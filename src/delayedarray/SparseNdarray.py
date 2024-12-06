@@ -1207,7 +1207,7 @@ def _extract_sparse_vector_to_dense(indices: numpy.ndarray, values: numpy.ndarra
         pass
     elif subset_summary.consecutive:
         start_pos = 0
-        first = subset_summary.first_index
+        first = indices.dtype.type(subset_summary.first_index) # avoid casting of uint64s to floats during subtraction.
         if subset_summary.search_first:
             start_pos = bisect_left(indices, first)
 
@@ -1276,7 +1276,7 @@ def _extract_sparse_vector_to_sparse(indices: numpy.ndarray, values: numpy.ndarr
 
     elif subset_summary.consecutive:
         start_pos = 0
-        first = subset_summary.first_index
+        first = indices.dtype.type(subset_summary.first_index) # avoid casting of uint64's to floats during subtraction.
         if subset_summary.search_first:
             start_pos = bisect_left(indices, first)
 

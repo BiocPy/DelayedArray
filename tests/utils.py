@@ -68,6 +68,7 @@ def mock_SparseNdarray_contents(
     lower: float = -1, 
     upper: float = 1, 
     dtype: numpy.dtype = numpy.dtype("float64"), 
+    index_dtype: numpy.dtype = numpy.dtype("int32"),
     mask_rate: float = 0
 ):
     if len(shape) == 1:
@@ -78,7 +79,7 @@ def mock_SparseNdarray_contents(
                 new_indices.append(i)
                 new_values.append(random.uniform(lower, upper))
 
-        new_indices = numpy.array(new_indices, dtype=numpy.int32)
+        new_indices = numpy.array(new_indices, dtype=index_dtype)
         new_values = numpy.array(new_values, dtype=dtype)
         if mask_rate:
             new_mask = numpy.random.rand(len(new_values)) < mask_rate
@@ -101,6 +102,7 @@ def mock_SparseNdarray_contents(
                     lower=lower,
                     upper=upper,
                     dtype=dtype,
+                    index_dtype=index_dtype,
                     mask_rate=mask_rate,
                 )
             )
