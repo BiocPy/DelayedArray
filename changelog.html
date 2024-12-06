@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="delayedarray" href="api/modules.html" /><link rel="prev" title="Contributors" href="authors.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Changelog - DelayedArray 0.5.2 documentation</title>
+        <title>Changelog - DelayedArray 0.5.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">DelayedArray 0.5.2 documentation</div></a>
+      <a href="index.html"><div class="brand">DelayedArray 0.5.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -251,6 +251,66 @@
         <article role="main" id="furo-main-content">
           <section class="tex2jax_ignore mathjax_ignore" id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<section id="version-0-5-3">
+<h2>Version 0.5.3<a class="headerlink" href="#version-0-5-3" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Coerce <code class="docutils literal notranslate"><span class="pre">numpy.generic</span></code> instances to <code class="docutils literal notranslate"><span class="pre">dtype</span></code> in the <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> constructor, for consistency with NumPy functions.</p></li>
+<li><p>Avoid cast to float when operating on uint64 indices in a <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code>.</p></li>
+</ul>
+</section>
+<section id="version-0-5-2">
+<h2>Version 0.5.2<a class="headerlink" href="#version-0-5-2" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Support <code class="docutils literal notranslate"><span class="pre">dtype=</span></code> and <code class="docutils literal notranslate"><span class="pre">copy=</span></code> arguments in <code class="docutils literal notranslate"><span class="pre">__array__()</span></code>, as required by NumPy v2.</p></li>
+<li><p>Added getters for the <code class="docutils literal notranslate"><span class="pre">RegularTick</span></code> properties, for convenience.</p></li>
+</ul>
+</section>
+<section id="version-0-5-1">
+<h2>Version 0.5.1<a class="headerlink" href="#version-0-5-1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Add support for more numpy functions to dense and sparse <code class="docutils literal notranslate"><span class="pre">DelayedArrays</span></code>.</p></li>
+</ul>
+</section>
+<section id="version-0-5-0">
+<h2>Version 0.5.0<a class="headerlink" href="#version-0-5-0" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Switch to <code class="docutils literal notranslate"><span class="pre">Grid</span></code> classes to control how iteration is performed. This supercedes the previous <code class="docutils literal notranslate"><span class="pre">chunk_shape()</span></code> generic.</p></li>
+</ul>
+</section>
+<section id="version-0-4-0">
+<h2>Version 0.4.0<a class="headerlink" href="#version-0-4-0" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Added a <code class="docutils literal notranslate"><span class="pre">buffer_size=</span></code> option to the <code class="docutils literal notranslate"><span class="pre">apply*</span></code> functions.</p></li>
+<li><p>Provide converter generics to SciPy classes, with methods for <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> and sparse <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>s.</p></li>
+<li><p>Converted th <code class="docutils literal notranslate"><span class="pre">to_*_array()</span></code> functions into generics.</p></li>
+<li><p>Correctly handle zero-extent arrays in the <code class="docutils literal notranslate"><span class="pre">apply*</span></code> functions.</p></li>
+<li><p>Added methods to compute basic statistics (e.g., sum, variance) from a <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code>.</p></li>
+<li><p>Added a copy method for <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code>.</p></li>
+<li><p>Use block processing to compute basic statistics from a <code class="docutils literal notranslate"><span class="pre">DelayedArray</span></code>.</p></li>
+<li><p>Do not require Fortran storage order from <code class="docutils literal notranslate"><span class="pre">extract_dense_array()</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">subset=</span></code> argument is now mandatory in <code class="docutils literal notranslate"><span class="pre">extract_*_array()</span></code> calls.</p></li>
+<li><p>Bugfix to respect changes in index dtype upon <code class="docutils literal notranslate"><span class="pre">SparseNdarray</span></code> concatenation.</p></li>
+</ul>
+</section>
+<section id="version-0-3-5">
+<h2>Version 0.3.5<a class="headerlink" href="#version-0-3-5" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Support masking throughout the various operations and methods.</p></li>
+</ul>
+</section>
+<section id="version-0-3-4">
+<h2>Version 0.3.4<a class="headerlink" href="#version-0-3-4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Fixes to maintain support for Python 3.8.</p></li>
+</ul>
+</section>
+<section id="version-0-3-3">
+<h2>Version 0.3.3<a class="headerlink" href="#version-0-3-3" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Support the delayed unary <code class="docutils literal notranslate"><span class="pre">logical_not</span></code> operation.</p></li>
+<li><p>Added utilities like <code class="docutils literal notranslate"><span class="pre">choose_block_shape_for_iteration()</span></code> and <code class="docutils literal notranslate"><span class="pre">apply_over_blocks()</span></code> to iterate over the dimensions or blocks.</p></li>
+</ul>
+</section>
 <section id="version-0-3-2">
 <h2>Version 0.3.2<a class="headerlink" href="#version-0-3-2" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -353,6 +413,14 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#version-0-5-3">Version 0.5.3</a></li>
+<li><a class="reference internal" href="#version-0-5-2">Version 0.5.2</a></li>
+<li><a class="reference internal" href="#version-0-5-1">Version 0.5.1</a></li>
+<li><a class="reference internal" href="#version-0-5-0">Version 0.5.0</a></li>
+<li><a class="reference internal" href="#version-0-4-0">Version 0.4.0</a></li>
+<li><a class="reference internal" href="#version-0-3-5">Version 0.3.5</a></li>
+<li><a class="reference internal" href="#version-0-3-4">Version 0.3.4</a></li>
+<li><a class="reference internal" href="#version-0-3-3">Version 0.3.3</a></li>
 <li><a class="reference internal" href="#version-0-3-2">Version 0.3.2</a></li>
 <li><a class="reference internal" href="#version-0-3-1">Version 0.3.1</a></li>
 <li><a class="reference internal" href="#version-0-3-0">Version 0.3.0</a></li>
@@ -370,7 +438,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=8e576371"></script>
+</div><script src="_static/documentation_options.js?v=2a2fe768"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

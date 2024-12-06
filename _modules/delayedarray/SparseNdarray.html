@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
     <!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>delayedarray.SparseNdarray - DelayedArray 0.5.2 documentation</title>
+        <title>delayedarray.SparseNdarray - DelayedArray 0.5.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -165,7 +165,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.5.2 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.5.3 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -189,7 +189,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.5.2 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.5.3 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -380,6 +380,13 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cannot infer &#39;index_dtype&#39; from &#39;contents&#39;&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">is_masked</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">is_masked</span> <span class="o">=</span> <span class="kc">False</span> 
+
+        <span class="c1"># Sometimes people put the numpy data class instead of the dtype.</span>
+        <span class="c1"># It&#39;s a common enough mistake that we ought to catch it here.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">):</span> 
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index_dtype</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">):</span> 
+            <span class="n">index_dtype</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">index_dtype</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_dtype</span> <span class="o">=</span> <span class="n">dtype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_index_dtype</span> <span class="o">=</span> <span class="n">index_dtype</span>
@@ -1586,7 +1593,7 @@
         <span class="k">pass</span>
     <span class="k">elif</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">consecutive</span><span class="p">:</span>
         <span class="n">start_pos</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">first</span> <span class="o">=</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">first_index</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">subset_summary</span><span class="o">.</span><span class="n">first_index</span><span class="p">)</span> <span class="c1"># avoid casting of uint64s to floats during subtraction.</span>
         <span class="k">if</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">search_first</span><span class="p">:</span>
             <span class="n">start_pos</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span>
 
@@ -1655,7 +1662,7 @@
 
     <span class="k">elif</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">consecutive</span><span class="p">:</span>
         <span class="n">start_pos</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">first</span> <span class="o">=</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">first_index</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">indices</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">subset_summary</span><span class="o">.</span><span class="n">first_index</span><span class="p">)</span> <span class="c1"># avoid casting of uint64&#39;s to floats during subtraction.</span>
         <span class="k">if</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">search_first</span><span class="p">:</span>
             <span class="n">start_pos</span> <span class="o">=</span> <span class="n">bisect_left</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span>
 
@@ -2310,7 +2317,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8e576371"></script>
+</div><script src="../../_static/documentation_options.js?v=2a2fe768"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
