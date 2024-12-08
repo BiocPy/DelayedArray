@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.6.0
+
+- chore: Remove Python 3.8 (EOL).
+- precommit: Replace docformatter with ruff's formatter.
+
 ## Version 0.5.3
 
 - Coerce `numpy.generic` instances to `dtype` in the `SparseNdarray` constructor, for consistency with NumPy functions.
