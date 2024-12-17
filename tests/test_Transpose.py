@@ -25,6 +25,29 @@ def test_Transpose_simple(mask_rate):
     assert_identical_ndarrays(delayedarray.to_dense_array(t), numpy.transpose(y))
 
 
+def test_Transpose_simplified():
+    y = simulate_ndarray((30, 23, 5), mask_rate=0)
+    x = delayedarray.DelayedArray(y)
+
+    t = x.T
+    t2 = t.T
+    assert isinstance(t2, delayedarray.DelayedArray)
+    assert isinstance(t2.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(t2), y.T.T)
+
+    t2 = numpy.transpose(t, axes=(2, 1, 0))
+    assert isinstance(t2, delayedarray.DelayedArray)
+    assert isinstance(t2.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(t2), numpy.transpose(y.T, (2, 1, 0)))
+
+    t2 = numpy.transpose(t, axes=(1, 2, 0))
+    assert isinstance(t2, delayedarray.DelayedArray)
+    assert isinstance(t2.seed, delayedarray.Transpose)
+    assert t2.seed.perm == (1, 0, 2)
+    assert isinstance(t2.seed.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(t2), numpy.transpose(y.T, axes=(1, 2, 0)))
+
+
 @pytest.mark.parametrize("mask_rate", [0, 0.2])
 def test_Transpose_more_dimensions(mask_rate):
     y = simulate_ndarray((30, 23, 10), mask_rate=mask_rate)

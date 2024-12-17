@@ -1,10 +1,12 @@
-from typing import Callable, Sequence, Tuple
+from typing import Callable, Sequence, Tuple, Any
 from numpy import dtype, ndarray, ix_
 import numpy
+import biocutils
+import copy
 
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
-from ._subset import _sanitize_subset
+from ._subset import _sanitize_subset, _is_single_subset_noop
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
 from .create_dask_array import create_dask_array
@@ -87,6 +89,28 @@ class Subset(DelayedOp):
         return self._subset
 
 
+def _simplify_subset(x: Subset) -> Any:
+    seed = x.seed
+    if not type(seed) is Subset:
+        # Don't use isinstance, we don't want to collapse for Subset
+        # subclasses that might be doing god knows what.
+        return x
+    all_subsets = []
+    noop = True
+    for i, sub in enumerate(x.subset):
+        seed_sub = seed.subset[i]
+        new_sub = biocutils.subset_sequence(seed_sub, sub)
+        if noop and not _is_single_subset_noop(seed.seed.shape[i], new_sub):
+            noop = False
+        all_subsets.append(new_sub)
+    if noop:
+        return seed.seed
+    new_x = copy.copy(x)
+    new_x._seed = seed.seed
+    new_x._subset = (*all_subsets,)
+    return new_x
+
+
 def _extract_array(x: Subset, subset: Tuple[Sequence[int], ...], f: Callable):
     newsub = list(subset)
     expanded = []
@@ -94,11 +118,7 @@ def _extract_array(x: Subset, subset: Tuple[Sequence[int], ...], f: Callable):
 
     for i, s in enumerate(newsub):
         cursub = x._subset[i]
-        if isinstance(cursub, ndarray):
-            replacement = cursub[s]
-        else:
-            replacement = [cursub[j] for j in s]
-
+        replacement = biocutils.subset_sequence(cursub, s)
         san_sub, san_remap = _sanitize_subset(replacement)
         newsub[i] = san_sub
 

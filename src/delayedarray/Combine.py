@@ -1,5 +1,6 @@
-from typing import Callable, Tuple, Sequence
+from typing import Callable, Tuple, Sequence, Any
 import numpy
+import copy
 
 from .DelayedOp import DelayedOp
 from ._mask import _concatenate_unmasked_ndarrays, _concatenate_maybe_masked_ndarrays
@@ -99,6 +100,24 @@ class Combine(DelayedOp):
             Dimension along which the seeds are combined.
         """
         return self._along
+
+
+def _simplify_combine(x: Combine) -> Any:
+    all_seeds = []
+    for ss in x.seeds:
+        if type(ss) is Combine and x.along == ss.along:
+            # Don't use isinstance, we don't want to collapse for Combine
+            # subclasses that might be doing god knows what.
+            all_seeds += ss.seeds
+        else:
+            all_seeds.append(ss)
+    if len(all_seeds) == 1:
+        return all_seeds[0]
+    if len(all_seeds) == len(x.seeds):
+        return x
+    new_x = copy.copy(x)
+    new_x._seeds = all_seeds
+    return new_x
 
 
 def _extract_subarrays(x: Combine, subset: Tuple[Sequence[int], ...], f: Callable):

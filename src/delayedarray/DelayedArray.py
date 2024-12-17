@@ -6,10 +6,10 @@ from collections import namedtuple
 from .SparseNdarray import SparseNdarray
 from .BinaryIsometricOp import BinaryIsometricOp
 from .Cast import Cast
-from .Combine import Combine
+from .Combine import Combine, _simplify_combine
 from .Round import Round
-from .Subset import Subset
-from .Transpose import Transpose
+from .Subset import Subset, _simplify_subset
+from .Transpose import Transpose, _simplify_transpose
 from .UnaryIsometricOpSimple import UnaryIsometricOpSimple
 from .UnaryIsometricOpWithArgs import UnaryIsometricOpWithArgs
 
@@ -136,7 +136,9 @@ class DelayedArray:
         Returns:
             A ``DelayedArray`` containing the delayed transpose.
         """
-        return DelayedArray(Transpose(self._seed, perm=None))
+        tout = Transpose(self._seed, perm=None)
+        tout = _simplify_transpose(tout)
+        return DelayedArray(tout)
 
     def __repr__(self) -> str:
         """Pretty-print this ``DelayedArray``. This uses
@@ -253,12 +255,13 @@ class DelayedArray:
             seeds = []
             for x in args[0]:
                 seeds.append(_extract_seed(x))
-
             if "axis" in kwargs:
                 axis = kwargs["axis"]
             else:
                 axis = 0
-            return DelayedArray(Combine(seeds, along=axis))
+            cout = Combine(seeds, along=axis)
+            cout = _simplify_combine(cout)
+            return DelayedArray(cout)
 
         if func == numpy.transpose:
             seed = _extract_seed(args[0])
@@ -266,7 +269,9 @@ class DelayedArray:
                 axes = kwargs["axes"]
             else:
                 axes = None
-            return DelayedArray(Transpose(seed, perm=axes))
+            tout = Transpose(seed, perm=axes)
+            tout = _simplify_transpose(tout)
+            return DelayedArray(tout)
 
         if func == numpy.round:
             seed = _extract_seed(args[0])
@@ -808,7 +813,9 @@ class DelayedArray:
         """
         cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
         if cleaned is not None:
-            return DelayedArray(Subset(self._seed, cleaned))
+            sout = Subset(self._seed, cleaned)
+            sout = _simplify_subset(sout)
+            return DelayedArray(sout)
         return _getitem_subset_discards_dimensions(self._seed, subset, extract_dense_array)
 
 
