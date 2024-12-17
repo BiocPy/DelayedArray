@@ -103,17 +103,19 @@ class Combine(DelayedOp):
 
 
 def _simplify_combine(x: Combine) -> Any:
+    if len(x.seeds) == 1:
+        return x.seeds[0]
     all_seeds = []
+    simplified = False
     for ss in x.seeds:
         if type(ss) is Combine and x.along == ss.along:
             # Don't use isinstance, we don't want to collapse for Combine
             # subclasses that might be doing god knows what.
             all_seeds += ss.seeds
+            simplified = True
         else:
             all_seeds.append(ss)
-    if len(all_seeds) == 1:
-        return all_seeds[0]
-    if len(all_seeds) == len(x.seeds):
+    if not simplified:
         return x
     new_x = copy.copy(x)
     new_x._seeds = all_seeds
