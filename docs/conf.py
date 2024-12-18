@@ -80,7 +80,7 @@ templates_path = ["_templates"]
 
 
 # Enable markdown
-extensions.append("myst_parser")
+extensions.append("myst_nb")
 
 # Configure MyST-Parser
 myst_enable_extensions = [
@@ -168,9 +168,11 @@ pygments_style = "sphinx"
 todo_emit_warnings = True
 
 autodoc_default_options = {
-    'special-members': True,
-    'undoc-members': False,
-    'exclude-members': '__weakref__, __dict__, __str__, __module__, __annotations__'
+    # 'members': 'var1, var2',
+    # 'member-order': 'bysource',
+    "special-members": True,
+    "undoc-members": True,
+    "exclude-members": "__weakref__, __dict__, __str__, __module__",
 }
 
 autosummary_generate = True
