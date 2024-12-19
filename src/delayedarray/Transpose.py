@@ -1,6 +1,7 @@
-from typing import Callable, Optional, Tuple, Sequence
+from typing import Callable, Optional, Tuple, Sequence, Any
 from numpy import dtype, transpose
 import numpy
+import copy
 
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
@@ -40,8 +41,6 @@ class Transpose(DelayedOp):
                 dimension ordering is assumed to be reversed.
         """
 
-        self._seed = seed
-
         curshape = seed.shape
         ndim = len(curshape)
         if perm is not None:
@@ -52,12 +51,12 @@ class Transpose(DelayedOp):
         else:
             perm = (*range(ndim - 1, -1, -1),)
 
-        self._perm = perm
-
         final_shape = []
         for x in perm:
             final_shape.append(curshape[x])
 
+        self._seed = seed
+        self._perm = perm
         self._shape = (*final_shape,)
 
     @property
@@ -92,6 +91,29 @@ class Transpose(DelayedOp):
             Permutation of dimensions in the transposition.
         """
         return self._perm
+
+
+def _simplify_transpose(x: Transpose) -> Any:
+    seed = x.seed
+    if not type(seed) is Transpose:
+        # Don't use isinstance, we don't want to collapse for Transpose
+        # subclasses that might be doing god knows what.
+        return x
+
+    new_perm = []
+    noop = True
+    for i, p in enumerate(x.perm):
+        new_p = seed.perm[p]
+        if new_p != i:
+            noop = False
+        new_perm.append(new_p)
+    if noop:
+        return seed.seed
+
+    new_x = copy.copy(x)
+    new_x._seed = seed.seed
+    new_x._perm = (*new_perm,)
+    return new_x
 
 
 def _extract_array(x: Transpose, subset: Tuple[Sequence[int], ...], f: Callable):

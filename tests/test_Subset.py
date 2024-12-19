@@ -1,6 +1,7 @@
 import delayedarray
 import numpy
 import pytest
+import biocutils
 
 from utils import simulate_ndarray, assert_identical_ndarrays, simulate_SparseNdarray
 
@@ -13,6 +14,9 @@ def test_Subset_ix(mask_rate):
 
     subix = numpy.ix_(range(1, 10), [20, 30, 40], [10, 11, 12, 13])
     sub = x[subix]
+    assert isinstance(sub, delayedarray.DelayedArray)
+    assert isinstance(sub.seed, delayedarray.Subset)
+
     assert sub.shape == (9, 3, 4)
     assert isinstance(sub.seed.seed, numpy.ndarray)
     assert len(sub.seed.subset) == 3
@@ -86,6 +90,33 @@ def test_Subset_unsorted_duplicates(mask_rate):
 
     sub = x[:, [5, 4, 3, 2, 1, 0], :]
     assert_identical_ndarrays(delayedarray.to_dense_array(sub), y[:, [5, 4, 3, 2, 1, 0], :])
+
+
+def test_Subset_simplified():
+    test_shape = (30, 55)
+    y = simulate_ndarray(test_shape, mask_rate=0)
+    x = delayedarray.DelayedArray(y)
+
+    sub = x[:, list(range(0, 55, 2))]
+    sub2 = sub[:, list(range(5, 20))]
+    assert isinstance(sub2, delayedarray.DelayedArray)
+    assert isinstance(sub2.seed, delayedarray.Subset)
+    assert isinstance(sub2.seed.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub2), y[:, biocutils.subset_sequence(range(0, 55, 2), range(5, 20))])
+
+    sub = x[list(range(10, 20)), :]
+    sub2 = sub[:, list(range(0, 55, 5))]
+    assert isinstance(sub2, delayedarray.DelayedArray)
+    assert isinstance(sub2.seed, delayedarray.Subset)
+    assert isinstance(sub2.seed.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub2), y[10:20,0:55:5])
+
+    # Identifies no-ops and returns the seed directly.
+    sub = x[::-1,::-1]
+    sub2 = sub[::-1,::-1]
+    assert isinstance(sub2, delayedarray.DelayedArray)
+    assert isinstance(sub2.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(sub2), y)
 
 
 @pytest.mark.parametrize("mask_rate", [0, 0.2])

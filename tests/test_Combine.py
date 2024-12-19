@@ -43,6 +43,48 @@ def test_Combine_otherdim(left_mask_rate, right_mask_rate):
     assert_identical_ndarrays(delayedarray.to_dense_array(x), safe_concatenate((y1, y2), axis=1))
 
 
+def test_Combine_simplified():
+    y1 = simulate_ndarray((30, 23), mask_rate=0)
+    y2 = simulate_ndarray((50, 23), mask_rate=0)
+    y3 = simulate_ndarray((30, 41), mask_rate=0)
+
+    x1 = delayedarray.DelayedArray(y1)
+    x2 = delayedarray.DelayedArray(y2)
+    x3 = delayedarray.DelayedArray(y3)
+
+    com = numpy.concatenate((x1, x2))
+    com2 = numpy.concatenate((com, x2))
+    assert isinstance(com2, delayedarray.DelayedArray)
+    assert isinstance(com2.seed, delayedarray.Combine)
+    assert len(com2.seed.seeds) == 3
+    assert [isinstance(s, delayedarray.Combine) for s in com2.seed.seeds] == [False] * 3
+    assert_identical_ndarrays(delayedarray.to_dense_array(com2), safe_concatenate((y1, y2, y2)))
+
+    com = numpy.concatenate((x1, x3), axis=1)
+    com2 = numpy.concatenate((com, x1), axis=1)
+    assert isinstance(com2, delayedarray.DelayedArray)
+    assert isinstance(com2.seed, delayedarray.Combine)
+    assert len(com2.seed.seeds) == 3
+    assert [isinstance(s, delayedarray.Combine) for s in com2.seed.seeds] == [False] * 3
+    assert_identical_ndarrays(delayedarray.to_dense_array(com2), safe_concatenate((y1, y3, y1), axis=1))
+
+    # No-ops properly.
+    com = numpy.concatenate((x1,))
+    assert isinstance(com, delayedarray.DelayedArray)
+    assert isinstance(com.seed, numpy.ndarray)
+    assert_identical_ndarrays(delayedarray.to_dense_array(com), y1)
+
+    # Doesn't attempt to collapse if the axes are different.
+    com = numpy.concatenate((x1, x2))
+    com2 = numpy.concatenate((com, com), axis=1)
+    assert isinstance(com2, delayedarray.DelayedArray)
+    assert isinstance(com2.seed, delayedarray.Combine)
+    assert len(com2.seed.seeds) == 2
+    assert [isinstance(s, delayedarray.Combine) for s in com2.seed.seeds] == [True] * 2
+    ref = numpy.concatenate((y1, y2))
+    assert_identical_ndarrays(delayedarray.to_dense_array(com2), safe_concatenate((ref, ref), axis=1))
+
+
 @pytest.mark.parametrize("left_mask_rate", [0, 0.2])
 @pytest.mark.parametrize("right_mask_rate", [0, 0.2])
 def test_Combine_subset(left_mask_rate, right_mask_rate):
