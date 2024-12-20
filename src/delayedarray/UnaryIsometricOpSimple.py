@@ -1,6 +1,7 @@
 from typing import Callable, Literal, Tuple, Sequence
 import numpy
 from numpy import dtype, zeros
+import warnings
 
 from .DelayedOp import DelayedOp
 from .SparseNdarray import SparseNdarray
@@ -68,7 +69,9 @@ class UnaryIsometricOpSimple(DelayedOp):
                 String specifying the unary operation.
         """
         f = _choose_operator(operation)
-        dummy = f(zeros(1, dtype=seed.dtype))
+        with warnings.catch_warnings():  # silence warnings from divide by zero.
+            warnings.simplefilter("ignore")
+            dummy = f(zeros(1, dtype=seed.dtype))
 
         self._seed = seed
         self._op = operation
