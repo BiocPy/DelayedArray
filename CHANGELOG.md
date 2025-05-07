@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.6.1
+
+- Support single-integer slicing for `DelayedArray`s and `SparseNdArray`s.
+- Silence NumPy warnings about numerical operations with zero.
+- Collapse repeated operations to remove redundant delayed layers.
+
 ## Version 0.6.0
 
 - chore: Remove Python 3.8 (EOL).
