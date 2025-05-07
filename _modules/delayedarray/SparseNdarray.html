@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>delayedarray.SparseNdarray - DelayedArray 0.6.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>delayedarray.SparseNdarray - DelayedArray 0.6.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.6.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.6.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -244,15 +244,15 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for delayedarray.SparseNdarray</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect_left</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
-<span class="kn">import</span> <span class="nn">copy</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bisect</span><span class="w"> </span><span class="kn">import</span> <span class="n">bisect_left</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">._isometric</span> <span class="kn">import</span> <span class="n">translate_ufunc_to_op_simple</span><span class="p">,</span> <span class="n">translate_ufunc_to_op_with_args</span><span class="p">,</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">_choose_operator</span><span class="p">,</span> <span class="n">_infer_along_with_args</span>
-<span class="kn">from</span> <span class="nn">._subset</span> <span class="kn">import</span> <span class="n">_spawn_indices</span><span class="p">,</span> <span class="n">_getitem_subset_preserves_dimensions</span><span class="p">,</span> <span class="n">_getitem_subset_discards_dimensions</span><span class="p">,</span> <span class="n">_repr_subset</span>
-<span class="kn">from</span> <span class="nn">._mask</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._isometric</span><span class="w"> </span><span class="kn">import</span> <span class="n">translate_ufunc_to_op_simple</span><span class="p">,</span> <span class="n">translate_ufunc_to_op_with_args</span><span class="p">,</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">_choose_operator</span><span class="p">,</span> <span class="n">_infer_along_with_args</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">_spawn_indices</span><span class="p">,</span> <span class="n">_getitem_subset_preserves_dimensions</span><span class="p">,</span> <span class="n">_getitem_subset_discards_dimensions</span><span class="p">,</span> <span class="n">_repr_subset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._mask</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_allocate_unmasked_ndarray</span><span class="p">,</span> 
     <span class="n">_allocate_maybe_masked_ndarray</span><span class="p">,</span> 
     <span class="n">_convert_to_unmasked_1darray</span><span class="p">,</span> 
@@ -260,7 +260,7 @@
     <span class="n">_concatenate_unmasked_ndarrays</span><span class="p">,</span>
     <span class="n">_concatenate_maybe_masked_ndarrays</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">._statistics</span> <span class="kn">import</span> <span class="n">array_mean</span><span class="p">,</span> <span class="n">array_var</span><span class="p">,</span> <span class="n">array_sum</span><span class="p">,</span> <span class="n">_create_offset_multipliers</span><span class="p">,</span> <span class="n">array_all</span><span class="p">,</span> <span class="n">array_any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._statistics</span><span class="w"> </span><span class="kn">import</span> <span class="n">array_mean</span><span class="p">,</span> <span class="n">array_var</span><span class="p">,</span> <span class="n">array_sum</span><span class="p">,</span> <span class="n">_create_offset_multipliers</span><span class="p">,</span> <span class="n">array_all</span><span class="p">,</span> <span class="n">array_any</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -269,7 +269,7 @@
 
 <div class="viewcode-block" id="SparseNdarray">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray">[docs]</a>
-<span class="k">class</span> <span class="nc">SparseNdarray</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SparseNdarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The ``SparseNdarray``, as its name suggests, is a sparse n-dimensional</span>
 <span class="sd">    array. It is inspired by the ``SVT_Array`` class from the `DelayedArray</span>
@@ -308,7 +308,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__init__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
         <span class="n">contents</span><span class="p">,</span>
@@ -402,7 +402,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple of integers specifying the extent of each dimension.</span>
@@ -410,7 +410,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            NumPy type of the values. </span>
@@ -419,7 +419,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">index_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            NumPy type of the indices.</span>
@@ -428,7 +428,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">is_masked</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_masked</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Whether the values are masked.</span>
@@ -437,7 +437,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">contents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Contents of the array. This is intended to be read-only and </span>
 <span class="sd">        should only be modified if you really know what you&#39;re doing.</span>
 
@@ -453,7 +453,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__repr__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__repr__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Pretty-print this ``SparseNdarray``. This uses</span>
 <span class="sd">        :py:func:`~numpy.array2string` and responds to all of its options.</span>
@@ -473,7 +473,7 @@
     <span class="c1"># For NumPy:</span>
 <div class="viewcode-block" id="SparseNdarray.__array__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__array__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__array__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">copy</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert a ``SparseNdarray`` to a NumPy array.</span>
 
 <span class="sd">        Args:</span>
@@ -496,7 +496,7 @@
     <span class="c1"># Assorted dunder methods.</span>
 <div class="viewcode-block" id="SparseNdarray.__add__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__add__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add something to the right-hand-side of a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -515,7 +515,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__radd__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__radd__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__radd__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add something to the left-hand-side of a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -534,7 +534,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__sub__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__sub__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtract something from the right-hand-side of a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -553,7 +553,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rsub__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rsub__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rsub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Subtract a ``SparseNdarray`` from something else.</span>
 
 <span class="sd">        Args:</span>
@@ -572,7 +572,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__mul__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__mul__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiply a ``SparseNdarray`` with something on the right hand side.</span>
 
 <span class="sd">        Args:</span>
@@ -591,7 +591,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rmul__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rmul__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Multiply a ``SparseNdarray`` with something on the left hand side.</span>
 
 <span class="sd">        Args:</span>
@@ -610,7 +610,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__truediv__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__truediv__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide a ``SparseNdarray`` by something.</span>
 
 <span class="sd">        Args:</span>
@@ -629,7 +629,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rtruediv__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rtruediv__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rtruediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide something by a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -648,7 +648,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__mod__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__mod__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__mod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the remainder after dividing a ``SparseNdarray`` by something.</span>
 
 <span class="sd">        Args:</span>
@@ -667,7 +667,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rmod__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rmod__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rmod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rmod__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the remainder after dividing something by a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -688,7 +688,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__floordiv__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__floordiv__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide a ``SparseNdarray`` by something and take the floor.</span>
 
 <span class="sd">        Args:</span>
@@ -709,7 +709,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rfloordiv__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rfloordiv__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rfloordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rfloordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Divide something by a ``SparseNdarray`` and take the floor.</span>
 
 <span class="sd">        Args:</span>
@@ -730,7 +730,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__pow__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__pow__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__pow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise a ``SparseNdarray`` to the power of something.</span>
 
 <span class="sd">        Args:</span>
@@ -749,7 +749,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rpow__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rpow__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rpow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rpow__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise something to the power of the contents of a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -768,7 +768,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__eq__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__eq__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for equality between a ``SparseNdarray`` and something.</span>
 
 <span class="sd">        Args:</span>
@@ -787,7 +787,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__req__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__req__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__req__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__req__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for equality between something and a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -806,7 +806,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__ne__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__ne__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for non-equality between a ``SparseNdarray`` and something.</span>
 
 <span class="sd">        Args:</span>
@@ -825,7 +825,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rne__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rne__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__rne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__rne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for non-equality between something and a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -844,7 +844,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__ge__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__ge__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``SparseNdarray`` is greater than or equal to something.</span>
 
 <span class="sd">        Args:</span>
@@ -863,7 +863,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rge__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rge__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__rge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__rge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than or equal to a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -884,7 +884,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__le__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__le__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``SparseNdarray`` is less than or equal to something.</span>
 
 <span class="sd">        Args:</span>
@@ -905,7 +905,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rle__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rle__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__rle__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__rle__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than or equal to a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -926,7 +926,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__gt__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__gt__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``SparseNdarray`` is greater than something.</span>
 
 <span class="sd">        Args:</span>
@@ -945,7 +945,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rgt__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rgt__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__rgt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__rgt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is greater than a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -964,7 +964,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__lt__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__lt__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether a ``SparseNdarray`` is less than something.</span>
 
 <span class="sd">        Args:</span>
@@ -983,7 +983,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rlt__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rlt__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__rlt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__rlt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether something is less than a ``SparseNdarray``.</span>
 
 <span class="sd">        Args:</span>
@@ -1003,7 +1003,7 @@
     <span class="c1"># Simple methods.</span>
 <div class="viewcode-block" id="SparseNdarray.__neg__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__neg__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__neg__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Negate the contents of a ``SparseNdarray``.</span>
 
 <span class="sd">        Returns:</span>
@@ -1014,7 +1014,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__abs__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__abs__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__abs__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Take the absolute value of the contents of a ``SparseNdarray``.</span>
 
 <span class="sd">        Returns:</span>
@@ -1025,7 +1025,7 @@
     
 <div class="viewcode-block" id="SparseNdarray.__or__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__or__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Element-wise OR with something.</span>
 
 <span class="sd">        Args:</span>
@@ -1044,7 +1044,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__ror__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__ror__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__ror__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Element-wise OR with the right-hand-side of a ``DelayedArray``.</span>
 
 <span class="sd">        Args:</span>
@@ -1063,7 +1063,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__and__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__and__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__and__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Element-wise AND with something.</span>
 
 <span class="sd">        Args:</span>
@@ -1082,7 +1082,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__rand__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__rand__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__rand__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Element-wise AND with the right-hand-side of a ``DelayedArray``.</span>
 
 <span class="sd">        Args:</span>
@@ -1103,24 +1103,28 @@
     <span class="c1"># Subsetting.</span>
 <div class="viewcode-block" id="SparseNdarray.__getitem__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__getitem__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">slice</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;SparseNdarray&quot;</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a</span>
 <span class="sd">        :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the</span>
 <span class="sd">        seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            args:</span>
-<span class="sd">                A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``.</span>
-<span class="sd">                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a</span>
-<span class="sd">                delayed subset operation.</span>
+<span class="sd">            subset:</span>
+<span class="sd">                A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``, or a single integer specfying an index on the first dimension. </span>
+<span class="sd">                We attempt to support most types of NumPy slicing; however, only subsets that preserve dimensionality will generate a ``SparseNdarray``.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ValueError: If ``args`` contain more dimensions than the shape of the array.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            If the dimensionality is preserved by ``args``, a ``SparseNdarray`` containing a delayed subset operation is</span>
-<span class="sd">            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.</span>
+<span class="sd">            If the dimensionality is preserved by ``subset``, a ``SparseNdarray`` containing the specified subset is returned.</span>
+<span class="sd">            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">):</span>
+            <span class="n">replacement</span> <span class="o">=</span> <span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">)]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">replacement</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">replacement</span><span class="p">,)</span>
+
         <span class="n">cleaned</span> <span class="o">=</span> <span class="n">_getitem_subset_preserves_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">subset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">cleaned</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># No need to sanitize here, as the extractors can take unsorted subsets.</span>
@@ -1132,7 +1136,7 @@
     <span class="c1"># NumPy methods.</span>
 <div class="viewcode-block" id="SparseNdarray.__array_ufunc__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__array_ufunc__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__array_ufunc__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ufunc</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__array_ufunc__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ufunc</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="n">inputs</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface with NumPy array methods.  This is used to implement</span>
 <span class="sd">        mathematical operations like NumPy&#39;s :py:meth:`~numpy.log`, or to</span>
 <span class="sd">        override operations between NumPy class instances and ``SparseNdarray``</span>
@@ -1174,7 +1178,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.__array_function__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__array_function__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__array_function__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__array_function__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Interface to NumPy&#39;s high-level array functions.</span>
 <span class="sd">        This is used to implement array operations like NumPy&#39;s :py:meth:`~numpy.concatenate`,</span>
 
@@ -1223,7 +1227,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.astype">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.astype">[docs]</a>
-    <span class="k">def</span> <span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">astype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~numpy.ndarray.astype` for details.</span>
 
 <span class="sd">        All keyword arguments are currently ignored.</span>
@@ -1233,7 +1237,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            A ``SparseNdarray`` containing the transposed contents.</span>
@@ -1244,7 +1248,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.sum">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.sum">[docs]</a>
-    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Take the sum of values across the ``SparseNdarray``, possibly over a</span>
 <span class="sd">        given axis or set of axes.</span>
@@ -1276,7 +1280,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.mean">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.mean">[docs]</a>
-    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Take the mean of values across the ``SparseNdarray``, possibly over a</span>
 <span class="sd">        given axis or set of axes.</span>
@@ -1308,7 +1312,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.var">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.var">[docs]</a>
-    <span class="k">def</span> <span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Take the variances of values across the ``SparseNdarray``, possibly</span>
 <span class="sd">        over a given axis or set of axes.</span>
@@ -1344,7 +1348,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.any">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.any">[docs]</a>
-    <span class="k">def</span> <span class="nf">any</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">any</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test whether any array element along a given axis evaluates to True.</span>
 
 <span class="sd">        Compute this test across the ``SparseNdarray``, possibly over a</span>
@@ -1377,7 +1381,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.all">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.all">[docs]</a>
-    <span class="k">def</span> <span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Test whether all array elements along a given axis evaluate to True.</span>
 
 <span class="sd">        Compute this test across the ``SparseNdarray``, possibly over a</span>
@@ -1410,7 +1414,7 @@
     <span class="c1"># Other stuff</span>
 <div class="viewcode-block" id="SparseNdarray.__copy__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.__copy__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            A deep copy of this object.</span>
@@ -1428,7 +1432,7 @@
 
 <div class="viewcode-block" id="SparseNdarray.copy">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.SparseNdarray.SparseNdarray.copy">[docs]</a>
-    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparseNdarray&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            A deep copy of this object.</span>
@@ -1442,7 +1446,7 @@
 <span class="c1">#########################################################</span>
 
 
-<span class="k">def</span> <span class="nf">_peek</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_peek</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1459,7 +1463,7 @@
 <span class="n">_CheckPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_CheckPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;max_index&quot;</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;index_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;is_masked&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_check_sparse_tuple</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_CheckPayload</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_sparse_tuple</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_CheckPayload</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length of index and value vectors should be the same&quot;</span><span class="p">)</span>
 
@@ -1481,7 +1485,7 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;inconsistent masking status for different value vectors&quot;</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_check</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_CheckPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_check</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_CheckPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span> <span class="o">!=</span> <span class="n">shape</span><span class="p">[</span><span class="n">dim</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;length of &#39;contents&#39; or its components should match the extent of the corresponding dimension&quot;</span><span class="p">)</span>
 
@@ -1502,7 +1506,7 @@
 <span class="n">_SubsetSummary</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_SubsetSummary&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;subset&quot;</span><span class="p">,</span> <span class="s2">&quot;increasing&quot;</span><span class="p">,</span> <span class="s2">&quot;consecutive&quot;</span><span class="p">,</span> <span class="s2">&quot;search_first&quot;</span><span class="p">,</span> <span class="s2">&quot;search_last&quot;</span><span class="p">,</span> <span class="s2">&quot;first_index&quot;</span><span class="p">,</span> <span class="s2">&quot;past_last_index&quot;</span><span class="p">,</span> <span class="s2">&quot;random_map&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_characterize_indices</span><span class="p">(</span><span class="n">subset</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">dim_extent</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_characterize_indices</span><span class="p">(</span><span class="n">subset</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">dim_extent</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_SubsetSummary</span><span class="p">(</span>
             <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="p">,</span>
@@ -1558,7 +1562,7 @@
     <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_sparse_vector_internal</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_sparse_vector_internal</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="n">subset</span> <span class="o">=</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">subset</span>
 
     <span class="n">start_pos</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1589,7 +1593,7 @@
                         <span class="n">f</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">ix</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_sparse_vector_to_dense</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_sparse_vector_to_dense</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_summary</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">pass</span>
     <span class="k">elif</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">consecutive</span><span class="p">:</span>
@@ -1605,12 +1609,12 @@
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">):</span>
             <span class="n">output</span><span class="p">[</span><span class="n">indices</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">-</span> <span class="n">first</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
             <span class="n">output</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
         <span class="n">_extract_sparse_vector_internal</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_extract_dense_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_extract_dense_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="n">curdex</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1634,7 +1638,7 @@
             <span class="n">pos</span> <span class="o">+=</span> <span class="mi">1</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_dense_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_dense_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
     <span class="n">idims</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">]</span>
     <span class="n">subset_summary</span> <span class="o">=</span> <span class="n">_characterize_indices</span><span class="p">(</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
@@ -1657,7 +1661,7 @@
     <span class="k">return</span> <span class="n">output</span><span class="o">.</span><span class="n">T</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_sparse_vector_to_sparse</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_sparse_vector_to_sparse</span><span class="p">(</span><span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_summary</span><span class="o">.</span><span class="n">subset</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">pass</span>
 
@@ -1685,7 +1689,7 @@
     <span class="k">elif</span> <span class="n">subset_summary</span><span class="o">.</span><span class="n">increasing</span><span class="p">:</span>
         <span class="n">new_indices</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">new_values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
             <span class="n">new_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="n">new_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
         <span class="n">_extract_sparse_vector_internal</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
@@ -1699,7 +1703,7 @@
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">new_pairs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
             <span class="n">new_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">p</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
         <span class="n">_extract_sparse_vector_internal</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">subset_summary</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
         <span class="n">new_pairs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
@@ -1714,7 +1718,7 @@
         <span class="k">return</span> <span class="n">new_indices</span><span class="p">,</span> <span class="n">new_values</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_extract_sparse_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_extract_sparse_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">subset_summary</span><span class="p">:</span> <span class="n">_SubsetSummary</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="n">curdex</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
     <span class="n">new_contents</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1746,7 +1750,7 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_extract_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
     <span class="n">idims</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">]</span>
     <span class="n">subset_summary</span> <span class="o">=</span> <span class="n">_characterize_indices</span><span class="p">(</span><span class="n">subset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
@@ -1768,12 +1772,12 @@
 <span class="n">_TransformPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_TransformPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;fun&quot;</span><span class="p">,</span> <span class="s2">&quot;output_dtype&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_transform_sparse_vector</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransformPayload</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transform_sparse_vector</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransformPayload</span><span class="p">):</span>
     <span class="n">idx</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">fun</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">indices</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">val</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">output_dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span> <span class="c1"># a bit of safety with respect to types.</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_transform_sparse_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransformPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_transform_sparse_array</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransformPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
     <span class="n">new_contents</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">location</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1808,7 +1812,7 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_transform_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">output_dtype</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transform_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">output_dtype</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
     <span class="n">new_contents</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">_contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">_TransformPayload</span><span class="p">(</span><span class="n">fun</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">output_dtype</span><span class="o">=</span><span class="n">output_dtype</span><span class="p">)</span>
@@ -1828,7 +1832,7 @@
 <span class="n">_BinaryOpPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_BinaryOpPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;fun&quot;</span><span class="p">,</span> <span class="s2">&quot;dtype1&quot;</span><span class="p">,</span> <span class="s2">&quot;dtype2&quot;</span><span class="p">,</span> <span class="s2">&quot;output_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;output_index_dtype&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_binary_operate_sparse_vector</span><span class="p">(</span><span class="n">vector1</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">vector2</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_BinaryOpPayload</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_binary_operate_sparse_vector</span><span class="p">(</span><span class="n">vector1</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">vector2</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_BinaryOpPayload</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">vector1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">vector2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -1890,7 +1894,7 @@
         <span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_binary_operation_on_SparseNdarray</span><span class="p">(</span><span class="n">contents1</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">contents2</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_BinaryOpPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_binary_operation_on_SparseNdarray</span><span class="p">(</span><span class="n">contents1</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">contents2</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_BinaryOpPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">contents1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">contents2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
 
@@ -1925,7 +1929,7 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span> <span class="nf">_binary_operation_on_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_binary_operation_on_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">):</span>
     <span class="n">op</span> <span class="o">=</span> <span class="n">_choose_operator</span><span class="p">(</span><span class="n">operation</span><span class="p">)</span>
 
     <span class="n">dummy1</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_dtype</span><span class="p">)</span>
@@ -1951,7 +1955,7 @@
 <span class="c1">#########################################################</span>
 
 
-<span class="k">def</span> <span class="nf">_operate_with_args_on_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_operate_with_args_on_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="p">:</span> <span class="n">ISOMETRIC_OP_WITH_ARGS</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">SparseNdarray</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_binary_operation_on_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">operation</span><span class="p">)</span>
 
@@ -1977,26 +1981,26 @@
 
     <span class="k">if</span> <span class="n">along</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">along</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="o">-</span><span class="n">along</span><span class="p">]</span> <span class="c1"># remember, location is (i) reversed and (ii) missing the final dimension, so &#39;-along&#39; works.</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">other</span><span class="p">[</span><span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># get vector of length 1 for correct type coercion.</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="n">location</span><span class="p">[</span><span class="o">-</span><span class="n">along</span><span class="p">]</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">other</span><span class="p">[</span><span class="n">p</span><span class="p">:</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span> <span class="n">values</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">right</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">other</span><span class="p">[</span><span class="n">indices</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">def</span> <span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">f2</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">indices</span><span class="p">,</span> <span class="n">op</span><span class="p">(</span><span class="n">other</span><span class="p">[</span><span class="n">indices</span><span class="p">],</span> <span class="n">values</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">_transform_sparse_array_from_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">dummy</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> 
@@ -2009,7 +2013,7 @@
 <span class="n">_TransposeFillPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_TransposeFillPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;perm&quot;</span><span class="p">,</span> <span class="s2">&quot;new_shape&quot;</span><span class="p">,</span> <span class="s2">&quot;new_contents&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_transpose_SparseNdarray_contents_internal</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeFillPayload</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transpose_SparseNdarray_contents_internal</span><span class="p">(</span><span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">indices</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeFillPayload</span><span class="p">):</span>
     <span class="n">destination</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">final</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">perm</span><span class="p">):</span>
@@ -2039,7 +2043,7 @@
         <span class="n">outv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_transpose_SparseNdarray_fill</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeFillPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_transpose_SparseNdarray_fill</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeFillPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]):</span>
     <span class="n">location</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -2059,7 +2063,7 @@
 <span class="n">_TransposeReallocPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_TransposeReallocatePayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;output_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;output_index_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;output_is_masked&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_transpose_SparseNdarray_reallocate</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeReallocPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_transpose_SparseNdarray_reallocate</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_TransposeReallocPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">con</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2073,7 +2077,7 @@
                 <span class="n">_recursive_transpose_SparseNdarray_reallocate</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_transpose_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">perm</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_transpose_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">perm</span><span class="p">):</span>
     <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_shape</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span>
@@ -2108,13 +2112,13 @@
 <span class="n">_ConcatenatePayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_ConcatenatePayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;shapes&quot;</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="s2">&quot;output_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;output_index_dtype&quot;</span><span class="p">,</span> <span class="s2">&quot;output_is_masked&quot;</span><span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_concatenate_sparse_vectors</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">val</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_concatenate_sparse_vectors</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">val</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">):</span>
     <span class="n">newidx</span> <span class="o">=</span> <span class="n">_concatenate_unmasked_ndarrays</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">output_index_dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">newval</span> <span class="o">=</span> <span class="n">_concatenate_maybe_masked_ndarrays</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">masked</span><span class="o">=</span><span class="n">payload</span><span class="o">.</span><span class="n">output_is_masked</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">payload</span><span class="o">.</span><span class="n">output_dtype</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">newidx</span><span class="p">,</span> <span class="n">newval</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_coerce_concatenated_SparseNdarray_types</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_coerce_concatenated_SparseNdarray_types</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">con</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -2127,7 +2131,7 @@
                 <span class="n">_coerce_concatenated_SparseNdarray_types</span><span class="p">(</span><span class="n">con</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_concatenate_SparseNdarrays</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">final_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">along</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_concatenate_SparseNdarrays</span><span class="p">(</span><span class="n">contents</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">final_shape</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">along</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ConcatenatePayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">along</span> <span class="o">==</span> <span class="n">dim</span><span class="p">:</span>
         <span class="n">all_none</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
@@ -2171,7 +2175,7 @@
         <span class="k">return</span> <span class="n">new_contents</span>
 
 
-<span class="k">def</span> <span class="nf">_concatenate_SparseNdarrays</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SparseNdarray</span><span class="p">],</span> <span class="n">along</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_concatenate_SparseNdarrays</span><span class="p">(</span><span class="n">xs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">SparseNdarray</span><span class="p">],</span> <span class="n">along</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
     <span class="n">all_contents</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">all_shapes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">xs</span><span class="p">:</span>
@@ -2256,14 +2260,14 @@
 <span class="n">_ReductionPayload</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;_ReductionPayload&quot;</span><span class="p">,</span> <span class="p">[</span> <span class="s2">&quot;multipliers&quot;</span><span class="p">,</span> <span class="s2">&quot;operation&quot;</span> <span class="p">])</span>
 
 
-<span class="k">def</span> <span class="nf">_reduce_sparse_vector</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ReductionPayload</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_reduce_sparse_vector</span><span class="p">(</span><span class="n">idx</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">val</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ReductionPayload</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
         <span class="n">extra</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ix</span>
         <span class="n">payload</span><span class="o">.</span><span class="n">operation</span><span class="p">(</span><span class="n">offset</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span> <span class="n">val</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
     <span class="k">return</span>
 
 
-<span class="k">def</span> <span class="nf">_recursive_reduce_SparseNdarray</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ReductionPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_recursive_reduce_SparseNdarray</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">_ReductionPayload</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span>  <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
     <span class="n">mult</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">multipliers</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">con</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">contents</span><span class="p">):</span>
@@ -2276,7 +2280,7 @@
     <span class="k">return</span>
 
 
-<span class="k">def</span> <span class="nf">_reduce_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_reduce_SparseNdarray</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">SparseNdarray</span><span class="p">,</span> <span class="n">axes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">operation</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">contents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">multipliers</span> <span class="o">=</span> <span class="n">_create_offset_multipliers</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">axes</span><span class="p">)</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">_ReductionPayload</span><span class="p">(</span><span class="n">operation</span><span class="o">=</span><span class="n">operation</span><span class="p">,</span> <span class="n">multipliers</span><span class="o">=</span><span class="n">multipliers</span><span class="p">)</span>
@@ -2318,7 +2322,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
+</div><script src="../../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>

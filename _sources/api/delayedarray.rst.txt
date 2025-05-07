@@ -9,213 +9,213 @@ delayedarray.BinaryIsometricOp module
 
 .. automodule:: delayedarray.BinaryIsometricOp
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Cast module
 ------------------------
 
 .. automodule:: delayedarray.Cast
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Combine module
 ---------------------------
 
 .. automodule:: delayedarray.Combine
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.DelayedArray module
 --------------------------------
 
 .. automodule:: delayedarray.DelayedArray
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.DelayedOp module
 -----------------------------
 
 .. automodule:: delayedarray.DelayedOp
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Grid module
 ------------------------
 
 .. automodule:: delayedarray.Grid
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.RegularTicks module
 --------------------------------
 
 .. automodule:: delayedarray.RegularTicks
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Round module
 -------------------------
 
 .. automodule:: delayedarray.Round
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.SparseNdarray module
 ---------------------------------
 
 .. automodule:: delayedarray.SparseNdarray
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Subset module
 --------------------------
 
 .. automodule:: delayedarray.Subset
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.Transpose module
 -----------------------------
 
 .. automodule:: delayedarray.Transpose
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.UnaryIsometricOpSimple module
 ------------------------------------------
 
 .. automodule:: delayedarray.UnaryIsometricOpSimple
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.UnaryIsometricOpWithArgs module
 --------------------------------------------
 
 .. automodule:: delayedarray.UnaryIsometricOpWithArgs
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.apply\_over\_blocks module
 ---------------------------------------
 
 .. automodule:: delayedarray.apply_over_blocks
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.apply\_over\_dimension module
 ------------------------------------------
 
 .. automodule:: delayedarray.apply_over_dimension
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.chunk\_grid module
 -------------------------------
 
 .. automodule:: delayedarray.chunk_grid
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.create\_dask\_array module
 ---------------------------------------
 
 .. automodule:: delayedarray.create_dask_array
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.extract\_dense\_array module
 -----------------------------------------
 
 .. automodule:: delayedarray.extract_dense_array
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.extract\_sparse\_array module
 ------------------------------------------
 
 .. automodule:: delayedarray.extract_sparse_array
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.is\_masked module
 ------------------------------
 
 .. automodule:: delayedarray.is_masked
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.is\_pristine module
 --------------------------------
 
 .. automodule:: delayedarray.is_pristine
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.is\_sparse module
 ------------------------------
 
 .. automodule:: delayedarray.is_sparse
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.to\_dense\_array module
 ------------------------------------
 
 .. automodule:: delayedarray.to_dense_array
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.to\_scipy\_sparse\_matrix module
 ---------------------------------------------
 
 .. automodule:: delayedarray.to_scipy_sparse_matrix
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.to\_sparse\_array module
 -------------------------------------
 
 .. automodule:: delayedarray.to_sparse_array
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 delayedarray.wrap module
 ------------------------
 
 .. automodule:: delayedarray.wrap
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: delayedarray
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:

@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>delayedarray.Transpose - DelayedArray 0.6.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <!-- Generated with Sphinx 8.2.3 and Furo 2024.08.06 -->
+        <title>delayedarray.Transpose - DelayedArray 0.6.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
@@ -166,7 +166,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">DelayedArray 0.6.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">DelayedArray 0.6.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -190,7 +190,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">DelayedArray 0.6.0 documentation</span>
+  <span class="sidebar-brand-text">DelayedArray 0.6.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -244,18 +244,19 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for delayedarray.Transpose</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">transpose</span>
-<span class="kn">import</span> <span class="nn">numpy</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="kn">import</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">transpose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
-<span class="kn">from</span> <span class="nn">.DelayedOp</span> <span class="kn">import</span> <span class="n">DelayedOp</span>
-<span class="kn">from</span> <span class="nn">.SparseNdarray</span> <span class="kn">import</span> <span class="n">SparseNdarray</span>
-<span class="kn">from</span> <span class="nn">.extract_dense_array</span> <span class="kn">import</span> <span class="n">extract_dense_array</span>
-<span class="kn">from</span> <span class="nn">.extract_sparse_array</span> <span class="kn">import</span> <span class="n">extract_sparse_array</span>
-<span class="kn">from</span> <span class="nn">.create_dask_array</span> <span class="kn">import</span> <span class="n">create_dask_array</span>
-<span class="kn">from</span> <span class="nn">.chunk_grid</span> <span class="kn">import</span> <span class="n">chunk_grid</span>
-<span class="kn">from</span> <span class="nn">.is_sparse</span> <span class="kn">import</span> <span class="n">is_sparse</span>
-<span class="kn">from</span> <span class="nn">.is_masked</span> <span class="kn">import</span> <span class="n">is_masked</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.DelayedOp</span><span class="w"> </span><span class="kn">import</span> <span class="n">DelayedOp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.SparseNdarray</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparseNdarray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.extract_dense_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_dense_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.extract_sparse_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_sparse_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.create_dask_array</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_dask_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.chunk_grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">chunk_grid</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.is_sparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_sparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.is_masked</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_masked</span>
 
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;ltla&quot;</span>
@@ -265,7 +266,7 @@
 
 <div class="viewcode-block" id="Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.Transpose">[docs]</a>
-<span class="k">class</span> <span class="nc">Transpose</span><span class="p">(</span><span class="n">DelayedOp</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Transpose</span><span class="p">(</span><span class="n">DelayedOp</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Delayed transposition, based on Bioconductor&#39;s ``DelayedArray::DelayedAperm`` class.</span>
 
 <span class="sd">    This will create a matrix transpose in the 2-dimensional case; for a high-dimensional array, it will permute the</span>
@@ -277,7 +278,7 @@
 
 <div class="viewcode-block" id="Transpose.__init__">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.Transpose.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">perm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            seed:</span>
@@ -290,8 +291,6 @@
 <span class="sd">                dimension ordering is assumed to be reversed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
-
         <span class="n">curshape</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">shape</span>
         <span class="n">ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">curshape</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">perm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -302,17 +301,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">perm</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_perm</span> <span class="o">=</span> <span class="n">perm</span>
-
         <span class="n">final_shape</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">:</span>
             <span class="n">final_shape</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curshape</span><span class="p">[</span><span class="n">x</span><span class="p">])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_perm</span> <span class="o">=</span> <span class="n">perm</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">final_shape</span><span class="p">,)</span></div>
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Tuple of integers specifying the extent of each dimension of the</span>
@@ -321,7 +320,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dtype</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            NumPy type for the transposed contents, same as ``seed``.</span>
@@ -329,7 +328,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span><span class="o">.</span><span class="n">dtype</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">seed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            The seed object.</span>
@@ -337,7 +336,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_seed</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">perm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns:</span>
 <span class="sd">            Permutation of dimensions in the transposition.</span>
@@ -346,7 +345,30 @@
 
 
 
-<span class="k">def</span> <span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_simplify_transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">seed</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">seed</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="ow">is</span> <span class="n">Transpose</span><span class="p">:</span>
+        <span class="c1"># Don&#39;t use isinstance, we don&#39;t want to collapse for Transpose</span>
+        <span class="c1"># subclasses that might be doing god knows what.</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+    <span class="n">new_perm</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">noop</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">perm</span><span class="p">):</span>
+        <span class="n">new_p</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">perm</span><span class="p">[</span><span class="n">p</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">new_p</span> <span class="o">!=</span> <span class="n">i</span><span class="p">:</span>
+            <span class="n">noop</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">new_perm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_p</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">noop</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">seed</span><span class="o">.</span><span class="n">seed</span>
+
+    <span class="n">new_x</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">new_x</span><span class="o">.</span><span class="n">_seed</span> <span class="o">=</span> <span class="n">seed</span><span class="o">.</span><span class="n">seed</span>
+    <span class="n">new_x</span><span class="o">.</span><span class="n">_perm</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">new_perm</span><span class="p">,)</span>
+    <span class="k">return</span> <span class="n">new_x</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">],</span> <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
     <span class="n">permsub</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_perm</span><span class="p">):</span>
         <span class="n">permsub</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -358,7 +380,7 @@
 <div class="viewcode-block" id="extract_dense_array_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.extract_dense_array_Transpose">[docs]</a>
 <span class="nd">@extract_dense_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_dense_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_dense_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_dense_array.extract_dense_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_dense_array</span><span class="p">)</span></div>
 
@@ -367,7 +389,7 @@
 <div class="viewcode-block" id="extract_sparse_array_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.extract_sparse_array_Transpose">[docs]</a>
 <span class="nd">@extract_sparse_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">extract_sparse_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_sparse_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SparseNdarray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.extract_sparse_array.extract_sparse_array`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">_extract_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">subset</span><span class="p">,</span> <span class="n">extract_sparse_array</span><span class="p">)</span></div>
 
@@ -376,7 +398,7 @@
 <div class="viewcode-block" id="create_dask_array_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.create_dask_array_Transpose">[docs]</a>
 <span class="nd">@create_dask_array</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">create_dask_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_dask_array_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.create_dask_array.create_dask_array`.&quot;&quot;&quot;</span>
     <span class="n">target</span> <span class="o">=</span> <span class="n">create_dask_array</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">transpose</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">_perm</span><span class="p">)</span></div>
@@ -386,7 +408,7 @@
 <div class="viewcode-block" id="chunk_grid_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.chunk_grid_Transpose">[docs]</a>
 <span class="nd">@chunk_grid</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">chunk_grid_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">chunk_grid_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.chunk_grid.chunk_grid`.&quot;&quot;&quot;</span>
     <span class="n">chunks</span> <span class="o">=</span> <span class="n">chunk_grid</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">chunks</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_perm</span><span class="p">)</span></div>
@@ -396,7 +418,7 @@
 <div class="viewcode-block" id="is_sparse_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.is_sparse_Transpose">[docs]</a>
 <span class="nd">@is_sparse</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">is_sparse_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_sparse_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_sparse.is_sparse`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">is_sparse</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
@@ -405,7 +427,7 @@
 <div class="viewcode-block" id="is_masked_Transpose">
 <a class="viewcode-back" href="../../api/delayedarray.html#delayedarray.Transpose.is_masked_Transpose">[docs]</a>
 <span class="nd">@is_masked</span><span class="o">.</span><span class="n">register</span>
-<span class="k">def</span> <span class="nf">is_masked_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_masked_Transpose</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Transpose</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;See :py:meth:`~delayedarray.is_masked.is_masked`.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">is_masked</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">_seed</span><span class="p">)</span></div>
 
@@ -441,7 +463,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=8fa8b3e9"></script>
+</div><script src="../../_static/documentation_options.js?v=2bd037f0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
