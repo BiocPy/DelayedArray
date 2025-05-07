@@ -147,6 +147,11 @@ def test_Subset_collapse(mask_rate):
     stuff = x[0, :, 2]
     assert_identical_ndarrays(stuff, y[0, :, 2])
 
+    stuff = x[10]
+    assert_identical_ndarrays(stuff, y[10])
+    stuff = x[numpy.int32(20)]
+    assert_identical_ndarrays(stuff, y[numpy.int32(20)])
+
 #    # Trying vectorized index.
 #    stuff = x[[1,2,3],[4,5,6],[7,8,9]]
 #    assert stuff.shape == (3,)

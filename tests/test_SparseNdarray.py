@@ -435,6 +435,11 @@ def test_SparseNdarray_subset_collapse(mask_rate):
     assert isinstance(first, numpy.ndarray)
     assert_identical_ndarrays(first, ref[:,1])
 
+    stuff = y[10]
+    assert_identical_ndarrays(stuff, ref[10])
+    stuff = y[numpy.int32(19)]
+    assert_identical_ndarrays(stuff, ref[numpy.int32(19)])
+
 
 #######################################################
 #######################################################

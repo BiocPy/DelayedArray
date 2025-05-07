@@ -748,24 +748,28 @@ class SparseNdarray:
 
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["SparseNdarray", numpy.ndarray]:
+    def __getitem__(self, subset) -> Union["SparseNdarray", numpy.ndarray]:
         """Take a subset of this ``SparseNdarray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
-            args:
-                A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``.
-                Any NumPy slicing is supported but only subsets that preserve dimensionality will generate a
-                delayed subset operation.
+            subset:
+                A :py:class:`tuple` of length equal to the dimensionality of this ``SparseNdarray``, or a single integer specfying an index on the first dimension. 
+                We attempt to support most types of NumPy slicing; however, only subsets that preserve dimensionality will generate a ``SparseNdarray``.
 
         Raises:
             ValueError: If ``args`` contain more dimensions than the shape of the array.
 
         Returns:
-            If the dimensionality is preserved by ``args``, a ``SparseNdarray`` containing a delayed subset operation is
-            returned. Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
+            If the dimensionality is preserved by ``subset``, a ``SparseNdarray`` containing the specified subset is returned.
+            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
+        if not isinstance(subset, Tuple):
+            replacement = [slice(None)] * len(self.shape)
+            replacement[0] = subset
+            subset = (*replacement,)
+
         cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
         if cleaned is not None:
             # No need to sanitize here, as the extractors can take unsorted subsets.

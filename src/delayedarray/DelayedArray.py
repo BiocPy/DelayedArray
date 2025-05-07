@@ -793,29 +793,31 @@ class DelayedArray:
         return _wrap_isometric_with_args(self, other, operation="logical_and", right=False)
 
     # Subsetting.
-    def __getitem__(self, subset: Tuple[Union[slice, Sequence], ...]) -> Union["DelayedArray", ndarray]:
+    def __getitem__(self, subset) -> Union["DelayedArray", ndarray]:
         """Take a subset of this ``DelayedArray``. This follows the same logic as NumPy slicing and will generate a
         :py:class:`~delayedarray.Subset.Subset` object when the subset operation preserves the dimensionality of the
         seed, i.e., ``args`` is defined using the :py:meth:`~numpy.ix_` function.
 
         Args:
             subset:
-                A :py:class:`tuple` of length equal to the dimensionality of
-                this ``DelayedArray``.  We attempt to support most types of
-                NumPy slicing; however, only subsets that preserve
-                dimensionality will generate a delayed subset operation.
+                A :py:class:`tuple` of length equal to the dimensionality of this ``DelayedArray``, or a single integer specifying an index on the first dimension.
+                We attempt to support most types of NumPy slicing; however, only subsets that preserve dimensionality will generate a delayed subset operation.
 
         Returns:
-            If the dimensionality is preserved by ``subset``, a
-            ``DelayedArray`` containing a delayed subset operation is returned.
-            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the
-            realized subset.
+            If the dimensionality is preserved by ``subset``, a ``DelayedArray`` containing a delayed subset operation is returned.
+            Otherwise, a :py:class:`~numpy.ndarray` is returned containing the realized subset.
         """
+        if not isinstance(subset, Tuple):
+            replacement = [slice(None)] * len(self.shape)
+            replacement[0] = subset
+            subset = (*replacement,)
+
         cleaned = _getitem_subset_preserves_dimensions(self.shape, subset)
         if cleaned is not None:
             sout = Subset(self._seed, cleaned)
             sout = _simplify_subset(sout)
             return DelayedArray(sout)
+
         return _getitem_subset_discards_dimensions(self._seed, subset, extract_dense_array)
 
 

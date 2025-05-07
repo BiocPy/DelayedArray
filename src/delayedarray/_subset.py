@@ -62,7 +62,7 @@ def _sanitize_subset(subset: Sequence):
     return san, remap
 
 
-def _getitem_subset_preserves_dimensions(shape: Tuple[int, ...], args: Tuple[Union[slice, Sequence], ...]):
+def _getitem_subset_preserves_dimensions(shape: Tuple[int, ...], args: Tuple): 
     ndim = len(shape)
     if not isinstance(args, tuple):
         args = [args] + [slice(None)] * (ndim - 1)
@@ -70,6 +70,11 @@ def _getitem_subset_preserves_dimensions(shape: Tuple[int, ...], args: Tuple[Uni
         args = list(args) + [slice(None)] * (ndim - len(args))
     elif len(args) > ndim:
         raise ValueError("more indices in 'args' than there are dimensions in 'seed'")
+
+    # Checking if there are any integers here.
+    for d, idx in enumerate(args):
+        if isinstance(idx, int) or isinstance(idx, integer):
+            return None
 
     # Checking if we're preserving the shape via a cross index.
     cross_index = True
@@ -117,7 +122,7 @@ def _getitem_subset_preserves_dimensions(shape: Tuple[int, ...], args: Tuple[Uni
     return None
 
 
-def _getitem_subset_discards_dimensions(x, args: Tuple[Union[slice, Sequence], ...], injected_extract_dense_array: Callable):
+def _getitem_subset_discards_dimensions(x, args: Tuple, injected_extract_dense_array: Callable):
     failed = False
     sanitized = []
     remapping = []
@@ -129,7 +134,6 @@ def _getitem_subset_discards_dimensions(x, args: Tuple[Union[slice, Sequence], .
         if isinstance(idx, ndarray):
             if len(idx.shape) != 1: 
                 raise NotImplementedError("high-dimensional index arrays are not supported yet")
-
         elif isinstance(idx, slice):
             idx = range(*idx.indices(shape[d]))
         elif not isinstance(idx, Sequence):
