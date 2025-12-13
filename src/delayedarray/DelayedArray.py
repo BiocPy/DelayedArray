@@ -822,7 +822,7 @@ class DelayedArray:
 
 
     # For python-level compute.
-    def sum(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def sum(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: Optional[int] = None) -> numpy.ndarray:
         """
         Take the sum of values across the ``DelayedArray``, possibly over a
         given axis or set of axes. If the seed has a ``sum()`` method, that
@@ -840,8 +840,9 @@ class DelayedArray:
                 :py:func:`~numpy.sum` for details.
 
             buffer_size:
-                Buffer size in bytes to use for block processing. Larger values
-                generally improve speed at the cost of memory.
+                Buffer size in bytes to use for block processing.
+                Larger values generally improve speed at the cost of memory.
+                If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
         Returns:
             A NumPy array containing the sums. If ``axis = None``, this will be
@@ -859,7 +860,7 @@ class DelayedArray:
             )
 
 
-    def mean(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def mean(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: Optional[int] = None) -> numpy.ndarray:
         """
         Take the mean of values across the ``DelayedArray``, possibly over a
         given axis or set of axes. If the seed has a ``mean()`` method, that
@@ -877,8 +878,9 @@ class DelayedArray:
                 :py:func:`~numpy.mean` for details.
 
             buffer_size:
-                Buffer size in bytes to use for block processing. Larger values
-                generally improve speed at the cost of memory.
+                Buffer size in bytes to use for block processing.
+                Larger values generally improve speed at the cost of memory.
+                If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
         Returns:
             A NumPy array containing the means. If ``axis = None``, this will
@@ -896,7 +898,7 @@ class DelayedArray:
             )
 
 
-    def var(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, ddof: int = 0, buffer_size: int = 1e8) -> numpy.ndarray:
+    def var(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, ddof: int = 0, buffer_size: Optional[int] = None) -> numpy.ndarray:
         """
         Take the variances of values across the ``DelayedArray``, possibly over
         a given axis or set of axes. If the seed has a ``var()`` method, that
@@ -918,8 +920,9 @@ class DelayedArray:
                 Typically set to 1 to obtain the sample variance.
 
             buffer_size:
-                Buffer size in bytes to use for block processing. Larger values
-                generally improve speed at the cost of memory.
+                Buffer size in bytes to use for block processing.
+                Larger values generally improve speed at the cost of memory.
+                If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
         Returns:
             A NumPy array containing the variances. If ``axis = None``,
@@ -937,7 +940,7 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
-    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def any(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: Optional[int] = None) -> numpy.ndarray:
         """Test whether any array element along a given axis evaluates to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
@@ -956,8 +959,9 @@ class DelayedArray:
                 :py:func:`~numpy.any` for details.
 
             buffer_size:
-                Buffer size in bytes to use for block processing. Larger values
-                generally improve speed at the cost of memory.
+                Buffer size in bytes to use for block processing.
+                Larger values generally improve speed at the cost of memory.
+                If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
         Returns:
             A NumPy array containing the boolean values. If ``axis = None``, this will
@@ -974,7 +978,7 @@ class DelayedArray:
                 masked=is_masked(self),
             )
 
-    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: int = 1e8) -> numpy.ndarray:
+    def all(self, axis: Optional[Union[int, Tuple[int, ...]]] = None, dtype: Optional[numpy.dtype] = None, buffer_size: Optional[int] = None) -> numpy.ndarray:
         """Test whether all array elements along a given axis evaluate to True.
 
         Compute this test across the ``DelayedArray``, possibly over a
@@ -993,8 +997,9 @@ class DelayedArray:
                 :py:func:`~numpy.all` for details.
 
             buffer_size:
-                Buffer size in bytes to use for block processing. Larger values
-                generally improve speed at the cost of memory.
+                Buffer size in bytes to use for block processing.
+                Larger values generally improve speed at the cost of memory.
+                If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
         Returns:
             A NumPy array containing the boolean values. If ``axis = None``, this will
@@ -1115,7 +1120,7 @@ def _reduce_SparseNdarray(x: SparseNdarray, multipliers: List[int], axes: List[i
     return        
 
 
-def _reduce(x: DelayedArray, axes: List[int], operation: Callable, buffer_size: int):
+def _reduce(x: DelayedArray, axes: List[int], operation: Callable, buffer_size: Optional[int]):
     multipliers = _create_offset_multipliers(x.shape, axes)
     if is_sparse(x):
         apply_over_blocks(

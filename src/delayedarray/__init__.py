@@ -37,6 +37,7 @@ from .Grid import AbstractGrid, SimpleGrid, CompositeGrid
 from .RegularTicks import RegularTicks
 from .apply_over_dimension import apply_over_dimension
 from .apply_over_blocks import apply_over_blocks
+from .default_buffer_size import default_buffer_size
 
 from .create_dask_array import create_dask_array
 from .is_sparse import is_sparse

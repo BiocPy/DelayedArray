@@ -6,13 +6,14 @@ from .Grid import AbstractGrid
 from .is_sparse import is_sparse
 from .extract_dense_array import extract_dense_array
 from .extract_sparse_array import extract_sparse_array
+from .default_buffer_size import default_buffer_size
 
 __author__ = "ltla"
 __copyright__ = "ltla"
 __license__ = "MIT"
 
 
-def apply_over_dimension(x, dimension: int, fun: Callable, allow_sparse: bool = False, grid: Optional[AbstractGrid] = None, buffer_size: int = 1e8) -> list:
+def apply_over_dimension(x, dimension: int, fun: Callable, allow_sparse: bool = False, grid: Optional[AbstractGrid] = None, buffer_size: Optional[int] = None) -> list:
     """
     Iterate over an array on a certain dimension. At each iteration, the block
     of observations consists of the full extent of all dimensions other than
@@ -42,8 +43,9 @@ def apply_over_dimension(x, dimension: int, fun: Callable, allow_sparse: bool = 
             of :py:func:`~delayedarray.chunk_grid.chunk_grid` on ``x``.
 
         buffer_size: 
-            Buffer_size in bytes, to hold a single block per iteration. Larger
-            values generally improve speed at the cost of memory.
+            Buffer_size in bytes, to hold a single block per iteration.
+            Larger values generally improve speed at the cost of memory.
+            If ``None``, defaults to the value returned by :py:func:`~delayedarray.default_buffer_size.default_buffer_size`. 
 
     Returns:
         List containing the output of ``fun`` on each block.
@@ -57,9 +59,11 @@ def apply_over_dimension(x, dimension: int, fun: Callable, allow_sparse: bool = 
     else:
         extractor = extract_dense_array
 
-    collected = []
+    if buffer_size is None:
+        buffer_size = default_buffer_size()
     buffer_elements = buffer_size // x.dtype.itemsize
 
+    collected = []
     for job in grid.iterate((dimension,), buffer_elements = buffer_elements):
         subsets = (*(range(s, e) for s, e in job),)
         output = fun(job[dimension], extractor(x, subsets))

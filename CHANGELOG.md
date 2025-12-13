@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.2
+
+- Centralized the choice of default buffer size in the `default_buffer_size()` function.
+
 ## Version 0.6.1
 
 - Support single-integer slicing for `DelayedArray`s and `SparseNdArray`s.
