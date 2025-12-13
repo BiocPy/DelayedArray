@@ -140,6 +140,14 @@ delayedarray.create\_dask\_array module
    :show-inheritance:
    :undoc-members:
 
+delayedarray.default\_buffer\_size module
+-----------------------------------------
+
+.. automodule:: delayedarray.default_buffer_size
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 delayedarray.extract\_dense\_array module
 -----------------------------------------
 
